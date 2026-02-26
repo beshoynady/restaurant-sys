@@ -4,7 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 
 import "react-toastify/dist/ReactToastify.css";
 
-import AppContextProvider from "./context/AppContextProvider";
+import AppContextProvider from "./context/appContext";
 import AppRoutes from "./routes/appRoutes";
 
 
