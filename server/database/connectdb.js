@@ -23,5 +23,4 @@ const connectDB = async () => {
   }
 };
 
-// 📤 تصدير الدالة
 module.exports = connectDB;

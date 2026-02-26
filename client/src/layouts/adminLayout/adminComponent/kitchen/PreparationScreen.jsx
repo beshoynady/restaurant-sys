@@ -447,7 +447,7 @@ const PreparationScreen = () => {
 
       //
 
-      if (orderType === "Internal") {
+      if (orderType === "Dine-in") {
         const waiter = await specifiedWaiter(ticketId);
 
         if (!waiter) {

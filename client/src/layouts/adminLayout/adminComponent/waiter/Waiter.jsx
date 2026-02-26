@@ -51,11 +51,11 @@ const Waiter = () => {
     } catch (error) {}
   };
 
-  // State for internal orders
-  // const [internalOrders, setInternalOrders] = useState([]);
+  // State for Dine-in orders
+  // const [Dine-inOrders, setDine-inOrders] = useState([]);
 
-  // // Function to fetch internal orders
-  // const fetchInternalOrders = async () => {
+  // // Function to fetch Dine-in orders
+  // const fetchDine-inOrders = async () => {
   //   try {
   // const config = await handleGetTokenAndConfig();
 
@@ -68,14 +68,14 @@ const Waiter = () => {
   //     const activeOrders = filterMyOrder.filter(
   //       (order) => order.isActive === true
   //     );
-  //     const internalOrdersData = activeOrders.filter(
-  //       (order) => order.orderType === "Internal"
+  //     const Dine-inOrdersData = activeOrders.filter(
+  //       (order) => order.orderType === "Dine-in"
   //     );
 
   //
   //     const products =
-  //       internalOrdersData.length > 0
-  //         ? internalOrdersData.flatMap((order) => order.products)
+  //       Dine-inOrdersData.length > 0
+  //         ? Dine-inOrdersData.flatMap((order) => order.products)
   //         : [];
   //
   //     const productsFiltered =
@@ -89,7 +89,7 @@ const Waiter = () => {
   //
 
   //     if (productsFiltered.length > 0) {
-  //       setInternalOrders(internalOrdersData);
+  //       setDine-inOrders(Dine-inOrdersData);
   //     }
   //   } catch (error) {
   //
@@ -110,7 +110,7 @@ const Waiter = () => {
         console.error(`Error updating preparation status`, error);
       }
 
-      // fetchInternalOrders();
+      // fetchDine-inOrders();
       fetchActivePreparationTickets();
       toast.success("تم تاكيد استلام الاوردر!");
     } catch (error) {
@@ -158,7 +158,7 @@ const Waiter = () => {
         config
       );
       if (updateOrder.status === 200) {
-        // fetchInternalOrders();
+        // fetchDine-inOrders();
         fetchActivePreparationTickets();
         toast.success("تم تاكيد توصيل الاوردر!");
       }
@@ -177,7 +177,7 @@ const Waiter = () => {
         config
       );
       if (res.status === 200) {
-        // fetchInternalOrders();
+        // fetchDine-inOrders();
         fetchActivePreparationTickets();
         toast.success("تم تاكيد الاتجاه لتقديم المساعده!");
       }
@@ -196,7 +196,7 @@ const Waiter = () => {
         config
       );
       fetchActivePreparationTickets();
-      // fetchInternalOrders();
+      // fetchDine-inOrders();
       toast.success("تم تاكيد تقديم المساعده!");
     } catch (error) {
       toast.error("حدث خطا اثناء تاكيد تقديم المساعدع!");
@@ -215,11 +215,11 @@ const Waiter = () => {
   // Fetch initial data on component mount
   useEffect(() => {
     fetchActivePreparationTickets();
-    // fetchInternalOrders();
+    // fetchDine-inOrders();
   }, []);
   useEffect(() => {
     fetchActivePreparationTickets();
-    // fetchInternalOrders();
+    // fetchDine-inOrders();
   }, [isRefresh]);
 
   return (

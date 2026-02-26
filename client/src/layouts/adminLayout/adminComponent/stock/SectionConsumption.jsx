@@ -270,7 +270,7 @@ const SectionConsumption = () => {
   const getAllCategoryStock = async () => {
     try {
       const config = await handleGetTokenAndConfig();
-      const res = await axios.get(apiUrl + "/api/categoryStock/");
+      const res = await axios.get(apiUrl + "/api/stockCategory/");
       setAllCategoryStock(res.data);
     } catch (error) {
       // Notify on error

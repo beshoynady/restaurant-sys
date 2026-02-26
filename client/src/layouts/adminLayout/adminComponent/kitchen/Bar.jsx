@@ -360,7 +360,7 @@ const Bar = () => {
 
       // const preparationStatus = { "preparationStatus.Bar": "Prepared" };
 
-      if (type === "Internal") {
+      if (type === "Dine-in") {
         const waiter = await specifiedWaiter(id);
         if (!waiter) {
           toast.warn("لا يوجد نادل متاح لتسليم الطلب. يرجى مراجعة الإدارة!");

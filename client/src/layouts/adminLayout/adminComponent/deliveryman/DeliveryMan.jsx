@@ -44,9 +44,9 @@ const DeliveryMan = () => {
   //   }
   // };
 
-  // State for internal orders
+  // State for Dine-in orders
 
-  // Function to fetch internal orders
+  // Function to fetch Dine-in orders
   const [deliveryOrders, setDeliveryOrders] = useState([]);
 
   const fetchDeliveryOrders = async () => {

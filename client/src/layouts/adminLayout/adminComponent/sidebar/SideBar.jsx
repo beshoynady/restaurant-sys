@@ -480,7 +480,7 @@ const SideBar = () => {
                             permission.resource === "stock Categories"
                         )[0]?.read) && (
                         <li className="list">
-                          <Link to="categoryStock">التصنيفات</Link>
+                          <Link to="stockCategory">التصنيفات</Link>
                         </li>
                       )}
                       {(isOwner ||

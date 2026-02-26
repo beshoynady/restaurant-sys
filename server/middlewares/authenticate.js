@@ -1,98 +1,158 @@
-const EmployeeModel = require("../models/employee.model");
-const jwt = require("jsonwebtoken");
-require("dotenv").config();
+import EmployeeModel from "../models/employees/employee.model";
+import BrandModel from "../models/brands/brand.model";
+import BranchModel from "../models/branches/branch.model";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
 
 const secretKey = process.env.JWT_SECRET_KEY;
 const refreshSecretKey = process.env.JWT_REFRESH_SECRET;
 
-// Middleware to authenticate token
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers.authorization || req.headers.Authorization; // "Bearer token"
+/**
+ * Middleware: Authenticate access token
+ */
+export const authenticateToken = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization || req.headers.Authorization;
 
-  if (!authHeader) {
-    return res.status(401).json({ message: "Unauthorized: Token unfound" }); // Unauthorized
-  }
-
-  const token = authHeader.split(" ")[1]; // Extract token from Bearer
-
-  if (!token) {
-    return res.status(401).json({ message: "Unauthorized: Token missing" }); // Unauthorized
-  }
-
-  // Verify the token
-  jwt.verify(token, secretKey, (err, employee) => {
-    if (err) {
-      return res.status(403).json({ message: "Forbidden: Invalid token" }); // Forbidden
+    if (!authHeader) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: Token not provided" });
     }
 
-    // Validate employee object
-    if (
-      !employee ||
+    const token = authHeader.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized: Token missing" });
+    }
 
-      typeof employee.isAdmin !== "boolean" ||
-      typeof employee.isOwner !== "boolean" ||
-      typeof employee.isVerified !== "boolean" ||
-      typeof employee.isActive !== "boolean"
+    // Verify token
+    let payload;
+    try {
+      payload = jwt.verify(token, secretKey);
+    } catch (err) {
+      return res
+        .status(403)
+        .json({ message: "Forbidden: Invalid or expired token" });
+    }
+
+    // Validate payload
+    if (
+      !payload ||
+      typeof payload.id !== "string" ||
+      typeof payload.isAdmin !== "string" ||
+      typeof payload.isOwner !== "boolean" ||
+      typeof payload.isVerified !== "boolean" ||
+      typeof payload.brand !== "string"
     ) {
       return res
         .status(403)
-        .json({ message: "Forbidden: Invalid employee information in token" }); // Forbidden
+        .json({ message: "Forbidden: Invalid employee info in token" });
     }
 
-    // Check if employee is admin and active
-    if (!employee.isAdmin || !employee.isActive, employee.isVerified) {
+    // Check permissions
+    if (!payload.isAdmin || !payload.isVerified) {
       return res
         .status(403)
-        .json({ message: "Forbidden: Employee not authorized" }); // Forbidden
+        .json({ message: "Forbidden: Employee not authorized" });
     }
 
-    req.employee = employee; // Attach employee info to request object
-    next(); // Proceed to the next middleware
-  });
-};
+    // Fetch employee from DB
+    const employee = await EmployeeModel.findById(payload.id);
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
 
-// Refresh access token using refresh token
-const refreshAccessToken = async (req, res) => {
-  const refreshToken = req.cookies.refreshToken; // Get refresh token from cookies
+    if (employee.isDeleted || employee.employmentInfo.status !== "active") {
+      return res.status(403).json({ message: "Forbidden: Employee is inactive or deleted" });
+    }
 
-  if (!refreshToken) {
-    return res.status(403).json({ message: "Forbidden: Refresh token not provided" });
+    const brandMatch = employee.brand.toString() === payload.brand;
+    const branchMatch = employee.branch
+      ? employee.branch.toString() === payload.branch
+      : payload.branch === null;
+    if (!brandMatch || !branchMatch) {
+      return res
+        .status(403)
+        .json({ message: "Forbidden: Employee's brand/branch mismatch" });
+    }
+
+    const brand = await BrandModel.findById(employee.brand);
+    if (!brand || brand.isDeleted) {
+      return res
+        .status(403)
+        .json({ message: "Forbidden: Employee's brand is invalid" });
+    }
+    const branch = employee.branch
+      ? await BranchModel.findById(employee.branch)
+      : null;
+    if (
+      employee.branch &&
+      (!branch ||
+        branch.isDeleted ||
+        branch.brand.toString() !== employee.brand.toString())
+    ) {
+      return res
+        .status(403)
+        .json({ message: "Forbidden: Employee's branch is invalid" });
+    }
+
+    req.employee = employee;
+    req.brand = brand;
+    req.branch = branch ? branch : null;
+    next();
+  } catch (err) {
+    console.error("Authentication error:", err);
+    return res
+      .status(500)
+      .json({ message: "Server error during authentication" });
   }
-
-  // Verify refresh token
-  jwt.verify(refreshToken, refreshSecretKey, async (err, decoded) => {
-    if (err) {
-      return res.status(403).json({ message: "Forbidden: Invalid refresh token" });
-    }
-
-    try {
-      const employeeId = decoded.id;
-      const findEmployee = await EmployeeModel.findById(employeeId);
-
-      if (!findEmployee) {
-        return res.status(404).json({ message: "Employee not found" });
-      }
-
-      // Create a new access token
-      const newAccessToken = jwt.sign(
-        {
-          id: findEmployee._id,
-          username: findEmployee.credentials.username,
-          isOwner: findEmployee.credentials.isOwner,
-          isAdmin: findEmployee.credentials.isAdmin,
-          isActive: findEmployee.employmentInfo.isActive,
-          isVerified: findEmployee.employmentInfo.isVerified
-        },
-        secretKey,
-        { expiresIn: "15m" }
-      );
-
-      res.status(200).json({ accessToken: newAccessToken });
-    } catch (error) {
-      console.error("Error fetching employee for token refresh:", error);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
 };
 
-module.exports = { authenticateToken, refreshAccessToken };
+/**
+ * Refresh access token using refresh token
+ */
+export const refreshAccessToken = async (req, res) => {
+  try {
+    const refreshToken = req.cookies?.refreshToken;
+
+    if (!refreshToken) {
+      return res
+        .status(403)
+        .json({ message: "Forbidden: Refresh token not provided" });
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(refreshToken, refreshSecretKey);
+    } catch (err) {
+      return res
+        .status(403)
+        .json({ message: "Forbidden: Invalid or expired refresh token" });
+    }
+
+    const employee = await EmployeeModel.findById(decoded.id);
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    // Generate new access token
+    const accessToken = jwt.sign(
+      {
+        id: employee._id,
+        isAdmin: employee.type === "system_user",
+        isOwner: employee.employmentInfo?.isOwner || false,
+        isVerified: employee.employmentInfo?.isVerified || false,
+        brand: employee.brand.toString(),
+        branch: employee.branch ? employee.branch.toString() : null,
+      },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "15m" },
+    );
+
+    res.status(200).json({ accessToken: accessToken });
+  } catch (err) {
+    console.error("Error refreshing access token:", err);
+    res.status(500).json({ message: "Server error during token refresh" });
+  }
+};

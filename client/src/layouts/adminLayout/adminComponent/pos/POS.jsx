@@ -380,7 +380,7 @@ const POS = () => {
       100
     ).toFixed(2);
     setsalesTax(parseFloat(roundedSalesTax));
-    if (ordertype === "Internal") {
+    if (ordertype === "Dine-in") {
       const roundedServiceTax = (
         (costOrder * brandInfo.serviceTaxRate) /
         100
@@ -453,7 +453,7 @@ const POS = () => {
               className="btn d-flex align-items-center justify-content-center btn-primary col-4 p-0 m-0"
               data-toggle="modal"
               onClick={() => {
-                setordertype("Internal");
+                setordertype("Dine-in");
               }}
               style={{ height: "50px" }}
             >
@@ -1169,7 +1169,7 @@ const POS = () => {
                     {costOrder > 0 ? costOrder : 0} ج
                   </span>
                 </p>
-                {ordertype === "Internal" && brandInfo.serviceTaxRate > 0 ? (
+                {ordertype === "Dine-in" && brandInfo.serviceTaxRate > 0 ? (
                   <p className="order-item mb-1 d-flex justify-content-between align-items-center text-black">
                     <span className="text-dark fw-bold fs-5">{`خدمة صاله ${brandInfo.serviceTaxRate}%:`}</span>
                     <span className="text-dark fw-bold fs-5 text-center">
@@ -1235,7 +1235,7 @@ const POS = () => {
 
           {/* button */}
           <div className="d-flex flex-wrap g-2 align-items-center justify-content-between w-100 p-0 m-0">
-            {ordertype === "Internal" ? (
+            {ordertype === "Dine-in" ? (
               <button
                 type="button"
                 style={{ height: "60px" }}
@@ -1824,7 +1824,7 @@ const POS = () => {
                 </button>
               </div>
               {ordertype ? (
-                ordertype === "Internal" ? (
+                ordertype === "Dine-in" ? (
                   <div className="modal-body d-flex flex-wrap align-items-center p-3 text-right">
                     <div className="form-group d-flex flex-nowrap align-items-center justify-content-between col-12 ">
                       <label htmlFor="table" className="form-label text-dark">

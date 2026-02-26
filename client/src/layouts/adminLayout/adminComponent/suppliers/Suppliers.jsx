@@ -381,7 +381,7 @@ const Suppliers = () => {
   const getAllCategoryStock = async () => {
     const config = await handleGetTokenAndConfig();
     try {
-      const res = await axios.get(apiUrl + "/api/categoryStock/", config);
+      const res = await axios.get(apiUrl + "/api/stockCategory/", config);
       setAllCategoryStock(res.data);
     } catch (error) {
       

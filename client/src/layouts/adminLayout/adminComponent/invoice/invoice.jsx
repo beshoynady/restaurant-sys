@@ -83,7 +83,7 @@ const InvoiceComponent = ({ ModalId, orderData, showModal, setShowModal }) => {
                 <h2>{brandInfo.name}</h2>
                 <p>
                   كاشير:{cashier?.username} | فاتورة #{serial} |{" "}
-                  {orderType === "Internal"
+                  {orderType === "Dine-in"
                     ? `طاولة' ${table?.tableNumber}`
                     : ""}{" "}
                   | التاريخ: {formatDateTime(new Date())}

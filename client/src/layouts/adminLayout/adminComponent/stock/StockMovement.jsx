@@ -528,7 +528,7 @@ const StockMovement = () => {
     const config = await handleGetTokenAndConfig();
 
     try {
-      const response = await axios.get(apiUrl + "/api/categoryStock/", config);
+      const response = await axios.get(apiUrl + "/api/stockCategory/", config);
       setAllCategoryStock(response.data.reverse());
     } catch (error) {
       console.error("Error fetching category stock:", error);

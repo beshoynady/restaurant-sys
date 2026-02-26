@@ -4,7 +4,7 @@ import { dataContext } from "../../../../App";
 import { toast } from "react-toastify";
 import "../orders/Orders.css";
 
-const CategoryStock = () => {
+const StockCategory = () => {
   const {
     brandInfo,
     permissionsList,
@@ -46,7 +46,7 @@ const CategoryStock = () => {
         toast.warn("ليس لك صلاحية لعرض تصنيفات المخزن");
         return;
       }
-      const response = await axios.get(apiUrl + "/api/categoryStock/", config);
+      const response = await axios.get(apiUrl + "/api/stockCategory/", config);
       setAllCategoryStock(response.data.reverse());
     } catch (error) {
       console.error("Error fetching category stock:", error);
@@ -84,7 +84,7 @@ const CategoryStock = () => {
       }
 
       const response = await axios.post(
-        apiUrl + "/api/categoryStock/",
+        apiUrl + "/api/stockCategory/",
         { categoryName, categoryCode, notes },
         config
       );
@@ -119,7 +119,7 @@ const CategoryStock = () => {
         return;
       }
       const edit = await axios.put(
-        apiUrl + "/api/categoryStock/" + categoryStockId,
+        apiUrl + "/api/stockCategory/" + categoryStockId,
         { categoryName, categoryCode, notes },
         config
       );
@@ -147,7 +147,7 @@ const CategoryStock = () => {
         return;
       }
       const deleted = await axios.delete(
-        apiUrl + "/api/categoryStock/" + categoryStockId,
+        apiUrl + "/api/stockCategory/" + categoryStockId,
         config
       );
 
@@ -161,13 +161,13 @@ const CategoryStock = () => {
     }
   };
 
-  const searchByCategoryStock = (categoryStock) => {
-    if (!categoryStock) {
+  const searchByCategoryStock = (stockCategory) => {
+    if (!stockCategory) {
       getAllCategoryStock();
       return;
     }
     const categories = allCategoryStock.filter(
-      (category) => category.name.startsWith(categoryStock) === true
+      (category) => category.name.startsWith(stockCategory) === true
     );
     setAllStockItems(categories);
   };
@@ -256,24 +256,24 @@ const CategoryStock = () => {
             </thead>
             <tbody>
               {allCategoryStock &&
-                allCategoryStock.map((categoryStock, i) => {
+                allCategoryStock.map((stockCategory, i) => {
                   if (i >= startPagination && i < endPagination) {
                     return (
                       <tr key={i}>
                         <td>{i + 1}</td>
-                        <td>{categoryStock.categoryName}</td>
-                        <td>{categoryStock.categoryCode}</td>
+                        <td>{stockCategory.categoryName}</td>
+                        <td>{stockCategory.categoryCode}</td>
                         <td>
                           {
                             allStockItems.filter(
                               (item) =>
-                                item.categoryId?._id === categoryStock._id
+                                item.categoryId?._id === stockCategory._id
                             )?.length
                           }
                         </td>
-                        <td>{categoryStock.createdBy?.fullname}</td>
-                        <td>{formatDate(categoryStock.createdAt)}</td>
-                        <td>{categoryStock.notes}</td>
+                        <td>{stockCategory.createdBy?.fullname}</td>
+                        <td>{formatDate(stockCategory.createdAt)}</td>
+                        <td>{stockCategory.notes}</td>
                         <td>
                           {stockCategoriesPermission &&
                             (stockCategoriesPermission.update ||
@@ -283,10 +283,10 @@ const CategoryStock = () => {
                                   <button
                                     data-target="#editCategoryStockModal"
                                     onClick={() => {
-                                      setCategoryName(categoryStock.name);
-                                      setCategoryCode(categoryStock.code);
-                                      setNotes(categoryStock.notes || "");
-                                      setCategoryStockId(categoryStock._id);
+                                      setCategoryName(stockCategory.name);
+                                      setCategoryCode(stockCategory.code);
+                                      setNotes(stockCategory.notes || "");
+                                      setCategoryStockId(stockCategory._id);
                                     }}
                                     className="btn btn-sm btn-primary ml-2 "
                                     data-toggle="modal"
@@ -304,7 +304,7 @@ const CategoryStock = () => {
                                   <button
                                     data-target="#deleteCategoryStockModal"
                                     onClick={() =>
-                                      setCategoryStockId(categoryStock._id)
+                                      setCategoryStockId(stockCategory._id)
                                     }
                                     className="btn btn-sm btn-danger"
                                     data-toggle="modal"
@@ -581,4 +581,4 @@ const CategoryStock = () => {
   );
 };
 
-export default CategoryStock;
+export default StockCategory;

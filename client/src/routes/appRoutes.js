@@ -91,8 +91,8 @@ const PurchaseReturn = React.lazy(() =>
 const SupplierTransaction = React.lazy(() =>
   import("./layouts/adminLayout/adminComponent/suppliers/SupplierTransaction")
 );
-const CategoryStock = React.lazy(() =>
-  import("./layouts/adminLayout/adminComponent/stock/CategoryStock")
+const StockCategory = React.lazy(() =>
+  import("./layouts/adminLayout/adminComponent/stock/StockCategory")
 );
 const Store = React.lazy(() =>
   import("./layouts/adminLayout/adminComponent/stock/Store.jsx")
@@ -376,10 +376,10 @@ const AppRoutes = () => {
           }
         />
         <Route
-          path="categoryStock"
+          path="stockCategory"
           element={
             <Suspense fallback={<LoadingPage />}>
-              <CategoryStock />
+              <StockCategory />
             </Suspense>
           }
         />

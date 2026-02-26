@@ -327,7 +327,7 @@ const Cart = (props) => {
                   <p>
                     كاشير: {myOrder.cashier && myOrder.cashier?.username}{" "}
                     |فاتوره #{myOrder.serial} |
-                    {myOrder.orderType === "Internal"
+                    {myOrder.orderType === "Dine-in"
                       ? `Table ${myOrder.table && myOrder.table?.tableNumber}`
                       : ""}{" "}
                     | التاريخ: {formatDateTime(new Date())}
@@ -460,7 +460,7 @@ const Cart = (props) => {
                         </tr>
                       )}
 
-                    {myOrder.orderType === "Internal" &&
+                    {myOrder.orderType === "Dine-in" &&
                       brandInfo.serviceTaxRate > 0 && (
                         <tr>
                           <td colSpan="3">خدمة الصاله</td>

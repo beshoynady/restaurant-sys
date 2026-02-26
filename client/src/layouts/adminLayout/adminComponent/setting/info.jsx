@@ -305,33 +305,33 @@
 //     closed: false,
 //   }));
 
-//   const [working_hours, setworking_hours] = useState(initialOpeningHours);
+//   const [operatingHours, setoperatingHours] = useState(initialOpeningHours);
 
 //   const handleSetFrom = (index, value) => {
 //     console.log({ index, value });
-//     setworking_hours((prev) => {
+//     setoperatingHours((prev) => {
 //       const updated = [...prev];
 //       updated[index] = { ...updated[index], from: value };
 //       return updated;
 //     });
-//     console.log({ working_hours });
+//     console.log({ operatingHours });
 //   };
 
 //   const handleSetTo = (index, value) => {
 //     console.log({ index, value });
 
-//     setworking_hours((prev) => {
+//     setoperatingHours((prev) => {
 //       const updated = [...prev];
 //       updated[index] = { ...updated[index], to: value };
 //       return updated;
 //     });
-//     console.log({ working_hours });
+//     console.log({ operatingHours });
 //   };
 
 //   const handleCheckboxChange = (index) => {
 //     console.log({ index });
 
-//     setworking_hours((prev) => {
+//     setoperatingHours((prev) => {
 //       const updated = [...prev];
 //       updated[index] = { ...updated[index], closed: !updated[index].closed };
 //       return updated;
@@ -341,11 +341,11 @@
 //   const handleOpeningHours = async (e) => {
 //     e.preventDefault();
 //     const config = await handleGetTokenAndConfig();
-//     console.log({ working_hours });
+//     console.log({ operatingHours });
 //     try {
 //       const response = await axios.put(
 //         `${apiUrl}/api/restaurant/${restaurantId}`,
-//         { working_hours },
+//         { operatingHours },
 //         config
 //       );
 //       if (response.status === 200) {
@@ -419,9 +419,9 @@
 //           }
 //         });
 
-//         setworking_hours(
-//           brandInfo.working_hours?.length > 0
-//             ? brandInfo.working_hours
+//         setoperatingHours(
+//           brandInfo.operatingHours?.length > 0
+//             ? brandInfo.operatingHours
 //             : initialOpeningHours
 //         );
 //       } else {
@@ -1312,15 +1312,15 @@
 //                                   className="form-control border-primary m-0 p-2 h-auto"
 //                                   name={`openingTime${day}`}
 //                                   readOnly={
-//                                     working_hours &&
-//                                     working_hours[index]?.closed
+//                                     operatingHours &&
+//                                     operatingHours[index]?.closed
 //                                   }
 //                                   disabled={
-//                                     working_hours &&
-//                                     working_hours[index]?.closed
+//                                     operatingHours &&
+//                                     operatingHours[index]?.closed
 //                                   }
 //                                   value={
-//                                     working_hours && working_hours[index].from
+//                                     operatingHours && operatingHours[index].from
 //                                   }
 //                                   onChange={(e) =>
 //                                     handleSetFrom(index, e.target.value)
@@ -1334,15 +1334,15 @@
 //                                   className="form-control border-primary m-0 p-2 h-auto"
 //                                   name={`closingTime${day}`}
 //                                   readOnly={
-//                                     working_hours &&
-//                                     working_hours[index]?.closed
+//                                     operatingHours &&
+//                                     operatingHours[index]?.closed
 //                                   }
 //                                   disabled={
-//                                     working_hours &&
-//                                     working_hours[index]?.closed
+//                                     operatingHours &&
+//                                     operatingHours[index]?.closed
 //                                   }
 //                                   value={
-//                                     working_hours && working_hours[index].to
+//                                     operatingHours && operatingHours[index].to
 //                                   }
 //                                   onChange={(e) =>
 //                                     handleSetTo(index, e.target.value)
@@ -1355,7 +1355,7 @@
 //                                   type="checkbox"
 //                                   className="form-check-input form-check-input-lg"
 //                                   name={`closed${day}`}
-//                                   checked={working_hours[index]?.closed}
+//                                   checked={operatingHours[index]?.closed}
 //                                   onChange={(e) => handleCheckboxChange(index)}
 //                                 />
 //                               </td>

@@ -15,6 +15,7 @@ const routePermission = require("./router/permission.router.js");
 const routeAttendance = require("./router/attendance-record.router.js");
 const routeShift = require("./router/shift.router.js");
 const routeDepartment = require("./router/department.router.js");
+const routePreparationSection = require("./models/preparation-section.model.js");
 const routePreparationTicket = require("./router/preparation-ticket.router.js");
 const routeDeliveryArea = require("./router/delivery-area.router.js");
 const routeReservation = require("./router/reservation.router.js");
@@ -26,7 +27,7 @@ const routeRecipe = require("./router/recipe.router.js");
 const routeProductionRecipe = require("./router/production-recipe.router.js");
 const routeUser = require("./router/user.router.js");
 const routeCustomer = require("./router/customer.router.js");
-const routerJopTitle = require("./router/job-title.router.js")
+const routerJopTitle = require("./router/job-title.router.js");
 const routeEmployee = require("./router/employee.router.js");
 const routePayroll = require("./router/payroll.router.js");
 const routeEmployeeTransactions = require("./router/employee-transactions.router.js");
@@ -47,6 +48,25 @@ const routeCashRegister = require("./router/cash-register.router.js");
 const routeCashMovement = require("./router/cash-movement.router.js");
 const routeProductionOrder = require("./router/production-order.router.js");
 const routeProductionRecord = require("./router/production-record.router.js");
+
+// Import accounting routes
+const accountRoutes = require("./router/accounting/account.route.js");
+const journalEntryRoutes = require("./router/accounting/journal-entry.router.js");
+const ledgerRoutes = require("./router/accounting/ledger.router.js");
+const accountingPeriodRoutes = require("./router/accounting/accounting-period.router.js");
+
+// Import reports routes
+const reportsRoutes = require("./router/accounting/reports.router.js");
+
+// Import settings routes
+const generalSettingsRoutes = require("./routes/settings/general-settings.routes");
+const branchSettingsRoutes = require("./routes/settings/branch-settings.routes");
+const inventorySettingsRoutes = require("./routes/settings/inventory-settings.routes");
+const menuSettingsRoutes = require("./router/settings/menu-settings.router.js");
+const notificationSettingsRoutes = require("./router/settings/notification-settings.router.js");
+const orderSettingsRoutes = require("./router/settings/order-settings.router.js");
+const paymentMethodRoutes = require("./router/settings/payment-method.router.js");
+
 
 // Load environment variables from .env file
 dotenv.config();
@@ -113,6 +133,7 @@ app.use("/api/permission", routePermission);
 app.use("/api/attendance", routeAttendance);
 app.use("/api/shift", routeShift);
 app.use("/api/department", routeDepartment);
+app.use("/api/preparationsection", routePreparationSection);
 app.use("/api/preparationticket", routePreparationTicket);
 app.use("/api/deliveryarea", routeDeliveryArea);
 app.use("/api/product", routeProduct);
@@ -120,7 +141,7 @@ app.use("/api/recipe", routeRecipe);
 app.use("/api/menucategory", routeMenuCategory);
 app.use("/api/customer", routeCustomer);
 app.use("/api/user", routeUser);
-app.use("/api/jop-title", routerJopTitle)
+app.use("/api/jop-title", routerJopTitle);
 app.use("/api/employee", routeEmployee);
 app.use("/api/message", routeMessage);
 app.use("/api/payroll", routePayroll);
@@ -129,7 +150,7 @@ app.use("/api/table", routeTable);
 app.use("/api/order", routeOrder);
 app.use("/api/auth", routeAuth);
 app.use("/api/store", routeStore);
-app.use("/api/categoryStock", routeCategoryStock);
+app.use("/api/stockCategory", routeCategoryStock);
 app.use("/api/productionrecipe", routeProductionRecipe);
 app.use("/api/stockitem", routeStockItems);
 app.use("/api/supplier", routeSupplier);
@@ -145,6 +166,25 @@ app.use("/api/cashMovement", routeCashMovement);
 app.use("/api/reservation", routeReservation);
 app.use("/api/productionorder", routeProductionOrder);
 app.use("/api/productionrecord", routeProductionRecord);
+
+// using accounting routes
+app.use("/api/accounts", accountRoutes);
+app.use("/api/journal-entries", journalEntryRoutes);
+app.use("/api/ledger", ledgerRoutes);
+app.use("/api/accounting-periods", accountingPeriodRoutes);
+
+// using reports routes
+app.use("/api/reports", reportsRoutes);
+
+// using settings routes
+app.use("/api/general-settings", generalSettingsRoutes);
+app.use("/api/branch-settings", branchSettingsRoutes);
+app.use("/api/inventory-settings", inventorySettingsRoutes);
+app.use("/api/menu-settings", menuSettingsRoutes);
+app.use("/api/notification-settings", notificationSettingsRoutes);
+app.use("/api/order-settings", orderSettingsRoutes);
+app.use("/api/payment-methods", paymentMethodRoutes);
+
 
 const server = http.createServer(app);
 

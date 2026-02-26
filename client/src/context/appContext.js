@@ -1104,7 +1104,7 @@ const AppContextProvider = ({ children }) => {
         const products = [...itemsInCart];
         const subTotal = costOrder;
         const total = subTotal + salesTax + serviceTax;
-        const orderType = "Internal";
+        const orderType = "Dine-in";
 
         const newOrderData = {
           serial,
@@ -1230,7 +1230,7 @@ const AppContextProvider = ({ children }) => {
         const products = [...itemsInCart];
         const subTotal = costOrder;
         const total = subTotal + salesTax + serviceTax + addition - discount;
-        const orderType = "Internal";
+        const orderType = "Dine-in";
 
         const newOrder = await axios.post(
           `${apiUrl}/api/order`,

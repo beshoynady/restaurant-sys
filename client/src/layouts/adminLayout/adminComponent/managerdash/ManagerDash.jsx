@@ -135,7 +135,7 @@ const ManagerDash = () => {
     fetchOrdersData();
   }, [isRefresh]);
 
-  const orderTypeEN = ["Internal", "Delivery", "Takeaway"];
+  const orderTypeEN = ["Dine-in", "Delivery", "Takeaway"];
   const orderTypeAR = ["داخلي", "ديليفري", "تيك اوي"];
 
   const statusEN = ["Pending", "Approved", "Cancelled"];
@@ -1031,7 +1031,7 @@ const ManagerDash = () => {
                       onChange={(e) => getOrdersByType(e.target.value)}
                     >
                       <option value="">الكل</option>
-                      <option value="Internal">صالة</option>
+                      <option value="Dine-in">صالة</option>
                       <option value="Delivery">ديليفري</option>
                       <option value="Takeaway">تيك اوي</option>
                     </select>
@@ -1149,7 +1149,7 @@ const ManagerDash = () => {
                                 </a>
                               </td>
                               <td>
-                                {recent.orderType === "Internal"
+                                {recent.orderType === "Dine-in"
                                   ? recent.table?.tableNumber
                                   : recent.orderType === "Delivery"
                                   ? recent.user?.username
@@ -1374,7 +1374,7 @@ const ManagerDash = () => {
                   {pendingPayment
                     .filter(
                       (order) =>
-                        order.orderType === "Internal" &&
+                        order.orderType === "Dine-in" &&
                         order.payment_status === "Pending" &&
                         order.status !== "Cancelled" &&
                         order.help !== "Not requested"
@@ -1651,7 +1651,7 @@ const ManagerDash = () => {
                   <p>
                     كاشير {orderdata.cashier && orderdata.cashier.username} |
                     فاتورة باقي #{serial} |{" "}
-                    {orderdata.orderType === "Internal"
+                    {orderdata.orderType === "Dine-in"
                       ? `Table ${
                           orderdata.table && orderdata.table.tableNumber
                         }`

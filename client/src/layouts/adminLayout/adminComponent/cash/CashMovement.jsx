@@ -60,12 +60,11 @@ const CashMovement = () => {
           employeeLoginInfo.role === "manager"
         ) {
           setAllCashRegisters(cashRegisterData);
-          
         } else {
           const myCashRegister = cashRegisterData.filter(
             (CashRegister) => CashRegister.employee?._id === employeeId
           );
-          
+
           setAllCashRegisters(myCashRegister);
         }
       }
@@ -113,7 +112,6 @@ const CashMovement = () => {
 
     try {
       const employeeId = await employeeLoginInfo.id;
-      
 
       const response = await axios.get(apiUrl + "/api/cashmovement/", config);
       const AllCashMovement = response.data.reverse();
@@ -122,18 +120,16 @@ const CashMovement = () => {
           employeeLoginInfo.role === "owner" ||
           employeeLoginInfo.role === "manager"
         ) {
-          
           setAllCashMovement(AllCashMovement);
         } else {
           const myCashMovement = AllCashMovement.filter(
             (movement) => movement.registerId?.employee === employeeId
           );
-          
+
           setAllCashMovement(myCashMovement);
         }
       }
     } catch (error) {
-      
       toast.error("حدث خطأ أثناء جلب بيانات حركة الخزينه. حاول مرة أخرى .");
     }
   };
@@ -189,7 +185,7 @@ const CashMovement = () => {
         const isWithdrawal = type === "Withdraw";
         const updateAmount = isWithdrawal ? -amount : amount;
         const newBalance = CashRegisterBalance + updateAmount;
-        
+
         // Update the cash register balance on the server
         const updateRegisterBalance = await axios.put(
           `${apiUrl}/api/cashregister/${cashRegister}`,
@@ -198,7 +194,7 @@ const CashMovement = () => {
           },
           config
         );
-        
+
         // If the cash register balance is updated successfully
         if (updateRegisterBalance.data) {
           // Show success toast message
@@ -1099,25 +1095,43 @@ const CashMovement = () => {
       </div>
 
       {/* <div id="deleteStockactionModal" className="modal fade">
-                <div className="modal-dialog modal-lg">
-                  <div className="modal-content shadow-lg border-0 rounded ">
-                    <form onSubmit={deleteStockaction}>
-                      <div className="modal-header d-flex flex-wrap align-items-center text-light bg-primary">
-                        <h4 className="modal-title">حذف منتج</h4>
-                        <button type="button" className="close m-0 p-1" data-dismiss="modal" aria-hidden="true">&times;</button>
-                      </div>
-                      <div className="modal-body d-flex flex-wrap align-items-center p-3 text-right">
-                        <p className="text-dark f-3">هل انت متاكد من حذف هذا السجل؟</p>
-                        <p className="text-warning text-center mt-3"><small>لا يمكن الرجوع في هذا الاجراء.</small></p>
-                      </div>
-                      <div className="modal-footer d-flex flex-nowrap align-items-center justify-content-between m-0 p-1">
-                        <input type="submit" className="btn btn-warning col-6 h-100 px-2 py-3 m-0" value="حذف" />
-                        <input type="button" className="btn btn-danger col-6 h-100 px-2 py-3 m-0" data-dismiss="modal" value="إغلاق" />
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              </div> */}
+        <div className="modal-dialog modal-lg">
+          <div className="modal-content shadow-lg border-0 rounded ">
+            <form onSubmit={deleteStockaction}>
+              <div className="modal-header d-flex flex-wrap align-items-center text-light bg-primary">
+                <h4 className="modal-title">حذف منتج</h4>
+                <button
+                  type="button"
+                  className="close m-0 p-1"
+                  data-dismiss="modal"
+                  aria-hidden="true"
+                >
+                  &times;
+                </button>
+              </div>
+              <div className="modal-body d-flex flex-wrap align-items-center p-3 text-right">
+                <p className="text-dark f-3">هل انت متاكد من حذف هذا السجل؟</p>
+                <p className="text-warning text-center mt-3">
+                  <small>لا يمكن الرجوع في هذا الاجراء.</small>
+                </p>
+              </div>
+              <div className="modal-footer d-flex flex-nowrap align-items-center justify-content-between m-0 p-1">
+                <input
+                  type="submit"
+                  className="btn btn-warning col-6 h-100 px-2 py-3 m-0"
+                  value="حذف"
+                />
+                <input
+                  type="button"
+                  className="btn btn-danger col-6 h-100 px-2 py-3 m-0"
+                  data-dismiss="modal"
+                  value="إغلاق"
+                />
+              </div>
+            </form>
+          </div>
+        </div>
+      </div> */}
     </div>
   );
 };

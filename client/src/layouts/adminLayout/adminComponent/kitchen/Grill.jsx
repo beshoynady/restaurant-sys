@@ -383,7 +383,7 @@ const Grill = () => {
 
       //
 
-      if (type === "Internal") {
+      if (type === "Dine-in") {
         const waiter = await specifiedWaiter(id);
 
         if (!waiter) {

@@ -81,7 +81,7 @@ const ProductionRecipe = () => {
     const config = await handleGetTokenAndConfig();
     setIsLoading(true);
     try {
-      const response = await axios.get(apiUrl + "/api/categoryStock/", config);
+      const response = await axios.get(apiUrl + "/api/stockCategory/", config);
       setAllCategoryStock(response.data.reverse());
       setIsLoading(false);
     } catch (error) {

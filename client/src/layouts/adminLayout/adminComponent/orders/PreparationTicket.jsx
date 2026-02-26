@@ -261,7 +261,7 @@ const PreparationTicket = () => {
                   onChange={(e) => getPreparationTicketByType(e.target.value)}
                 >
                   <option value={""}>الكل</option>
-                  <option value="Internal">Internal</option>
+                  <option value="Dine-in">Dine-in</option>
                   <option value="Delivery">Delivery</option>
                   <option value="Takeaway">Takeaway</option>
                 </select>
