@@ -4,7 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import LoadingPage from "./layouts/adminLayout/adminComponent/LoadingPage/LoadingPage";
 import NoInternetPage from "./layouts/adminLayout/adminComponent/LoadingPage/NoInternetPage";
-import Clientscreen from "./layouts/clientLayout/Clientscreen";
+import Clientscreen from "../layouts/clientLayout/Clientscreen.jsx";
 import Login from "./layouts/adminLayout/adminComponent/login/Login";
 import SetupWizard from "./layouts/adminLayout/adminComponent/Setup/SetupWizard.jsx";
 import Brand from "./layouts/adminLayout/adminComponent/setting/brand.jsx";
