@@ -92,7 +92,7 @@ const SupplierTransaction = React.lazy(() =>
   import("../layouts/adminLayout/adminComponent/suppliers/SupplierTransaction")
 );
 const StockCategory = React.lazy(() =>
-  import("../layouts/adminLayout/adminComponent/stock/StockCategory")
+  import("../layouts/adminLayout/adminComponent/stock/CategoryStock.jsx")
 );
 const Store = React.lazy(() =>
   import("../layouts/adminLayout/adminComponent/stock/Store.jsx")
