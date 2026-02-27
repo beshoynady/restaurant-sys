@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 import "../orders/Orders.css";
 
 const Customers = () => {
@@ -23,7 +23,7 @@ const Customers = () => {
     setEndPagination,
     apiUrl,
     handleGetTokenAndConfig,
-  } = useContext(dataContext);
+  } = useContext(AppContext);
 
   const permissionCustomer = permissionsList?.filter(
     (permission) => permission.resource === "Customers"

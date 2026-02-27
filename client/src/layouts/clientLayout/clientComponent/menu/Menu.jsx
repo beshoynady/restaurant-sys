@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
 import "./Menu.css";
 import MenuCard from "./Menu-card/Menu-card";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 
 const Menu = () => {
   const {
@@ -11,7 +11,7 @@ const Menu = () => {
     menuCategoryId,
     handleGetTokenAndConfig,
     apiUrl,
-  } = useContext(dataContext);
+  } = useContext(AppContext);
   const [activeItem, setActiveItem] = useState(null);
   return (
     <section id="menu">

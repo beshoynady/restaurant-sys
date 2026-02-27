@@ -1,10 +1,10 @@
 import React from "react";
 import "./Location.css";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 
 const Location = () => {
   return (
-    <dataContext.Consumer>
+    <AppContext.Consumer>
       {({ brandInfo, askingForHelp, userLoginInfo }) => {
         return (
           <section id="location">
@@ -49,7 +49,7 @@ const Location = () => {
           </section>
         );
       }}
-    </dataContext.Consumer>
+    </AppContext.Consumer>
   );
 };
 

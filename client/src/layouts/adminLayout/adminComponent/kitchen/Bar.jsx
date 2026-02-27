@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useContext } from "react";
 import axios from "axios";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 import { toast } from "react-toastify";
 import io from "socket.io-client";
 
@@ -23,7 +23,7 @@ const Bar = () => {
     waiterSocket,
     apiUrl,
     handleGetTokenAndConfig,
-  } = useContext(dataContext);
+  } = useContext(AppContext);
 
   const start = useRef();
   const ready = useRef();

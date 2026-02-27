@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 import "../orders/Orders.css";
 
 const ReservationTables = () => {
@@ -31,7 +31,7 @@ const ReservationTables = () => {
     filterByTime,
     apiUrl,
     handleGetTokenAndConfig,
-  } = useContext(dataContext);
+  } = useContext(AppContext);
 
   const createdBy = employeeLoginInfo?.id;
   const [reservationId, setReservationId] = useState("");

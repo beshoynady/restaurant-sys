@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import "./ManagLayout.css";
-import { dataContext } from "../../context/dataContext";
+import { AppContext } from "../../context/appContext";
 import { Navigate, Outlet } from "react-router-dom";
 import LoadingPage from "./adminComponent/LoadingPage/LoadingPage";
 import NavBar from "./adminComponent/navbar/NavBar";
@@ -8,10 +8,10 @@ import SideBar from "./adminComponent/sidebar/SideBar";
 import { ToastContainer } from "react-toastify";
 
 const ManagLayout = () => {
-  const context = useContext(dataContext);
+  const context = useContext(AppContext);
 
 if (!context) {
-  console.error("ManagLayout must be used within a dataContext.Provider");
+  console.error("ManagLayout must be used within a AppContext.Provider");
   return null;
 }
 

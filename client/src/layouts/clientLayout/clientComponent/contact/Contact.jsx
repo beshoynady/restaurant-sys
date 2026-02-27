@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 
 import { toast } from "react-toastify";
 import "./Contact.css";
@@ -13,7 +13,7 @@ import facebook from "../../../../image/facebook.png";
 
 const Contact = () => {
   const { brandInfo, handleGetTokenAndConfig, apiUrl } =
-    useContext(dataContext);
+    useContext(AppContext);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");

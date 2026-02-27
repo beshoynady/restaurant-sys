@@ -3,7 +3,7 @@ import io from "socket.io-client";
 import { Link } from "react-router-dom";
 
 import axios from "axios";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 import { toast } from "react-toastify";
 
 import notificationSound from "../../../../audio/sound.mp3";
@@ -53,7 +53,7 @@ const NavBar = () => {
     waiterSocket,
     apiUrl,
     handleGetTokenAndConfig,
-  } = useContext(dataContext);
+  } = useContext(AppContext);
 
   const permissionUserMassage = permissionsList?.filter(
     (permission) => permission.resource === "Messages"

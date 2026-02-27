@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 // import './Waiter.css'
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
@@ -16,7 +16,7 @@ const Waiter = () => {
     waiterSocket,
     handleGetTokenAndConfig,
     apiUrl,
-  } = useContext(dataContext);
+  } = useContext(AppContext);
 
   // Refs for buttons
   const start = useRef();

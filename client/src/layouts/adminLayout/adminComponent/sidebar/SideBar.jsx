@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 
 import { Link } from "react-router-dom";
 
@@ -50,7 +50,7 @@ const SideBar = () => {
   }, []);
 
   return (
-    <dataContext.Consumer>
+    <AppContext.Consumer>
       {({ brandInfo, permissionsList, employeeLoginInfo }) => {
         const role = employeeLoginInfo ? employeeLoginInfo.role : "";
         const isOwner = employeeLoginInfo.isOwner || employeeLoginInfo.isAdmin;
@@ -737,7 +737,7 @@ const SideBar = () => {
           </>
         );
       }}
-    </dataContext.Consumer>
+    </AppContext.Consumer>
   );
 };
 

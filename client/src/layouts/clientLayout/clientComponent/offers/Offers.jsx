@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 import {toast } from "react-toastify";
 
 // Import Swiper React components
@@ -33,7 +33,7 @@ export default function Offers() {
     addNoteToProduct,
     handleGetTokenAndConfig,
     apiUrl,
-  } = useContext(dataContext);
+  } = useContext(AppContext);
 
   const [noteArea, setnoteArea] = useState(false);
   const [extraArea, setextraArea] = useState(false);

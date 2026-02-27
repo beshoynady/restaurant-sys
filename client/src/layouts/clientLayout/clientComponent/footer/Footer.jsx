@@ -1,9 +1,9 @@
 import React, { useState, useContext } from "react";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 
 const Footer = () => {
   const { brandInfo, handleGetTokenAndConfig, apiUrl } =
-    useContext(dataContext);
+    useContext(AppContext);
 
   return (
     <footer

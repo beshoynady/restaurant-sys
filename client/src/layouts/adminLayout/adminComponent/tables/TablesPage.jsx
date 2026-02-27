@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 
 const TablesPage = () => {
   const {
@@ -23,7 +23,7 @@ const TablesPage = () => {
     getAllTable,
     handleGetTokenAndConfig,
     apiUrl,
-  } = useContext(dataContext);
+  } = useContext(AppContext);
 
   // State for tables, active orders, products in active orders, and consumption in active orders
   const [activeTable, setactiveTable] = useState([]);

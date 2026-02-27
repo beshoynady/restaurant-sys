@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import "./Home.css";
 import io from "socket.io-client";
 
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
@@ -15,7 +15,7 @@ const cashierSocket = io(`${process.env.REACT_APP_API_URL}/cashier`, {
 
 const Home = () => {
   const { brandInfo, userLoginInfo, apiUrl, handleGetTokenAndConfig } =
-    useContext(dataContext);
+    useContext(AppContext);
   const { id } = useParams();
   const navigate = useNavigate(); // Use useNavigate hook
   const [table, setTable] = useState(null);

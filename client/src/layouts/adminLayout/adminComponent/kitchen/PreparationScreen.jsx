@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import axios from "axios";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 import { toast } from "react-toastify";
 
 const PreparationScreen = () => {
@@ -12,7 +12,7 @@ const PreparationScreen = () => {
     waiterSocket,
     apiUrl,
     handleGetTokenAndConfig,
-  } = useContext(dataContext);
+  } = useContext(AppContext);
 
   const [departments, setdepartments] = useState([]);
   const [selectedSectionId, setSelectedSectionId] = useState(null);

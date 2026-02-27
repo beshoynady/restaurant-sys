@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 import axios from "axios";
 import io from "socket.io-client";
 import { toast } from "react-toastify";
@@ -37,7 +37,7 @@ const ManagerDash = () => {
     waiterSocket,
     apiUrl,
     handleGetTokenAndConfig,
-  } = useContext(dataContext);
+  } = useContext(AppContext);
 
   const [showModal, setShowModal] = useState(false);
 

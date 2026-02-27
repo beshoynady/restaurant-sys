@@ -9,7 +9,7 @@ import Location from "./clientComponent/location/Location";
 import Contact from "./clientComponent/contact/Contact";
 import Reservation from "./clientComponent/reservations/Reservation";
 import Footer from "./clientComponent/footer/Footer";
-import { dataContext } from "../../context/appContext";
+import { AppContext } from "../../context/appContext";
 
 const Clientscreen = () => {
   const {
@@ -19,7 +19,7 @@ const Clientscreen = () => {
     sizesOffer,
     handleGetTokenAndConfig,
     apiUrl,
-  } = useContext(dataContext);
+  } = useContext(AppContext);
 
   return (
     <div className="clientscreen" style={{ direction: "rtl" }}>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import axios from "axios";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 import { toast } from "react-toastify";
 
 import "./LoginRegistr.css";
@@ -25,7 +25,7 @@ const LoginRegistr = (props) => {
     getClientInfoFromToken,
     handleGetTokenAndConfig,
     apiUrl,
-  } = useContext(dataContext);
+  } = useContext(AppContext);
 
   const openlogin = props.openlogin;
   const [openform, setopenform] = useState(props.openlogin);

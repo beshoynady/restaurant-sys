@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef } from "react";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 import { useReactToPrint } from "react-to-print";
 
 import "../orders/Orders.css";
@@ -11,7 +11,7 @@ const InvoiceComponent = ({ ModalId, orderData, showModal, setShowModal }) => {
     formatDateTime,
     handleGetTokenAndConfig,
     apiUrl,
-  } = useContext(dataContext);
+  } = useContext(AppContext);
 
   const {
     serial,

@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { toast } from "react-toastify";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 
 const POSCard = () => {
   const {
@@ -9,7 +9,7 @@ const POSCard = () => {
     addItemToCart,
     handleGetTokenAndConfig,
     apiUrl,
-  } = useContext(dataContext);
+  } = useContext(AppContext);
 
   const [sizeId, setsizeId] = useState("");
 

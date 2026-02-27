@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import axios from "axios";
 import { useReactToPrint } from "react-to-print";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 import { toast } from "react-toastify";
 import "../orders/Orders.css";
 
@@ -24,7 +24,7 @@ const Purchase = () => {
     setEndPagination,
     handleGetTokenAndConfig,
     apiUrl,
-  } = useContext(dataContext);
+  } = useContext(AppContext);
 
   const purchasePermission = permissionsList?.filter(
     (permission) => permission.resource === "Purchases"

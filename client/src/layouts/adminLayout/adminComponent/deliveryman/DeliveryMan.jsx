@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useReactToPrint } from "react-to-print";
@@ -24,7 +24,7 @@ const DeliveryMan = () => {
     setEndPagination,
     apiUrl,
     handleGetTokenAndConfig,
-  } = useContext(dataContext);
+  } = useContext(AppContext);
 
   // // State for pending orders and payments
   // const [pendingOrders, setPendingOrders] = useState([]);

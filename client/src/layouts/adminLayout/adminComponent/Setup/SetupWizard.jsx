@@ -8,7 +8,7 @@ import StepRestaurant from "./StepRestaurant";
 import StepFinish from "./StepFinish";
 import NavbarWizard from "./navbarWizard";
 
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 
 /**
  * SetupWizard Component
@@ -16,7 +16,7 @@ import { dataContext } from "../../../../context/appContext";
  * Steps: Welcome → Owner → Restaurant → Finish
  */
 const SetupWizard = () => {
-  const { apiUrl, config } = useContext(dataContext);
+  const { apiUrl, config } = useContext(AppContext);
 
   const [step, setStep] = useState(0);
 

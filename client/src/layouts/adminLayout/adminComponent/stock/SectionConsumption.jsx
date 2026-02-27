@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import axios from "axios";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 import { toast, ToastContainer } from "react-toastify";
 import "../orders/Orders.css";
 
@@ -23,7 +23,7 @@ const SectionConsumption = () => {
     setEndPagination,
     apiUrl,
     handleGetTokenAndConfig,
-  } = useContext(dataContext);
+  } = useContext(AppContext);
 
   const SectionUsegePermission =
     permissionsList &&

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "../orders/Orders.css";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 
 const AttendanceManagement = () => {
   const {
@@ -23,7 +23,7 @@ const AttendanceManagement = () => {
     setEndPagination,
     handleGetTokenAndConfig,
     apiUrl,
-  } = useContext(dataContext);
+  } = useContext(AppContext);
 
   const permissionsForAttendance = permissionsList?.filter(
     (permission) => permission.resource === "Attendance"

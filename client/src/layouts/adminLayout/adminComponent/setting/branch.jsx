@@ -20,7 +20,7 @@ const branch = () => {
     handleGetTokenAndConfig,
     apiUrl,
     clientUrl,
-  } = useContext(dataContext);
+  } = useContext(AppContext);
 
   const [shifts, setShifts] = useState([]);
 

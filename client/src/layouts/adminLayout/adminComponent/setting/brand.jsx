@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 import { toast } from "react-toastify";
 
 const Brand = () => {
@@ -24,7 +24,7 @@ const Brand = () => {
     config,
     apiUrl,
     clientUrl,
-  } = useContext(dataContext);
+  } = useContext(AppContext);
 
   const [formData, setFormData] = useState({
     brandEn: "",

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import axios from "axios";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
 import { useReactToPrint } from "react-to-print";
@@ -31,7 +31,7 @@ const Employees = () => {
     setEndPagination,
     apiUrl,
     handleGetTokenAndConfig,
-  } = useContext(dataContext);
+  } = useContext(AppContext);
 
   const notify = (message, type) => {
     toast[type](message);

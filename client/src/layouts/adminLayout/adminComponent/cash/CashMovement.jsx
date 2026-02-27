@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import axios from "axios";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 import { toast } from "react-toastify";
 import "../orders/Orders.css";
 
@@ -22,7 +22,7 @@ const CashMovement = () => {
     setEndPagination,
     handleGetTokenAndConfig,
     apiUrl,
-  } = useContext(dataContext);
+  } = useContext(AppContext);
 
   const cashMovementPermissions = permissionsList?.filter(
     (permission) => permission.resource === "Cash Movement"

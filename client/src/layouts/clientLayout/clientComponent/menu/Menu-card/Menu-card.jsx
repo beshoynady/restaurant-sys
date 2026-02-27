@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react"; 
-import { dataContext } from "../../../../../context/appContext";
+import { AppContext } from "../../../../../context/appContext";
 import {toast } from 'react-toastify';
 
 const MenuCard = () => {
@@ -30,7 +30,7 @@ const MenuCard = () => {
   const [selectedButtonIndex, setSelectedButtonIndex] = useState(1);
 
   return (
-    <dataContext.Consumer>
+    <AppContext.Consumer>
       {({
         allProducts,
         menuCategoryId,
@@ -963,7 +963,7 @@ const MenuCard = () => {
           </div>
         );
       }}
-    </dataContext.Consumer>
+    </AppContext.Consumer>
   );
 };
 

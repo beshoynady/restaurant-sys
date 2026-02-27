@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import axios from "axios";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
 import { useReactToPrint } from "react-to-print";
@@ -21,7 +21,7 @@ const EmployeeTransactions = () => {
     startPagination,
     endPagination,
     setStartPagination,
-    setEndPagination, handleGetTokenAndConfig, apiUrl } = useContext(dataContext)
+    setEndPagination, handleGetTokenAndConfig, apiUrl } = useContext(AppContext)
 
   const employeeTransactionsPermission =
     permissionsList &&

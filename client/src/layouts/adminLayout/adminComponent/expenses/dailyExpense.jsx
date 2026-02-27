@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 import { toast } from "react-toastify";
 import "../orders/Orders.css";
 import { date } from "joi";
@@ -24,7 +24,7 @@ const DailyExpense = () => {
     setEndPagination,
     handleGetTokenAndConfig,
     apiUrl,
-  } = useContext(dataContext);
+  } = useContext(AppContext);
 
   const permissionDailyExpense =
     permissionsList &&

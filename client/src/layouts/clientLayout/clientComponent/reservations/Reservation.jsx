@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 
 const Reservation = () => {
   const {
@@ -15,7 +15,7 @@ const Reservation = () => {
     userLoginInfo,
     handleGetTokenAndConfig,
     apiUrl,
-  } = useContext(dataContext);
+  } = useContext(AppContext);
 
   const userId = userLoginInfo?.userinfo?.id;
 

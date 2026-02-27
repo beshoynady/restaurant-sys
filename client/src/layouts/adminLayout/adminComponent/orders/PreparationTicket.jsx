@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import axios from "axios";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 import { useReactToPrint } from "react-to-print";
 import { toast } from "react-toastify";
 import "./Orders.css";
@@ -26,7 +26,7 @@ const PreparationTicket = () => {
     setEndPagination,
     apiUrl,
     handleGetTokenAndConfig,
-  } = useContext(dataContext);
+  } = useContext(AppContext);
 
   const [showModal, setShowModal] = useState(false);
 

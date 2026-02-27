@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { dataContext } from "../../../../context/appContext";
+import { AppContext } from "../../../../context/appContext";
 import "../orders/Orders.css";
 
 const MenuCategory = () => {
@@ -15,7 +15,7 @@ const MenuCategory = () => {
     setEndPagination,
     apiUrl,
     handleGetTokenAndConfig,
-  } = useContext(dataContext);
+  } = useContext(AppContext);
 
   const [categoryName, setcategoryName] = useState("");
   const [mainCategory, setmainCategory] = useState({});
