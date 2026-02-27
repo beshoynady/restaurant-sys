@@ -9,7 +9,7 @@ import Location from "./clientComponent/location/Location";
 import Contact from "./clientComponent/contact/Contact";
 import Reservation from "./clientComponent/reservations/Reservation";
 import Footer from "./clientComponent/footer/Footer";
-import { dataContext } from "../../App";
+import { dataContext } from "../../context/appContext";
 
 const Clientscreen = () => {
   const {

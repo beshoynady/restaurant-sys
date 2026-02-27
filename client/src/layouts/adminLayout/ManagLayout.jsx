@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import "./ManagLayout.css";
-import { dataContext } from "../../App";
+import { dataContext } from "../../context/dataContext";
 import { Navigate, Outlet } from "react-router-dom";
 import LoadingPage from "./adminComponent/LoadingPage/LoadingPage";
 import NavBar from "./adminComponent/navbar/NavBar";
