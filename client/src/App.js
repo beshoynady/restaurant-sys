@@ -9,14 +9,10 @@ import AppRoutes from "./routes/appRoutes";
 
 
 
-const {isLoading, isOnline} = useContext(AppContext);
-
-
-
-
 
 function App() {
-
+  
+  const {isLoading, isOnline} = useContext(AppContext);
   return (
     <AppContextProvider
       
