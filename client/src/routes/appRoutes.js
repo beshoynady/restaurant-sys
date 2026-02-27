@@ -3,9 +3,6 @@ import { useContext } from "react";
 import { AppContext } from "../context/appContext";
 import { Routes, Route, Navigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
-import { Routes, Route, Navigate } from "react-router-dom";
-import "react-toastify/dist/ReactToastify.css";
-
 import LoadingPage from "../layouts/adminLayout/adminComponent/LoadingPage/LoadingPage";
 import NoInternetPage from "../layouts/adminLayout/adminComponent/LoadingPage/NoInternetPage";
 import Clientscreen from "../layouts/clientLayout/Clientscreen.jsx";
