@@ -1,4 +1,8 @@
 import React, { createContext, useState, useEffect, Suspense } from "react";
+import { useContext } from "react";
+import { AppContext } from "../context/appContext";
+import { Routes, Route, Navigate } from "react-router-dom";
+import "react-toastify/dist/ReactToastify.css";
 import { Routes, Route, Navigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -145,6 +149,16 @@ const ProfitLoss = React.lazy(() =>
 );
 
 const AppRoutes = () => {
+
+    const context = useContext(AppContext);
+  
+  if (!context) {
+    console.error("ManagLayout must be used within a AppContext.Provider");
+    return null;
+  }
+  
+  const { employeeLoginInfo } = context;
+  
   return (
     <Routes>
       <Route path="/" element={<Clientscreen />} />
