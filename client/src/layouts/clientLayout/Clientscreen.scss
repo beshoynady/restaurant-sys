@@ -1,6 +1,7 @@
-@import url("https://fonts.googleapis.com/css2?family=Marhey:wght@600;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Marhey:wght@600;700&display=swap');
+
 :root {
-  --primary-color: #b12122;
+  --primary-color:  #b12122;  
   --secondary-color: #feb914;
   --white-color: #FFFFFF;
   --dark-color: #a91418;
@@ -8,7 +9,8 @@
   --accent-color: #f40606;
 }
 
-.userscreen {
+
+.clientscreen {
   direction: rtl;
   width: 100%;
   height: 100%;
@@ -16,12 +18,13 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  font-family: "Marhey", sans-serif;
-  background-image: url("../../image/bg-1.jpg");
+  font-family: 'Marhey', sans-serif;
+  background-image: url('../../image/bg-1.jpg');
   background-position: top right;
   background-attachment: fixed;
   background-size: cover;
   background-repeat: no-repeat;
+
 }
 
 .container {
@@ -30,7 +33,6 @@
   margin: 0 auto;
   padding: 0;
 }
-
 .section-title {
   width: 220px;
   height: 80px;
@@ -41,16 +43,17 @@
   border: 4px solid var(--dark-color);
   border-radius: 10px;
   background-color: var(--accent-color);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); 
   animation: slideInZoom 1s ease-out;
-}
-.section-title > h2 {
-  font-size: 30px;
-  font-weight: 700;
-  font-family: "Marhey", sans-serif;
-  color: var(--secondary-color);
-  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
-  animation: fadeInText 1s ease-out;
+
+  > h2 {
+    font-size: 30px;
+    font-weight: 700;
+    font-family: 'Marhey', sans-serif;
+    color: var(--secondary-color);
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5); 
+    animation: fadeInText 1s ease-out;
+  }
 }
 
 @keyframes slideInZoom {
@@ -67,6 +70,7 @@
     opacity: 1;
   }
 }
+
 @keyframes fadeInText {
   0% {
     opacity: 0;
@@ -77,12 +81,13 @@
     transform: translateY(0);
   }
 }
+
 @media (max-width: 768px) {
-  .userscreen {
-    background-image: url("../../image/bg-1-mob.jpg");
+  .clientscreen {
+    background-image: url('../../image/bg-1-mob.jpg');
     background-attachment: fixed;
     background-position: top center;
     background-repeat: no-repeat;
     background-size: 100% 100vh;
   }
-}/*# sourceMappingURL=Userscreen.css.map */
+}

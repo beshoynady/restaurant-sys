@@ -4,7 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import LoadingPage from "./layouts/adminLayout/adminComponent/LoadingPage/LoadingPage";
 import NoInternetPage from "./layouts/adminLayout/adminComponent/LoadingPage/NoInternetPage";
-import Userscreen from "./layouts/clientLayout/Userscreen";
+import Clientscreen from "./layouts/clientLayout/Clientscreen";
 import Login from "./layouts/adminLayout/adminComponent/login/Login";
 import SetupWizard from "./layouts/adminLayout/adminComponent/Setup/SetupWizard.jsx";
 import Brand from "./layouts/adminLayout/adminComponent/setting/brand.jsx";
@@ -147,8 +147,8 @@ const ProfitLoss = React.lazy(() =>
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<Userscreen />} />
-      <Route path="/:id" element={<Userscreen />} />
+      <Route path="/" element={<Clientscreen />} />
+      <Route path="/:id" element={<Clientscreen />} />
       {/* 🔹 Login page */}
       <Route path="/login" element={<Login />} />
 

@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { ToastContainer } from "react-toastify";
-import "./Userscreen.css";
+import "./Clientscreen.css";
 import Header from "./clientComponent/header/Header";
 import Home from "./clientComponent/home/Home";
 import Offers from "./clientComponent/offers/Offers";
@@ -11,7 +11,7 @@ import Reservation from "./clientComponent/reservations/Reservation";
 import Footer from "./clientComponent/footer/Footer";
 import { dataContext } from "../../App";
 
-const Userscreen = () => {
+const Clientscreen = () => {
   const {
     brandInfo,
     allProducts,
@@ -22,7 +22,7 @@ const Userscreen = () => {
   } = useContext(dataContext);
 
   return (
-    <div className="userscreen" style={{ direction: "rtl" }}>
+    <div className="clientscreen" style={{ direction: "rtl" }}>
       <ToastContainer />
       <Header />
       <Home />
@@ -36,4 +36,4 @@ const Userscreen = () => {
   );
 };
 
-export default Userscreen;
+export default Clientscreen;
