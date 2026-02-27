@@ -3,7 +3,7 @@ import io from "socket.io-client";
 import { Link } from "react-router-dom";
 
 import axios from "axios";
-import { dataContext } from "../../../../App";
+import { dataContext } from "../../../../context/appContext";
 import { toast } from "react-toastify";
 
 import notificationSound from "../../../../audio/sound.mp3";

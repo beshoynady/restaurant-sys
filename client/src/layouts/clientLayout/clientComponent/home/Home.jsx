@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import "./Home.css";
 import io from "socket.io-client";
 
-import { dataContext } from "../../../../App";
+import { dataContext } from "../../../../context/appContext";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";

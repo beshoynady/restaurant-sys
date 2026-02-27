@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef } from "react";
-import { dataContext } from "../../../../App";
+import { dataContext } from "../../../../context/appContext";
 import { useReactToPrint } from "react-to-print";
 
 import "../orders/Orders.css";

@@ -8,7 +8,7 @@ import StepRestaurant from "./StepRestaurant";
 import StepFinish from "./StepFinish";
 import NavbarWizard from "./navbarWizard";
 
-import { dataContext } from "../../../../App";
+import { dataContext } from "../../../../context/appContext";
 
 /**
  * SetupWizard Component

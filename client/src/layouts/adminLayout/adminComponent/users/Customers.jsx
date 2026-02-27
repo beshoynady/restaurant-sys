@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { dataContext } from "../../../../App";
+import { dataContext } from "../../../../context/appContext";
 import "../orders/Orders.css";
 
 const Customers = () => {

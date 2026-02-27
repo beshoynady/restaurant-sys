@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
 import "./Menu.css";
 import MenuCard from "./Menu-card/Menu-card";
-import { dataContext } from "../../../../App";
+import { dataContext } from "../../../../context/appContext";
 
 const Menu = () => {
   const {

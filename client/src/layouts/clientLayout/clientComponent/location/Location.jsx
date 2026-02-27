@@ -1,6 +1,6 @@
 import React from "react";
 import "./Location.css";
-import { dataContext } from "../../../../App";
+import { dataContext } from "../../../../context/appContext";
 
 const Location = () => {
   return (

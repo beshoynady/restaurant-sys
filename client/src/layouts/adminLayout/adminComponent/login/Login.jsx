@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { dataContext } from "../../../../App";
+import { dataContext } from "../../../../context/appContext";
 import SetupWizard from "../Setup/SetupWizard"; // ✅ Import setup wizard screen
 
 // Images

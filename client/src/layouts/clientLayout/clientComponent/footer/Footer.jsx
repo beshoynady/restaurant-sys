@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { dataContext } from "../../../../App";
+import { dataContext } from "../../../../context/appContext";
 
 const Footer = () => {
   const { brandInfo, handleGetTokenAndConfig, apiUrl } =

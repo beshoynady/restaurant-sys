@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { toast } from "react-toastify";
-import { dataContext } from "../../../../App";
+import { dataContext } from "../../../../context/appContext";
 
 const POSCard = () => {
   const {

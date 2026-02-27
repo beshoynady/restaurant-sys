@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect, useContext } from "react";
 import { Link, useParams } from "react-router-dom";
-import { dataContext } from "../../../../App";
+import { dataContext } from "../../../../context/appContext";
 import "./Header.css";
 import Cart from "../cart/Cart";
 import LoginRegistr from "../auth/LoginRegistr";

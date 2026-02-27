@@ -1,6 +1,6 @@
 // import React, { useState, useEffect, useContext } from "react";
 // import axios from "axios";
-// import { dataContext } from "../../../../App";
+// import { dataContext } from "../../../../context/appContext";
 // import { toast } from "react-toastify";
 
 // const Info = () => {
