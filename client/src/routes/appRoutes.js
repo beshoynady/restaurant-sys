@@ -2,12 +2,12 @@ import React, { createContext, useState, useEffect, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 
-import LoadingPage from "./layouts/adminLayout/adminComponent/LoadingPage/LoadingPage";
-import NoInternetPage from "./layouts/adminLayout/adminComponent/LoadingPage/NoInternetPage";
+import LoadingPage from "../layouts/adminLayout/adminComponent/LoadingPage/LoadingPage";
+import NoInternetPage from "../layouts/adminLayout/adminComponent/LoadingPage/NoInternetPage";
 import Clientscreen from "../layouts/clientLayout/Clientscreen.jsx";
-import Login from "./layouts/adminLayout/adminComponent/login/Login";
+import Login from "../layouts/adminLayout/adminComponent/login/Login";
 import SetupWizard from "./layouts/adminLayout/adminComponent/Setup/SetupWizard.jsx";
-import Brand from "./layouts/adminLayout/adminComponent/setting/brand.jsx";
+import Brand from "../layouts/adminLayout/adminComponent/setting/brand.jsx";
 
 const ManagLayout = React.lazy(() =>
   import("./layouts/adminLayout/ManagLayout")
