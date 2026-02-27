@@ -15,14 +15,10 @@ import AppRoutes from "./routes/appRoutes";
 
 function App() {
   
-  const {isLoading, isOnline} = useContext(AppContext);
   return (
     <AppContextProvider
       
     >
-      {isLoading && <LoadingPage />}
-      {!isOnline && <NoInternetPage />}
-
       <BrowserRouter>
         <AppRoutes />
       </BrowserRouter>
