@@ -8,7 +8,7 @@ const {
   getInventorySettings,
   updateInventorySettings,
   deleteInventorySettings,
-} = require("../controllers/settings/inventory-settings.controller");
+} = require("../../controllers/settings/inventory-settings.controller");
 
 /**
  * ============================

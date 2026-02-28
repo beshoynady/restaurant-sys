@@ -7,7 +7,7 @@ import BranchModel from "../models/Branch.model.js";
 import CategoryModel from "../models/Category.model.js";
 import PreparationSectionModel from "../models/PreparationSection.model.js";
 
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 // Validation schema for creating a new product
 const createProductSchema = Joi.object({

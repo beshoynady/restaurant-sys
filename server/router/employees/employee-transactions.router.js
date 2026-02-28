@@ -8,7 +8,7 @@ createEmployeeFinancialTransaction,
   cancelEmployeeFinancialTransaction,
   getTransactionsPaginated,
   deleteEmployeeFinancialTransaction,
-} = require("../controllers/employee-transactions.controller.js");
+} = require("../../controllers/employee-transactions.controller.js");
 const { authenticateToken } = require("../../middlewares/authenticate.js");
 const checkSubscription = require("../../middlewares/checkSubscription.js");
 

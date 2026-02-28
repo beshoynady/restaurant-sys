@@ -7,7 +7,7 @@ const {
   updatePaymentMethod,
   getPaymentMethods,
   deletePaymentMethod,
-} = require("../controllers/payment-method.controller");
+} = require("../../controllers/payment-method.controller");
 
 // ✅ Create payment method
 router.post("/", authenticateToken, createPaymentMethod);

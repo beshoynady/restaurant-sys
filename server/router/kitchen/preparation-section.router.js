@@ -8,7 +8,7 @@ const {
   getPreparationSectionById,
   deletePreparationSection,
   togglePreparationSectionStatus,
-} = require("../controllers/preparationSectionController");
+} = require("../../controllers/preparationSectionController");
 
 const { authenticateToken } = require("../../middlewares/authenticate");
 const checkSubscription = require("../../middlewares/checkSubscription");

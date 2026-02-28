@@ -8,7 +8,7 @@ const {
   getInvoiceSettings,
   updateInvoiceSettings,
   deleteInvoiceSettings,
-} = require("../controllers/settings/invoice-settings.controller");
+} = require("../../controllers/settings/invoice-settings.controller");
 
 /**
  * ============================

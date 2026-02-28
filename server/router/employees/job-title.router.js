@@ -9,7 +9,7 @@ const {
   softDeleteJobTitle,
   restoreJobTitle,
   deleteJobTitle,
-} = require("../controllers/job-title.controller.js");
+} = require("../../controllers/job-title.controller.js");
 
 const { authenticateToken } = require("../../middlewares/authenticate.js");
 const checkSubscription = require("../../middlewares/checkSubscription.js");

@@ -10,7 +10,7 @@ const {
   getLimitOrders,
   updateOrder,
   deleteOrder,
-} = require("../controllers/order.controller");
+} = require("../../controllers/order.controller");
 
 router
   .route("/")

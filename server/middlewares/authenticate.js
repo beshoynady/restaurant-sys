@@ -1,8 +1,8 @@
-import EmployeeModel from "../models/employees/employee.model";
-import BrandModel from "../models/brands/brand.model";
-import BranchModel from "../models/branches/branch.model";
-import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
+const EmployeeModel = require("../models/employees/employee.model");
+const BrandModel = require("../models/core/brand.model");
+const BranchModel = require("../models/core/branch.model.js");
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
 dotenv.config();
 
 const secretKey = process.env.JWT_SECRET_KEY;
@@ -11,7 +11,7 @@ const refreshSecretKey = process.env.JWT_REFRESH_SECRET;
 /**
  * Middleware: Authenticate access token
  */
-export const authenticateToken = async (req, res, next) => {
+const authenticateToken = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization || req.headers.Authorization;
 
@@ -64,7 +64,9 @@ export const authenticateToken = async (req, res, next) => {
     }
 
     if (employee.isDeleted || employee.employmentInfo.status !== "active") {
-      return res.status(403).json({ message: "Forbidden: Employee is inactive or deleted" });
+      return res
+        .status(403)
+        .json({ message: "Forbidden: Employee is inactive or deleted" });
     }
 
     const brandMatch = employee.brand.toString() === payload.brand;
@@ -112,7 +114,7 @@ export const authenticateToken = async (req, res, next) => {
 /**
  * Refresh access token using refresh token
  */
-export const refreshAccessToken = async (req, res) => {
+const refreshAccessToken = async (req, res) => {
   try {
     const refreshToken = req.cookies?.refreshToken;
 
@@ -155,4 +157,9 @@ export const refreshAccessToken = async (req, res) => {
     console.error("Error refreshing access token:", err);
     res.status(500).json({ message: "Server error during token refresh" });
   }
+};
+
+module.exports = {
+  authenticateToken,
+  refreshAccessToken,
 };

@@ -23,7 +23,7 @@ const {
 } = require("../../controllers/core/brand.controller");
 
 const { authenticateToken } = require("../../middlewares/authenticate");
-const {varifuBrandAndBranch} = require("../../middlewares/varifuBrandAndBranch");
+const {verifyBrandAndBranch} = require("../../middlewares/verifyBrandAndBranch");
 
 // ======================================
 // 📁 Upload Directory
@@ -98,7 +98,7 @@ router.put(
   authenticateToken,
   upload.single("logo"),
   deleteOldLogo,
-  varifuBrandAndBranch,
+  verifyBrandAndBranch,
   updateBrand,
 );
 

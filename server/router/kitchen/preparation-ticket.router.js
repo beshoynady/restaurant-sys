@@ -7,7 +7,7 @@ const {
   getPreparationTicketById,
   updatePreparationTicket,
   deletePreparationTicket,
-} = require("../controllers/preparation-ticket.controller");
+} = require("../../controllers/preparation-ticket.controller");
 
 const {authenticateToken} = require("../../middlewares/authenticate");
 const checkSubscription = require("../../middlewares/checkSubscription");

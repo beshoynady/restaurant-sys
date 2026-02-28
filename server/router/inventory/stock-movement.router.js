@@ -7,7 +7,7 @@ const {
   getAllStockMovementByStore,
   getLastStockMovementStore,
   deleteStockMovement,
-} = require("../controllers/stock-movement.controller");
+} = require("../../controllers/stock-movement.controller");
 
 const { authenticateToken } = require("../../middlewares/authenticate");
 const checkSubscription = require("../../middlewares/checkSubscription");

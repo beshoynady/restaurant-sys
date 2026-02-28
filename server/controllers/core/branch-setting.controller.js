@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 import BranchSettingsModel from "../models/settings/branchSettings.model.js";
 import joi from "joi";
 

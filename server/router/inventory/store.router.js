@@ -6,7 +6,7 @@ const {
   getStoreById,
   updateStore,
   deleteStore,
-} = require("../controllers/store.controller");
+} = require("../../controllers/store.controller");
 
 const { authenticateToken } = require("../../middlewares/authenticate");
 const checkSubscription = require("../../middlewares/checkSubscription");

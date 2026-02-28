@@ -7,7 +7,7 @@ const {
   createConsumption,
   updateConsumptionById,
   deleteConsumptionById,
-} = require("../controllers/consumption.controller");
+} = require("../../controllers/consumption.controller");
 
 const {authenticateToken} = require("../../middlewares/authenticate");
 const checkSubscription = require("../../middlewares/checkSubscription");

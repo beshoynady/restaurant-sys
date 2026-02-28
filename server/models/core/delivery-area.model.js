@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 const { ObjectId } = mongoose.Schema;
 
 /**
@@ -142,4 +142,6 @@ DeliveryAreaSchema.index(
 // Optional: index code per branch for fast lookup
 DeliveryAreaSchema.index({ branch: 1, code: 1 }, { unique: true, sparse: true });
 
-export default mongoose.model("DeliveryArea", DeliveryAreaSchema);
+const DeliveryAreaModel= mongoose.model("DeliveryArea", DeliveryAreaSchema);
+
+module.exports = DeliveryAreaModel

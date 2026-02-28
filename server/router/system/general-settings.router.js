@@ -8,7 +8,7 @@ const {
   getGeneralSettings,
   updateGeneralSettings,
   deleteGeneralSettings,
-} = require("../controllers/general-settings.controller");
+} = require("../../controllers/general-settings.controller");
 
 /**
  * ============================

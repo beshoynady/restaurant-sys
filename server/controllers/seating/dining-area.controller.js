@@ -1,7 +1,7 @@
 import DiningAreaModel from "../../models/seating/diningArea.model.js";
 import TableModel from "../../models/seating/table.model.js";
 import Joi from "joi";
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const ObjectId = (value, helpers) => {
   if (!mongoose.Types.ObjectId.isValid(value)) {

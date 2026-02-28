@@ -1,5 +1,5 @@
-const RestaurantModel = require("../models/brand.model");
-const EmployeeModel = require("../models/employee.model");
+const RestaurantModel = require("../models/core/brand.model");
+const EmployeeModel = require("../models/employees/employee.model");
 
 const checkSubscription = async (req, res, next) => {
   try {

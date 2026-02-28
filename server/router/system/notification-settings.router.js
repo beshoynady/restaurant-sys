@@ -6,7 +6,7 @@ const {
   getNotificationSettings,
   updateNotificationSettings,
   deleteNotificationSettings,
-} = require("../controllers/settings/notification-settings.controller");
+} = require("../../controllers/settings/notification-settings.controller");
 
 // -----------------------------
 // Routes for Notification Settings

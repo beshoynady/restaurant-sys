@@ -9,7 +9,7 @@ const {
   updateProductionOrder,
   updateProductionStatus,
   deleteProductionOrder,
-} = require("../controllers/production-order.controller");
+} = require("../../controllers/production-order.controller");
 
 const { authenticateToken } = require("../../middlewares/authenticate");
 const checkSubscription = require("../../middlewares/checkSubscription");

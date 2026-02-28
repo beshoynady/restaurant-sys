@@ -5,7 +5,7 @@ const {
   updateBranchSettings,
   checkBranchAvailability,
   deleteBranchSettings,
-} = require("../controllers/settings/branch-settings.controller");
+} = require("../../controllers/settings/branch-settings.controller");
 
 const { authenticateToken } = require("../middlewares/authenticate");
 

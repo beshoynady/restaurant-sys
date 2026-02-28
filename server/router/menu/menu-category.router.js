@@ -6,7 +6,7 @@ const {
   updateMenuCategory,
   reorderMenuCategories,
   deleteMenuCategory,
-} = require("../controllers/menu-category.controller");
+} = require("../../controllers/menu-category.controller");
 const { authenticateToken } = require("../../middlewares/authenticate");
 const checkSubscription = require("../../middlewares/checkSubscription");
 

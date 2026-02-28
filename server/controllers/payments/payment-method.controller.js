@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 import Joi from "joi";
 import PaymentMethodModel from "../models/settings/payment-method.model.js";
 

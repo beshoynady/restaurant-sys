@@ -8,7 +8,7 @@ const {
   endProductionRecord,
   updateProductionRecord,
   deleteProductionRecord,
-} = require("../controllers/production-record.controller.js");
+} = require("../../controllers/production-record.controller.js");
 
 const { authenticateToken } = require("../../middlewares/authenticate.js");
 const checkSubscription = require("../../middlewares/checkSubscription.js");

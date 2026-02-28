@@ -5,7 +5,7 @@ const {
   getonecategoryStock,
   updatecategoryStock,
   deleteCategoryStock,
-} = require("../controllers/category-stock.controller");
+} = require("../../controllers/category-stock.controller");
 
 const { authenticateToken } = require("../../middlewares/authenticate");
 const checkSubscription = require("../../middlewares/checkSubscription");

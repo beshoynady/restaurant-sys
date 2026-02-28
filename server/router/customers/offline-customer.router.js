@@ -16,7 +16,7 @@ const {
   getOfflineCustomerByPhone,
   getOfflineCustomersByBranch,
   getDeletedOfflineCustomersByBranch,
-} = require("../controllers/customers/offline-customer.controller");
+} = require("../../controllers/customers/offline-customer.controller");
 
 // ----------------------------
 // 🔹 Middlewares

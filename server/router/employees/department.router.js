@@ -6,7 +6,7 @@ const {
   getDepartmentById,
   updateDepartment,
   deleteDepartment,
-} = require("../controllers/department.controller");
+} = require("../../controllers/department.controller");
 
 const { authenticateToken } = require("../middlewares/authenticate");
 const checkSubscription = require("../middlewares/checkSubscription");

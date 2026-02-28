@@ -7,7 +7,7 @@ const {
   updateCustomerMessage,
   softDeleteCustomerMessage,
   restoreCustomerMessage,
-} = require("../controllers/customers/message.controller");
+} = require("../../controllers/customers/message.controller");
 // ----------------------------
 // 🔹 Middlewares
 // ----------------------------

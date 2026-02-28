@@ -16,7 +16,7 @@ const {
   changeProductAvailable,
   softDeleteProduct,
   deleteProduct,
-} = require("../controllers/product.controller");
+} = require("../../controllers/product.controller");
 const { route } = require("./menu-category.router");
 
 const router = express.Router();

@@ -7,7 +7,7 @@ const {
   updateOrderSettings,
   getOrderSettings,
   deleteOrderSettings,
-} = require("../controllers/settings/order-settings.controller");
+} = require("../../controllers/settings/order-settings.controller");
 
 // ✅ Create new order settings
 router.post("/", authenticateToken, createOrderSettings);

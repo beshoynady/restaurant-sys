@@ -6,7 +6,7 @@ const {
   getAttendanceRecordById,
   updateAttendanceRecordById,
   deleteAttendanceRecordById,
-} = require("../controllers/attendance.controller");
+} = require("../../controllers/attendance.controller");
 
 const { authenticateToken } = require("../../middlewares/authenticate");
 const checkSubscription = require("../../middlewares/checkSubscription");

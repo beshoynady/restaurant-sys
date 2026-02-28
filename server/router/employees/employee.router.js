@@ -13,7 +13,7 @@ const {
   getEmployeesByBranch,
   softDeleteEmployee,
   restoreEmployee,
-} = require("../controllers/employee.controller.js");
+} = require("../../controllers/employee.controller.js");
 
 // 🧩 Middlewares
 const {

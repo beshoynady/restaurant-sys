@@ -1,7 +1,7 @@
-import DeliveryArea from "../models/core/deliveryArea.model.js";
-import Joi from "joi";
-import mongoose from "mongoose";
-import ensureUniqueMultilangName from "../utils/unique-multilang.utils.js";
+const DeliveryArea = require("../../models/core/delivery-area.model");
+const Joi = require("joi");
+const mongoose = require("mongoose");
+const ensureUniqueMultilangName = require("../../utils/unique-multilang.utils.js");
 
 const { ObjectId } = mongoose.Types;
 
@@ -74,7 +74,7 @@ const createDeliveryArea = async (req, res) => {
         branch: branch._id,
         createdBy,
       },
-      { abortEarly: false }
+      { abortEarly: false },
     );
 
     if (error)
@@ -124,7 +124,7 @@ const updateDeliveryArea = async (req, res) => {
 
     const { error, value } = updateDeliveryAreaSchema.validate(
       { ...req.body, brand: brand._id, updatedBy },
-      { abortEarly: false }
+      { abortEarly: false },
     );
 
     if (error)
@@ -136,7 +136,9 @@ const updateDeliveryArea = async (req, res) => {
 
     const area = await DeliveryArea.findById(id);
     if (!area)
-      return res.status(404).json({ success: false, message: "Delivery area not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Delivery area not found" });
 
     // ---------- Uniqueness check ----------
     if (value.name) {
@@ -156,7 +158,11 @@ const updateDeliveryArea = async (req, res) => {
         });
     }
 
-    const updatedArea = await DeliveryArea.findByIdAndUpdate(id, { $set: value }, { new: true });
+    const updatedArea = await DeliveryArea.findByIdAndUpdate(
+      id,
+      { $set: value },
+      { new: true },
+    );
 
     return res.status(200).json({
       success: true,
@@ -173,8 +179,12 @@ const updateDeliveryArea = async (req, res) => {
 const getDeliveryAreasByBranch = async (req, res) => {
   try {
     const branchId = req.branch._id;
-    const areas = await DeliveryArea.find({ branch: branchId }).sort({ priority: 1 });
-    return res.status(200).json({ success: true, count: areas.length, data: areas });
+    const areas = await DeliveryArea.find({ branch: branchId }).sort({
+      priority: 1,
+    });
+    return res
+      .status(200)
+      .json({ success: true, count: areas.length, data: areas });
   } catch (err) {
     console.error("Get Delivery Areas Error:", err);
     return res.status(500).json({ success: false, message: "Server error" });
@@ -185,8 +195,13 @@ const getDeliveryAreasByBranch = async (req, res) => {
 const getActiveDeliveryAreasByBranch = async (req, res) => {
   try {
     const branchId = req.branch._id;
-    const areas = await DeliveryArea.find({ branch: branchId, isActive: true }).sort({ priority: 1 });
-    return res.status(200).json({ success: true, count: areas.length, data: areas });
+    const areas = await DeliveryArea.find({
+      branch: branchId,
+      isActive: true,
+    }).sort({ priority: 1 });
+    return res
+      .status(200)
+      .json({ success: true, count: areas.length, data: areas });
   } catch (err) {
     console.error("Get Active Delivery Areas Error:", err);
     return res.status(500).json({ success: false, message: "Server error" });
@@ -198,10 +213,15 @@ const getDeliveryAreaByCode = async (req, res) => {
   try {
     const branchId = req.branch._id;
     const { code } = req.params;
-    const area = await DeliveryArea.findOne({ branch: branchId, code: code.toUpperCase() });
+    const area = await DeliveryArea.findOne({
+      branch: branchId,
+      code: code.toUpperCase(),
+    });
 
     if (!area)
-      return res.status(404).json({ success: false, message: "Delivery area not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Delivery area not found" });
 
     return res.status(200).json({ success: true, data: area });
   } catch (err) {
@@ -220,7 +240,10 @@ const softDeleteDeliveryArea = async (req, res) => {
     if (!isValidObjectId(id))
       return res.status(400).json({ success: false, message: "Invalid ID" });
 
-    const { error, value } = softDeleteSchema.validate({ note, deletedBy }, { abortEarly: false });
+    const { error, value } = softDeleteSchema.validate(
+      { note, deletedBy },
+      { abortEarly: false },
+    );
     if (error)
       return res.status(400).json({
         success: false,
@@ -230,7 +253,9 @@ const softDeleteDeliveryArea = async (req, res) => {
 
     const area = await DeliveryArea.findById(id);
     if (!area)
-      return res.status(404).json({ success: false, message: "Delivery area not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Delivery area not found" });
 
     area.isActive = false;
     area.deletedAt = new Date();
@@ -239,7 +264,12 @@ const softDeleteDeliveryArea = async (req, res) => {
 
     await area.save();
 
-    return res.status(200).json({ success: true, message: "Delivery area soft-deleted successfully" });
+    return res
+      .status(200)
+      .json({
+        success: true,
+        message: "Delivery area soft-deleted successfully",
+      });
   } catch (err) {
     console.error("Soft Delete DeliveryArea Error:", err);
     return res.status(500).json({ success: false, message: "Server error" });
@@ -254,7 +284,9 @@ const restoreDeliveryArea = async (req, res) => {
 
     const area = await DeliveryArea.findById(id);
     if (!area)
-      return res.status(404).json({ success: false, message: "Delivery area not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Delivery area not found" });
 
     area.isActive = true;
     area.deletedAt = null;
@@ -262,7 +294,13 @@ const restoreDeliveryArea = async (req, res) => {
 
     await area.save();
 
-    return res.status(200).json({ success: true, message: "Delivery area restored successfully", data: area });
+    return res
+      .status(200)
+      .json({
+        success: true,
+        message: "Delivery area restored successfully",
+        data: area,
+      });
   } catch (err) {
     console.error("Restore DeliveryArea Error:", err);
     return res.status(500).json({ success: false, message: "Server error" });
@@ -276,9 +314,13 @@ const hardDeleteDeliveryArea = async (req, res) => {
     const area = await DeliveryArea.findByIdAndDelete(id);
 
     if (!area)
-      return res.status(404).json({ success: false, message: "Delivery area not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Delivery area not found" });
 
-    return res.status(200).json({ success: true, message: "Delivery area permanently deleted" });
+    return res
+      .status(200)
+      .json({ success: true, message: "Delivery area permanently deleted" });
   } catch (err) {
     console.error("Hard Delete DeliveryArea Error:", err);
     return res.status(500).json({ success: false, message: "Server error" });
@@ -288,7 +330,7 @@ const hardDeleteDeliveryArea = async (req, res) => {
 /* ==================================================
    Export Controllers
 ================================================== */
-export {
+module.exports = {
   createDeliveryArea,
   updateDeliveryArea,
   getDeliveryAreasByBranch,

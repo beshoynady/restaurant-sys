@@ -7,7 +7,7 @@ const {
   updateStockItem,
   movements,
   deleteItem,
-} = require("../controllers/stock-item.constroller");
+} = require("../../controllers/stock-item.constroller");
 const { authenticateToken } = require("../../middlewares/authenticate");
 const checkSubscription = require("../../middlewares/checkSubscription");
 
