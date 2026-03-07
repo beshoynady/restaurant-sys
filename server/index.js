@@ -6,6 +6,8 @@ const helmet = require("helmet"); // Security middleware
 const cookieParser = require("cookie-parser");
 const http = require("http");
 const { Server } = require("socket.io");
+const { notFound} = require("./middlewares/notFound.js");
+const { errorHandler } = require("./middlewares/errorHandler.js");
 
 // Import database connection
 const connectdb = require("./database/connectdb.js");
@@ -162,6 +164,7 @@ const serviceChargeRoutes = require("./router/system/service-charge.router.js");
 const shiftSettingsRoutes = require("./router/system/shift-settings.router.js");
 const taxConfigRoutes = require("./router/system/tax-config.router.js");
 const paymentMethodRoutes = require("./router/system/payment-method.router.js");
+const { NOTFOUND } = require("dns");
 
 // Load environment variables
 dotenv.config();
@@ -305,6 +308,10 @@ app.use("/api/settings/branch", branchSettingsRoutes);
 app.use("/api/settings/notification", notificationSettingsRoutes);
 app.use("/api/settings/order", orderSettingsRoutes);
 app.use("/api/settings/payment-methods", paymentMethodRoutes);
+
+
+app.use(notFound);
+app.use(errorHandler);
 
 // -------------------
 // HTTP SERVER

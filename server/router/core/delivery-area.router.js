@@ -22,32 +22,32 @@ const {
 
 const { authenticateToken } = require("../../middlewares/authenticate");
 
-// ======================================
-// 🚀 Routes
-// ======================================
+/* -------------------------------------------------------------------------- */
+/*                                 🚀 Endpoints                               */
+/* -------------------------------------------------------------------------- */
 
-// Create new delivery area
-router.post("/", authenticateToken, createDeliveryArea);
+// Create a new delivery area
+router
+  .route("/")
+  .post(authenticateToken, createDeliveryArea)
+  .get(authenticateToken, getDeliveryAreasByBranch);
 
-// Get all delivery areas for a branch
-router.get("/branch/:branchId", authenticateToken, getDeliveryAreasByBranch);
+// Get active delivery areas for current branch
+router.get("/active", authenticateToken, getActiveDeliveryAreasByBranch);
 
-// Get active delivery areas for a branch
-router.get("/branch/:branchId/active", authenticateToken, getActiveDeliveryAreasByBranch);
-
-// Get delivery area by code
+// Get delivery area by code (unique per branch)
 router.get("/code/:code", authenticateToken, getDeliveryAreaByCode);
 
-// Update a delivery area
+// Update a delivery area by ID
 router.put("/:id", authenticateToken, updateDeliveryArea);
 
-// Soft delete a delivery area
-router.delete("/:id", authenticateToken, softDeleteDeliveryArea);
+// Soft delete a delivery area by ID
+router.patch("/archive/:id", authenticateToken, softDeleteDeliveryArea);
 
-// Restore a soft-deleted delivery area
-router.patch("/:id/restore", authenticateToken, restoreDeliveryArea);
+// Restore a soft-deleted delivery area by ID
+router.patch("/restore/:id", authenticateToken, restoreDeliveryArea);
 
-// Hard delete a delivery area
-router.delete("/:id/hard", authenticateToken, hardDeleteDeliveryArea);
+// Hard delete a delivery area by ID
+router.delete("/delete/:id", authenticateToken, hardDeleteDeliveryArea);
 
 module.exports = router;
