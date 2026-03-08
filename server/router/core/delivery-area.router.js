@@ -11,6 +11,7 @@ const router = express.Router();
 
 const {
   createDeliveryArea,
+  getDeliveryAreaById,
   updateDeliveryArea,
   getDeliveryAreasByBranch,
   getActiveDeliveryAreasByBranch,
@@ -30,7 +31,10 @@ const { authenticateToken } = require("../../middlewares/authenticate");
 router
   .route("/")
   .post(authenticateToken, createDeliveryArea)
-  .get(authenticateToken, getDeliveryAreasByBranch);
+  .get(authenticateToken, getDeliveryAreaById);
+
+// Get all delivery areas for current branch
+router.get("/branch/:id", authenticateToken, getDeliveryAreasByBranch);
 
 // Get active delivery areas for current branch
 router.get("/active", authenticateToken, getActiveDeliveryAreasByBranch);

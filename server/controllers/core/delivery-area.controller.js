@@ -164,6 +164,20 @@ const updateDeliveryArea = asyncHandler(async (req, res) => {
   });
 });
 
+const getDeliveryAreaById = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  if (!isValidObjectId(id)) {
+    res.status(400);
+    throw new Error("Invalid DeliveryArea ID");
+  }
+  const area = await DeliveryArea.findById(id);
+  if (!area) {
+    res.status(404);
+    throw new Error("Delivery area not found");
+  }
+  res.status(200).json({ success: true, data: area });
+});
+
 // Get all delivery areas for a branch
 const getDeliveryAreasByBranch = asyncHandler(async (req, res) => {
   const branchId = req.branch._id;
@@ -261,6 +275,7 @@ const hardDeleteDeliveryArea = asyncHandler(async (req, res) => {
 ================================================== */
 module.exports = {
   createDeliveryArea,
+  getDeliveryAreaById,
   updateDeliveryArea,
   getDeliveryAreasByBranch,
   getActiveDeliveryAreasByBranch,
