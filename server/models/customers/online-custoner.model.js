@@ -54,6 +54,7 @@ const onlineCustomerSchema = new mongoose.Schema(
       type: String,
       required: true,
       minlength: 6,
+      maxlength: 50,
       select: false, // Never returned unless explicitly selected
     },
 
@@ -62,11 +63,87 @@ const onlineCustomerSchema = new mongoose.Schema(
     ===================================================== */
     addresses: [
       {
-        address: {
+        title: {
           type: String,
-          required: true,
           trim: true,
-          // Full address
+          maxlength: 50,
+          required: true,
+          // e.g., "Home", "Work"
+        },
+        country: {
+          type: String,
+          trim: true,
+          uppercase: true,
+          enum: [
+            "US",
+            "EG",
+            "SA",
+            "AE",
+            "KW",
+            "QA",
+            "OM",
+            "BH",
+            "JO",
+            "LB",
+            "SY",
+            "IQ",
+            "YE",
+            "DZ",
+            "MA",
+            "TN",
+            "LY",
+            "SD",
+            "PS",
+            "Other",
+          ],
+          maxlength: 5,
+          required: true,
+          // Country name
+        },
+        city: {
+          type: String,
+          trim: true,
+          maxlength: 50,
+          required: true,
+          // City name
+        },
+        area: {
+          type: String,
+          trim: true,
+          maxlength: 50,
+          required: true,
+          // Area or neighborhood
+        },
+        street: {
+          type: String,
+          trim: true,
+          maxlength: 100,
+          required: true,
+          // Street address
+        },
+        building: {
+          type: String,
+          trim: true,
+          maxlength: 50,
+          // Building or apartment number
+        },
+        floor: {
+          type: String,
+          trim: true,
+          maxlength: 20,
+          // Floor number
+        },
+        apartment: {
+          type: String,
+          trim: true,
+          maxlength: 20,
+          // Apartment number
+        },
+        // Landmark or additional directions
+        landmark: {
+          type: String,
+          trim: true,
+          maxlength: 100,
         },
         deliveryArea: {
           type: ObjectId,
@@ -77,7 +154,14 @@ const onlineCustomerSchema = new mongoose.Schema(
         location: {
           type: {
             type: String,
-            enum: ["Point"],
+            enum: [
+              "Point",
+              "Polygon",
+              "LineString",
+              "MultiPoint",
+              "MultiPolygon",
+              "MultiLineString",
+            ],
             default: "Point",
             // GeoJSON type
           },
@@ -97,6 +181,10 @@ const onlineCustomerSchema = new mongoose.Schema(
           trim: true,
           maxlength: 300,
           // Any notes related to this address
+        },
+        _id: {
+          type: ObjectId,
+          auto: true,
         },
       },
     ],
@@ -164,6 +252,18 @@ const onlineCustomerSchema = new mongoose.Schema(
       type: ObjectId,
       ref: "Employee",
     },
+
+    changePasswordToken: String,
+    changePasswordExpires: Date,
+
+    passwordChangedAt: Date,
+
+    loginAttempts: {
+      type: Number,
+      default: 0,
+    },
+
+    lockUntil: Date,
   },
   {
     timestamps: true,
@@ -182,6 +282,10 @@ onlineCustomerSchema.index(
   { email: 1, brand: 1 },
   { unique: true, sparse: true },
 );
+
+onlineCustomerSchema.index({
+  "addresses.location": "2dsphere",
+}); // For geospatial queries
 
 // Fast filtering for dashboard
 onlineCustomerSchema.index({ brand: 1, isDeleted: 1 });
