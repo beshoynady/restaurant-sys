@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const StockItemsModel = require("../../models/stock-items.model");
+const StockItemsModel = require("../../models/inventory/stock-item.model");
 
 // Create a new stock item
 const createStockItem = async (req, res) => {

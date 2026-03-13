@@ -1,7 +1,7 @@
-const stockItemsModel = require("../../models/Stock/stock-items.model");
+const stockItemsModel = require("../../models/Stock/stock-item.model");
 const stockLedgerModel = require("../../models/Stock/stock-ledger.model");
-const ProductionRecipe = require("../../models/production-recipe.model");
-const ProductionRecord = require("../../models/production-record.model");
+const ProductionRecipe = require("../../models/production/production-recipe.model");
+const ProductionRecord = require("../../models/production/production-record.model");
 const Joi = require("joi");
 const mongoose = require("mongoose");
 
@@ -214,7 +214,7 @@ const getProductionRecipeByStockItem = async (req, res) => {
     if (isActive !== undefined) filter.isActive = isActive === "true";
 
     // Fetch recipe
-    const ProductionRecipe = await require("../../models/production-recipe.model");
+    const ProductionRecipe = await require("../../models/production/production-recipe.model");
     const recipe = await ProductionRecipe.findOne(filter)
       .populate("stockItem", "_id itemName")
       .populate("ingredients.itemId", "_id itemName costPerPart minThreshold");

@@ -1,4 +1,4 @@
-const StockMovementModel = require("../../models/stock-movement.model");
+const StockMovementModel = require("../../models/inventory/stock-movement.model");
 
 
 

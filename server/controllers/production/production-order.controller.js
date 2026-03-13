@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 const Joi = require("joi");
 
-const ProductionOrderModel = require("../../models/production-order.model");
-const ProductionRecordModel = require("../../models/production-record.model");
+const ProductionOrderModel = require("../../models/production/production-order.model");
+const ProductionRecordModel = require("../../models/production/production-record.model");
 
 /* ======================================================
    Helpers

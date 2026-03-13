@@ -8,7 +8,7 @@ const {
   getProductionRecipeByStockItem,
   changeRecipeState,
   deleteProductionRecipe,
-} = require("../../controllers/production-recipe.controller");
+} = require("../../controllers/inventory/production-recipe.controller");
 
 const { authenticateToken } = require("../../middlewares/authenticate");
 

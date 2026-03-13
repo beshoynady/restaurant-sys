@@ -1,8 +1,8 @@
-const productionRecordModel = require("../../models/production-record.model");
-const productionOrderModel = require("../../models/production-order.model");
-const stockItemModel = require("../../models/stock-items.model");
-const recipeModel = require("../../models/recipe.model");
-const departmentModel = require("../../models/department.model");
+const productionRecordModel = require("../../models/production/production-record.model");
+const productionOrderModel = require("../../models/production/production-order.model");
+const stockItemModel = require("../../models/inventory/stock-item.model");
+const recipeModel = require("../../models/menu/recipe.model");
+const departmentModel = require("../../models/employees/department.model");
 
 // Create and Save a new Production Record
 
