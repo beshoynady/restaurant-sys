@@ -7,7 +7,7 @@ const express = require("express");
 const router = express.Router();
 
 // TODO: import controller
-// const controller = require("../../controllers/preparation-ticket-settings.controller");
+// const controller = require("../../controllers/kitchen/preparation-ticket-settings.controller");
 
 // router.get("/", controller.list);
 // router.post("/", controller.create);

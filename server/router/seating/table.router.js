@@ -9,7 +9,7 @@ const {
   showOneTable,
   updateTable,
   deleteTable,
-} = require("../../controllers/table.controller");
+} = require("../../controllers/seating/table.controller");
 
 const router = express.Router();
 

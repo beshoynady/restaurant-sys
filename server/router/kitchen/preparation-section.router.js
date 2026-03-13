@@ -8,7 +8,7 @@ const {
   getPreparationSectionById,
   deletePreparationSection,
   togglePreparationSectionStatus,
-} = require("../../controllers/preparationSectionController");
+} = require("../../controllers/kitchen/preparation-section.controller");
 
 const { authenticateToken } = require("../../middlewares/authenticate");
 

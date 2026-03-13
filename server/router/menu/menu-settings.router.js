@@ -5,7 +5,7 @@ const {
   getMenuSetting,
   updateMenuSetting,
   deleteMenuSetting,
-} = require("../../controllers/settings/menu-settings.controller");
+} = require("../../controllers/menu/menu-settings.controller");
 
 const { authenticateToken } = require("../../middlewares/authenticate");
 
