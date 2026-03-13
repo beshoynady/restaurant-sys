@@ -14,7 +14,13 @@ const categoryStockSchema = new mongoose.Schema(
     },
     categoryName: {
       type: Map,
-      of: String,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+
       required: [true, "Category name is required"],
     },
     // { en: "Dairy Products", ar: "منتجات الألبان" },
@@ -33,7 +39,12 @@ const categoryStockSchema = new mongoose.Schema(
     },
     description: {
       type: Map,
-      of: String,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
     },
     // { en: "DAIRY", ar: "الألبان" },
     isActive: {
@@ -54,10 +65,10 @@ const categoryStockSchema = new mongoose.Schema(
       trim: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-index({ brand: 1, categoryCode: 1 }, { unique: true })
+index({ brand: 1, categoryCode: 1 }, { unique: true });
 
 const CategoryStockmodel = mongoose.model("StockCategory", categoryStockSchema);
 

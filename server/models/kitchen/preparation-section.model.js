@@ -10,7 +10,13 @@ const PreparationSectionConfigSchema = new mongoose.Schema(
     /** Section details */
     name: {
       type: Map,
-      of: String,
+      of: {
+    type: String,
+    trim: true,
+    minlength: 2,
+    maxlength: 100
+  },
+
       required: true,
       trim: true,
     },
@@ -22,7 +28,13 @@ const PreparationSectionConfigSchema = new mongoose.Schema(
     },
     description: {
       type: Map,
-      of: String,
+      of: {
+    type: String,
+    trim: true,
+    minlength: 2,
+    maxlength: 100
+  },
+
       trim: true,
       maxlength: 300,
     },

@@ -72,7 +72,13 @@ const payrollItemSchema = new Schema(
     // ======================================================
     name: {
       type: Map,
-      of: String,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+
       required: true,
       description:
         "Name of the payroll item in multiple languages (e.g. { en: 'Overtime Bonus', ar: 'مكافأة العمل الإضافي' })",

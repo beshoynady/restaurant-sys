@@ -15,7 +15,13 @@ const paymentChannelSchema = new mongoose.Schema({
   brand: { type: ObjectId, ref: "Brand", required: true },
   branch: { type: ObjectId, ref: "Branch", default: null },
 
-  name: { type: Map, of: String, required: true },
+  name: { type: Map, of: {
+    type: String,
+    trim: true,
+    minlength: 2,
+    maxlength: 100
+  },
+ required: true },
 
   code: { type: String, required: true, unique: true },
 

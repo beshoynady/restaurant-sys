@@ -9,12 +9,24 @@ const menuSettingsSchema = new mongoose.Schema(
         /**
      * Short description of the brand (multilingual)
      */
-    description: { type: Map, of: String, maxlength: 500 },
+    description: { type: Map, of: {
+    type: String,
+    trim: true,
+    minlength: 2,
+    maxlength: 100
+  },
+ maxlength: 500 },
 
     /**
      * Detailed "About" text for the brand (multilingual)
      */
-    aboutText: { type: Map, of: String, maxlength: 2000 },
+    aboutText: { type: Map, of: {
+    type: String,
+    trim: true,
+    minlength: 2,
+    maxlength: 100
+  },
+ maxlength: 2000 },
 
         /**
      * Brand cover image URL

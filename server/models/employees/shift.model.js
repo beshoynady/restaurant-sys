@@ -24,7 +24,13 @@ const shiftSchema = new mongoose.Schema(
     // Localized display name for the shift
     name: {
       type: Map,
-      of: String,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+
       required: true,
       description:
         "Localized name of the shift (e.g., { en: 'Morning Shift', ar: 'الوردية الصباحية' })",
@@ -56,7 +62,8 @@ const shiftSchema = new mongoose.Schema(
       required: true,
       min: 0,
       max: 1439,
-      description: "Shift start time expressed in minutes from midnight (0-1439)",
+      description:
+        "Shift start time expressed in minutes from midnight (0-1439)",
     },
 
     // End time of shift in minutes from midnight (0-1439)
@@ -105,7 +112,8 @@ const shiftSchema = new mongoose.Schema(
       type: ObjectId,
       ref: "Employee",
       default: null,
-      description: "Reference to the employee who deleted this shift (soft delete)",
+      description:
+        "Reference to the employee who deleted this shift (soft delete)",
     },
 
     deletedAt: {
@@ -116,7 +124,7 @@ const shiftSchema = new mongoose.Schema(
   },
   {
     timestamps: true, // Automatically adds createdAt and updatedAt
-  }
+  },
 );
 
 /* =========================
@@ -129,7 +137,7 @@ shiftSchema.index({ brand: 1, code: 1 }, { unique: true });
 // Unique shift name per branch per brand (soft delete safe)
 shiftSchema.index(
   { brand: 1, branch: 1, code: 1 },
-  { unique: true, partialFilterExpression: { deletedAt: null } }
+  { unique: true, partialFilterExpression: { deletedAt: null } },
 );
 
 // Optional: fast filtering by shift type per branch

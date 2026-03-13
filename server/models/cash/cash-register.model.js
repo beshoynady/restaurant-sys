@@ -25,7 +25,17 @@ const cashRegisterSchema = new mongoose.Schema(
      * Cash register name (multi-language)
      * Example: { en: "Main Cashier", ar: "صندوق الكاشير الرئيسي" }
      */
-    name: { type: Map, of: String, required: true, trim: true },
+    name: {
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      required: true,
+      trim: true,
+    },
     code: {
       type: String,
       required: true,
@@ -45,7 +55,6 @@ const cashRegisterSchema = new mongoose.Schema(
         "BANK", // Bank account
         "EMPLOYEE", // Employee custody
         "SUSPENSE", // Rounding / differences
-
       ],
       required: true,
     },
@@ -100,7 +109,7 @@ const cashRegisterSchema = new mongoose.Schema(
       type: Number,
       default: null,
     },
-    
+
     bankDetails: {
       bankName: {
         type: String,

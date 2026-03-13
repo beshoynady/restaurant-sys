@@ -15,13 +15,29 @@ const menuCategorySchema = new mongoose.Schema(
     // Category name and description (multilingual)
     name: {
       type: Map,
-      of: String,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+
       required: true,
       trim: true,
       minlength: 2,
       maxlength: 50,
     },
-    description: { type: Map, of: String, default: {}, maxlength: 200 },
+    description: {
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      default: {},
+      maxlength: 200,
+    },
 
     // Display order and visibility for customers
     displayOrder: { type: Number, required: true, min: 0, index: true },
@@ -58,7 +74,7 @@ const menuCategorySchema = new mongoose.Schema(
       default: "active",
       index: true,
     },
-    
+
     // Audit fields
     createdBy: { type: ObjectId, ref: "Employee", required: true },
     updatedBy: { type: ObjectId, ref: "Employee", default: null },

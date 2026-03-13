@@ -25,12 +25,24 @@ const expenseSchema = new mongoose.Schema(
      */
     name: {
       type: Map,
-      of: String,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+
       required: true,
     },
     description: {
       type: Map,
-      of: String,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+
       required: true,
     },
     code: {
@@ -118,12 +130,12 @@ const expenseSchema = new mongoose.Schema(
       ref: "Employee",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 expenseSchema.index(
   { brand: 1, branch: 1, "description.en": 1 },
-  { unique: true }
+  { unique: true },
 );
 
 const ExpenseModel = mongoose.model("Expense", expenseSchema);

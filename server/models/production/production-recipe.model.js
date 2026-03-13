@@ -79,7 +79,13 @@ const productionRecipeSchema = new mongoose.Schema(
       {
         description: {
           type: Map,
-          of: String,
+          of: {
+    type: String,
+    trim: true,
+    minlength: 2,
+    maxlength: 100
+  },
+
           trim: true,
           required: true,
         },

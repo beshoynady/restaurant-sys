@@ -16,7 +16,13 @@ const StockItemSchema = new mongoose.Schema(
     },
     itemName: {
       type: Map,
-      of: String,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+
       required: true,
       // { en: "Chicken Breast", ar: "صدر دجاج" }
     },
@@ -98,7 +104,12 @@ const StockItemSchema = new mongoose.Schema(
 
     notes: {
       type: Map,
-      of: String,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
     },
 
     inventoryAccount: {

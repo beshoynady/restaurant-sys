@@ -29,7 +29,13 @@ const PromotionSchema = new mongoose.Schema(
     // Multilingual promotion name
     name: { 
       type: Map, 
-      of: String, 
+      of: {
+    type: String,
+    trim: true,
+    minlength: 2,
+    maxlength: 100
+  },
+ 
       required: true, 
       // Displayed in UI, QR code, and app
     },

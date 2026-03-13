@@ -8,7 +8,13 @@ const accountingPeriodSchema = new mongoose.Schema(
       ref: "Brand",
       required: true,
     },
-    name: { type: Map, of: String, required: true },
+    name: { type: Map, of: {
+    type: String,
+    trim: true,
+    minlength: 2,
+    maxlength: 100
+  },
+ required: true },
     
     code: {
       type: String,

@@ -19,7 +19,13 @@ const WarehouseSchema = new mongoose.Schema(
 
     name: {
       type: Map,
-      of: String,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+
       required: true, // { en, ar }
     },
 
@@ -59,12 +65,22 @@ const WarehouseSchema = new mongoose.Schema(
 
     description: {
       type: Map,
-      of: String,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
     },
 
     address: {
       type: Map,
-      of: String,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
     },
 
     storekeepers: [
@@ -100,7 +116,7 @@ const WarehouseSchema = new mongoose.Schema(
       ref: "Employee",
     },
   },
-  { timestamps: true, versionKey: false }
+  { timestamps: true, versionKey: false },
 );
 
 // Code unique per branch

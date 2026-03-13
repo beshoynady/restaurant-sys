@@ -59,13 +59,13 @@ const StockLedgerSchema = new mongoose.Schema(
         "ReturnPurchase",
         "Issuance", // Issuance of stock from warehouse
         "ReturnIssuance", // Return of issued stock to warehouse
-        "Wastage", // Wastage of stock due to spoilage or expiration 
+        "Wastage", // Wastage of stock due to spoilage or expiration
         "Damaged", // Damaged stock write-off
         "TransferIn", // Transfer of stock into warehouse
         "TransferOut", // Transfer of stock out of warehouse
         "FreeIssue", // Free issue of stock to customers
         "SalesReturn", // Return of sold stock from customers
-        "ProductionOut", // Stock used in production process 
+        "ProductionOut", // Stock used in production process
         "ProductionIn", // Finished goods from production
         "ProductionOut", // Raw materials consumed in production
         "StockAdjustment", // Manual stock adjustment
@@ -78,7 +78,13 @@ const StockLedgerSchema = new mongoose.Schema(
 
     description: {
       type: Map,
-      of: String,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+
       required: true,
     },
 
@@ -106,7 +112,7 @@ const StockLedgerSchema = new mongoose.Schema(
       default: 0,
       // FIFO layer tracking
     },
-    // Production date of the stock batch (for perishable items) 
+    // Production date of the stock batch (for perishable items)
     productionDate: {
       type: Date,
       default: null,

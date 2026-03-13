@@ -25,7 +25,13 @@ const accountSchema = new mongoose.Schema(
 
     name: {
       type: Map,
-      of: String, // { en: "Cash on Hand", ar: "النقدية بالصندوق" }
+      of: {
+    type: String,
+    trim: true,
+    minlength: 2,
+    maxlength: 100
+  },
+ // { en: "Cash on Hand", ar: "النقدية بالصندوق" }
       required: true,
     },
     category: {

@@ -25,7 +25,13 @@ const assetSchema = new mongoose.Schema(
     // Asset name (multi-language support)
     name: {
       type: Map,
-      of: String,
+      of: {
+    type: String,
+    trim: true,
+    minlength: 2,
+    maxlength: 100
+  },
+
       required: true,
       trim: true,
     },

@@ -26,8 +26,26 @@ const ProductSchema = new mongoose.Schema(
     /* =========================
        DISPLAY
     ========================= */
-    name: { type: Map, of: String, required: true, trim: true }, // Product name in multiple languages
-    description: { type: Map, of: String, default: "" }, // Description in multiple languages
+    name: {
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      required: true,
+    }, // Product name in multiple languages
+    description: {
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      default: "",
+    }, // Description in multiple languages
     image: {
       type: String,
       default: null,
@@ -63,7 +81,16 @@ const ProductSchema = new mongoose.Schema(
     ========================= */
     parentProduct: { type: ObjectId, ref: "Product", default: null }, // Reference to main product if this is a size
     isSizeGroup: { type: Boolean, default: false }, // Whether this is a size group container
-    sizeLabel: { type: Map, of: String, default: null }, // Label like "Small", "Medium", "Large"
+    sizeLabel: {
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      default: null,
+    }, // Label like "Small", "Medium", "Large"
     sizeOrder: { type: Number, default: 0 }, // Display order of sizes
     sizes: [{ type: ObjectId, ref: "Product" }], // List of size products if this is a size group
 
@@ -79,7 +106,16 @@ const ProductSchema = new mongoose.Schema(
     comboGroups: [
       {
         required: Boolean,
-        name: { type: Map, of: String, required: true },
+        name: {
+          type: Map,
+          of: {
+            type: String,
+            trim: true,
+            minlength: 2,
+            maxlength: 100,
+          },
+          required: true,
+        },
         minSelection: {
           type: Number,
           default: 0,

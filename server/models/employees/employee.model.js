@@ -20,30 +20,62 @@ const employeeSchema = new mongoose.Schema(
   {
     brand: { type: ObjectId, ref: "Brand", required: true },
     branch: { type: ObjectId, ref: "Branch", default: null },
-    type: { type: String, enum: ["staff", "system_user"], default: "staff" },
-
     // Personal Information
-    fullName: { type: Map, of: String, required: true }, // { en: "John Doe", ar: "جون دو" }
-    gender: { type: String, enum: ["male", "female", "other"], required: true },
-    dateOfBirth: { type: Date },
+    firstName: {
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      required: true,
+    }, // { en: "John Doe", ar: "جون دو" }
+    lastName: {
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      required: true,
+    }, // { en: "John Doe", ar: "جون دو" }
+    middleName: { type: Map, of: String }, // { en: "Michael", ar: "مايكل" }
+
+    gender: { type: String, enum: ["male", "female"], required: true },
+    dateOfBirth: { type: Date, required: true },
     nationalID: {
       type: String,
       trim: true,
       required: true,
-      unique: true,
       minlength: 10,
       maxlength: 30,
     },
-    nationality: { type: String, trim: true, maxlength: 50 },
+    nationality: {
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+
+      required: true,
+    },
     maritalStatus: {
       type: String,
       enum: ["single", "married", "divorced", "widowed"],
     },
     profileImage: { type: String, default: "" },
+
     defaultLanguage: {
       type: String,
-      enum: ["en", "ar", "fr", "es", "de", "zh", "hi"],
-      default: "en",
+      enum: ["EN", "AR", "FR", "ES", "DE", "IT", "ZH", "JA", "RU"],
+      uppercase: true,
+      minlength: 2,
+      maxlength: 2,
+      default: "EN",
     },
 
     /*  
@@ -53,8 +85,37 @@ const employeeSchema = new mongoose.Schema(
       - Email is optional but must be valid if provided.
       - Address is optional but can store detailed location info.
     */
-    phone: { type: String, trim: true, required: true, unique: true },
-    whatsapp: { type: String, trim: true },
+    phone: {
+      type: String,
+      minlength: 7,
+      maxlength: 20,
+      trim: true,
+      required: true,
+    },
+    emergencyContact: {
+      name: {
+        type: String,
+        trim: true,
+        maxlength: 100,
+      },
+      phone: {
+        type: String,
+        minlength: 7,
+        maxlength: 20,
+        trim: true,
+      },
+      relation: {
+        type: String,
+        trim: true,
+        maxlength: 100,
+      },
+    },
+    whatsapp: {
+      type: String,
+      minlength: 7,
+      maxlength: 20,
+      trim: true,
+    },
     email: {
       type: String,
       trim: true,
@@ -62,14 +123,58 @@ const employeeSchema = new mongoose.Schema(
       match: [/\S+@\S+\.\S+/, "Invalid email address"],
     },
     address: {
-      country: { type: String, trim: true, maxlength: 100 },
-      city: { type: String, trim: true, maxlength: 100 },
-      area: { type: String, trim: true, maxlength: 100 },
-      street: { type: String, trim: true, maxlength: 150 },
-      building: { type: String, trim: true, maxlength: 20 },
-      floor: { type: String, trim: true, maxlength: 10 },
-      landmark: { type: String, trim: true, maxlength: 150 },
-      fullAddress: { type: String, trim: true, maxlength: 300 },
+      country: {
+        type: Map,
+        of: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
+        required: true,
+      },
+      city: {
+        type: Map,
+        of: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
+        required: true,
+      },
+      area: {
+        type: Map,
+        of: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
+        required: true,
+      },
+      street: {
+        type: Map,
+        of: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
+        required: true,
+      },
+      building: {
+        type: Map,
+        of: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
+        required: true,
+      },
+      floor: { type: Map, of: String },
+      landmark: { type: Map, of: String }, //
     },
 
     // Employment Info
@@ -81,8 +186,8 @@ const employeeSchema = new mongoose.Schema(
       minlength: 3,
       maxlength: 20,
     },
-    department: { type: ObjectId, ref: "Department" },
-    jobTitle: { type: ObjectId, ref: "JobTitle" },
+    department: { type: ObjectId, ref: "Department", required: true },
+    jobTitle: { type: ObjectId, ref: "JobTitle", required: true },
     hireDate: { type: Date, default: Date.now },
     contractType: {
       type: String,
@@ -97,26 +202,43 @@ const employeeSchema = new mongoose.Schema(
     },
 
     dailyWorkingHours: { type: Number, min: 1, max: 24, default: 8 },
-    weeklyOffDay: { type: String, enum: WEEK_DAYS, default: "friday" },
+    weeklyOffDay: { type: [String], enum: WEEK_DAYS, default: ["friday"] },
     annualLeaveDays: { type: Number, min: 0, max: 365, default: 21 },
     documents: [
-  {
-    name: {
-        type: String,
-        trim: true,
-        maxlength: 100,
+      {
+        name: {
+          type: Map,
+          of: {
+            type: String,
+            trim: true,
+            minlength: 2,
+            maxlength: 100,
+          },
+
+          required: true,
+        },
+        documentType: {
+          type: String,
+          required: true,
+          enum: [
+            "id_card",
+            "passport",
+            "contract",
+            "certification",
+            "insurance",
+            "cv",
+            "cover_letter",
+            "other",
+          ],
+        },
+        fileUrl: {
+          type: String,
+          trim: true,
+          required: true,
+          maxlength: 300,
+        },
+        uploadedAt: { type: Date, default: Date.now },
       },
-      documentType: {
-        type: String,
-        enum: ["id_card", "passport", "contract", "other"],
-      },
-      fileUrl: {
-        type: String,
-        trim: true,
-        maxlength: 300,
-      },
-      uploadedAt: { type: Date, default: Date.now },
-    }
     ],
 
     // Status & Roles
@@ -152,9 +274,13 @@ const employeeSchema = new mongoose.Schema(
 );
 
 // Indexes
-employeeSchema.index({ branch: 1 });
-employeeSchema.index({ department: 1 });
-employeeSchema.index({ jobTitle: 1 });
+employeeSchema.index({ brand: 1, branch: 1 });
+employeeSchema.index({ brand: 1, department: 1 });
+employeeSchema.index({ brand: 1, jobTitle: 1 });
 employeeSchema.index({ employeeCode: 1, brand: 1 }, { unique: true });
+employeeSchema.index({ nationalID: 1, brand: 1 }, { unique: true });
+employeeSchema.index({ phone: 1, brand: 1 }, { unique: true });
+
+// model definition
 const Employee = mongoose.model("Employee", employeeSchema);
 module.exports = Employee;

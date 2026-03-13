@@ -13,7 +13,7 @@ const PaymentMethodSchema = new mongoose.Schema(
        Ownership & Scope
     ============================== */
     brand: { type: ObjectId, ref: "Brand", required: true },
-    
+
     branch: { type: ObjectId, ref: "Branch", default: null },
 
     /* =============================
@@ -26,23 +26,29 @@ const PaymentMethodSchema = new mongoose.Schema(
      */
     name: {
       type: Map,
-      of: String,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+
       required: true,
     },
-    
+
     /**
      * Payment category (business meaning)
      */
     paymentCategory: {
       type: String,
       enum: [
-        "Cash",          // Physical cash
-        "Card",          // POS / debit / credit cards
-        "MobileWallet",  // Vodafone Cash, Orange, etc.
+        "Cash", // Physical cash
+        "Card", // POS / debit / credit cards
+        "MobileWallet", // Vodafone Cash, Orange, etc.
         "OnlineGateway", // Paymob, Stripe, etc.
-        "Credit",        // Customer credit / on-account
-        "Voucher",       // Discount or prepaid voucher
-        "GiftCard",      // Stored value card
+        "Credit", // Customer credit / on-account
+        "Voucher", // Discount or prepaid voucher
+        "GiftCard", // Stored value card
         "Other",
       ],
       required: true,
@@ -72,8 +78,7 @@ const PaymentMethodSchema = new mongoose.Schema(
       type: Boolean,
       default: function () {
         return (
-          this.paymentCategory === "Cash" &&
-          this.paymentType === "Offline"
+          this.paymentCategory === "Cash" && this.paymentType === "Offline"
         );
       },
     },
@@ -86,11 +91,11 @@ const PaymentMethodSchema = new mongoose.Schema(
       type: Boolean,
       default: function () {
         return ["Card", "MobileWallet", "OnlineGateway"].includes(
-          this.paymentCategory
+          this.paymentCategory,
         );
       },
     },
-    
+
     // Type of the referenced model
     type: {
       type: String,
@@ -98,7 +103,7 @@ const PaymentMethodSchema = new mongoose.Schema(
       required: true,
     },
 
-/// Dynamic reference to either CashRegister or PaymentChannel
+    /// Dynamic reference to either CashRegister or PaymentChannel
     reference: {
       type: ObjectId,
       refPath: "type",
@@ -110,8 +115,6 @@ const PaymentMethodSchema = new mongoose.Schema(
      * Example: cash + card
      */
     allowSplit: { type: Boolean, default: true },
-
-
 
     /* =============================
        UI & Behavior
@@ -156,7 +159,7 @@ const PaymentMethodSchema = new mongoose.Schema(
     deletedBy: { type: ObjectId, ref: "Employee", default: null },
     deletedAt: { type: Date, default: null },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 /**
@@ -164,7 +167,7 @@ const PaymentMethodSchema = new mongoose.Schema(
  */
 PaymentMethodSchema.index(
   { brand: 1, branch: 1, isDefault: 1 },
-  { partialFilterExpression: { isDefault: true } }
+  { partialFilterExpression: { isDefault: true } },
 );
 
 export default mongoose.model("PaymentMethod", PaymentMethodSchema);

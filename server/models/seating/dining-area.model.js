@@ -16,119 +16,115 @@ const { Schema, Types } = mongoose;
  * - Takeaway Counter
  */
 const DiningAreaSchema = new Schema(
-{
-  // ─────────── Organization Context ───────────
-  brand: {
-    type: Types.ObjectId,
-    ref: "Brand",
-    required: true,
-    index: true,
-  },
+  {
+    // ─────────── Organization Context ───────────
+    brand: {
+      type: Types.ObjectId,
+      ref: "Brand",
+      required: true,
+      index: true,
+    },
 
-  branch: {
-    type: Types.ObjectId,
-    ref: "Branch",
-    required: true,
-    index: true,
-  },
+    branch: {
+      type: Types.ObjectId,
+      ref: "Branch",
+      required: true,
+      index: true,
+    },
 
-  // ─────────── Identity ───────────
-  name: {
-    type: Map,
-    of: String,
-    required: true,
-    trim: true,
-    // Example: { AR: "صالة داخلية", EN: "Indoor Hall" }
-  },
+    // ─────────── Identity ───────────
+    name: {
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
 
-  code: {
-    type: String,
-    required: true,
-    uppercase: true,
-    trim: true,
-    index: true,
-    // Example: INDOOR, VIP, BAR
-  },
+      required: true,
+      trim: true,
+      // Example: { AR: "صالة داخلية", EN: "Indoor Hall" }
+    },
 
-  /**
-   * Area operational type
-   * Used for POS behavior and filtering
-   */
-  type: {
-    type: String,
-    enum: [
-      "dine_in",
-      "takeaway",
-      "bar",
-      "delivery",
-      "drive_thru",
-      "other",
-    ],
-    default: "dine_in",
-  },
+    code: {
+      type: String,
+      required: true,
+      uppercase: true,
+      trim: true,
+      index: true,
+      // Example: INDOOR, VIP, BAR
+    },
 
-  // ─────────── Operational Rules ───────────
-  priority: {
-    type: Number,
-    default: 1,
-    // Used for sorting areas in POS
-  },
+    /**
+     * Area operational type
+     * Used for POS behavior and filtering
+     */
+    type: {
+      type: String,
+      enum: ["dine_in", "takeaway", "bar", "delivery", "drive_thru", "other"],
+      default: "dine_in",
+    },
 
-  allowReservations: {
-    type: Boolean,
-    default: true,
-    // If false, this area will not accept reservations
-  },
+    // ─────────── Operational Rules ───────────
+    priority: {
+      type: Number,
+      default: 1,
+      // Used for sorting areas in POS
+    },
 
-  allowQR: {
-    type: Boolean,
-    default: true,
-    // Controls QR ordering availability in this area
-  },
+    allowReservations: {
+      type: Boolean,
+      default: true,
+      // If false, this area will not accept reservations
+    },
 
-  allowManualOrders: {
-    type: Boolean,
-    default: true,
-    // Allow POS orders (cashier/waiter)
-  },
+    allowQR: {
+      type: Boolean,
+      default: true,
+      // Controls QR ordering availability in this area
+    },
 
-  // ─────────── Status ───────────
-  isActive: {
-    type: Boolean,
-    default: true,
-    // If false, area will not appear in POS
-  },
+    allowManualOrders: {
+      type: Boolean,
+      default: true,
+      // Allow POS orders (cashier/waiter)
+    },
 
-  notes: {
-    type: String,
-    trim: true,
-    maxlength: 250,
-  },
+    // ─────────── Status ───────────
+    isActive: {
+      type: Boolean,
+      default: true,
+      // If false, area will not appear in POS
+    },
 
-  // ─────────── Audit ───────────
-  createdBy: {
-    type: Types.ObjectId,
-    ref: "Employee",
-    required: true,
-  },
+    notes: {
+      type: String,
+      trim: true,
+      maxlength: 250,
+    },
 
-  updatedBy: {
-    type: Types.ObjectId,
-    ref: "Employee",
-    default: null,
+    // ─────────── Audit ───────────
+    createdBy: {
+      type: Types.ObjectId,
+      ref: "Employee",
+      required: true,
+    },
+
+    updatedBy: {
+      type: Types.ObjectId,
+      ref: "Employee",
+      default: null,
+    },
   },
-},
-{
-  timestamps: true,
-}
+  {
+    timestamps: true,
+  },
 );
 
 // ─────────── Indexes ───────────
 
 // Ensure unique area code per branch
-DiningAreaSchema.index(
-  { branch: 1, code: 1 },
-  { unique: true }
-);
+DiningAreaSchema.index({ branch: 1, code: 1 }, { unique: true });
 
 export default mongoose.model("DiningArea", DiningAreaSchema);

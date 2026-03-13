@@ -42,6 +42,7 @@ const brandSchema = new mongoose.Schema(
     /**
      * Brand name (multilingual)
      * Displayed in POS, menus, invoices
+     * Supports multiple languages using a Map (e.g., { "en": "My Restaurant", "ar": "مطعمي" })
      */
     name: {
       type: Map,
@@ -116,6 +117,10 @@ const brandSchema = new mongoose.Schema(
         "RUB",
         "AUD",
         "CAD",
+        "CHF",
+        "SEK",
+        "NOK",
+        "DKK",
       ],
       default: "EGP",
       description: "Default currency for sales and purchases",
