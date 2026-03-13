@@ -1,4 +1,4 @@
-import DiningAreaModel from "../../models/seating/diningArea.model.js";
+const diningAreaModel = require( "../../models/seating/dining-area.model.js");
 const TableModel = require("../../models/seating/table.model.js");
 const Joi =require("joi");
 const mongoose = require("mongoose");

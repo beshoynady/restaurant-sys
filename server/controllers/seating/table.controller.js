@@ -1,10 +1,9 @@
 const TableModel = require("../../models/seating/table.model.js");
-import diningAreaModel from "../../models/seating/diningArea.model.js";
+const diningAreaModel = require( "../../models/seating/dining-area.model.js");
 const Joi =require("joi");
 const mongoose = require("mongoose");
-import QRCode from "qrcode";
-import { v4 as uuidv4 } from "uuid";
-
+const QRCode = require("qrcode");
+const { v4: uuidv4 } = require("uuid");
 const { ObjectId } = mongoose.Types;
 
 /* =============================
