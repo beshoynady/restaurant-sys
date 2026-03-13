@@ -12,24 +12,24 @@ const {
 // 🔹 Middlewares
 // ----------------------------
 const { authenticateToken } = require("../middlewares/authenticate");
-const { verifyBrandAndBranch } = require("../middlewares/verifyBrandAndBranch");
+
 
 router
   .route("/")
-  .post(verifyBrandAndBranch, createCustomerMessage)
-  .get(authenticateToken, verifyBrandAndBranch, getCustomerMessages);
+  .post(createCustomerMessage)
+  .get(authenticateToken, getCustomerMessages);
 
 router
   .route("/:id")
-  .get(authenticateToken, verifyBrandAndBranch, getCustomerMessageById)
-  .put(authenticateToken, verifyBrandAndBranch, updateCustomerMessage);
+  .get(authenticateToken, getCustomerMessageById)
+  .put(authenticateToken, updateCustomerMessage);
 router
   .route("soft-delete/:id")
-  .put(authenticateToken, verifyBrandAndBranch, softDeleteCustomerMessage);
+  .put(authenticateToken, softDeleteCustomerMessage);
 router.patch(
   "/restore/:id",
   authenticateToken,
-  verifyBrandAndBranch,
+  
   restoreCustomerMessage,
 );
 

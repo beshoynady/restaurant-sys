@@ -17,9 +17,6 @@ const {
 } = require("../../controllers/core/brand.controller");
 
 const { authenticateToken } = require("../../middlewares/authenticate");
-const {
-  verifyBrandAndBranch,
-} = require("../../middlewares/verifyBrandAndBranch");
 
 const { createUploader } = require("../../utils/fileHandler");
 
@@ -45,12 +42,12 @@ router
   /**
    * Update brand data
    */
-  .put(authenticateToken, verifyBrandAndBranch, updateBrand)
+  .put(authenticateToken, updateBrand)
 
   /**
    * Delete brand
    */
-  .delete(authenticateToken, verifyBrandAndBranch, deleteBrand);
+  .delete(authenticateToken, deleteBrand);
 
 /**
  * Update brand logo
@@ -58,7 +55,7 @@ router
 router.put(
   "/logo",
   authenticateToken,
-  verifyBrandAndBranch,
+  
   uploadLogo.single("logo"),
   updateBrandLogo,
 );

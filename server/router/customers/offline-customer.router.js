@@ -22,7 +22,7 @@ const {
 // 🔹 Middlewares
 // ----------------------------
 const { authenticateToken } = require("../middlewares/authenticate");
-const { verifyBrandAndBranch } = require("../middlewares/verifyBrandAndBranch");
+
 
 // ===================================================================
 // 🔹 Base Routes (/offline-customers)
@@ -34,12 +34,12 @@ router
   .route("/")
   .post(
     authenticateToken,
-    verifyBrandAndBranch,
+    
     createOfflineCustomer
   )
   .get(
     authenticateToken,
-    verifyBrandAndBranch,
+    
     getAllOfflineCustomers
   );
 
@@ -52,7 +52,7 @@ router
   .route("/getsoftdeleted")
   .get(
     authenticateToken,
-    verifyBrandAndBranch,
+    
     getDeletedOfflineCustomers
   );
 
@@ -61,7 +61,7 @@ router
   .route("/restore/:id")
   .put(
     authenticateToken,
-    verifyBrandAndBranch,
+    
     restoreOfflineCustomer
   );
 
@@ -76,17 +76,17 @@ router
   .route("/:id")
   .get(
     authenticateToken,
-    verifyBrandAndBranch,
+    
     getOfflineCustomerById
   )
   .put(
     authenticateToken,
-    verifyBrandAndBranch,
+    
     updateOfflineCustomer
   )
   .delete(
     authenticateToken,
-    verifyBrandAndBranch,
+    
     softDeleteOfflineCustomer
   );
 
@@ -100,7 +100,7 @@ router
   .route("/delete/branch/:branchId")
   .get(
     authenticateToken,
-    verifyBrandAndBranch,
+    
     deleteOfflineCustomer
   );
 
@@ -113,7 +113,7 @@ router
   .route("/getbyphone/:phone")
   .get(
     authenticateToken,
-    verifyBrandAndBranch,
+    
     getOfflineCustomerByPhone
   );
 
@@ -122,7 +122,7 @@ router
   .route("/getall/branch/:branchId")
   .get(
     authenticateToken,
-    verifyBrandAndBranch,
+    
     getOfflineCustomersByBranch
   );
 
@@ -131,7 +131,7 @@ router
   .route("/getsoftdeleted/branch/:branchId")
   .get(
     authenticateToken,
-    verifyBrandAndBranch,
+    
     getDeletedOfflineCustomersByBranch
   );
 
