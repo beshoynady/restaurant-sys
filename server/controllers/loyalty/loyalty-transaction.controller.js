@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const joi = require("joi");
+const Joi = require("joi");
 const asyncHandler= require("../../utils/asyncHandler");;
 
 const LoyaltyTransaction = require("../../models/loyalty/loyalty-transaction.model");
@@ -11,20 +11,20 @@ const CustomerLoyalty = require("../../models/loyalty/customer-loyalty.model");
 // Validation Schemas
 // =====================================================
 
-const earnPointsSchema = joi.object({
-  brand: joi.string().required(),
-  branch: joi.string().required(),
-  customerLoyalty: joi.string().required(),
-  order: joi.string().required(),
-  orderAmount: joi.number().min(0).required(),
+const earnPointsSchema = Joi.object({
+  brand: Joi.string().required(),
+  branch: Joi.string().required(),
+  customerLoyalty: Joi.string().required(),
+  order: Joi.string().required(),
+  orderAmount: Joi.number().min(0).required(),
 });
 
-const redeemPointsSchema = joi.object({
-  brand: joi.string().required(),
-  branch: joi.string().required(),
-  customerLoyalty: joi.string().required(),
-  order: joi.string().required(),
-  points: joi.number().min(1).required(),
+const redeemPointsSchema = Joi.object({
+  brand: Joi.string().required(),
+  branch: Joi.string().required(),
+  customerLoyalty: Joi.string().required(),
+  order: Joi.string().required(),
+  points: Joi.number().min(1).required(),
 });
 
 
@@ -242,12 +242,12 @@ const adjustPoints = asyncHandler(async (req, res) => {
     const brand = req.brand._id;
     const branch = req.branch._id;
     
-  const schema = joi.object({
-    brand: joi.string().required(),
-    branch: joi.string().required(),
-    customerLoyalty: joi.string().required(),
-    points: joi.number().required(),
-    note: joi.string().max(300),
+  const schema = Joi.object({
+    brand: Joi.string().required(),
+    branch: Joi.string().required(),
+    customerLoyalty: Joi.string().required(),
+    points: Joi.number().required(),
+    note: Joi.string().max(300),
   });
 
   const { error, value } = schema.validate(req.body);

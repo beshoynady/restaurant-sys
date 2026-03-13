@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 import BranchSettingsModel from "../../models/settings/branchSettings.model.js";
-const joi = required("joi");
+const Joi = required("joi");
 
 const { ObjectId } = mongoose.Types;
 
@@ -15,34 +15,34 @@ const timeSchema = joi
   .message("Time must be in HH:mm 24-hour format");
 
 // Period schema for operating hours
-const periodSchema = joi.object({
-  name: joi.string().trim().max(50).required(),
+const periodSchema = Joi.object({
+  name: Joi.string().trim().max(50).required(),
   openTime: timeSchema.required(),
   closeTime: timeSchema.required(),
-  services: joi.object({
-    dineIn: joi.object({
-      enabled: joi.boolean().default(true),
+  services: Joi.object({
+    dineIn: Joi.object({
+      enabled: Joi.boolean().default(true),
       openTime: timeSchema.optional(),
       closeTime: timeSchema.optional(),
     }),
-    takeaway: joi.object({
-      enabled: joi.boolean().default(true),
+    takeaway: Joi.object({
+      enabled: Joi.boolean().default(true),
       openTime: timeSchema.optional(),
       closeTime: timeSchema.optional(),
     }),
-    delivery: joi.object({
-      enabled: joi.boolean().default(true),
+    delivery: Joi.object({
+      enabled: Joi.boolean().default(true),
       openTime: timeSchema.optional(),
       closeTime: timeSchema.optional(),
-      minOrderAmount: joi.number().min(0).optional(),
-      estimatedTimeMinutes: joi.number().min(0).optional(),
+      minOrderAmount: Joi.number().min(0).optional(),
+      estimatedTimeMinutes: Joi.number().min(0).optional(),
     }),
   }),
   pauses: joi
     .array()
     .items(
-      joi.object({
-        reason: joi.string().trim().max(100).required(),
+      Joi.object({
+        reason: Joi.string().trim().max(100).required(),
         from: timeSchema.required(),
         to: timeSchema.required(),
       }),
@@ -50,8 +50,8 @@ const periodSchema = joi.object({
     .optional(),
 });
 
-const operatingHoursSchema = joi.array().items(
-  joi.object({
+const operatingHoursSchema = Joi.array().items(
+  Joi.object({
     day: joi
       .string()
       .valid(
@@ -64,12 +64,12 @@ const operatingHoursSchema = joi.array().items(
         "Friday",
       )
       .required(),
-    status: joi.string().valid("open", "closed", "holiday").default("open"),
-    periods: joi.array().items(periodSchema).required(),
+    status: Joi.string().valid("open", "closed", "holiday").default("open"),
+    periods: Joi.array().items(periodSchema).required(),
   }),
 );
 
-const featureSchema = joi.object({
+const featureSchema = Joi.object({
   name: joi
     .string()
     .valid(
@@ -87,45 +87,45 @@ const featureSchema = joi.object({
       "Other",
     )
     .required(),
-  enabled: joi.boolean().default(true),
-  description: joi.string().trim().max(150).optional(),
-  iconUrl: joi.string().trim().max(200).optional(),
+  enabled: Joi.boolean().default(true),
+  description: Joi.string().trim().max(150).optional(),
+  iconUrl: Joi.string().trim().max(200).optional(),
 });
 
-const contactSchema = joi.object({
-  phone: joi.array().items(joi.string().trim().max(20)).optional(),
-  whatsapp: joi.string().trim().max(20).optional(),
-  email: joi.string().trim().max(100).email().optional(),
+const contactSchema = Joi.object({
+  phone: Joi.array().items(Joi.string().trim().max(20)).optional(),
+  whatsapp: Joi.string().trim().max(20).optional(),
+  email: Joi.string().trim().max(100).email().optional(),
 });
 
-const createBranchSettingsSchema = joi.object({
-  brand: joi.string().required(),
-  branch: joi.string().required(),
+const createBranchSettingsSchema = Joi.object({
+  brand: Joi.string().required(),
+  branch: Joi.string().required(),
   contact: contactSchema.optional(),
   operatingHours: operatingHoursSchema.required(),
-  features: joi.array().items(featureSchema).optional(),
-  usesReservationSystem: joi.boolean().default(false),
-  hasPrivateDining: joi.boolean().default(false),
-  hasOutdoorSeating: joi.boolean().default(false),
-  offersCurbsidePickup: joi.boolean().default(false),
-  offersOnlinePayment: joi.boolean().default(false),
-  offersCashOnDelivery: joi.boolean().default(false),
-  isActive: joi.boolean().default(true),
-  createdBy: joi.string().required(),
+  features: Joi.array().items(featureSchema).optional(),
+  usesReservationSystem: Joi.boolean().default(false),
+  hasPrivateDining: Joi.boolean().default(false),
+  hasOutdoorSeating: Joi.boolean().default(false),
+  offersCurbsidePickup: Joi.boolean().default(false),
+  offersOnlinePayment: Joi.boolean().default(false),
+  offersCashOnDelivery: Joi.boolean().default(false),
+  isActive: Joi.boolean().default(true),
+  createdBy: Joi.string().required(),
 });
 
-const updateBranchSettingsSchema = joi.object({
+const updateBranchSettingsSchema = Joi.object({
   contact: contactSchema.optional(),
   operatingHours: operatingHoursSchema.optional(),
-  features: joi.array().items(featureSchema).optional(),
-  usesReservationSystem: joi.boolean().optional(),
-  hasPrivateDining: joi.boolean().optional(),
-  hasOutdoorSeating: joi.boolean().optional(),
-  offersCurbsidePickup: joi.boolean().optional(),
-  offersOnlinePayment: joi.boolean().optional(),
-  offersCashOnDelivery: joi.boolean().optional(),
-  isActive: joi.boolean().optional(),
-  updatedBy: joi.string().required(),
+  features: Joi.array().items(featureSchema).optional(),
+  usesReservationSystem: Joi.boolean().optional(),
+  hasPrivateDining: Joi.boolean().optional(),
+  hasOutdoorSeating: Joi.boolean().optional(),
+  offersCurbsidePickup: Joi.boolean().optional(),
+  offersOnlinePayment: Joi.boolean().optional(),
+  offersCashOnDelivery: Joi.boolean().optional(),
+  isActive: Joi.boolean().optional(),
+  updatedBy: Joi.string().required(),
 });
 
 /* ==================================================

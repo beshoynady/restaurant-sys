@@ -1,6 +1,6 @@
 const JobTitleModel = require("../../models/employees/job-title.model");
 const EmployeeModel = require("../../models/employees/employee.model");
-const joi = require("joi");
+const Joi = require("joi");
 
 /**
  * ==================================================
@@ -11,7 +11,7 @@ const joi = require("joi");
 // Joi schema for multilingual Map fields
 const mapLangSchema = joi
   .object()
-  .pattern(joi.string().min(2), joi.string().trim().min(1).max(1000));
+  .pattern(Joi.string().min(2), Joi.string().trim().min(1).max(1000));
 
 /**
  * ==================================================
@@ -19,9 +19,9 @@ const mapLangSchema = joi
  * ==================================================
  */
 
-const createJobTitleSchema = joi.object({
-  brand: joi.string().required(),
-  department: joi.string().required(),
+const createJobTitleSchema = Joi.object({
+  brand: Joi.string().required(),
+  department: Joi.string().required(),
 
   titleName: mapLangSchema.required(),
   description: mapLangSchema.optional(),
@@ -31,16 +31,16 @@ const createJobTitleSchema = joi.object({
     .string()
     .valid("active", "inactive", "archived")
     .default("active"),
-  createdBy: joi.string().required(),
+  createdBy: Joi.string().required(),
 });
 
-const updateJobTitleSchema = joi.object({
+const updateJobTitleSchema = Joi.object({
   titleName: mapLangSchema.optional(),
   description: mapLangSchema.optional(),
   responsibilities: mapLangSchema.optional(),
   requirements: mapLangSchema.optional(),
-  status: joi.string().valid("active", "inactive", "archived").optional(),
-  updatedBy: joi.string().required(),
+  status: Joi.string().valid("active", "inactive", "archived").optional(),
+  updatedBy: Joi.string().required(),
 });
 
 /**

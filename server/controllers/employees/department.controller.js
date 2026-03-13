@@ -1,13 +1,13 @@
 const DepartmentModel = require("../../models/employees/department.model");
 const BrandModel = require("../../models/core/brand.model");
 const BranchModel = require("../../models/core/branch.model");
-const joi = require("joi");
+const Joi = require("joi");
 
 // --------------------------- Joi Schemas ---------------------------
-const createDepartmentSchema = joi.object({
-  brand: joi.string().required(),
-  branches: joi.array().items(joi.string()),
-  name: joi.object().pattern(/.*/, joi.string().min(2).max(100)).required(),
+const createDepartmentSchema = Joi.object({
+  brand: Joi.string().required(),
+  branches: Joi.array().items(Joi.string()),
+  name: Joi.object().pattern(/.*/, Joi.string().min(2).max(100)).required(),
   classification: joi
     .string()
     .valid(
@@ -19,17 +19,17 @@ const createDepartmentSchema = joi.object({
       "security"
     )
     .required(),
-  description: joi.object().pattern(/.*/, joi.string().max(300)).allow(null),
-  code: joi.string().max(20).uppercase().allow(null, ""),
-  parentDepartment: joi.string().allow(null),
-  isActive: joi.boolean().default(true),
-  createdBy: joi.string().required(),
+  description: Joi.object().pattern(/.*/, Joi.string().max(300)).allow(null),
+  code: Joi.string().max(20).uppercase().allow(null, ""),
+  parentDepartment: Joi.string().allow(null),
+  isActive: Joi.boolean().default(true),
+  createdBy: Joi.string().required(),
 });
 
-const updateDepartmentSchema = joi.object({
-  brand: joi.string(),
-  branches: joi.array().items(joi.string()),
-  name: joi.object().pattern(/.*/, joi.string().min(2).max(100)),
+const updateDepartmentSchema = Joi.object({
+  brand: Joi.string(),
+  branches: Joi.array().items(Joi.string()),
+  name: Joi.object().pattern(/.*/, Joi.string().min(2).max(100)),
   classification: joi
     .string()
     .valid(
@@ -40,11 +40,11 @@ const updateDepartmentSchema = joi.object({
       "delivery",
       "security"
     ),
-  description: joi.object().pattern(/.*/, joi.string().max(300)),
-  code: joi.string().max(20).uppercase(),
-  parentDepartment: joi.string().allow(null),
-  isActive: joi.boolean(),
-  updatedBy: joi.string().required(),
+  description: Joi.object().pattern(/.*/, Joi.string().max(300)),
+  code: Joi.string().max(20).uppercase(),
+  parentDepartment: Joi.string().allow(null),
+  isActive: Joi.boolean(),
+  updatedBy: Joi.string().required(),
 });
 
 // --------------------------- Controllers ---------------------------

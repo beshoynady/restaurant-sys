@@ -1,6 +1,6 @@
 const LeaveRequestModel = require("../../models/employees/leave-request.model");
 const EmployeeModel = require("../../models/employees/employee.model");
-const joi = require("joi");
+const Joi = require("joi");
 
 /**
  * ==================================================
@@ -8,19 +8,19 @@ const joi = require("joi");
  * ==================================================
  */
 
-const createLeaveRequestValidator = joi.object({
-  employee: joi.string().required(),
+const createLeaveRequestValidator = Joi.object({
+  employee: Joi.string().required(),
   leaveType: joi
     .string()
     .valid("annual", "sick", "unpaid", "emergency", "official_holiday", "other")
     .required(),
-  startDate: joi.date().required(),
-  endDate: joi.date().required(),
-  totalDays: joi.number().min(0.5).required(),
-  reason: joi.string().max(300).allow(""),
+  startDate: Joi.date().required(),
+  endDate: Joi.date().required(),
+  totalDays: Joi.number().min(0.5).required(),
+  reason: Joi.string().max(300).allow(""),
 });
 
-const updateLeaveRequestValidator = joi.object({
+const updateLeaveRequestValidator = Joi.object({
   leaveType: joi
     .string()
     .valid(
@@ -31,10 +31,10 @@ const updateLeaveRequestValidator = joi.object({
       "official_holiday",
       "other"
     ),
-  startDate: joi.date(),
-  endDate: joi.date(),
-  totalDays: joi.number().min(0.5),
-  reason: joi.string().max(300).allow(""),
+  startDate: Joi.date(),
+  endDate: Joi.date(),
+  totalDays: Joi.number().min(0.5),
+  reason: Joi.string().max(300).allow(""),
 });
 
 /**

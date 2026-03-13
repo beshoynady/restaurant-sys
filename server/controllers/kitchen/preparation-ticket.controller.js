@@ -1,14 +1,14 @@
 const PreparationTicketModel = require("../../models/preparation-ticket.model.js");
 const mongoose = require("mongoose");
-const joi = require("joi");
+const Joi = require("joi");
 
 
-const createPreparationTicketSchema = joi.object({
-  brand: joi.string().required(),
-  branch: joi.string().allow(null, ""),
-  order: joi.string().required(),
-  department: joi.string().required(),
-  preparationStatus: joi.string().valid(
+const createPreparationTicketSchema = Joi.object({
+  brand: Joi.string().required(),
+  branch: Joi.string().allow(null, ""),
+  order: Joi.string().required(),
+  department: Joi.string().required(),
+  preparationStatus: Joi.string().valid(
     "Pending",
     "Preparing",
     "Prepared",
@@ -17,31 +17,31 @@ const createPreparationTicketSchema = joi.object({
     "Cancelled",
     "Rejected"
   ).default("Pending"),
-  products: joi.array().items(
-    joi.object({
-      productId: joi.string().required(),
-      orderproductId: joi.string().required(),
-      name: joi.string().required(),
-      sizeId: joi.string().allow(null, ""),
-      size: joi.string().allow(null, ""),
-      quantity: joi.number().required(),
-      notes: joi.string().allow(null, ""),
-      extras: joi.array().items(
-        joi.object({
-          extraDetails: joi.array().items(
-            joi.object({
-              extraId: joi.string().allow(null, ""),
-              name: joi.string().required(),
+  products: Joi.array().items(
+    Joi.object({
+      productId: Joi.string().required(),
+      orderproductId: Joi.string().required(),
+      name: Joi.string().required(),
+      sizeId: Joi.string().allow(null, ""),
+      size: Joi.string().allow(null, ""),
+      quantity: Joi.number().required(),
+      notes: Joi.string().allow(null, ""),
+      extras: Joi.array().items(
+        Joi.object({
+          extraDetails: Joi.array().items(
+            Joi.object({
+              extraId: Joi.string().allow(null, ""),
+              name: Joi.string().required(),
             })
           ),
         })
       ),
     }),
   ),
-  isActive: joi.boolean().default(true),
-  timeReceived: joi.date().required(),
-  expectedCompletionTime: joi.date().required(),
-  notes: joi.string().allow(null, ""),
+  isActive: Joi.boolean().default(true),
+  timeReceived: Joi.date().required(),
+  expectedCompletionTime: Joi.date().required(),
+  notes: Joi.string().allow(null, ""),
 });
 
 

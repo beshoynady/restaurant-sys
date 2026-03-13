@@ -1,19 +1,19 @@
 const CustomerLoyaltyModel = require("../../models/loyalty/customer-loyalty.model");
 const asyncHandler= require("../../utils/asyncHandler");
-const joi = require("joi");
+const Joi = require("joi");
 
 // validation schema for creating/updating customer loyalty
 
-const createdCustomerLoyaltySchema = joi.object({
-  brand: joi.string().required(),
-  phone: joi.string().max(30).required(),
-  points: joi.number().min(0),
+const createdCustomerLoyaltySchema = Joi.object({
+  brand: Joi.string().required(),
+  phone: Joi.string().max(30).required(),
+  points: Joi.number().min(0),
 });
 
-const updatedCustomerLoyaltySchema = joi.object({
-  brand: joi.string(),
-  phone: joi.string().max(30),
-  points: joi.number().min(0),
+const updatedCustomerLoyaltySchema = Joi.object({
+  brand: Joi.string(),
+  phone: Joi.string().max(30),
+  points: Joi.number().min(0),
 });
 
 // Create a new customer loyalty
@@ -129,7 +129,7 @@ const updateTierCustomerLoyalty = asyncHandler(async (req, res) => {
 
   const { error, value } = joi
     .object({
-      tier: joi.string().valid("regular", "silver", "gold", "vip").required(),
+      tier: Joi.string().valid("regular", "silver", "gold", "vip").required(),
     })
     .validate(req.body);
   if (error) {

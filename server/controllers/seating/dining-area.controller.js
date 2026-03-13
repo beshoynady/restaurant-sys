@@ -1,6 +1,6 @@
 import DiningAreaModel from "../../models/seating/diningArea.model.js";
 import TableModel from "../../models/seating/table.model.js";
-const joi = required("joi");
+const Joi = required("joi");
 const mongoose = require("mongoose");
 
 const ObjectId = (value, helpers) => {

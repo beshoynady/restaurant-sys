@@ -4,53 +4,53 @@ const stockItemsModel = require("../../models/Stock/stock-items.model");
 const stockLedgerModel = require("../../models/Stock/stock-ledger.model");
 const mongoose = require("mongoose");
 
-const joi = require("joi");
+const Joi = require("joi");
 
 /* =====================================================
    Joi Schemas
 ===================================================== */
 
 // Ingredient validation schema
-const ingredientSchema = joi.object({
-  stockItem: joi.string().required(),
-  amount: joi.number().positive().required(),
-  unit: joi.string().min(1).max(20).required(),
-  wastePercentage: joi.number().min(0).max(100).optional(),
+const ingredientSchema = Joi.object({
+  stockItem: Joi.string().required(),
+  amount: Joi.number().positive().required(),
+  unit: Joi.string().min(1).max(20).required(),
+  wastePercentage: Joi.number().min(0).max(100).optional(),
 });
 
 // Service details schema
-const serviceDetailsSchema = joi.object({
-  stockItem: joi.string().required(),
-  amount: joi.number().positive().required(),
-  unit: joi.string().required(),
-  wastePercentage: joi.number().min(0).max(100).optional(),
+const serviceDetailsSchema = Joi.object({
+  stockItem: Joi.string().required(),
+  amount: Joi.number().positive().required(),
+  unit: Joi.string().required(),
+  wastePercentage: Joi.number().min(0).max(100).optional(),
   serviceType: joi
     .array()
-    .items(joi.string().valid("dineIn", "takeaway", "delivery"))
+    .items(Joi.string().valid("dineIn", "takeaway", "delivery"))
     .min(1)
     .required(),
 });
 
 // Create recipe schema
-const createRecipeSchema = joi.object({
-  brand: joi.string().required(),
-  branch: joi.string().allow(null),
-  product: joi.string().required(),
-  numberOfMeals: joi.number().min(1).required(),
-  preparationTime: joi.number().min(0).required(),
-  ingredients: joi.array().items(ingredientSchema).min(1).required(),
-  serviceDetails: joi.array().items(serviceDetailsSchema).optional(),
-  preparationSteps: joi.array().items(joi.string().max(500)).optional(),
+const createRecipeSchema = Joi.object({
+  brand: Joi.string().required(),
+  branch: Joi.string().allow(null),
+  product: Joi.string().required(),
+  numberOfMeals: Joi.number().min(1).required(),
+  preparationTime: Joi.number().min(0).required(),
+  ingredients: Joi.array().items(ingredientSchema).min(1).required(),
+  serviceDetails: Joi.array().items(serviceDetailsSchema).optional(),
+  preparationSteps: Joi.array().items(Joi.string().max(500)).optional(),
 });
 
 // Update recipe schema
 const updateRecipeSchema = joi
   .object({
-    numberOfMeals: joi.number().min(1).optional(),
-    preparationTime: joi.number().min(0).optional(),
-    ingredients: joi.array().items(ingredientSchema).optional(),
-    serviceDetails: joi.array().items(serviceDetailsSchema).optional(),
-    preparationSteps: joi.array().items(joi.string().max(500)).optional(),
+    numberOfMeals: Joi.number().min(1).optional(),
+    preparationTime: Joi.number().min(0).optional(),
+    ingredients: Joi.array().items(ingredientSchema).optional(),
+    serviceDetails: Joi.array().items(serviceDetailsSchema).optional(),
+    preparationSteps: Joi.array().items(Joi.string().max(500)).optional(),
   })
   .min(1);
 

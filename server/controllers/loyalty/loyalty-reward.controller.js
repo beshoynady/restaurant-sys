@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const joi = require("joi");
+const Joi = require("joi");
 
 const asyncHandler= require("../../utils/asyncHandler");;
 
@@ -10,61 +10,61 @@ const LoyaltyReward = require("../../models/loyalty/loyalty-reward.model");
  */
 
 // Create reward validation
-const createRewardSchema = joi.object({
-  brand: joi.string().required(),
-  branch: joi.string().allow(null),
-  name: joi.string().max(120).required(),
-  description: joi.string().max(300).allow("", null),
+const createRewardSchema = Joi.object({
+  brand: Joi.string().required(),
+  branch: Joi.string().allow(null),
+  name: Joi.string().max(120).required(),
+  description: Joi.string().max(300).allow("", null),
 
-  pointsRequired: joi.number().min(1).required(),
+  pointsRequired: Joi.number().min(1).required(),
 
   rewardType: joi
     .string()
     .valid("discount", "product", "gift")
     .required(),
 
-  product: joi.string().allow(null),
+  product: Joi.string().allow(null),
 
-  discountAmount: joi.number().min(0).allow(null),
+  discountAmount: Joi.number().min(0).allow(null),
 
-  maxRedemptionsPerCustomer: joi.number().min(0).allow(null),
+  maxRedemptionsPerCustomer: Joi.number().min(0).allow(null),
 
-  maxTotalRedemptions: joi.number().min(0).allow(null),
+  maxTotalRedemptions: Joi.number().min(0).allow(null),
 
-  startDate: joi.date().allow(null),
+  startDate: Joi.date().allow(null),
 
-  endDate: joi.date().allow(null),
+  endDate: Joi.date().allow(null),
 
-  isActive: joi.boolean(),
+  isActive: Joi.boolean(),
 
-  createdBy: joi.string().required(),
+  createdBy: Joi.string().required(),
 });
 
 // Update reward validation
-const updateRewardSchema = joi.object({
-  name: joi.string().max(120),
+const updateRewardSchema = Joi.object({
+  name: Joi.string().max(120),
 
-  description: joi.string().max(300).allow("", null),
+  description: Joi.string().max(300).allow("", null),
 
-  pointsRequired: joi.number().min(1),
+  pointsRequired: Joi.number().min(1),
 
-  rewardType: joi.string().valid("discount", "product", "gift"),
+  rewardType: Joi.string().valid("discount", "product", "gift"),
 
-  product: joi.string().allow(null),
+  product: Joi.string().allow(null),
 
-  discountAmount: joi.number().min(0).allow(null),
+  discountAmount: Joi.number().min(0).allow(null),
 
-  maxRedemptionsPerCustomer: joi.number().min(0).allow(null),
+  maxRedemptionsPerCustomer: Joi.number().min(0).allow(null),
 
-  maxTotalRedemptions: joi.number().min(0).allow(null),
+  maxTotalRedemptions: Joi.number().min(0).allow(null),
 
-  startDate: joi.date().allow(null),
+  startDate: Joi.date().allow(null),
 
-  endDate: joi.date().allow(null),
+  endDate: Joi.date().allow(null),
 
-  isActive: joi.boolean(),
+  isActive: Joi.boolean(),
 
-  updatedBy: joi.string(),
+  updatedBy: Joi.string(),
 });
 
 /**
