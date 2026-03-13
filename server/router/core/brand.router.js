@@ -18,10 +18,7 @@ const {
 
 const { authenticateToken } = require("../../middlewares/authenticate");
 
-const { createUploader } = require("../../utils/fileHandler");
-
-// uploader for brand logo
-const uploadLogo = createUploader("brands", 1024 * 1024);
+// const { uploadFile } = require("../../middlewares/fileHandler");
 
 // ======================================
 // Routes
@@ -32,7 +29,9 @@ router
   /**
    * Create brand
    */
-  .post(authenticateToken, uploadLogo.single("logo"), createBrand)
+  .post(authenticateToken,
+    //  uploadFile({ folder: "brands", maxSize: 1024 * 1024 }),
+   createBrand)
 
   /**
    * Get brand
@@ -55,8 +54,7 @@ router
 router.put(
   "/logo",
   authenticateToken,
-  
-  uploadLogo.single("logo"),
+  // uploadFile({ folder: "brands", maxSize: 1024 * 1024 }),
   updateBrandLogo,
 );
 

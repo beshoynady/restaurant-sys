@@ -12,30 +12,30 @@ const {
 } = require("../../controllers/production-order.controller");
 
 const { authenticateToken } = require("../../middlewares/authenticate");
-const checkSubscription = require("../../middlewares/checkSubscription");
+
 
 // Create a new Production Order
 router
   .route("/")
-  .post(authenticateToken, checkSubscription, createProductionOrder)
-  .get(authenticateToken, checkSubscription, getProductionOrders);
+  .post(authenticateToken,createProductionOrder)
+  .get(authenticateToken,getProductionOrders);
 
 router
   .route("/:id")
-  .get(authenticateToken, checkSubscription, getProductionOrder)
-  .put(authenticateToken, checkSubscription, updateProductionOrder)
-  .delete(authenticateToken, checkSubscription, deleteProductionOrder);
+  .get(authenticateToken,getProductionOrder)
+  .put(authenticateToken,updateProductionOrder)
+  .delete(authenticateToken,deleteProductionOrder);
 
 router
   .route("/store/:storeId")
-  .get(authenticateToken, checkSubscription, getProductionOrdersByStore);
+  .get(authenticateToken,getProductionOrdersByStore);
 
 router
   .route("/section/:sectionId")
-  .get(authenticateToken, checkSubscription, getProductionOrdersByPreparationSection);
+  .get(authenticateToken,getProductionOrdersByPreparationSection);
 
 router
   .route("/status/:id")
-  .put(authenticateToken, checkSubscription, updateProductionStatus);
+  .put(authenticateToken,updateProductionStatus);
 
 module.exports = router;

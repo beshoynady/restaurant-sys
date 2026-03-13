@@ -7,7 +7,7 @@ const {
   deleteMenuSetting,
 } = require("../../controllers/settings/menu-settings.controller");
 
-const { authenticateToken } = require("../middlewares/authenticate");
+const { authenticateToken } = require("../../middlewares/authenticate");
 
 // ============================
 // Menu Settings Routes

@@ -16,19 +16,19 @@ const checkSubscription = require("../../middlewares/checkSubscription.js");
 // Create a new Production Record
 router
   .route("/")
-  .post(authenticateToken, checkSubscription, createProductionRecord)
-  .get(authenticateToken, checkSubscription, findAllProductionRecords);
+  .post(authenticateToken,createProductionRecord)
+  .get(authenticateToken,findAllProductionRecords);
 
 // Retrieve all Production Records
 router
   .route("/:productionRecordId")
-  .get(authenticateToken, checkSubscription, findProductionRecord)
-  .put(authenticateToken, checkSubscription, updateProductionRecord)
-  .delete(authenticateToken, checkSubscription, deleteProductionRecord);
+  .get(authenticateToken,findProductionRecord)
+  .put(authenticateToken,updateProductionRecord)
+  .delete(authenticateToken,deleteProductionRecord);
 
 // End a Production Record
 router
   .route("/end/:productionRecordId")
-  .put(authenticateToken, checkSubscription, endProductionRecord);
+  .put(authenticateToken,endProductionRecord);
 
 module.exports = router;

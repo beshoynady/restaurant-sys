@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const ConsumptionModel = require("../models/consumption.model");
+const ConsumptionModel = require("../../models/consumption.model");
 
 // Create a new consumption
 const createConsumption = async (req, res) => {

@@ -48,7 +48,7 @@ const routePermission = require("./router/employees/permission.router.js");
 const routeAttendance = require("./router/employees/attendance-record.router.js");
 const routeShift = require("./router/employees/shift.router.js");
 const routePayroll = require("./router/employees/payroll.router.js");
-const routeEmployeeTransactions = require("./router/employees/employee-transactions.router.js");
+const routeEmployeeTransactions = require("./router/employees/employee-financial-transaction.router.js");
 
 /****************************************************
  * CUSTOMERS ROUTES
@@ -59,7 +59,7 @@ const routeEmployeeTransactions = require("./router/employees/employee-transacti
  ****************************************************/
 const routeMessage = require("./router/customers/message.router.js");
 const routeOfflineCustomer = require("./router/customers/offline-customer.router.js");
-const routeOnlineCustomer = require("./router/customers/online-custoner.router.js");
+const routeOnlineCustomer = require("./router/customers/online-customer.router.js");
 
 /******************************************************
  * LOYALTY ROUTES

@@ -1,4 +1,4 @@
-const OfflineCustomer = require("../models/OfflineCustomer");
+const OfflineCustomer = require("../../models/customers/offline-customer.model");
 const Joi = require("joi");
 const mongoose = require("mongoose");
 
@@ -87,7 +87,6 @@ const updateCustomerSchema = Joi.object({
 // Schema for soft deleting a customer
 const softDeleteSchema = Joi.object({
   deletedBy: Joi.string().required(), // Employee performing deletion
-  deletedAt: Joi.date().default(() => new Date(), "current date"), // Timestamp of deletion
   isDeleted: Joi.boolean().valid(true).default(true), // Soft delete flag
 });
 
@@ -98,17 +97,17 @@ const softDeleteSchema = Joi.object({
 // Create a new offline customer
 const createOfflineCustomer = async (req, res) => {
   try {
-    const brand = req.brand;
-    const branch = req.branch;
-    const employee = req.employee;
+    const brand = req.brand._id;
+    const branch = req.branch._id;
+    const employee = req.user._id;
 
     // Validate input data
     const { error, value } = createCustomerSchema.validate({
       ...req.body,
-      brand: brand._id,
-      branch: branch._id,
-      createdBy: employee._id,
-    });
+      brand: brand,
+      branch: branch,
+      createdBy: employee,
+    }, { abortEarly: false });
 
     if (error)
       return res.status(400).json({ message: error.details[0].message });
@@ -147,7 +146,7 @@ const updateOfflineCustomer = async (req, res) => {
       return res.status(404).json({ message: "Customer not found" });
     }
 
-    const employee = req.employee;
+    const employee = req.user;
 
     // Validate update input
     const { error, value } = updateCustomerSchema.validate({
@@ -205,7 +204,7 @@ const softDeleteOfflineCustomer = async (req, res) => {
       return res.status(400).json({ message: "Invalid customer ID" });
     }
 
-    const employee = req.employee;
+    const employee = req.user;
 
     // Check if customer exists
     const existcustomer = await OfflineCustomer.findOne({
@@ -222,7 +221,6 @@ const softDeleteOfflineCustomer = async (req, res) => {
     const { error, value } = softDeleteSchema.validate({
       ...req.body,
       deletedBy: employee._id,
-      deletedAt: new Date(),
       isDeleted: true,
     });
 
@@ -231,8 +229,11 @@ const softDeleteOfflineCustomer = async (req, res) => {
 
     // Perform soft delete
     const customer = await OfflineCustomer.findOneAndUpdate(
-      { _id: id, brand: req.brand._id, isDeleted: false },
-      { ...value },
+      { _id: id, 
+        brand: req.brand._id, isDeleted: false },
+      { ...value,
+        deletedAt: new Date()
+       }, // Set deletion timestamp
       { new: true },
     );
 
@@ -251,7 +252,7 @@ const restoreOfflineCustomer = async (req, res) => {
       return res.status(400).json({ message: "Invalid customer ID" });
     }
 
-    const employee = req.employee;
+    const employee = req.user;
 
     // Check if customer exists and is deleted
     const existcustomer = await OfflineCustomer.findOne({
@@ -270,7 +271,6 @@ const restoreOfflineCustomer = async (req, res) => {
     const { error, value } = softDeleteSchema.validate({
       ...req.body,
       deletedBy: employee._id,
-      deletedAt: new Date(),
       isDeleted: false,
     });
 
@@ -280,7 +280,7 @@ const restoreOfflineCustomer = async (req, res) => {
     // Restore customer
     const customer = await OfflineCustomer.findOneAndUpdate(
       { _id: id, brand: req.brand._id, isDeleted: true },
-      { ...value },
+      { ...value , deletedAt: null }, // Clear deletion timestamp
       { new: true },
     );
 

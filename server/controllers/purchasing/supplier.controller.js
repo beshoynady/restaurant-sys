@@ -1,4 +1,4 @@
-const SupplierModel = require("../models/supplier.model");
+const SupplierModel = require("../../models/supplier.model");
 
 // Create a new supplier
 const createSupplier = async (req, res) => {
@@ -16,7 +16,7 @@ const createSupplier = async (req, res) => {
       financialInfo,
       notes,
     } = req.body;
-    const createdBy = req.employee.id;
+    const createdBy = req.user.id;
 
     // Validate paymentType
     if (!["Cash", "Installments"].includes(paymentType)) {

@@ -3,7 +3,7 @@ const router = express.Router();
 
 // 🧩 Controllers
 const {
-  createFirstEmployee,
+ createFirstEmployee,
   createEmployee,
   updateEmployee,
   loginEmployee,
@@ -13,7 +13,7 @@ const {
   getEmployeesByBranch,
   softDeleteEmployee,
   restoreEmployee,
-} = require("../../controllers/employee.controller.js");
+} = require("../../controllers/employees/employee.controller.js");
 
 // 🧩 Middlewares
 const {

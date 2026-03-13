@@ -129,4 +129,4 @@ TableSchema.index(
 // Fast lookup for QR & POS
 TableSchema.index({ branch: 1, status: 1 });
 
-export default mongoose.model("Table", TableSchema);
+module.exports = mongoose.model("Table", TableSchema);

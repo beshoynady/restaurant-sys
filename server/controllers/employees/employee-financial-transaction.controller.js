@@ -1,4 +1,4 @@
-const EmployeeFinancialTransaction = require("../../models/employee/employee-financial-transaction.model");
+const EmployeeFinancialTransaction = require("../../models/employees/employee-financial-transaction.model");
 const Joi = require("joi");
 
 /**
@@ -107,7 +107,7 @@ const createEmployeeFinancialTransaction = async (req, res) => {
 
     const transaction = await EmployeeFinancialTransaction.create({
       ...req.body,
-      createdBy: req.employee.id,
+      createdBy: req.user.id,
     });
 
     res.status(201).json({
@@ -199,7 +199,7 @@ const updateEmployeeFinancialTransaction = async (req, res) => {
         {
           $set: {
             ...req.body,
-            updatedBy: req.employee.id,
+            updatedBy: req.user.id,
           },
         },
         { new: true }
@@ -242,7 +242,7 @@ const approveEmployeeFinancialTransaction = async (req, res) => {
       {
         $set: {
           isApproved: true,
-          approvedBy: req.employee.id,
+          approvedBy: req.user.id,
           approvedAt: new Date(),
         },
       },
@@ -287,7 +287,7 @@ const cancelEmployeeFinancialTransaction = async (req, res) => {
       {
         $set: {
           isCancelled: true,
-          cancelledBy: req.employee.id,
+          cancelledBy: req.user.id,
           cancelledAt: new Date(),
         },
       },

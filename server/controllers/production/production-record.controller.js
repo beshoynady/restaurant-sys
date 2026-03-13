@@ -1,7 +1,7 @@
-const productionRecordModel = require("../models/production-record.model");
-const productionOrderModel = require("../models/production-order.model");
-const stockItemModel = require("../models/stock-items.model");
-const recipeModel = require("../models/recipe.model");
+const productionRecordModel = require("../../models/production-record.model");
+const productionOrderModel = require("../../models/production-order.model");
+const stockItemModel = require("../../models/stock-items.model");
+const recipeModel = require("../../models/recipe.model");
 const departmentModel = require("../../models/department.model");
 
 // Create and Save a new Production Record
@@ -19,7 +19,7 @@ const createProductionRecord = async (req, res) => {
     } = req.body;
     const productionStartTime = new Date();
 
-    const createdBy = req.employee._id;
+    const createdBy = req.user._id;
 
     // Validate request
     if (
@@ -218,7 +218,7 @@ const updateProductionRecord = async (req, res) => {
       productionCost,
     } = req.body;
 
-    const updatedBy = req.employee._id;
+    const updatedBy = req.user._id;
     const productionEndTime = new Date();
     const productionRecordId = req.params.productionRecordId;
 

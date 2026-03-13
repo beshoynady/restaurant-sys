@@ -1,4 +1,4 @@
-const OnlineCustomer = require("../../models/customers/online-custoner.model");
+const OnlineCustomer = require("../../models/customers/online-customer.model");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const Joi = require("joi");

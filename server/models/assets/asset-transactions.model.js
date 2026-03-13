@@ -183,4 +183,4 @@ const AssetTransactionModel = mongoose.model(
   assetTransactionSchema,
 );
 
-export default AssetTransactionModel;
+module.exports = AssetTransactionModel;

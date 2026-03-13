@@ -9,7 +9,7 @@ const {
 } = require("../../controllers/accounting/ledger.controller");
 
 const { authenticateToken } = require("../../middlewares/authenticate");
-const checkSubscription = require("../../middlewares/checkSubscription");
+
 
 // ==============================
 // Ledger Routes
@@ -22,7 +22,7 @@ const checkSubscription = require("../../middlewares/checkSubscription");
  */
 router
   .route("/account/:accountId")
-  .get(authenticateToken, checkSubscription, getLedgerByAccount);
+  .get(authenticateToken,getLedgerByAccount);
 
 /**
  * @route   GET /api/ledger
@@ -31,7 +31,7 @@ router
  */
 router
   .route("/")
-  .get(authenticateToken, checkSubscription, getLedgerMultiAccount);
+  .get(authenticateToken,getLedgerMultiAccount);
 
 /**
  * @route   GET /api/ledger/trial-balance
@@ -40,6 +40,6 @@ router
  */
 router
   .route("/trial-balance")
-  .get(authenticateToken, checkSubscription, getTrialBalance);
+  .get(authenticateToken,getTrialBalance);
 
 module.exports = router;

@@ -9,7 +9,7 @@
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-const asyncHandler = require("./asyncHandler");
+const asyncHandler = require("../utils/asyncHandler");
 
 const uploadFile = ({ folder = "uploads", maxSize = 1024 * 1024 } = {}) => {
   const uploadDir = path.join(__dirname, "..", "uploads", folder);

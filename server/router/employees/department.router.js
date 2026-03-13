@@ -6,20 +6,19 @@ const {
   getDepartmentById,
   updateDepartment,
   deleteDepartment,
-} = require("../../controllers/department.controller");
+} = require("../../controllers/employees/department.controller");
 
-const { authenticateToken } = require("../middlewares/authenticate");
-const checkSubscription = require("../middlewares/checkSubscription");
+const { authenticateToken } = require("../../middlewares/authenticate");
 
 router
   .route("/")
-  .post(authenticateToken, checkSubscription, createDepartment)
-  .get(authenticateToken, checkSubscription, getAllDepartments);
+  .post(authenticateToken, createDepartment)
+  .get(authenticateToken, getAllDepartments);
 
 router
   .route("/:id")
-  .get(authenticateToken, checkSubscription, getDepartmentById)
-  .put(authenticateToken, checkSubscription, updateDepartment)
-  .delete(authenticateToken, checkSubscription, deleteDepartment);
+  .get(authenticateToken, getDepartmentById)
+  .put(authenticateToken, updateDepartment)
+  .delete(authenticateToken, deleteDepartment);
 
 module.exports = router;

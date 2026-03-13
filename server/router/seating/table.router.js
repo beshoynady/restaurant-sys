@@ -1,6 +1,6 @@
 const express = require("express");
 const { authenticateToken } = require("../../middlewares/authenticate");
-const checkSubscription = require("../../middlewares/checkSubscription");
+
 
 const {
   createTable,
@@ -15,12 +15,12 @@ const router = express.Router();
 
 router
   .route("/")
-  .post(authenticateToken, checkSubscription, createTable)
+  .post(authenticateToken,createTable)
   .get(showAllTables);
 router
   .route("/:tableId")
   .get(showOneTable)
-  .delete(authenticateToken, checkSubscription, deleteTable)
-  .put(authenticateToken, checkSubscription, updateTable);
-router.route("/qr").post(authenticateToken, checkSubscription, createQR);
+  .delete(authenticateToken,deleteTable)
+  .put(authenticateToken,updateTable);
+router.route("/qr").post(authenticateToken,createQR);
 module.exports = router;

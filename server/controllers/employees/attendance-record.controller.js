@@ -1,5 +1,5 @@
 // TODO: Implement controller for attendance-record.controller
-const AttendanceRecordModel = require("../../models/employee/attendance-record.model");
+const AttendanceRecordModel = require("../../models/employees/attendance-record.model");
 
 // Create a new attendance record
 const createAttendanceRecord = async (req, res) => {
@@ -14,7 +14,7 @@ const createAttendanceRecord = async (req, res) => {
       lateMinutes,
       isLate,
     } = req.body;
-    const createdBy = req.employee.id;
+    const createdBy = req.user.id;
 
     if (!employee || !shift || !currentDate || !status) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -73,7 +73,7 @@ const updateAttendanceRecordById = async (req, res) => {
       notes,
     } = req.body;
 
-    const updatedBy = req.employee.id;
+    const updatedBy = req.user.id;
 
     const updatedAttendanceRecord =
       await AttendanceRecordModel.findByIdAndUpdate(

@@ -11,10 +11,10 @@ const {
   deleteCustomerLoyalty,
 } = require("../../controllers/loyalty/customer-loyalty.controller");
 
-const { authenticate } = require("../../middleware/auth.middleware");
+const {authenticateToken}= require("../../middlewares/authenticate");
 
 // All routes require authentication
-router.use(authenticate);
+router.use(authenticateToken);
 
 // Create and list customers
 router.route("/")

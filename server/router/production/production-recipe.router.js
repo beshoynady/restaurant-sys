@@ -11,7 +11,7 @@ const {
 } = require("../../controllers/production-recipe.controller");
 
 const { authenticateToken } = require("../../middlewares/authenticate");
-const checkSubscription = require("../../middlewares/checkSubscription");
+
 
 // ==============================
 // Routes for Production Recipes
@@ -20,24 +20,24 @@ const checkSubscription = require("../../middlewares/checkSubscription");
 // Create a new recipe or list all recipes
 router
   .route("/")
-  .post(authenticateToken, checkSubscription, createProductionRecipe)
-  .get(authenticateToken, checkSubscription, getAllProductionRecipes);
+  .post(authenticateToken,createProductionRecipe)
+  .get(authenticateToken,getAllProductionRecipes);
 
 // Get, update a single recipe
 router
   .route("/:id")
-  .get(authenticateToken, checkSubscription, getOneProductionRecipe)
-  .put(authenticateToken, checkSubscription, updateProductionRecipe)
-  .delete(authenticateToken, checkSubscription, deleteProductionRecipe);
+  .get(authenticateToken,getOneProductionRecipe)
+  .put(authenticateToken,updateProductionRecipe)
+  .delete(authenticateToken,deleteProductionRecipe);
 
 // Change recipe state (activate/deactivate)
 router
   .route("/:id/state")
-  .patch(authenticateToken, checkSubscription, changeRecipeState);
+  .patch(authenticateToken,changeRecipeState);
 
 // Get recipe by stock item
 router
   .route("/stockitem/:id")
-  .get(authenticateToken, checkSubscription, getProductionRecipeByStockItem);
+  .get(authenticateToken,getProductionRecipeByStockItem);
 
 module.exports = router;

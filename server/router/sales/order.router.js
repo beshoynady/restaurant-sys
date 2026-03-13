@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { authenticateToken } = require("../../middlewares/authenticate");
-const checkSubscription = require("../../middlewares/checkSubscription");
+
 
 const {
   createOrder,
@@ -10,7 +10,7 @@ const {
   getLimitOrders,
   updateOrder,
   deleteOrder,
-} = require("../../controllers/order.controller");
+} = require("../../controllers/sales/Order.controller");
 
 router
   .route("/")
@@ -20,6 +20,6 @@ router
   .route("/:id")
   .get(getOrder)
   .put(updateOrder)
-  .delete(authenticateToken, checkSubscription, deleteOrder);
+  .delete(authenticateToken,deleteOrder);
 router.route("/limit/:limit").get(getLimitOrders);
 module.exports = router;

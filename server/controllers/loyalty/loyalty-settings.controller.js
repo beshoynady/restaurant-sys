@@ -1,6 +1,6 @@
 const Joi = require("joi");
 const mongoose = require("mongoose");
-const asyncHandler = require("../../utils/async-handler");
+const asyncHandler = require("../../utils/asyncHandler");
 
 const LoyaltySettings = require("../../models/loyalty/loyalty-settings.model");
 

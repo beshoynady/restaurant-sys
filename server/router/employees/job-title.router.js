@@ -9,29 +9,27 @@ const {
   softDeleteJobTitle,
   restoreJobTitle,
   deleteJobTitle,
-} = require("../../controllers/job-title.controller.js");
+} = require("../../controllers/employees/job-title.controller.js");
 
 const { authenticateToken } = require("../../middlewares/authenticate.js");
-const checkSubscription = require("../../middlewares/checkSubscription.js");
-const JobTitle = require("../models/jop-title.model.js");
 
 router
   .route("/")
-  .post(authenticateToken, checkSubscription, createJobTitle)
+  .post(authenticateToken,createJobTitle)
   .get(getJobTitles);
 
 router
   .route("/:id")
-  .get(getJobTitleById)
-  .put(authenticateToken, checkSubscription, updateJobTitle)
-  .delete(authenticateToken, checkSubscription, deleteJobTitle);
+  .get(authenticateToken, getJobTitleById)
+  .put(authenticateToken,updateJobTitle)
+  .delete(authenticateToken,deleteJobTitle);
 
 router
   .route("/:id/soft-delete")
-  .put(authenticateToken, checkSubscription, softDeleteJobTitle);
+  .put(authenticateToken,softDeleteJobTitle);
 
 router
   .route("/:id/restore")
-  .put(authenticateToken, checkSubscription, restoreJobTitle);
+  .put(authenticateToken,restoreJobTitle);
 
 module.exports = router;

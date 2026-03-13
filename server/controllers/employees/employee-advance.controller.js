@@ -1,5 +1,5 @@
 const Joi = require("joi");
-const EmployeeAdvance = require("../../models/employee/employee-advance.model");
+const EmployeeAdvance = require("../../models/employees/employee-advance.model");
 
 /* ==========================================================
  * Joi Schemas
@@ -51,7 +51,7 @@ const createAdvance = async (req, res) => {
 
     const advance = await EmployeeAdvance.create({
       ...value,
-      createdBy: req.employee.id,
+      createdBy: req.user.id,
     });
 
     res.status(201).json({
@@ -73,7 +73,7 @@ const updateAdvance = async (req, res) => {
   try {
     const { error, value } = updateAdvanceSchema.validate({
       ...req.body,
-      updatedBy: req.employee.id,
+      updatedBy: req.user.id,
     });
     if (error) return res.status(400).json({ error: error.details[0].message });
 
@@ -117,7 +117,7 @@ const approveAdvance = async (req, res) => {
       return res.status(400).json({ error: "Advance is already approved" });
 
     advance.isApproved = true;
-    advance.approvedBy = req.employee.id;
+    advance.approvedBy = req.user.id;
     advance.approvedAt = new Date();
     await advance.save();
 
@@ -149,7 +149,7 @@ const cancelAdvance = async (req, res) => {
       return res.status(400).json({ error: "Advance is already cancelled" });
 
     advance.isCancelled = true;
-    advance.cancelledBy = req.employee.id;
+    advance.cancelledBy = req.user.id;
     advance.cancelledAt = new Date();
     await advance.save();
 
@@ -172,7 +172,7 @@ const payInstallment = async (req, res) => {
   try {
     const { error, value } = payInstallmentSchema.validate({
       ...req.body,
-      updatedBy: req.employee.id,
+      updatedBy: req.user.id,
     });
     if (error) return res.status(400).json({ error: error.details[0].message });
 

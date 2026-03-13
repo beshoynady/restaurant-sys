@@ -1,4 +1,4 @@
-const StockMovementModel = require("../models/stock-movement.model");
+const StockMovementModel = require("../../models/stock-movement.model");
 
 
 
@@ -24,7 +24,7 @@ const createStockMovement = async (req, res, next) => {
       receiver, // Added receiver
     } = req.body;
 
-    const createdBy = req.employee?.id;
+    const createdBy = req.user?.id;
 
     // Validate required fields
     if (
@@ -96,7 +96,7 @@ const updateStockMovement = async (req, res, next) => {
       sender, // Added sender
       receiver, // Added receiver
     } = req.body;
-    const updatedBy = req.employee.id;
+    const updatedBy = req.user.id;
     const movementId = req.params.movementId;
 
     const findMovement = await StockMovementModel.findById(movementId);

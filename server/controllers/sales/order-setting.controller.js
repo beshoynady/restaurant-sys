@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-import Joi from "joi";
-import OrderSettingModel from "../models/settings/order-settings.model.js";
+const joi = required("joi");
+import OrderSettingModel from "../../models/settings/order-settings.model.js";
 
 /**
  * ==========================

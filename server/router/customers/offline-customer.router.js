@@ -21,7 +21,7 @@ const {
 // ----------------------------
 // 🔹 Middlewares
 // ----------------------------
-const { authenticateToken } = require("../middlewares/authenticate");
+const { authenticateToken } = require("../../middlewares/authenticate");
 
 
 // ===================================================================

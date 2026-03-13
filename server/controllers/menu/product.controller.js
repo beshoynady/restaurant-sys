@@ -1,11 +1,11 @@
-import Joi from "joi";
-import ProductModel from "../models/Product.model.js";
-import OrderModel from "../models/Order.model.js";
-import EmployeeModel from "../models/Employee.model.js";
-import BrandModel from "../models/Brand.model.js";
-import BranchModel from "../models/Branch.model.js";
-import CategoryModel from "../models/Category.model.js";
-import PreparationSectionModel from "../models/PreparationSection.model.js";
+const ProductModel = require("../../models/menu/product.model.js");
+const OrderModel = require("../../models/sales/order.model.js");
+const EmployeeModel = require("../../models/empoyees/employee.model.js");
+const BrandModel = require("../../models/core/brand.model.js");
+const BranchModel = require("../../models/core/branch.model.js");
+const CategoryModel = require("../../models/menu/menu-category.model.js");
+const PreparationSectionModel = require("../../models/kitchen/preparation-section.model.js");
+const joi = required("joi");
 
 const mongoose = require("mongoose");
 
@@ -143,7 +143,7 @@ const createProduct = async (req, res) => {
       isSellable,
       displayOrder,
     } = req.body;
-    const createdBy = req.employee._id;
+    const createdBy = req.user._id;
     const { error, value } = createProductSchema.validate({
       ...req.body,
       createdBy,
@@ -624,7 +624,7 @@ const duplicateProduct = async (req, res) => {
       }
     }
 
-    product.createdBy = req.employee._id;
+    product.createdBy = req.user._id;
     product.updatedBy = undefined;
 
     product.sku = undefined;

@@ -10,22 +10,22 @@ const {
 } = require("../../controllers/preparation-ticket.controller");
 
 const {authenticateToken} = require("../../middlewares/authenticate");
-const checkSubscription = require("../../middlewares/checkSubscription");
+
 
 router
   .route("/")
-  .post(authenticateToken, checkSubscription, createPreparationTicket)
-  .get(authenticateToken, checkSubscription, getAllPreparationTickets);
+  .post(authenticateToken,createPreparationTicket)
+  .get(authenticateToken,getAllPreparationTickets);
 
 router
   .route("/activepreparationtickets")
-  .get(authenticateToken, checkSubscription, getActivePreparationTickets);
+  .get(authenticateToken,getActivePreparationTickets);
 
 router
   .route("/:id")
 
-  .get(authenticateToken, checkSubscription, getPreparationTicketById)
-  .put(authenticateToken, checkSubscription, updatePreparationTicket)
-  .delete(authenticateToken, checkSubscription, deletePreparationTicket);
+  .get(authenticateToken,getPreparationTicketById)
+  .put(authenticateToken,updatePreparationTicket)
+  .delete(authenticateToken,deletePreparationTicket);
 
 module.exports = router;

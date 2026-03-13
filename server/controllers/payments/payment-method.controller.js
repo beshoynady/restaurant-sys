@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-import Joi from "joi";
-import PaymentMethodModel from "../models/settings/payment-method.model.js";
+const joi = required("joi");
+import PaymentMethodModel from "../../models/settings/payment-method.model.js";
 
 const ObjectId = Joi.string().regex(/^[0-9a-fA-F]{24}$/);
 

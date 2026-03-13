@@ -171,4 +171,4 @@ const ProductSchema = new mongoose.Schema(
 );
 
 const ProductModel = mongoose.model("Product", ProductSchema);
-export default ProductModel;
+module.exports = ProductModel;

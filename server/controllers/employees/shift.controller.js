@@ -1,4 +1,4 @@
-const ShiftModel = require('../models/shift.model');
+const ShiftModel = require('../../models/employees/shift.model');
 
 const createShift = async (req, res) => {
     try {

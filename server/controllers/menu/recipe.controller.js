@@ -1,5 +1,5 @@
-const RecipeModel = require("../models/recipe.model");
-const ProductModel = require("../models/product.model");
+const RecipeModel = require("../../models/recipe.model");
+const ProductModel = require("../../models/menu/product.model");
 const stockItemsModel = require("../../models/Stock/stock-items.model");
 const stockLedgerModel = require("../../models/Stock/stock-ledger.model");
 const mongoose = require("mongoose");

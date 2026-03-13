@@ -1,6 +1,6 @@
-import OnlineCustomerModel from "../models/customers/online-custoner.model";
-import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
+const OnlineCustomerModel = require("../models/customers/online-customer.model");
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
 dotenv.config();
 
 const secretKey = process.env.JWT_SECRET_KEY;

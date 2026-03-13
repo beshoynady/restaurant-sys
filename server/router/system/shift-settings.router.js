@@ -7,7 +7,7 @@ const express = require("express");
 const router = express.Router();
 
 // TODO: import controller
-// const controller = require("../../controllers/shift-settings.controller");
+// const controller = require("../../controllers/employees/shift-settings.controller");
 
 // router.get("/", controller.list);
 // router.post("/", controller.create);

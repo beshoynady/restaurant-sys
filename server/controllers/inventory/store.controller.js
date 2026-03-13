@@ -1,4 +1,4 @@
-const StoreModel = require("../models/store.model"); // Adjust the path as needed
+const StoreModel = require("../../models/store.model"); // Adjust the path as needed
 
 // Create a new store
 const createStore = async (req, res, next) => {
@@ -6,7 +6,7 @@ const createStore = async (req, res, next) => {
     const { storeName, storeCode, description, address, storekeeper, status } =
       req.body;
 
-    const createdBy = req.employee.id; // Assume the logged-in employee's ID is available
+    const createdBy = req.user.id; // Assume the logged-in employee's ID is available
 
     // Validate required fields
     if (!storeName || !storeCode || !description || !address || !storekeeper) {
@@ -89,7 +89,7 @@ const updateStore = async (req, res) => {
   const { id } = req.params;
   const { storeName, storeCode, description, address, storekeeper, status } =
     req.body;
-  const updatedBy = req.employee.id;
+  const updatedBy = req.user.id;
 
   try {
     const updatedStore = await StoreModel.findByIdAndUpdate(

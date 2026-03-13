@@ -23,8 +23,8 @@ const createPurchaseReturnInvoice = async (req, res) => {
             notes,
         } = req.body;
 
-        // Assume that req.employee contains the authenticated employee information
-        const createdBy = req.employee.id;
+        // Assume that req.user contains the authenticated employee information
+        const createdBy = req.user.id;
 
         // Check if required fields are missing
         if (!originalInvoice || !returnDate || !supplier || !returnedItems || !totalAmount || !netAmount || !returnStatus || !refundMethod) {

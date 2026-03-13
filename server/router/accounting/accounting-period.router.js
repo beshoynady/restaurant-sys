@@ -13,7 +13,7 @@ const {
 } = require("../../controllers/accounting/accounting-period.controller");
 
 const { authenticateToken } = require("../../middlewares/authenticate");
-const checkSubscription = require("../../middlewares/checkSubscription");
+
 
 // ==============================
 // Accounting Period Routes
@@ -25,24 +25,24 @@ const checkSubscription = require("../../middlewares/checkSubscription");
  */
 router
   .route("/")
-  .post(authenticateToken, checkSubscription, createPeriod)
-  .get(authenticateToken, checkSubscription, getPeriods);
+  .post(authenticateToken,createPeriod)
+  .get(authenticateToken,getPeriods);
 
 router
   .route("/:id")
-  .get(authenticateToken, checkSubscription, getPeriodById)
-  .put(authenticateToken, checkSubscription, updatePeriod);
+  .get(authenticateToken,getPeriodById)
+  .put(authenticateToken,updatePeriod);
 
 router
   .route("/active")
-  .get(authenticateToken, checkSubscription, getActivePeriod);
+  .get(authenticateToken,getActivePeriod);
 
 router
   .route("/:id/close")
-  .put(authenticateToken, checkSubscription, closePeriod);
+  .put(authenticateToken,closePeriod);
 
 router
   .route("/:id/reopen")
-  .put(authenticateToken, checkSubscription, reopenPeriod);
+  .put(authenticateToken,reopenPeriod);
 
 module.exports = router;

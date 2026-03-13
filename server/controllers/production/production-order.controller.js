@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 const Joi = require("joi");
 
-const ProductionOrderModel = require("../models/production-order.model");
-const ProductionRecordModel = require("../models/production-record.model");
+const ProductionOrderModel = require("../../models/production-order.model");
+const ProductionRecordModel = require("../../models/production-record.model");
 
 /* ======================================================
    Helpers
@@ -57,7 +57,7 @@ const statusSchema = Joi.object({
  */
 const createProductionOrder = async (req, res) => {
   try {
-    const createdBy = req.employee?.id;
+    const createdBy = req.user?.id;
     if (!createdBy) return sendError(res, 401, "Unauthorized");
 
     const { error, value } = createSchema.validate(req.body, {
@@ -233,7 +233,7 @@ const getProductionOrder = async (req, res) => {
  */
 const updateProductionOrder = async (req, res) => {
   try {
-    const updatedBy = req.employee?.id;
+    const updatedBy = req.user?.id;
     if (!updatedBy) return sendError(res, 401, "Unauthorized");
 
     const { error, value } = updateSchema.validate(req.body, {
@@ -262,7 +262,7 @@ const updateProductionOrder = async (req, res) => {
  */
 const updateProductionStatus = async (req, res) => {
   try {
-    const updatedBy = req.employee?.id;
+    const updatedBy = req.user?.id;
     if (!updatedBy) return sendError(res, 401, "Unauthorized");
 
     const { error, value } = statusSchema.validate(req.body);

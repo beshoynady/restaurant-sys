@@ -1,9 +1,9 @@
-const CategoryStockmodel = require("../models/category-stock.model");
+const CategoryStockmodel = require("../../models/category-stock.model");
 
 const CreateCategoryStock = async (req, res, next) => {
   try {
     const { categoryName, categoryCode, notes } = req.body;
-    const createdBy = req.employee.id;
+    const createdBy = req.user.id;
 
     // Check if the categoryName or categoryCode already exists
     const existingCategory = await CategoryStockmodel.findOne({

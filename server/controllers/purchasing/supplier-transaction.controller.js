@@ -1,4 +1,4 @@
-const SupplierTransactionModel = require("../models/supplier-transaction.model");
+const SupplierTransactionModel = require("../../models/supplier-transaction.model");
 
 // Create a new supplier transaction
 const createSupplierTransaction = async (req, res) => {
@@ -15,7 +15,7 @@ const createSupplierTransaction = async (req, res) => {
       notes,
     } = req.body;
 
-    const recordedBy = req.employee.id;
+    const recordedBy = req.user.id;
 
     // Check the validity of the sent data
     if (
@@ -99,7 +99,7 @@ const updateSupplierTransaction = async (req, res) => {
       paymentMethod,
       notes,
     } = req.body;
-    const recordedBy = req.employee.id;
+    const recordedBy = req.user.id;
 
     const updatedTransaction = await SupplierTransactionModel.findByIdAndUpdate(
       req.params.id,

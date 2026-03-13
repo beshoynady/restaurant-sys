@@ -166,7 +166,7 @@ const createBrand = asyncHandler(async (req, res) => {
 
   const payload = {
     ...req.body,
-    createdBy: req.employee?._id
+    createdBy: req.user?._id
   };
 
   const { error, value } = createBrandSchema.validate(payload);
@@ -255,7 +255,7 @@ const updateBrand = asyncHandler(async (req, res) => {
 
   const { error, value } = updateBrandSchema.validate({
     ...req.body,
-    updatedBy: req.employee?._id
+    updatedBy: req.user?._id
   });
 
   if (error)
@@ -394,7 +394,7 @@ const deleteBrand = asyncHandler(async (req, res) => {
 
   existBrand.isDeleted = true;
   existBrand.deletedAt = new Date();
-  existBrand.deletedBy = req.employee?._id;
+  existBrand.deletedBy = req.user?._id;
 
   await existBrand.save();
 

@@ -1,8 +1,9 @@
-const EmployeeModel = require("../../models/employee/employee.model");
+const EmployeeModel = require("../../models/employees/employee.model");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const Joi = require("joi");
 require("dotenv").config();
+const asyncHandler = require("../../utils/asyncHandler.js");
 
 /* ===========================================================
  * Helper Joi Schema for Multilingual Map Fields
@@ -122,8 +123,7 @@ const updateEmployeeSchema = Joi.object({
 /* ===========================================================
  * 2. CREATE FIRST EMPLOYEE (SYSTEM OWNER)
  * =========================================================== */
-const createFirstEmployee = async (req, res) => {
-  try {
+const createFirstEmployee = asyncHandler(async (req, res) => {
     const { error } = createFirstEmployeeSchema.validate(req.body, {
       abortEarly: false,
     });
@@ -174,24 +174,16 @@ const createFirstEmployee = async (req, res) => {
       data: employee,
       accessToken,
     });
-  } catch (err) {
-    console.error("Create First Employee Error:", err);
-    return res.status(500).json({
-      success: false,
-      message: "Dine-in server error",
-    });
-  }
-};
+});
 
 /* ===========================================================
  * 3. CREATE REGULAR EMPLOYEE
  * =========================================================== */
-const createEmployee = async (req, res) => {
-  try {
-    const { error } = createEmployeeSchema.validate(req.body, {
-      abortEarly: false,
-    });
-    if (error)
+const createEmployee = asyncHandler(async (req, res) => {
+  const { error } = createEmployeeSchema.validate(req.body, {
+    abortEarly: false,
+  });
+  if (error)
       return res.status(400).json({
         success: false,
         message: "Validation failed",
@@ -223,7 +215,7 @@ const createEmployee = async (req, res) => {
         ...credentials,
         password: hashedPassword,
       },
-      createdBy: req.employee?._id || null,
+      createdBy: req.user?._id || null,
     });
 
     return res.status(201).json({
@@ -231,20 +223,12 @@ const createEmployee = async (req, res) => {
       message: "Employee created successfully",
       data: employee,
     });
-  } catch (err) {
-    console.error("Create Employee Error:", err);
-    return res.status(500).json({
-      success: false,
-      message: "Dine-in server error",
-    });
-  }
-};
+});
 
 /* ===========================================================
  * 4. UPDATE EMPLOYEE
  * =========================================================== */
-const updateEmployee = async (req, res) => {
-  try {
+const updateEmployee = asyncHandler(async (req, res) => {
     const { employeeId } = req.params;
 
     if (req.body.credentials?.password) {
@@ -266,7 +250,7 @@ const updateEmployee = async (req, res) => {
 
     const employee = await EmployeeModel.findOneAndUpdate(
       { _id: employeeId, isDeleted: false },
-      { ...req.body, updatedBy: req.employee?._id || null },
+      { ...req.body, updatedBy: req.user?._id || null },
       { new: true },
     );
 
@@ -280,21 +264,13 @@ const updateEmployee = async (req, res) => {
       success: true,
       message: "Employee updated successfully",
       data: employee,
-    });
-  } catch (err) {
-    console.error("Update Employee Error:", err);
-    return res.status(500).json({
-      success: false,
-      message: "Dine-in server error",
-    });
-  }
-};
+    }); 
+});
 
 /* ===========================================================
  * 5. LOGIN EMPLOYEE
  * =========================================================== */
-const loginEmployee = async (req, res) => {
-  try {
+const loginEmployee = asyncHandler(async (req, res) => {
     const { username, password } = req.body;
 
     const employee = await EmployeeModel.findOne({
@@ -335,20 +311,12 @@ const loginEmployee = async (req, res) => {
       accessToken,
       employee,
     });
-  } catch (err) {
-    console.error("Login Error:", err);
-    return res.status(500).json({
-      success: false,
-      message: "Dine-in server error",
-    });
-  }
-};
+  });
 
 /* ===========================================================
  * 5. LOGOUT EMPLOYEE
  * =========================================================== */
-const logoutEmployee = async (req, res) => {
-  try {
+const logoutEmployee = asyncHandler(async (req, res) => {
     res.clearCookie("refreshToken", {
       httpOnly: true,
       sameSite: "strict",
@@ -357,37 +325,26 @@ const logoutEmployee = async (req, res) => {
     res
       .status(200)
       .json({ status: "success", message: "✅ Logged out successfully." });
-  } catch (err) {
-    console.error("Logout Error:", err);
-    return res.status(500).json({
-      success: false,
-      message: "Dine-in server error",
-    });
-  }
-};
+});
 
-const getOneEmployee = async (req, res) => {
-  try {
-    const { employeeId } = req.params;
-    const employee = await EmployeeModel.findOne({
+/* ===========================================================
+ * 6. GET SINGLE EMPLOYEE
+ * =========================================================== */
+
+const getOneEmployee = asyncHandler(async (req, res) => {
+  const { employeeId } = req.params;
+  const employee = await EmployeeModel.findOne({
       _id: employeeId,
     }).populate("branch department jobTitle");
     if (!employee)
       return res.status(404).json({ success: false, message: "Not found" });
     return res.status(200).json({ success: true, data: employee });
-  } catch (err) {
-    console.error("Get One Employee Error:", err);
-    return res.status(500).json({
-      success: false,
-      message: "Dine-in server error",
-    });
-  }
-};
+  
+});
 /* ===========================================================
  * 6. GET EMPLOYEES (PAGINATION)
  * =========================================================== */
-const getEmployeesWithPagination = async (req, res) => {
-  try {
+const getEmployeesWithPagination = asyncHandler(async (req, res) => {
     const { page = 1, limit = 20 } = req.query;
 
     const data = await EmployeeModel.find({ isDeleted: false })
@@ -404,19 +361,11 @@ const getEmployeesWithPagination = async (req, res) => {
       pages: Math.ceil(total / limit),
       data,
     });
-  } catch (err) {
-    console.error("Get Employees Error:", err);
-    return res.status(500).json({
-      success: false,
-      message: "Error fetching employees",
-    });
-  }
-};
+});
 
-const getEmployeesByBranch = async (req, res) => {
-  try {
-    const { branchId } = req.params;
-    const { page = 1, limit = 20 } = req.query;
+const getEmployeesByBranch = asyncHandler(async (req, res) => {
+  const { branchId } = req.params;
+  const { page = 1, limit = 20 } = req.query;
 
     const employees = await EmployeeModel.find({
       branch: branchId,
@@ -430,27 +379,19 @@ const getEmployeesByBranch = async (req, res) => {
       success: true,
       data: employees,
     });
-  } catch (err) {
-    console.error("Get Employees by Branch Error:", err);
-    return res.status(500).json({
-      success: false,
-      message: "Error fetching employees by branch",
-    });
-  }
-};
+});
 
 /* ===========================================================
  * 7. SOFT DELETE / RESTORE EMPLOYEE
  * =========================================================== */
-const softDeleteEmployee = async (req, res) => {
-  try {
-    const employee = await EmployeeModel.findById(req.params.employeeId);
-    if (!employee)
-      return res.status(404).json({ success: false, message: "Not found" });
+const softDeleteEmployee = asyncHandler(async (req, res) => {
+  const employee = await EmployeeModel.findById(req.params.employeeId);
+  if (!employee)
+    return res.status(404).json({ success: false, message: "Not found" });
 
     employee.isDeleted = true;
     employee.deletedAt = new Date();
-    employee.deletedBy = req.employee?._id || null;
+    employee.deletedBy = req.user?._id || null;
     employee.employmentInfo.status = "archived";
 
     await employee.save();
@@ -459,16 +400,11 @@ const softDeleteEmployee = async (req, res) => {
       success: true,
       message: "Employee deleted successfully",
     });
-  } catch (err) {
-    console.error("Soft Delete Error:", err);
-    return res.status(500).json({ success: false, message: "Delete failed" });
-  }
-};
+});
 
-const restoreEmployee = async (req, res) => {
-  try {
-    const employee = await EmployeeModel.findById(req.params.employeeId);
-    if (!employee || !employee.isDeleted)
+const restoreEmployee = asyncHandler(async (req, res) => {
+  const employee = await EmployeeModel.findById(req.params.employeeId);
+  if (!employee || !employee.isDeleted)
       return res.status(404).json({ success: false, message: "Not found" });
 
     employee.isDeleted = false;
@@ -483,11 +419,7 @@ const restoreEmployee = async (req, res) => {
       message: "Employee restored successfully",
       data: employee,
     });
-  } catch (err) {
-    console.error("Restore Error:", err);
-    return res.status(500).json({ success: false, message: "Restore failed" });
-  }
-};
+});
 
 /* ===========================================================
  * EXPORT CONTROLLER

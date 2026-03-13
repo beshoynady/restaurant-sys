@@ -1,5 +1,5 @@
-const CashMovement = require("../models/cash-movement.model");
-const CashRegister = require("../models/cash-register.model");
+const CashMovement = require("../../models/cash-movement.model");
+const CashRegister = require("../../models/cash-register.model");
 
 // Controller function to create a cash movement
 exports.createCashMovement = async (req, res) => {
@@ -16,7 +16,7 @@ exports.createCashMovement = async (req, res) => {
       movementId,
       status,
     } = req.body;
-    const createdBy = req.employee.id;
+    const createdBy = req.user.id;
 
     // Find the cash register
     const register = await CashRegister.findById(cashRegister);
@@ -209,7 +209,7 @@ exports.transferCashBetweenRegisters = async (req, res) => {
 exports.recordPayment = async (req, res) => {
   try {
     const { brand, branch, cashRegister, amount, description } = req.body;
-    const createdBy = req.employee.id;
+    const createdBy = req.user.id;
 
     // Find the cash register
     const register = await CashRegister.findById(cashRegister);
@@ -253,7 +253,7 @@ exports.recordPayment = async (req, res) => {
 exports.recordReceipt = async (req, res) => {
   try {
     const { brand, branch, cashRegister, amount, description } = req.body;
-    const createdBy = req.employee.id;
+    const createdBy = req.user.id;
 
     // Find the cash register
     const register = await CashRegister.findById(cashRegister);

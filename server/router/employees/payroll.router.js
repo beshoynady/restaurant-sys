@@ -1,18 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const payrollController = require('../controllers/payroll.controller');
+const payrollController = require('../../controllers/employees/payroll.controller');
 const {authenticateToken} = require("../../middlewares/authenticate");
 const checkSubscription = require('../../middlewares/checkSubscription')
 
 router.route('/')
-    .post(authenticateToken, checkSubscription, payrollController.createPayroll)
-    .get(authenticateToken, checkSubscription, payrollController.getAllPayroll);
+    .post(authenticateToken,payrollController.createPayroll)
+    .get(authenticateToken,payrollController.getAllPayroll);
 
 router.route('/:id')
-    .get(authenticateToken, checkSubscription, payrollController.getPayrollById)
-    .put(authenticateToken, checkSubscription, payrollController.updatePayroll)
-    .delete(authenticateToken, checkSubscription, payrollController.deletePayroll);
+    .get(authenticateToken,payrollController.getPayrollById)
+    .put(authenticateToken,payrollController.updatePayroll)
+    .delete(authenticateToken,payrollController.deletePayroll);
 
-router.route('/employee/:employeeId').put(authenticateToken, checkSubscription, payrollController.updatePayrollByEmployee)
+router.route('/employee/:employeeId').put(authenticateToken,payrollController.updatePayrollByEmployee)
 
 module.exports = router;

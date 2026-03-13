@@ -1,6 +1,6 @@
-const DepartmentModel = require("../../models/employee/department.model");
-const BrandModel = require("../../models/brand.model");
-const BranchModel = require("../../models/branch.model");
+const DepartmentModel = require("../../models/employees/department.model");
+const BrandModel = require("../../models/core/brand.model");
+const BranchModel = require("../../models/core/branch.model");
 const joi = require("joi");
 
 // --------------------------- Joi Schemas ---------------------------
@@ -52,7 +52,7 @@ const updateDepartmentSchema = joi.object({
 // ✅ Create a new department
 const createDepartment = async (req, res) => {
   try {
-    const createdBy = req.employee?.id;
+    const createdBy = req.user?.id;
     if (!createdBy)
       return res.status(403).json({
         success: false,
@@ -152,7 +152,7 @@ const createDepartment = async (req, res) => {
 const updateDepartment = async (req, res) => {
   try {
     const { id } = req.params;
-    const updatedBy = req.employee?.id;
+    const updatedBy = req.user?.id;
     if (!updatedBy)
       return res.status(403).json({
         success: false,

@@ -20,7 +20,7 @@ const {
 } = require("../../controllers/core/branch.controller");
 
 const { authenticateToken } = require("../../middlewares/authenticate");
-const checkSubscription = require("../../middlewares/checkSubscription");
+
 
 /* -------------------------------------------------------------------------- */
 /*                                 🚀 Endpoints                               */
@@ -36,7 +36,7 @@ router.get("/active-branches", authenticateToken, getActiveBranches);
  */
 router
   .route("/")
-  .post(authenticateToken, checkSubscription, createBranch)
+  .post(authenticateToken,createBranch)
   .get(authenticateToken, getBranches);
 
 /**
@@ -45,8 +45,8 @@ router
 router
   .route("/:id")
   .get(authenticateToken, getBranchById)
-  .put(authenticateToken, checkSubscription, updateBranch)
-  .delete(authenticateToken, checkSubscription, hardDeleteBranch);
+  .put(authenticateToken,updateBranch)
+  .delete(authenticateToken,hardDeleteBranch);
 
 /**
  * Soft delete branch
@@ -54,7 +54,7 @@ router
 router.patch(
   "/:id/archive",
   authenticateToken,
-  checkSubscription,
+ 
   softDeleteBranch,
 );
 
@@ -64,7 +64,7 @@ router.patch(
 router.patch(
   "/:id/restore",
   authenticateToken,
-  checkSubscription,
+ 
   restoreBranch,
 );
 

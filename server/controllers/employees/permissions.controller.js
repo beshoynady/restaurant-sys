@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
 
-const PermissionsModel = require("../../models/employee/permissions.model");
+const PermissionsModel = require("../../models/employees/permissions.model");
 
 const createPermission = async (req, res) => {
   try {
     const { employee, Permissions } = req.body;
-    const createdBy = req.employee.id;
+    const createdBy = req.user.id;
 
     if (!mongoose.Types.ObjectId.isValid(employee)) {
       return res.status(400).json({ message: "معرف الموظف غير صالح." });
@@ -97,7 +97,7 @@ const getPermissionByEmployee = async (req, res) => {
 const updatePermissionById = async (req, res) => {
   try {
     const { Permissions } = req.body;
-    const updatedBy = req.employee.id;
+    const updatedBy = req.user.id;
 
     // Check for required data
     if (!Permissions || Permissions.length === 0) {

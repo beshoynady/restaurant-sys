@@ -7,7 +7,7 @@ const {
   deleteBranchSettings,
 } = require("../../controllers/settings/branch-settings.controller");
 
-const { authenticateToken } = require("../middlewares/authenticate");
+const { authenticateToken } = require("../../middlewares/authenticate");
 
 const router = express.Router();
 

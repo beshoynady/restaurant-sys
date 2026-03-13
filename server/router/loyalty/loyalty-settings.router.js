@@ -11,10 +11,10 @@ const {
   toggleLoyaltyStatus,
   deleteLoyaltySettings,
 } = require("../../controllers/loyalty/loyalty-settings.controller");
-const { authenticate } = require("../../middleware/auth.middleware");
+const {authenticateToken} = require("../../middlewares/authenticate");
 
 // All routes require authentication
-router.use(authenticate);
+router.use(authenticateToken);
 
 // Create a new loyalty settings for a brand
 router.route("/").post(createLoyaltySettings).get(getAllLoyaltySettings);

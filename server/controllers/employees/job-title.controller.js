@@ -1,5 +1,5 @@
-const JobTitleModel = require("../../models/employee/jop-title.model");
-const EmployeeModel = require("../../models/employee/employee.model");
+const JobTitleModel = require("../../models/employees/job-title.model");
+const EmployeeModel = require("../../models/employees/employee.model");
 const joi = require("joi");
 
 /**
@@ -97,7 +97,7 @@ const createJobTitle = async (req, res) => {
       responsibilities,
       requirements,
       status,
-      createdBy: req.employee._id,
+      createdBy: req.user._id,
     });
 
     return res.status(201).json({
@@ -144,7 +144,7 @@ const updateJobTitle = async (req, res) => {
     }
 
     Object.assign(jobTitle, req.body, {
-      updatedBy: req.employee._id,
+      updatedBy: req.user._id,
     });
 
     // Duplicate check if titleName is updated
@@ -168,7 +168,7 @@ const updateJobTitle = async (req, res) => {
     }
 
     Object.assign(jobTitle, req.body, {
-      updatedBy: req.employee._id,
+      updatedBy: req.user._id,
     });
 
     await jobTitle.save();
@@ -279,7 +279,7 @@ const softDeleteJobTitle = async (req, res) => {
 
     jobTitle.isDeleted = true;
     jobTitle.deletedAt = new Date();
-    jobTitle.deletedBy = req.employee._id;
+    jobTitle.deletedBy = req.user._id;
 
     await jobTitle.save();
 
@@ -315,7 +315,7 @@ const restoreJobTitle = async (req, res) => {
     jobTitle.isDeleted = false;
     jobTitle.deletedAt = null;
     jobTitle.deletedBy = null;
-    jobTitle.updatedBy = req.employee._id;
+    jobTitle.updatedBy = req.user._id;
 
     await jobTitle.save();
 

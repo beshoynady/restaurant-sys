@@ -185,7 +185,7 @@ const validateLanguagesAgainstBrand = (obj, brandLanguages) => {
 const createBranch = asyncHandler(async (req, res) => {
 
   const brandId = req.brand._id;
-  const employeeId = req.employee._id;
+  const employeeId = req.user._id;
 
   const { error, value } = createBranchSchema.validate(req.body);
 
@@ -350,7 +350,7 @@ const updateBranch = asyncHandler(async (req, res) => {
 
 
   Object.assign(branch, value, {
-    updatedBy: req.employee._id,
+    updatedBy: req.user._id,
   });
 
   await branch.save();
@@ -454,7 +454,7 @@ const softDeleteBranch = asyncHandler(async (req, res) => {
       isDeleted: true,
       status: "inactive",
       deletedAt: new Date(),
-      deletedBy: req.employee._id,
+      deletedBy: req.user._id,
     },
     { new: true }
   );

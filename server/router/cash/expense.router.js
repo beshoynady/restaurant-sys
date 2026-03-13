@@ -6,12 +6,12 @@ const checkSubscription = require('../../middlewares/checkSubscription')
 
 
 router.route("/")
-    .post(authenticateToken, checkSubscription, expensesController.createExpense)
-    .get(authenticateToken, checkSubscription, expensesController.getAllExpenses);
+    .post(authenticateToken,expensesController.createExpense)
+    .get(authenticateToken,expensesController.getAllExpenses);
 router.route("/:expenseId")
-    .get(authenticateToken, checkSubscription, expensesController.getExpenseById)
-    .put(authenticateToken, checkSubscription, expensesController.updateExpense)
-    .delete(authenticateToken, checkSubscription, expensesController.deleteExpense);
+    .get(authenticateToken,expensesController.getExpenseById)
+    .put(authenticateToken,expensesController.updateExpense)
+    .delete(authenticateToken,expensesController.deleteExpense);
 
 
 

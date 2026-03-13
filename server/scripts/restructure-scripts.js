@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const modelsDir = path.join(__dirname, "../models");
+const modelsDir = path.join(__dirname, "../../models");
 const servicesDir = path.join(__dirname, "../validators");
 
 function createServiceStructure(dir, base = "") {

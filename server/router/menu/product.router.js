@@ -2,10 +2,10 @@ const express = require("express");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-const ProductModel = require("../models/product.model");
+const ProductModel = require("../../models/menu/product.model");
 
 const { authenticateToken } = require("../../middlewares/authenticate");
-const checkSubscription = require("../../middlewares/checkSubscription");
+
 
 const {
   createProduct,
@@ -16,7 +16,7 @@ const {
   changeProductAvailable,
   softDeleteProduct,
   deleteProduct,
-} = require("../../controllers/product.controller");
+} = require("../../controllers/menu/product.controller");
 const { route } = require("./menu-category.router");
 
 const router = express.Router();
@@ -103,7 +103,7 @@ router
   .route("/")
   .post(
     authenticateToken,
-    checkSubscription,
+   
     upload.single("image"),
     createProduct
   )
@@ -116,14 +116,14 @@ router
   .get(getOneProduct)
   .put(
     authenticateToken,
-    checkSubscription,
+   
     upload.single("image"),
     deleteOldImageMiddleware,
     updateProduct
   )
   .delete(
     authenticateToken,
-    checkSubscription,
+   
     deleteProductImageMiddleware,
     deleteProduct
   );
@@ -132,14 +132,14 @@ router
 .route("/:productId/available")
 .patch(
   authenticateToken,
-  checkSubscription,
+ 
   changeProductAvailable
 );
 
 router.route("/:productId/soft-delete")
 .patch(
   authenticateToken,
-  checkSubscription,
+ 
   softDeleteProduct
 );
 

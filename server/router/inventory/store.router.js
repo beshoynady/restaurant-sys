@@ -9,19 +9,19 @@ const {
 } = require("../../controllers/store.controller");
 
 const { authenticateToken } = require("../../middlewares/authenticate");
-const checkSubscription = require("../../middlewares/checkSubscription");
+
 
 // Create a new store
 router
   .route("/")
-  .post(authenticateToken, checkSubscription, createStore)
-  .get(authenticateToken, checkSubscription, getAllStores);
+  .post(authenticateToken,createStore)
+  .get(authenticateToken,getAllStores);
 
 // Get a store by ID
 router
   .route("/:id")
-  .get(authenticateToken, checkSubscription, getStoreById)
-  .put(authenticateToken, checkSubscription, updateStore)
-  .delete(authenticateToken, checkSubscription, deleteStore);
+  .get(authenticateToken,getStoreById)
+  .put(authenticateToken,updateStore)
+  .delete(authenticateToken,deleteStore);
 
 module.exports = router;

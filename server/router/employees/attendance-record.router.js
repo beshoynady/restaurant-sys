@@ -6,20 +6,20 @@ const {
   getAttendanceRecordById,
   updateAttendanceRecordById,
   deleteAttendanceRecordById,
-} = require("../../controllers/attendance.controller");
+} = require("../../controllers/employees/attendance-record.controller.js");
 
 const { authenticateToken } = require("../../middlewares/authenticate");
-const checkSubscription = require("../../middlewares/checkSubscription");
+
 
 router
   .route("/")
-  .post(authenticateToken, checkSubscription, createAttendanceRecord)
-  .get(authenticateToken, checkSubscription, getAllAttendanceRecords);
+  .post(authenticateToken,createAttendanceRecord)
+  .get(authenticateToken,getAllAttendanceRecords);
 
 router
   .route("/:id")
-  .get(authenticateToken, checkSubscription, getAttendanceRecordById)
-  .put(authenticateToken, checkSubscription, updateAttendanceRecordById)
-  .delete(authenticateToken, checkSubscription, deleteAttendanceRecordById);
+  .get(authenticateToken,getAttendanceRecordById)
+  .put(authenticateToken,updateAttendanceRecordById)
+  .delete(authenticateToken,deleteAttendanceRecordById);
 
 module.exports = router;

@@ -1,4 +1,4 @@
-const PreparationTicketModel = require("../models/preparation-ticket.model.js");
+const PreparationTicketModel = require("../../models/preparation-ticket.model.js");
 const mongoose = require("mongoose");
 const joi = require("joi");
 

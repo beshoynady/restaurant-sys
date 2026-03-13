@@ -137,4 +137,4 @@ const AssetDepreciationModel = mongoose.model(
   assetDepreciationSchema,
 );
 
-export default AssetDepreciationModel;
+module.exports = AssetDepreciationModel;

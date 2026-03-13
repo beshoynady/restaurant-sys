@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-import BranchSettingsModel from "../models/settings/branchSettings.model.js";
-import joi from "joi";
+import BranchSettingsModel from "../../models/settings/branchSettings.model.js";
+const joi = required("joi");
 
 const { ObjectId } = mongoose.Types;
 
@@ -291,7 +291,7 @@ const softDeleteBranchSettings = async (req, res) => {
 
     settings.isDeleted = true;
     settings.deletedAt = new Date();
-    settings.deletedBy = req.employee._id;
+    settings.deletedBy = req.user._id;
     await settings.save();
 
     return res.status(200).json({ success: true, message: "Branch settings deleted successfully" });
@@ -316,7 +316,7 @@ const restoreBranchSettings = async (req, res) => {
     settings.isDeleted = false;
     settings.deletedAt = null;
     settings.deletedBy = null;
-    settings.updatedBy = req.employee._id;
+    settings.updatedBy = req.user._id;
     await settings.save();
 
     return res.status(200).json({ success: true, message: "Branch settings restored successfully", data: settings });

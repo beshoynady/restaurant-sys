@@ -1,5 +1,5 @@
-const CustomerLoyaltyModel = require("../../models/customer-loyalty.model");
-const { asyncHandler } = require("../../utils/async-handler");
+const CustomerLoyaltyModel = require("../../models/loyalty/customer-loyalty.model");
+const asyncHandler= require("../../utils/asyncHandler");
 const joi = require("joi");
 
 // validation schema for creating/updating customer loyalty

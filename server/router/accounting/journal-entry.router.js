@@ -11,7 +11,7 @@ const {
 } = require("../../controllers/accounting/journal-entry.controller");
 
 const { authenticateToken } = require("../../middlewares/authenticate");
-const checkSubscription = require("../../middlewares/checkSubscription");
+
 
 
 // ==============================
@@ -24,8 +24,8 @@ const checkSubscription = require("../../middlewares/checkSubscription");
  */
 router
   .route("/")
-  .post(authenticateToken, checkSubscription, createJournalEntry)
-  .get(authenticateToken, checkSubscription, getJournalEntries);
+  .post(authenticateToken,createJournalEntry)
+  .get(authenticateToken,getJournalEntries);
 
 /**
  * @route   GET /api/journal-entries/:id
@@ -33,7 +33,7 @@ router
  */
 router
   .route("/:id")
-  .get(authenticateToken, checkSubscription, getJournalEntryById)
+  .get(authenticateToken,getJournalEntryById)
 
 /**
  * @route   PUT /api/journal-entries/:id/post
@@ -41,7 +41,7 @@ router
  */
 router
   .route("/:id/post")
-  .put(authenticateToken, checkSubscription, postJournalEntry);
+  .put(authenticateToken,postJournalEntry);
 
 /**
  * @route   PUT /api/journal-entries/:id/reject
@@ -49,6 +49,6 @@ router
  */
 router
   .route("/:id/reject")
-  .put(authenticateToken, checkSubscription, rejectJournalEntry);
+  .put(authenticateToken,rejectJournalEntry);
 
 module.exports = router;

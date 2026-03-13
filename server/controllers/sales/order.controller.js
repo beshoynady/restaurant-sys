@@ -1,4 +1,4 @@
-const OrderModel =require("../models/order.model");
+const OrderModel =require("../../models/sales/Order.model");
 
 // Create a new order
 const createOrder = async (req, res) => {

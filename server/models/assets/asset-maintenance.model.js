@@ -128,4 +128,4 @@ const AssetMaintenanceModel = mongoose.model(
   assetMaintenanceSchema,
 );
 
-export default AssetMaintenanceModel;
+module.exports = AssetMaintenanceModel;

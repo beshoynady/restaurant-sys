@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const Joi = require("joi");
-const NotificationSettings = require("../models/settings/notification-settings.model");
+const NotificationSettings = require("../../models/settings/notification-settings.model");
 
 // -----------------------------
 // Time validation regex

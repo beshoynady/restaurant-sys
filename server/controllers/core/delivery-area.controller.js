@@ -8,7 +8,7 @@
  * - Async error handling via asyncHandler
  */
 
-const asyncHandler = require("express-async-handler");
+const asyncHandler = require("../../utils/asyncHandler.js");
 const DeliveryArea = require("../../models/core/delivery-area.model");
 const Joi = require("joi");
 const mongoose = require("mongoose");
@@ -75,7 +75,7 @@ const isValidObjectId = (id) => ObjectId.isValid(id);
 const createDeliveryArea = asyncHandler(async (req, res) => {
   const brand = req.brand;
   const branch = req.branch;
-  const createdBy = req.employee._id;
+  const createdBy = req.user._id;
 
   const { error, value } = createDeliveryAreaSchema.validate(
     { ...req.body, brand: brand._id, branch: branch._id, createdBy },
@@ -114,7 +114,7 @@ const createDeliveryArea = asyncHandler(async (req, res) => {
 const updateDeliveryArea = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const brand = req.brand;
-  const updatedBy = req.employee._id;
+  const updatedBy = req.user._id;
 
   if (!isValidObjectId(id)) {
     res.status(400);
@@ -209,7 +209,7 @@ const getDeliveryAreaByCode = asyncHandler(async (req, res) => {
 // Soft delete delivery area
 const softDeleteDeliveryArea = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const deletedBy = req.employee._id;
+  const deletedBy = req.user._id;
   const { note } = req.body;
 
   if (!isValidObjectId(id)) {
@@ -241,7 +241,7 @@ const softDeleteDeliveryArea = asyncHandler(async (req, res) => {
 // Restore soft-deleted delivery area
 const restoreDeliveryArea = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const updatedBy = req.employee._id;
+  const updatedBy = req.user._id;
 
   const area = await DeliveryArea.findById(id);
   if (!area) {

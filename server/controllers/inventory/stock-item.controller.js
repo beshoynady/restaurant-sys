@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const StockItemsModel = require("../models/stock-items.model");
+const StockItemsModel = require("../../models/stock-items.model");
 
 // Create a new stock item
 const createStockItem = async (req, res) => {
@@ -21,7 +21,7 @@ const createStockItem = async (req, res) => {
       notes,
     } = req.body;
 
-    const createdBy = req.employee.id;
+    const createdBy = req.user.id;
 
     // Check for unique SKU
     const existingItem = await StockItemsModel.findOne({ SKU });
@@ -97,7 +97,7 @@ const getOneItem = async (req, res) => {
 const updateStockItem = async (req, res) => {
   try {
     const itemId = req.params.itemId;
-    const updatedBy = req.employee.id;
+    const updatedBy = req.user.id;
     const updatedData = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(itemId)) {

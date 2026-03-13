@@ -1,6 +1,6 @@
 import DiningAreaModel from "../../models/seating/diningArea.model.js";
 import TableModel from "../../models/seating/table.model.js";
-import Joi from "joi";
+const joi = required("joi");
 const mongoose = require("mongoose");
 
 const ObjectId = (value, helpers) => {
@@ -64,7 +64,7 @@ const createDiningArea = async (req, res) => {
   try {
     const brand = req.brand._id;
     const branch = req.branch?._id;
-    const createdBy = req.employee._id;
+    const createdBy = req.user._id;
 
     const { error, value } = createDiningAreaSchema.validate(
       { ...req.body, brand, branch, createdBy },
@@ -112,7 +112,7 @@ const createDiningArea = async (req, res) => {
 // Update a dining area
 const updateDiningArea = async (req, res) => {
   try {
-    const updatedBy = req.employee._id;
+    const updatedBy = req.user._id;
     const { error, value } = updateDiningAreaSchema.validate(
       { ...req.body, updatedBy },
       { abortEarly: false, stripUnknown: true },
@@ -262,7 +262,7 @@ const toggleDiningAreaStatus = async (req, res) => {
         .json({ success: false, message: "Dining area not found" });
 
     area.isActive = !area.isActive;
-    area.updatedBy = req.employee._id;
+    area.updatedBy = req.user._id;
     await area.save();
 
     return res
@@ -347,7 +347,7 @@ const getDiningAreasWithTables = async (req, res) => {
   }
 };
 
-export default {
+module.exports = {
   createDiningArea,
   updateDiningArea,
   getDiningAreas,

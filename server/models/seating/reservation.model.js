@@ -155,4 +155,4 @@ ReservationSchema.index({
   status: 1,
 });
 
-export default mongoose.model("Reservation", ReservationSchema);
+module.exports = mongoose.model("Reservation", ReservationSchema);

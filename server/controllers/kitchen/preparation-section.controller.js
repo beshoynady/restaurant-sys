@@ -1,4 +1,4 @@
-const PreparationSectionModel = require("../models/PreparationSectionModel");
+const PreparationSectionModel = require("../../models/PreparationSectionModel");
 const Joi = require("joi");
 const mongoose = require("mongoose");
 

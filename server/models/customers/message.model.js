@@ -156,4 +156,6 @@ customerMessageSchema.index({ brand: 1, priority: 1 });
 customerMessageSchema.index({ brand: 1, branch: 1 });
 customerMessageSchema.index({ senderType: 1, referenceId: 1 });
 
-export default mongoose.model("CustomerMessage", customerMessageSchema);
+const CustomerMessageModel = mongoose.model("CustomerMessage", customerMessageSchema);
+
+module.exports = CustomerMessageModel;

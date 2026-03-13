@@ -1,6 +1,6 @@
 const Joi = require("joi");
 const mongoose = require("mongoose");
-const MenuSetting = require("../models/settings/menu-settings.model");
+const MenuSetting = require("../../models/settings/menu-settings.model");
 
 // ============================
 // Joi Validation Schema

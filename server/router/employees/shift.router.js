@@ -6,18 +6,18 @@ const {
   getShiftById,
   updateShift,
   deleteShift
-} = require('../../controllers/shift.controller');
+} = require('../../controllers/employees/shift.controller');
 const {authenticateToken} = require("../../middlewares/authenticate");
 const checkSubscription = require('../../middlewares/checkSubscription')
 
 router.route('/')
-  .post(authenticateToken, checkSubscription, createShift)
-  .get(authenticateToken, checkSubscription, getAllShifts);
+  .post(authenticateToken,createShift)
+  .get(authenticateToken,getAllShifts);
 
 router.route('/:id')
 
-  .get(authenticateToken, checkSubscription, getShiftById)
-  .put(authenticateToken, checkSubscription, updateShift)
-  .delete(authenticateToken, checkSubscription, deleteShift);
+  .get(authenticateToken,getShiftById)
+  .put(authenticateToken,updateShift)
+  .delete(authenticateToken,deleteShift);
 
 module.exports = router;

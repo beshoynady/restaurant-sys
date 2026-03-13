@@ -12,13 +12,13 @@ const {authenticateToken} = require("../../middlewares/authenticate");
 const checkSubscription = require('../../middlewares/checkSubscription')
 
 router.route('/')
-    .post(authenticateToken, checkSubscription, createSupplierTransaction)
-    .get(authenticateToken, checkSubscription, getAllSupplierTransactions);
+    .post(authenticateToken,createSupplierTransaction)
+    .get(authenticateToken,getAllSupplierTransactions);
 
 router.route('/:id')
-    .get(authenticateToken, checkSubscription, getSupplierTransactionById)
-    .put(authenticateToken, checkSubscription, updateSupplierTransaction)
-    .delete(authenticateToken, checkSubscription, deleteSupplierTransaction);
+    .get(authenticateToken,getSupplierTransactionById)
+    .put(authenticateToken,updateSupplierTransaction)
+    .delete(authenticateToken,deleteSupplierTransaction);
 
     
 module.exports = router;

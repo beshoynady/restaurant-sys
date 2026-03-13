@@ -70,7 +70,7 @@ const authenticateToken = async (req, res, next) => {
       });
     }
 
-    req.employee = employee;
+    req.user = employee;
     req.brand = employee.brand;
     req.branch = employee.branch || null;
 
@@ -84,3 +84,45 @@ const authenticateToken = async (req, res, next) => {
     });
   }
 };
+/**
+ * Refresh Access Token
+ */
+const refreshAccessToken = async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+    if (!refreshToken) {
+      return res.status(400).json({ message: "Refresh token required" });
+    }
+
+    let payload;
+    try {
+      payload = jwt.verify(refreshToken, secretKey);
+    } catch (err) {
+      return res.status(403).json({ message: "Invalid or expired refresh token" });
+    }
+
+    const employee = await EmployeeModel.findById(payload.id);
+    if (!employee) return res.status(404).json({ message: "Employee not found" });
+
+    const accessToken = jwt.sign(
+      {
+        id: employee._id,
+        isAdmin: employee.type === "system_user",
+        isOwner: employee.employmentInfo?.isOwner || false,
+        isVerified: employee.employmentInfo?.isVerified || false,
+        isActive: employee.employmentInfo?.status === "active",
+        brand: employee.brand.toString(),
+        branch: employee.branch ? employee.branch.toString() : null,
+      },
+      secretKey,
+      { expiresIn: "15m" }
+    );
+
+    return res.status(200).json({ success: true, accessToken });
+  } catch (err) {
+    console.error("Refresh token error:", err);
+    return res.status(500).json({ message: "Server error during token refresh" });
+  }
+};
+
+module.exports = { authenticateToken, refreshAccessToken };

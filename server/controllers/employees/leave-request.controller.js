@@ -1,5 +1,5 @@
-const LeaveRequestModel = require("../../models/employee/leave-request.model");
-const EmployeeModel = require("../../models/employee/employee.model");
+const LeaveRequestModel = require("../../models/employees/leave-request.model");
+const EmployeeModel = require("../../models/employees/employee.model");
 const joi = require("joi");
 
 /**
@@ -99,7 +99,7 @@ const createLeaveRequest = async (req, res) => {
       endDate,
       totalDays,
       reason,
-      createdBy: req.employee._id,
+      createdBy: req.user._id,
     });
 
     return res.status(201).json({
@@ -149,7 +149,7 @@ const updateLeaveRequest = async (req, res) => {
     }
 
     Object.assign(leaveRequest, req.body);
-    leaveRequest.updatedBy = req.employee._id;
+    leaveRequest.updatedBy = req.user._id;
 
     await leaveRequest.save();
 
@@ -183,9 +183,9 @@ const approveLeaveRequest = async (req, res) => {
     }
 
     leaveRequest.status = "approved";
-    leaveRequest.approvedBy = req.employee._id;
+    leaveRequest.approvedBy = req.user._id;
     leaveRequest.approvedAt = new Date();
-    leaveRequest.updatedBy = req.employee._id;
+    leaveRequest.updatedBy = req.user._id;
 
     await leaveRequest.save();
 
@@ -225,9 +225,9 @@ const rejectLeaveRequest = async (req, res) => {
 
     leaveRequest.status = "rejected";
     leaveRequest.rejectionReason = rejectionReason;
-    leaveRequest.rejectedBy = req.employee._id;
+    leaveRequest.rejectedBy = req.user._id;
     leaveRequest.rejectedAt = new Date();
-    leaveRequest.updatedBy = req.employee._id;
+    leaveRequest.updatedBy = req.user._id;
 
     await leaveRequest.save();
 
@@ -261,9 +261,9 @@ const cancelLeaveRequest = async (req, res) => {
     }
 
     leaveRequest.status = "cancelled";
-    leaveRequest.cancelledBy = req.employee._id;
+    leaveRequest.cancelledBy = req.user._id;
     leaveRequest.cancelledAt = new Date();
-    leaveRequest.updatedBy = req.employee._id;
+    leaveRequest.updatedBy = req.user._id;
 
     await leaveRequest.save();
 

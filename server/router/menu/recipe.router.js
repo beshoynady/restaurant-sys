@@ -3,7 +3,7 @@ const router = express.Router();
 
 const recipeController = require("../../controllers/recipe.controller");
 const { authenticateToken } = require("../../middlewares/authenticate");
-const checkSubscription = require("../../middlewares/checkSubscription");
+
 
 /* =====================================================
    Main CRUD Routes
@@ -11,14 +11,14 @@ const checkSubscription = require("../../middlewares/checkSubscription");
 
 router
   .route("/")
-  .post(authenticateToken, checkSubscription, recipeController.createRecipe)
-  .get(authenticateToken, checkSubscription, recipeController.getAllRecipe);
+  .post(authenticateToken,recipeController.createRecipe)
+  .get(authenticateToken,recipeController.getAllRecipe);
 
 router
   .route("/:id")
-  .get(authenticateToken, checkSubscription, recipeController.getOneRecipe)
-  .put(authenticateToken, checkSubscription, recipeController.updateRecipe)
-  .delete(authenticateToken, checkSubscription, recipeController.deleteRecipe);
+  .get(authenticateToken,recipeController.getOneRecipe)
+  .put(authenticateToken,recipeController.updateRecipe)
+  .delete(authenticateToken,recipeController.deleteRecipe);
 
 /* =====================================================
    Product Related Recipes
@@ -28,7 +28,7 @@ router
 router.get(
   "/product/:productId",
   authenticateToken,
-  checkSubscription,
+ 
   recipeController.getRecipeByProduct
 );
 
@@ -36,7 +36,7 @@ router.get(
 router.get(
   "/product-size",
   authenticateToken,
-  checkSubscription,
+ 
   recipeController.getRecipeByProductAndSize
 );
 
@@ -44,7 +44,7 @@ router.get(
 router.get(
   "/check/:productId",
   authenticateToken,
-  checkSubscription,
+ 
   recipeController.checkRecipeExists
 );
 
@@ -56,7 +56,7 @@ router.get(
 router.get(
   "/:id/cost",
   authenticateToken,
-  checkSubscription,
+ 
   recipeController.calculateRecipeCost
 );
 

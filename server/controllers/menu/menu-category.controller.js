@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-const MenuCategory = require("../models/menu-category.model");
-const Product = require("../models/product.model");
+const MenuCategory = require("../../models/menu/menu-category.model");
+const Product = require("../../models/menu/product.model");
 const Joi = require("joi");
 
 // ==========================
@@ -9,8 +9,19 @@ const Joi = require("joi");
 const createMenuCategorySchema = Joi.object({
   brand: Joi.string().required(),
   branch: Joi.string().allow(null, ""),
-  name: Joi.object(Joi.string().min(2).max(50).required()).min(1).required(),
-  description: Joi.object(Joi.string().max(200)).default({}),
+  name: Joi.object()
+  .pattern(
+    Joi.string(),
+    Joi.string().min(2).max(50).required()
+  )
+  .min(1)
+  .required(),
+  description: Joi.object()
+  .pattern(
+    Joi.string(),
+    Joi.string().max(200)
+  )
+  .default({}),
   displayOrder: Joi.number().min(1),
   isVisible: Joi.boolean().default(true),
   availableChannels: Joi.array()
@@ -31,8 +42,18 @@ const createMenuCategorySchema = Joi.object({
 });
 
 const updateMenuCategorySchema = Joi.object({
-  name: Joi.object().min(1),
-  description: Joi.object(),
+  name: Joi.object()
+  .pattern(
+    Joi.string(),
+    Joi.string().min(2).max(50).required()
+  )
+  .min(1)
+  .required(),
+  description: Joi.object()
+  .pattern(
+    Joi.string(),
+    Joi.string().max(200)
+  ),
   displayOrder: Joi.number().min(0),
   isVisible: Joi.boolean(),
   availableChannels: Joi.array().items(
@@ -102,7 +123,7 @@ const createMenuCategory = async (req, res, next) => {
       order = lastCategory ? lastCategory.displayOrder + 1 : 1;
     }
 
-    const createdBy = req.employee.id;
+    const createdBy = req.user.id;
     const category = await MenuCategory.create({
       brand,
       branch: branch || null,
@@ -269,7 +290,7 @@ const updateMenuCategory = async (req, res, next) => {
       }
     }
 
-    Object.assign(category, req.body, { updatedBy: req.employee.id });
+    Object.assign(category, req.body, { updatedBy: req.user.id });
     await category.save();
 
     res.status(200).json({ success: true, data: category });
@@ -352,7 +373,7 @@ const deleteMenuCategory = async (req, res, next) => {
     category.isDeleted = true;
     category.status = "archived";
     category.deletedAt = new Date();
-    category.deletedBy = req.employee.id;
+    category.deletedBy = req.user.id;
     await category.save();
 
     res

@@ -1,4 +1,4 @@
-const CustomerMessageModel = require("../models/customers/message.model");
+const CustomerMessageModel = require("../../models/customers/message.model");
 const Joi = require("joi");
 const mongoose = require("mongoose");
 
@@ -93,7 +93,7 @@ const createCustomerMessage = async (req, res) => {
  */
 const getAllCustomerMessages = async (req, res) => {
   try {
-    const { error, value } = listQuerySchema.validate(req.query);
+    const { error, value } = listQuerySchema.validate(req.query, { abortEarly: false });
     if (error)
       return res.status(400).json({ message: error.details[0].message });
 
@@ -191,7 +191,7 @@ const updateCustomerMessage = async (req, res) => {
     // Auto set resolved info
     if (value.status === "RESOLVED") {
       value.resolvedAt = new Date();
-      value.resolvedBy = req.employee._id;
+      value.resolvedBy = req.user._id;
     }
 
     const updated = await CustomerMessageModel.findOneAndUpdate(
@@ -240,7 +240,7 @@ const deleteCustomerMessage = async (req, res) => {
 const softDeleteCustomerMessage = async (req, res) => {
   try {
     const { id } = req.params;
-    const employeeId = req.employee._id;
+    const employeeId = req.user._id;
     const isValidId = mongoose.Types.ObjectId.isValid(id);
     if (!isValidId)      return res.status(400).json({ message: "Invalid message ID" });
     const message = await CustomerMessageModel.findOne({

@@ -1,4 +1,4 @@
-const purchaseInvoiceModel = require("../models/purchase.model");
+const purchaseInvoiceModel = require("../../models/purchase.model");
 
 // Create a new purchase invoice
 const createPurchaseInvoice = async (req, res) => {
@@ -24,8 +24,8 @@ const createPurchaseInvoice = async (req, res) => {
       notes,
     } = req.body;
 
-    // Assume that req.employee contains the authenticated employee information
-    const createdBy = req.employee.id;
+    // Assume that req.user contains the authenticated employee information
+    const createdBy = req.user.id;
 
     // Check if required fields are missing
     if (

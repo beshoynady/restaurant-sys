@@ -7,7 +7,7 @@ const express = require("express");
 const router = express.Router();
 
 // TODO: import controller
-// const controller = require("../../controllers/permissions.controller");
+// const controller = require("../../controllers/employees/permissions.controller");
 
 // router.get("/", controller.list);
 // router.post("/", controller.create);

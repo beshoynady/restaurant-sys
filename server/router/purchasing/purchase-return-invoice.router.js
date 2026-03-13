@@ -13,12 +13,12 @@ const checkSubscription = require('../../middlewares/checkSubscription')
 
 // Routes for purchase return management
 router.route('/')
-    .post(authenticateToken, checkSubscription, createPurchaseReturnInvoice)
-    .get(authenticateToken, checkSubscription, getAllPurchaseReturnInvoices);
+    .post(authenticateToken,createPurchaseReturnInvoice)
+    .get(authenticateToken,getAllPurchaseReturnInvoices);
 
 router.route('/:id')
-    .get(authenticateToken, checkSubscription, getPurchaseReturnInvoiceById)
-    .put(authenticateToken, checkSubscription, updatePurchaseReturnInvoiceById)
-    .delete(authenticateToken, checkSubscription, deletePurchaseReturnInvoiceById);
+    .get(authenticateToken,getPurchaseReturnInvoiceById)
+    .put(authenticateToken,updatePurchaseReturnInvoiceById)
+    .delete(authenticateToken,deletePurchaseReturnInvoiceById);
 
 module.exports = router;

@@ -1,4 +1,4 @@
-const CashRegister = require("../models/cash-register.model");
+const CashRegister = require("../../models/cash-register.model");
 
 // Get all cash registers
 const getAllCashRegisters = async (_req, res) => {

@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { authenticateToken } = require("../middlewares/authenticate");
+const { authenticateToken } = require("../../middlewares/authenticate");
 
 const {
   createGeneralSettings,

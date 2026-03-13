@@ -6,23 +6,23 @@ const {
   updateMenuCategory,
   reorderMenuCategories,
   deleteMenuCategory,
-} = require("../../controllers/menu-category.controller");
+} = require("../../controllers/menu/menu-category.controller");
 const { authenticateToken } = require("../../middlewares/authenticate");
-const checkSubscription = require("../../middlewares/checkSubscription");
+
 
 const router = express.Router();
 
 router
   .route("/")
-  .post(authenticateToken, checkSubscription, createMenuCategory)
+  .post(authenticateToken,createMenuCategory)
   .get(getAllMenuCategories);
 router
   .route("/:menuCategoryId")
   .get(getOneMenuCategory)
-  .put(authenticateToken, checkSubscription, updateMenuCategory)
-  .delete(authenticateToken, checkSubscription, deleteMenuCategory);
+  .put(authenticateToken,updateMenuCategory)
+  .delete(authenticateToken,deleteMenuCategory);
 
 router
   .route("/reorder")
-  .patch(authenticateToken, checkSubscription, reorderMenuCategories);
+  .patch(authenticateToken,reorderMenuCategories);
 module.exports = router;

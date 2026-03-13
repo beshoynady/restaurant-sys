@@ -1,6 +1,6 @@
-import TableModel from "../models/seating/table.model.js";
-import diningAreaModel from "../models/seating/diningArea.model.js";
-import Joi from "joi";
+import TableModel from "../../models/seating/table.model.js";
+import diningAreaModel from "../../models/seating/diningArea.model.js";
+const joi = required("joi");
 const mongoose = require("mongoose");
 import QRCode from "qrcode";
 import { v4 as uuidv4 } from "uuid";
@@ -73,7 +73,7 @@ const createTable = async (req, res) => {
   try {
     const brand = req.brand._id;
     const branch = req.branch?._id;
-    const createdBy = req.employee._id;
+    const createdBy = req.user._id;
     const { error, value } = createTableSchema.validate(
       { ...req.body, createdBy, brand, branch },
       { abortEarly: false },
@@ -124,7 +124,7 @@ const createTable = async (req, res) => {
 const updateTable = async (req, res) => {
   try {
     const tableId = req.params.tableId;
-    const updatedBy = req.employee._id;
+    const updatedBy = req.user._id;
 
     if (!isValidObjectId(tableId))
       return res
@@ -434,7 +434,7 @@ const createMultipleTables = async (req, res) => {
   try {
     const brand = req.brand._id;
     const branch = req.branch?._id;
-    const createdBy = req.employee._id;
+    const createdBy = req.user._id;
     const { tables } = req.body;
     if (!Array.isArray(tables) || tables.length === 0) {
       return res

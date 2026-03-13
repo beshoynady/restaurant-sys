@@ -1,6 +1,6 @@
 const Joi = require("joi");
 const mongoose = require("mongoose");
-const InvoiceSettings = require("../models/settings/invoice-settings.model");
+const InvoiceSettings = require("../../models/settings/invoice-settings.model");
 
 /**
  * ============================

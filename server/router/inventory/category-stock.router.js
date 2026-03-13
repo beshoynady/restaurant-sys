@@ -8,18 +8,18 @@ const {
 } = require("../../controllers/category-stock.controller");
 
 const { authenticateToken } = require("../../middlewares/authenticate");
-const checkSubscription = require("../../middlewares/checkSubscription");
+
 
 const router = express.Router();
 
 router
   .route("/")
-  .post(authenticateToken, checkSubscription, CreateCategoryStock)
-  .get(authenticateToken, checkSubscription, getallcategoryStock);
+  .post(authenticateToken,CreateCategoryStock)
+  .get(authenticateToken,getallcategoryStock);
 router
   .route("/:categoryStockId")
-  .get(authenticateToken, checkSubscription, getonecategoryStock)
-  .put(authenticateToken, checkSubscription, updatecategoryStock)
-  .delete(authenticateToken, checkSubscription, deleteCategoryStock);
+  .get(authenticateToken,getonecategoryStock)
+  .put(authenticateToken,updatecategoryStock)
+  .delete(authenticateToken,deleteCategoryStock);
 
 module.exports = router;

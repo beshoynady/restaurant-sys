@@ -10,22 +10,22 @@ const {
 } = require("../../controllers/consumption.controller");
 
 const {authenticateToken} = require("../../middlewares/authenticate");
-const checkSubscription = require("../../middlewares/checkSubscription");
+
 
 // Define routes using router.route for Kitchen Consumptions
 router
   .route("/")
-  .get(authenticateToken, checkSubscription, getAllConsumptions)
-  .post(authenticateToken, checkSubscription, createConsumption);
+  .get(authenticateToken,getAllConsumptions)
+  .post(authenticateToken,createConsumption);
 
 router
   .route("/:id")
-  .get(authenticateToken, checkSubscription, getConsumptionById)
-  .put(authenticateToken, checkSubscription, updateConsumptionById)
-  .delete(authenticateToken, checkSubscription, deleteConsumptionById);
+  .get(authenticateToken,getConsumptionById)
+  .put(authenticateToken,updateConsumptionById)
+  .delete(authenticateToken,deleteConsumptionById);
 
 router
   .route("/bysection/:sectionId")
-  .get(authenticateToken, checkSubscription, getConsumptionBySection)
+  .get(authenticateToken,getConsumptionBySection)
 
 module.exports = router;

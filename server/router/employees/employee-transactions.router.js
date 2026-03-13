@@ -8,7 +8,7 @@ createEmployeeFinancialTransaction,
   cancelEmployeeFinancialTransaction,
   getTransactionsPaginated,
   deleteEmployeeFinancialTransaction,
-} = require("../../controllers/employee-transactions.controller.js");
+} = require("../../controllers/employees/employee-financial-transaction.controller.js");
 const { authenticateToken } = require("../../middlewares/authenticate.js");
 const checkSubscription = require("../../middlewares/checkSubscription.js");
 
@@ -16,20 +16,20 @@ const router = express.Router();
 
 router
   .route("/")
-  .post(authenticateToken, checkSubscription, createEmployeeFinancialTransaction)
-  .get(authenticateToken, checkSubscription, getAllEmployeeFinancialTransactions);
+  .post(authenticateToken,createEmployeeFinancialTransaction)
+  .get(authenticateToken,getAllEmployeeFinancialTransactions);
 router
   .route("/:employeetransactionsId")
-  .get(authenticateToken, checkSubscription, getOneEmployeeFinancialTransaction)
-  .put(authenticateToken, checkSubscription, updateEmployeeFinancialTransaction)
-  .delete(authenticateToken, checkSubscription, deleteEmployeeFinancialTransaction);
+  .get(authenticateToken,getOneEmployeeFinancialTransaction)
+  .put(authenticateToken,updateEmployeeFinancialTransaction)
+  .delete(authenticateToken,deleteEmployeeFinancialTransaction);
 router
   .route("/approve/:employeetransactionsId")
-  .put(authenticateToken, checkSubscription, approveEmployeeFinancialTransaction);
+  .put(authenticateToken,approveEmployeeFinancialTransaction);
 router
   .route("/cancel/:employeetransactionsId")
-  .put(authenticateToken, checkSubscription, cancelEmployeeFinancialTransaction);
+  .put(authenticateToken,cancelEmployeeFinancialTransaction);
 router
   .route("/paginated")
-  .get(authenticateToken, checkSubscription, getTransactionsPaginated);
+  .get(authenticateToken,getTransactionsPaginated);
 module.exports = router;

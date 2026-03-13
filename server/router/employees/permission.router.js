@@ -7,20 +7,20 @@ const {
     getPermissionByEmployee,
     updatePermissionById,
     deletePermissionById
-} = require('../controllers/permissions.controller');
+} = require('../../controllers/employees/permissions.controller');
 
 const {authenticateToken} = require("../../middlewares/authenticate");
 const checkSubscription = require('../../middlewares/checkSubscription')
 
 router.route('/')
-    .post(authenticateToken, checkSubscription, createPermission)
-    .get(authenticateToken, checkSubscription, getAllPermissions);
+    .post(authenticateToken,createPermission)
+    .get(authenticateToken,getAllPermissions);
 
 router.route('/:id')
-    .get(authenticateToken, checkSubscription, getPermissionById)
-    .put(authenticateToken, checkSubscription, updatePermissionById)
-    .delete(authenticateToken, checkSubscription, deletePermissionById);
+    .get(authenticateToken,getPermissionById)
+    .put(authenticateToken,updatePermissionById)
+    .delete(authenticateToken,deletePermissionById);
 
-    router.route('/employee/:id').get(authenticateToken, checkSubscription, getPermissionByEmployee);
+    router.route('/employee/:id').get(authenticateToken,getPermissionByEmployee);
 
 module.exports = router;
