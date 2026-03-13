@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 import BranchSettingsModel from "../../models/settings/branchSettings.model.js";
-const Joi = required("joi");
+const Joi =require("joi");
 
 const { ObjectId } = mongoose.Types;
 
@@ -9,7 +9,7 @@ const { ObjectId } = mongoose.Types;
 ================================================== */
 
 // Time format HH:mm 24-hour
-const timeSchema = joi
+const timeSchema = Joi
   .string()
   .pattern(/^([01]\d|2[0-3]):([0-5]\d)$/)
   .message("Time must be in HH:mm 24-hour format");
@@ -38,7 +38,7 @@ const periodSchema = Joi.object({
       estimatedTimeMinutes: Joi.number().min(0).optional(),
     }),
   }),
-  pauses: joi
+  pauses: Joi
     .array()
     .items(
       Joi.object({
@@ -52,7 +52,7 @@ const periodSchema = Joi.object({
 
 const operatingHoursSchema = Joi.array().items(
   Joi.object({
-    day: joi
+    day: Joi
       .string()
       .valid(
         "Saturday",
@@ -70,7 +70,7 @@ const operatingHoursSchema = Joi.array().items(
 );
 
 const featureSchema = Joi.object({
-  name: joi
+  name: Joi
     .string()
     .valid(
       "WiFi",

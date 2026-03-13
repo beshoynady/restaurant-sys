@@ -127,7 +127,7 @@ const updateTierCustomerLoyalty = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const updatedBy = req.user._id; // Assuming you have authentication middleware that sets req.user
 
-  const { error, value } = joi
+  const { error, value } = Joi
     .object({
       tier: Joi.string().valid("regular", "silver", "gold", "vip").required(),
     })

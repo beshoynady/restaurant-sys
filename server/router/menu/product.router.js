@@ -2,22 +2,28 @@ const express = require("express");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+
 const ProductModel = require("../../models/menu/product.model");
 
 const { authenticateToken } = require("../../middlewares/authenticate");
 
-
 const {
   createProduct,
-  getAllProducts,
-  getProductByCategory,
-  getOneProduct,
   updateProduct,
-  changeProductAvailable,
+  getProductById,
+  getProducts,
+  searchProducts,
+  getProductsForMenu,
+  getProductsByCategory,
+  setProductExtras,
+  removeProductExtras,
+  addSizeToProduct,
+  setComboGroups,
+  toggleProductStatus,
   softDeleteProduct,
-  deleteProduct,
+  deleteProductPermanently,
+  duplicateProduct,
 } = require("../../controllers/menu/product.controller");
-const { route } = require("./menu-category.router");
 
 const router = express.Router();
 
@@ -39,6 +45,7 @@ const storage = multer.diskStorage({
       "-" +
       Math.round(Math.random() * 1e9) +
       path.extname(file.originalname);
+
     cb(null, uniqueName);
   },
 });
@@ -48,6 +55,7 @@ const upload = multer({
   limits: { fileSize: 1024 * 1024 },
   fileFilter: (_, file, cb) => {
     const allowed = ["image/jpeg", "image/png", "image/jpg"];
+
     allowed.includes(file.mimetype)
       ? cb(null, true)
       : cb(new Error("Only JPG, JPEG, PNG allowed"));
@@ -60,35 +68,44 @@ const upload = multer({
 
 const deleteImageIfExists = (imageName) => {
   if (!imageName) return;
+
   const imagePath = path.join(imagesDir, imageName);
-  if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
+
+  if (fs.existsSync(imagePath)) {
+    fs.unlinkSync(imagePath);
+  }
 };
 
 /* ===============================
-   Image Middlewares
+   Middlewares
 ================================ */
 
-// delete old image when updating product image
 const deleteOldImageMiddleware = async (req, res, next) => {
   try {
-    if (!req.file) return next(); // no new image uploaded
-    const product = await ProductModel.findById(req.params.productId);
-    if (!product) return res.status(404).json({ message: "Product not found" });
+    if (!req.file) return next();
+
+    const product = await ProductModel.findById(req.params.id);
+
+    if (!product)
+      return res.status(404).json({ message: "Product not found" });
 
     deleteImageIfExists(product.image);
+
     next();
   } catch (err) {
     res.status(500).json({ message: "Image delete error" });
   }
 };
 
-// delete image when deleting product
 const deleteProductImageMiddleware = async (req, res, next) => {
   try {
-    const product = await ProductModel.findById(req.params.productId); 
-    if (!product) return res.status(404).json({ message: "Product not found" });
+    const product = await ProductModel.findById(req.params.id);
+
+    if (!product)
+      return res.status(404).json({ message: "Product not found" });
 
     deleteImageIfExists(product.image);
+
     next();
   } catch (err) {
     res.status(500).json({ message: "Image delete error" });
@@ -99,48 +116,87 @@ const deleteProductImageMiddleware = async (req, res, next) => {
    Routes
 ================================ */
 
+// create + get products
 router
   .route("/")
   .post(
     authenticateToken,
-   
     upload.single("image"),
     createProduct
   )
-  .get(getAllProducts);
+  .get(getProducts);
 
-router.get("/category/:categoryid", getProductByCategory);
+// search
+router.get("/search", searchProducts);
 
+// menu products
+router.get("/menu", getProductsForMenu);
+
+// products by category
+router.get("/category/:categoryId", getProductsByCategory);
+
+// product by id
 router
-  .route("/:productId")
-  .get(getOneProduct)
+  .route("/:id")
+  .get(getProductById)
   .put(
     authenticateToken,
-   
     upload.single("image"),
     deleteOldImageMiddleware,
     updateProduct
   )
   .delete(
     authenticateToken,
-   
     deleteProductImageMiddleware,
-    deleteProduct
+    deleteProductPermanently
   );
 
-router
-.route("/:productId/available")
-.patch(
+// toggle status
+router.patch(
+  "/:id/status",
   authenticateToken,
- 
-  changeProductAvailable
+  toggleProductStatus
 );
 
-router.route("/:productId/soft-delete")
-.patch(
+// soft delete
+router.patch(
+  "/:id/soft-delete",
   authenticateToken,
- 
   softDeleteProduct
+);
+
+// duplicate product
+router.post(
+  "/:id/duplicate",
+  authenticateToken,
+  duplicateProduct
+);
+
+// extras
+router.post(
+  "/:id/extras",
+  authenticateToken,
+  setProductExtras
+);
+
+router.delete(
+  "/:id/extras",
+  authenticateToken,
+  removeProductExtras
+);
+
+// sizes
+router.post(
+  "/:id/sizes",
+  authenticateToken,
+  addSizeToProduct
+);
+
+// combos
+router.post(
+  "/:id/combos",
+  authenticateToken,
+  setComboGroups
 );
 
 module.exports = router;

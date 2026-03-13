@@ -8,7 +8,7 @@ const createDepartmentSchema = Joi.object({
   brand: Joi.string().required(),
   branches: Joi.array().items(Joi.string()),
   name: Joi.object().pattern(/.*/, Joi.string().min(2).max(100)).required(),
-  classification: joi
+  classification: Joi
     .string()
     .valid(
       "preparation",
@@ -30,7 +30,7 @@ const updateDepartmentSchema = Joi.object({
   brand: Joi.string(),
   branches: Joi.array().items(Joi.string()),
   name: Joi.object().pattern(/.*/, Joi.string().min(2).max(100)),
-  classification: joi
+  classification: Joi
     .string()
     .valid(
       "preparation",

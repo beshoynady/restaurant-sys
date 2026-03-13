@@ -18,7 +18,7 @@ const createRewardSchema = Joi.object({
 
   pointsRequired: Joi.number().min(1).required(),
 
-  rewardType: joi
+  rewardType: Joi
     .string()
     .valid("discount", "product", "gift")
     .required(),

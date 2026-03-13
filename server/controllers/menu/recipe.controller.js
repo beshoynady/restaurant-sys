@@ -24,7 +24,7 @@ const serviceDetailsSchema = Joi.object({
   amount: Joi.number().positive().required(),
   unit: Joi.string().required(),
   wastePercentage: Joi.number().min(0).max(100).optional(),
-  serviceType: joi
+  serviceType: Joi
     .array()
     .items(Joi.string().valid("dineIn", "takeaway", "delivery"))
     .min(1)
@@ -44,7 +44,7 @@ const createRecipeSchema = Joi.object({
 });
 
 // Update recipe schema
-const updateRecipeSchema = joi
+const updateRecipeSchema = Joi
   .object({
     numberOfMeals: Joi.number().min(1).optional(),
     preparationTime: Joi.number().min(0).optional(),

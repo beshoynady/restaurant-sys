@@ -9,7 +9,7 @@ const Joi = require("joi");
  */
 
 // Joi schema for multilingual Map fields
-const mapLangSchema = joi
+const mapLangSchema = Joi
   .object()
   .pattern(Joi.string().min(2), Joi.string().trim().min(1).max(1000));
 
@@ -27,7 +27,7 @@ const createJobTitleSchema = Joi.object({
   description: mapLangSchema.optional(),
   responsibilities: mapLangSchema.optional(),
   requirements: mapLangSchema.optional(),
-  status: joi
+  status: Joi
     .string()
     .valid("active", "inactive", "archived")
     .default("active"),

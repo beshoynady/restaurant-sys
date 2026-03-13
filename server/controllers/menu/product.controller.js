@@ -1,11 +1,11 @@
 const ProductModel = require("../../models/menu/product.model.js");
 const OrderModel = require("../../models/sales/order.model.js");
-const EmployeeModel = require("../../models/empoyees/employee.model.js");
+const EmployeeModel = require("../../models/employees/employee.model.js");
 const BrandModel = require("../../models/core/brand.model.js");
 const BranchModel = require("../../models/core/branch.model.js");
 const CategoryModel = require("../../models/menu/menu-category.model.js");
 const PreparationSectionModel = require("../../models/kitchen/preparation-section.model.js");
-const Joi = required("joi");
+const Joi =require("joi");
 
 const mongoose = require("mongoose");
 

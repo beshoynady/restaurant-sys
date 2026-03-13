@@ -10,7 +10,7 @@ const Joi = require("joi");
 
 const createLeaveRequestValidator = Joi.object({
   employee: Joi.string().required(),
-  leaveType: joi
+  leaveType: Joi
     .string()
     .valid("annual", "sick", "unpaid", "emergency", "official_holiday", "other")
     .required(),
@@ -21,7 +21,7 @@ const createLeaveRequestValidator = Joi.object({
 });
 
 const updateLeaveRequestValidator = Joi.object({
-  leaveType: joi
+  leaveType: Joi
     .string()
     .valid(
       "annual",

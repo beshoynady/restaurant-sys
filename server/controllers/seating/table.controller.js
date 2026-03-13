@@ -1,6 +1,6 @@
 import TableModel from "../../models/seating/table.model.js";
 import diningAreaModel from "../../models/seating/diningArea.model.js";
-const Joi = required("joi");
+const Joi =require("joi");
 const mongoose = require("mongoose");
 import QRCode from "qrcode";
 import { v4 as uuidv4 } from "uuid";
