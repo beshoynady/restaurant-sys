@@ -1,7 +1,7 @@
-const OnlineCustomer = require("../../models/customers/online-customer.model");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
-const Joi = require("joi");
+import OnlineCustomer from "../../models/customers/online-customer.model.js";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+import Joi from "joi";
 
 const secretKey = process.env.JWT_SECRET_KEY;
 const refreshSecretKey = process.env.JWT_REFRESH_SECRET;
@@ -290,7 +290,7 @@ const deleteOnlineCustomer = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   createOnlineCustomer,
   loginCustomer,
   logoutCustomer,

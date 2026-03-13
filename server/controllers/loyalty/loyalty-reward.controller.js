@@ -1,9 +1,9 @@
-const mongoose = require("mongoose");
-const Joi = require("joi");
+import mongoose from "mongoose";
+import Joi from "joi";
 
-const asyncHandler= require("../../utils/asyncHandler");;
+import asyncHandler from "../../utils/asyncHandler.js";;
 
-const LoyaltyReward = require("../../models/loyalty/loyalty-reward.model");
+import LoyaltyReward from "../../models/loyalty/loyalty-reward.model.js";
 
 /**
  * Joi Validation Schemas
@@ -211,7 +211,7 @@ const getActiveRewards = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = {
+export  {
   createReward,
   getAllRewards,
   getReward,

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema.Types;
 
 const supplierTransactionSchema = new mongoose.Schema(
@@ -87,4 +87,4 @@ const SupplierTransactionModel = mongoose.model(
   "SupplierTransaction",
   supplierTransactionSchema,
 );
-module.exports = SupplierTransactionModel;
+export SupplierTransactionModel;

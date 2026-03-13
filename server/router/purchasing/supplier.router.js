@@ -1,15 +1,15 @@
-const express = require('express');
+import express from "express";
 const router = express.Router();
-const {
+import {
     createSupplier,
     getAllSuppliers,
     getSupplierById,
     updateSupplierById,
     deleteSupplierById
-} = require('../controllers/supplier.controller');
+} from "../controllers/supplier.controller.js";
 
-const {authenticateToken} = require("../../middlewares/authenticate");
-const checkSubscription = require('../../middlewares/checkSubscription')
+import {authenticateToken} from "../../middlewares/authenticate.js";
+import checkSubscription from "../../middlewares/checkSubscription.js";
 
 router.route('/')
     .post(authenticateToken,createSupplier)
@@ -20,4 +20,4 @@ router.route('/:id')
     .put(authenticateToken,updateSupplierById)
     .delete(authenticateToken,deleteSupplierById);
 
-module.exports = router;
+export default router;

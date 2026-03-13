@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 const RecipeSchema = new mongoose.Schema(
@@ -102,4 +102,4 @@ RecipeSchema.index({ product: 1, brand: 1, branch: 1 }, { unique: true });
 
 const RecipeModel = mongoose.model("Recipe", RecipeSchema);
 
-module.exports = RecipeModel;
+export RecipeModel;

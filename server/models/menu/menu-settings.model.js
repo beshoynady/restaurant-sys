@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema.Types;
 
 const menuSettingsSchema = new mongoose.Schema(
@@ -107,4 +107,4 @@ menuSettingsSchema.index({ brand: 1, branch: 1 }, { unique: true });
 
 const MenuSettingModel = mongoose.model("MenuSetting", menuSettingsSchema);
 
-module.exports = MenuSettingModel;
+export MenuSettingModel;

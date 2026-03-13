@@ -1,7 +1,7 @@
-const Usermodel = require("../../models/employees/user-account.model");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
-const { validationResult } = require("express-validator");
+import Usermodel from "../../models/employees/user-account.model.js";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+import { validationResult } from "express-validator";
 require("dotenv").config();
 
 const signup = async (req, res) => {
@@ -107,4 +107,4 @@ const generateAccessToken = (user) => {
 };
 
 
-module.exports = { signup, login };
+export  { signup, login };

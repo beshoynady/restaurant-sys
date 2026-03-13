@@ -6,10 +6,10 @@
  * uploadFile({ folder: "products", maxSize: 2 * 1024 * 1024 })
  */
 
-const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
-const asyncHandler = require("../utils/asyncHandler");
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+import asyncHandler from "../utils/asyncHandler.js";
 
 const uploadFile = ({ folder = "uploads", maxSize = 1024 * 1024 } = {}) => {
   const uploadDir = path.join(__dirname, "..", "uploads", folder);
@@ -72,6 +72,6 @@ const deleteFile = (folder, filename) => {
 };
 
 
-module.exports = { uploadFile, deleteFile };
+export  { uploadFile, deleteFile };
 
 

@@ -1,14 +1,14 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
-const {
+import {
   createGeneralSettings,
   getGeneralSettings,
   updateGeneralSettings,
   deleteGeneralSettings,
-} = require("../../controllers/general-settings.controller");
+} from "../../controllers/general-settings.controller.js";
 
 /**
  * ============================
@@ -45,4 +45,4 @@ router.put("/:brandId", authenticateToken, updateGeneralSettings);
  */
 router.delete("/:brandId", authenticateToken, deleteGeneralSettings);
 
-module.exports = router;
+export default router;

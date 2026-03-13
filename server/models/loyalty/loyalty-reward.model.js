@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 /**
@@ -109,4 +109,4 @@ loyaltyRewardSchema.index(
   { unique: true, partialFilterExpression: { isActive: true } },
 );
 
-module.exports = mongoose.model("LoyaltyReward", loyaltyRewardSchema);
+export mongoose.model("LoyaltyReward", loyaltyRewardSchema);

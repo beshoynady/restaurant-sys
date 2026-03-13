@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema.Types;
 
 const attendanceRecordSchema = new mongoose.Schema(
@@ -78,4 +78,4 @@ const attendanceRecordSchema = new mongoose.Schema(
 attendanceRecordSchema.index({ brand: 1, branch: 1, employee: 1, currentDate: 1 }, { unique: true });
 attendanceRecordSchema.index({ shift: 1, currentDate: 1 });
 
-module.exports = mongoose.model('AttendanceRecord', attendanceRecordSchema);
+export mongoose.model('AttendanceRecord', attendanceRecordSchema);

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { Schema, Types } = mongoose;
 const ObjectId = Schema.Types.ObjectId;
 
@@ -129,4 +129,4 @@ TableSchema.index(
 // Fast lookup for QR & POS
 TableSchema.index({ branch: 1, status: 1 });
 
-module.exports = mongoose.model("Table", TableSchema);
+export mongoose.model("Table", TableSchema);

@@ -1,7 +1,7 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
-const {
+import {
   createJobTitle,
   updateJobTitle,
   getJobTitles,
@@ -9,9 +9,9 @@ const {
   softDeleteJobTitle,
   restoreJobTitle,
   deleteJobTitle,
-} = require("../../controllers/employees/job-title.controller.js");
+} from "../../controllers/employees/job-title.controller.js";
 
-const { authenticateToken } = require("../../middlewares/authenticate.js");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 router
   .route("/")
@@ -32,4 +32,4 @@ router
   .route("/:id/restore")
   .put(authenticateToken,restoreJobTitle);
 
-module.exports = router;
+export default router;

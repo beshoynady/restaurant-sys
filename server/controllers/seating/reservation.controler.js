@@ -1,4 +1,4 @@
-const ReservationModel = require("../../models/reservation-table.model");
+import ReservationModel from "../../models/reservation-table.model.js";
 
 // Create a new reservation
 const createReservation = async (req, res) => {
@@ -142,7 +142,7 @@ const deleteReservation = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   createReservation,
   getAllReservations,
   getReservationById,

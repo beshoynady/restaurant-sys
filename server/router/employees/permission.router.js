@@ -1,16 +1,16 @@
-const express = require('express');
+import express from "express";
 const router = express.Router();
-const {
+import {
     createPermission,
     getAllPermissions,
     getPermissionById,
     getPermissionByEmployee,
     updatePermissionById,
     deletePermissionById
-} = require('../../controllers/employees/permissions.controller');
+} from "../../controllers/employees/permissions.controller.js";
 
-const {authenticateToken} = require("../../middlewares/authenticate");
-const checkSubscription = require('../../middlewares/checkSubscription')
+import {authenticateToken} from "../../middlewares/authenticate.js";
+import checkSubscription from "../../middlewares/checkSubscription.js";
 
 router.route('/')
     .post(authenticateToken,createPermission)
@@ -23,4 +23,4 @@ router.route('/:id')
 
     router.route('/employee/:id').get(authenticateToken,getPermissionByEmployee);
 
-module.exports = router;
+export default router;

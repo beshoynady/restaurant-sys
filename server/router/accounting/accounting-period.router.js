@@ -1,8 +1,8 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
 // Import Accounting Period Controller
-const {
+import {
   createPeriod,
   getPeriods,
   getPeriodById,
@@ -10,9 +10,9 @@ const {
   getActivePeriod,
   closePeriod,
   reopenPeriod,
-} = require("../../controllers/accounting/accounting-period.controller");
+} from "../../controllers/accounting/accounting-period.controller.js";
 
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
 // ==============================
@@ -45,4 +45,4 @@ router
   .route("/:id/reopen")
   .put(authenticateToken,reopenPeriod);
 
-module.exports = router;
+export default router;

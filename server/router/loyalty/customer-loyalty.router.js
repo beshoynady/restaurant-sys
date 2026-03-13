@@ -1,7 +1,7 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
-const {
+import {
   createCustomerLoyalty,
   getCustomerLoyalty,
   getallCustomerLoyalty,
@@ -9,9 +9,9 @@ const {
   updateCustomerLoyalty,
   updateTierCustomerLoyalty,
   deleteCustomerLoyalty,
-} = require("../../controllers/loyalty/customer-loyalty.controller");
+} from "../../controllers/loyalty/customer-loyalty.controller.js";
 
-const {authenticateToken}= require("../../middlewares/authenticate");
+import {authenticateToken} from "../../middlewares/authenticate.js";
 
 // All routes require authentication
 router.use(authenticateToken);
@@ -35,4 +35,4 @@ router.route("/:id")
   .put(updateCustomerLoyalty)
   .delete(deleteCustomerLoyalty);
 
-module.exports = router;
+export default router;

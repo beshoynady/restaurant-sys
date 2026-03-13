@@ -1,17 +1,17 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
-const {
+import {
   createProductionRecord,
   findAllProductionRecords,
   findProductionRecord,
   endProductionRecord,
   updateProductionRecord,
   deleteProductionRecord,
-} = require("../../controllers/production-record.controller.js");
+} from "../../controllers/production-record.controller.js";
 
-const { authenticateToken } = require("../../middlewares/authenticate.js");
-const checkSubscription = require("../../middlewares/checkSubscription.js");
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import checkSubscription from "../../middlewares/checkSubscription.js";
 
 // Create a new Production Record
 router
@@ -31,4 +31,4 @@ router
   .route("/end/:productionRecordId")
   .put(authenticateToken,endProductionRecord);
 
-module.exports = router;
+export default router;

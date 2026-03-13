@@ -1,6 +1,6 @@
-const CustomerLoyaltyModel = require("../../models/loyalty/customer-loyalty.model");
-const asyncHandler= require("../../utils/asyncHandler");
-const Joi = require("joi");
+import CustomerLoyaltyModel from "../../models/loyalty/customer-loyalty.model.js";
+import asyncHandler from "../../utils/asyncHandler.js";
+import Joi from "joi";
 
 // validation schema for creating/updating customer loyalty
 
@@ -159,7 +159,7 @@ const deleteCustomerLoyalty = asyncHandler(async (req, res) => {
   res.json({ message: "Customer loyalty deleted successfully" });
 });
 
-module.exports = {
+export  {
   createCustomerLoyalty,
   getCustomerLoyalty,
   getallCustomerLoyalty,

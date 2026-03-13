@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 /**
@@ -158,4 +158,4 @@ assetSchema.pre("save", function (next) {
   next();
 });
 
-module.exports = mongoose.model("Asset", assetSchema);
+export mongoose.model("Asset", assetSchema);

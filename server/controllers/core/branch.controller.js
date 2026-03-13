@@ -9,14 +9,14 @@
  * - Soft delete / restore
  */
 
-const mongoose = require("mongoose");
-const Joi = require("joi");
+import mongoose from "mongoose";
+import Joi from "joi";
 
-const Branch = require("../../models/core/branch.model");
-const Brand = require("../../models/core/brand.model");
+import Branch from "../../models/core/branch.model.js";
+import Brand from "../../models/core/brand.model.js";
 
-const throwError = require("../../utils/throwError");
-const asyncHandler = require("../../utils/asyncHandler");
+import throwError from "../../utils/throwError.js";
+import asyncHandler from "../../utils/asyncHandler.js";
 
 const { ObjectId } = mongoose.Types;
 
@@ -533,10 +533,10 @@ const hardDeleteBranch = asyncHandler(async (req, res) => {
 
 
 /* ======================================================
-   Export
+   export 
 ====================================================== */
 
-module.exports = {
+export  {
   createBranch,
   updateBranch,
   getBranches,

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 /**
@@ -94,4 +94,4 @@ const TaxConfigSchema = new mongoose.Schema(
  */
 TaxConfigSchema.index({ brand: 1, branch: 1 }, { unique: true });
 
-module.exports = mongoose.model("TaxConfig", TaxConfigSchema);
+export mongoose.model("TaxConfig", TaxConfigSchema);

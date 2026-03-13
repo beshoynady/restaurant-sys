@@ -1,8 +1,8 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
-const recipeController = require("../../controllers/menu/recipe.controller");
-const { authenticateToken } = require("../../middlewares/authenticate");
+import recipeController from "../../controllers/menu/recipe.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
 /* =====================================================
@@ -60,4 +60,4 @@ router.get(
   recipeController.calculateRecipeCost
 );
 
-module.exports = router;
+export default router;

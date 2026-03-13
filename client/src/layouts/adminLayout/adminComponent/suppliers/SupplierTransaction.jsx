@@ -847,4 +847,4 @@ const SupplierTransaction = () => {
   );
 };
 
-export default SupplierTransaction;
+export   default SupplierTransaction;

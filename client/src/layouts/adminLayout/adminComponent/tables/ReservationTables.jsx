@@ -1152,4 +1152,4 @@ const ReservationTables = () => {
   );
 };
 
-export default ReservationTables;
+export   default ReservationTables;

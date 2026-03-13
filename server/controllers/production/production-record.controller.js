@@ -1,8 +1,8 @@
-const productionRecordModel = require("../../models/production/production-record.model");
-const productionOrderModel = require("../../models/production/production-order.model");
-const stockItemModel = require("../../models/inventory/stock-item.model");
-const recipeModel = require("../../models/menu/recipe.model");
-const departmentModel = require("../../models/employees/department.model");
+import productionRecordModel from "../../models/production/production-record.model.js";
+import productionOrderModel from "../../models/production/production-order.model.js";
+import stockItemModel from "../../models/inventory/stock-item.model.js";
+import recipeModel from "../../models/menu/recipe.model.js";
+import departmentModel from "../../models/employees/department.model.js";
 
 // Create and Save a new Production Record
 
@@ -334,7 +334,7 @@ const deleteProductionRecord = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   createProductionRecord,
   findAllProductionRecords,
   findProductionRecord,

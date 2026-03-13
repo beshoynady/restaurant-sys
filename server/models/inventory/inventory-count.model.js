@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 /**
@@ -229,4 +229,4 @@ InventoryCountSchema.index(
 InventoryCountSchema.index({ status: 1 });
 InventoryCountSchema.index({ warehouse: 1 });
 
-module.exports = mongoose.model("InventoryCount", InventoryCountSchema);
+export mongoose.model("InventoryCount", InventoryCountSchema);

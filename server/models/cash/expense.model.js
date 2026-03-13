@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 /**
  * Expense Master Data
@@ -140,4 +140,4 @@ expenseSchema.index(
 
 const ExpenseModel = mongoose.model("Expense", expenseSchema);
 
-module.exports = ExpenseModel;
+export ExpenseModel;

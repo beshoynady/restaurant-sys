@@ -1,11 +1,11 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
 /**
  * Controllers
  * Handles all business logic related to online customers authentication and management.
  */
-const {
+import {
   createOnlineCustomer,
   loginCustomer,
   logoutCustomer,
@@ -14,16 +14,16 @@ const {
   updateOnlineCustomer,
   deleteOnlineCustomer,
   resetPassword,
-} = require("../../controllers/customers/online-customer.controller");
+} from "../../controllers/customers/online-customer.controller.js";
 
 /**
  * Middlewares
  * - authenticateCustomerToken: Validates the access token for protected routes.
  */
-const {
+import {
   authenticateCustomerToken,
   generateNewCustomerAccessToken,
-} = require("../../middlewares/authenticate-customer");
+} from "../../middlewares/authenticate-customer.js";
 
 // ======================================================
 // 🔐 AUTHENTICATION ROUTES
@@ -47,4 +47,4 @@ router.route("/logout").post(authenticateCustomerToken, logoutCustomer);
 router.route("/reset-password").post(resetPassword);
 router.route("/refresh-token").post(generateNewCustomerAccessToken);
 
-module.exports = router;
+export default router;

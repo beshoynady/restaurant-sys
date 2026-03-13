@@ -1,7 +1,7 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const { ObjectId } = mongoose.Schema;
-const journalLineSchema = require("./journal-line.model");
+import journalLineSchema from "./journal-line.model.js";
 
 const journalEntrySchema = new mongoose.Schema(
   {
@@ -70,4 +70,4 @@ journalEntrySchema.index(
 );
 const JournalEntry = mongoose.model("JournalEntry", journalEntrySchema);
 
-module.exports = JournalEntry;
+export JournalEntry;

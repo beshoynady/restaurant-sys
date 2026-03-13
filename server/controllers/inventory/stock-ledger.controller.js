@@ -1,4 +1,4 @@
-const StockMovementModel = require("../../models/inventory/stock-movement.model");
+import StockMovementModel from "../../models/inventory/stock-movement.model.js";
 
 
 
@@ -254,7 +254,7 @@ const deleteStockMovement = async (req, res, next) => {
   }
 };
 
-module.exports = {
+export  {
   createStockMovement,
   updateStockMovement,
   getOneStockMovement,

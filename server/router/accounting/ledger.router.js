@@ -1,14 +1,14 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
 // Import Ledger Controller
-const {
+import {
   getLedgerByAccount,
   getLedgerMultiAccount,
   getTrialBalance,
-} = require("../../controllers/accounting/ledger.controller");
+} from "../../controllers/accounting/ledger.controller.js";
 
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
 // ==============================
@@ -42,4 +42,4 @@ router
   .route("/trial-balance")
   .get(authenticateToken,getTrialBalance);
 
-module.exports = router;
+export default router;

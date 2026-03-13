@@ -1,13 +1,13 @@
-const express = require("express");
-const {
+import express from "express";
+import {
   createMenuCategory,
   getAllMenuCategories,
   getOneMenuCategory,
   updateMenuCategory,
   reorderMenuCategories,
   deleteMenuCategory,
-} = require("../../controllers/menu/menu-category.controller");
-const { authenticateToken } = require("../../middlewares/authenticate");
+} from "../../controllers/menu/menu-category.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
 const router = express.Router();
@@ -25,4 +25,5 @@ router
 router
   .route("/reorder")
   .patch(authenticateToken,reorderMenuCategories);
-module.exports = router;
+
+export default router;

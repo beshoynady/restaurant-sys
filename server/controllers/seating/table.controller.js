@@ -1,9 +1,10 @@
-const TableModel = require("../../models/seating/table.model.js");
-const diningAreaModel = require( "../../models/seating/dining-area.model.js");
-const Joi =require("joi");
-const mongoose = require("mongoose");
-const QRCode = require("qrcode");
-const { v4: uuidv4 } = require("uuid");
+import TableModel from "../../models/seating/table.model.js";
+import diningAreaModel from "../../models/seating/dining-area.model.js";
+import Joi from "joi";
+import mongoose from "mongoose";
+import QRCode from "qrcode";
+import uuid from "uuid";
+const uuidv4 = uuid.v4;
 const { ObjectId } = mongoose.Types;
 
 /* =============================
@@ -130,9 +131,12 @@ const updateTable = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Invalid table ID." });
 
-    const { error, value } = updateTableSchema.validate({...req.body, updatedBy}, {
-      abortEarly: false,
-    });
+    const { error, value } = updateTableSchema.validate(
+      { ...req.body, updatedBy },
+      {
+        abortEarly: false,
+      },
+    );
     if (error)
       return res
         .status(400)
@@ -530,7 +534,7 @@ const getTableByCode = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   createTable,
   updateTable,
   getAllTables,

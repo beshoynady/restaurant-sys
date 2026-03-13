@@ -1,9 +1,9 @@
-const stockItemsModel = require("../../models/Stock/stock-item.model");
-const stockLedgerModel = require("../../models/Stock/stock-ledger.model");
-const ProductionRecipe = require("../../models/production/production-recipe.model");
-const ProductionRecord = require("../../models/production/production-record.model");
-const Joi = require("joi");
-const mongoose = require("mongoose");
+import stockItemsModel from "../../models/Stock/stock-item.model.js";
+import stockLedgerModel from "../../models/Stock/stock-ledger.model.js";
+import ProductionRecipe from "../../models/production/production-recipe.model.js";
+import ProductionRecord from "../../models/production/production-record.model.js";
+import Joi from "joi";
+import mongoose from "mongoose";
 
 // ==============================
 // Helper Functions
@@ -430,10 +430,10 @@ const deleteProductionRecipe = async (req, res) => {
 };
 
 // ==============================
-// Export Controller Functions
+// export  Controller Functions
 // ==============================
 
-module.exports = {
+export  {
   createProductionRecipe,
   updateProductionRecipe,
   getOneProductionRecipe,

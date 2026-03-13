@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema.Types;
 
 const shiftSchema = new mongoose.Schema(
@@ -146,4 +146,4 @@ shiftSchema.index({ brand: 1, branch: 1, shiftType: 1 });
 // Optional: fast queries by start and end time for scheduling
 shiftSchema.index({ branch: 1, startMinutes: 1, endMinutes: 1 });
 
-module.exports = mongoose.model("Shift", shiftSchema);
+export mongoose.model("Shift", shiftSchema);

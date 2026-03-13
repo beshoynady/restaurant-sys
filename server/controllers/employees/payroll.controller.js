@@ -1,4 +1,4 @@
-const PayrollModel = require("../../models/employees/payroll.model");
+import PayrollModel from "../../models/employees/payroll.model.js";
 
 const createPayroll = async (req, res) => {
   const {
@@ -200,7 +200,7 @@ const deletePayroll = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   createPayroll,
   getAllPayroll,
   getPayrollById,

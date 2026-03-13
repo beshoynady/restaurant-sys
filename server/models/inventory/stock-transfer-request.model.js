@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 const StockTransferRequestSchema = new mongoose.Schema(
@@ -197,4 +197,4 @@ StockTransferRequestSchema.index(
 StockTransferRequestSchema.index({ status: 1 });
 StockTransferRequestSchema.index({ fromWarehouse: 1, toWarehouse: 1 });
 
-module.exports = mongoose.model("StockTransferRequest", StockTransferRequestSchema);
+export mongoose.model("StockTransferRequest", StockTransferRequestSchema);

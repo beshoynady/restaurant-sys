@@ -1,14 +1,14 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const {
+import {
   createStore,
   getAllStores,
   getStoreById,
   updateStore,
   deleteStore,
-} = require("../../controllers/store.controller");
+} from "../../controllers/store.controller.js";
 
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
 // Create a new store
@@ -24,4 +24,4 @@ router
   .put(authenticateToken,updateStore)
   .delete(authenticateToken,deleteStore);
 
-module.exports = router;
+export default router;

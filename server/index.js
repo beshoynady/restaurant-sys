@@ -1,16 +1,16 @@
-const express = require("express");
-const cors = require("cors");
-const rateLimit = require("express-rate-limit");
-const dotenv = require("dotenv");
-const helmet = require("helmet"); // Security middleware
-const cookieParser = require("cookie-parser");
-const http = require("http");
-const { Server } = require("socket.io");
-const { notFound } = require("./middlewares/notFound.js");
-const { errorHandler } = require("./middlewares/errorHandler.js");
+import express from "express";
+import cors from "cors";
+import rateLimit from "express-rate-limit";
+import dotenv from "dotenv";
+import helmet from "helmet"; // Security middleware
+import cookieParser from "cookie-parser";
+import http from "http";
+import { Server } from "socket.io";
+import { notFound } from "./middlewares/notFound.js";
+import { errorHandler } from "./middlewares/errorHandler.js";
 
 // Import database connection
-const connectdb = require("./database/connectdb.js");
+import connectdb from "./database/connectdb.js";
 
 /****************************************************
  * CORE ROUTES
@@ -20,16 +20,16 @@ const connectdb = require("./database/connectdb.js");
  * - Branches
  * - Delivery Areas
  ****************************************************/
-const routeBrand = require("./router/core/brand.router.js");
-const routeBranch = require("./router/core/branch.router.js");
-const routeDeliveryArea = require("./router/core/delivery-area.router.js");
+import routeBrand from "./router/core/brand.router.js";
+import routeBranch from "./router/core/branch.router.js";
+import routeDeliveryArea from "./router/core/delivery-area.router.js";
 
 /****************************************************
  * AUTH ROUTES
  * --------------------------------------------------
  * User authentication and basic permission control
  ****************************************************/
-const routeAuth = require("./router/auth/auth.router.js");
+import routeAuth from "./router/auth/auth.router.js";
 
 /****************************************************
  * EMPLOYEES & HR ROUTES
@@ -40,15 +40,15 @@ const routeAuth = require("./router/auth/auth.router.js");
  * - Payroll
  * - Employee financial transactions
  ****************************************************/
-const routeEmployee = require("./router/employees/employee.router.js");
-const routeDepartment = require("./router/employees/department.router.js");
-const routeJobTitle = require("./router/employees/job-title.router.js");
-const routePermission = require("./router/employees/permission.router.js");
+import routeEmployee from "./router/employees/employee.router.js";
+import routeDepartment from "./router/employees/department.router.js";
+import routeJobTitle from "./router/employees/job-title.router.js";
+import routePermission from "./router/employees/permission.router.js";
 
-const routeAttendance = require("./router/employees/attendance-record.router.js");
-const routeShift = require("./router/employees/shift.router.js");
-const routePayroll = require("./router/employees/payroll.router.js");
-const routeEmployeeTransactions = require("./router/employees/employee-financial-transaction.router.js");
+import routeAttendance from "./router/employees/attendance-record.router.js";
+import routeShift from "./router/employees/shift.router.js";
+import routePayroll from "./router/employees/payroll.router.js";
+import routeEmployeeTransactions from "./router/employees/employee-financial-transaction.router.js";
 
 /****************************************************
  * CUSTOMERS ROUTES
@@ -57,19 +57,19 @@ const routeEmployeeTransactions = require("./router/employees/employee-financial
  * - Messages
  * - Online / Offline customers
  ****************************************************/
-const routeMessage = require("./router/customers/message.router.js");
-const routeOfflineCustomer = require("./router/customers/offline-customer.router.js");
-const routeOnlineCustomer = require("./router/customers/online-customer.router.js");
+import routeMessage from "./router/customers/message.router.js";
+import routeOfflineCustomer from "./router/customers/offline-customer.router.js";
+import routeOnlineCustomer from "./router/customers/online-customer.router.js";
 
 /******************************************************
  * LOYALTY ROUTES
  * ----------------------------------------------------
  * Loyalty program management:
  */
-const customerLoyaltyRoutes = require("./router/loyalty/customer-loyalty.router.js");
-const loyaltySettingsRoutes = require("./router/loyalty/loyalty-settings.router.js");
-const loyaltyReward = require("./router/loyalty/loyalty-reward.router.js");
-const loyaltyTransactionRoutes = require("./router/loyalty/loyalty-transaction.router.js");
+import customerLoyaltyRoutes from "./router/loyalty/customer-loyalty.router.js";
+import loyaltySettingsRoutes from "./router/loyalty/loyalty-settings.router.js";
+import loyaltyReward from "./router/loyalty/loyalty-reward.router.js";
+import loyaltyTransactionRoutes from "./router/loyalty/loyalty-transaction.router.js";
 
 /****************************************************
  * MENU ROUTES
@@ -79,10 +79,10 @@ const loyaltyTransactionRoutes = require("./router/loyalty/loyalty-transaction.r
  * - Products
  * - Recipes
  ****************************************************/
-const routeMenuCategory = require("./router/menu/menu-category.router.js");
-const routeProduct = require("./router/menu/product.router.js");
-const routeRecipe = require("./router/menu/recipe.router.js");
-const menuSettingsRoutes = require("./router/menu/menu-settings.router.js");
+import routeMenuCategory from "./router/menu/menu-category.router.js";
+import routeProduct from "./router/menu/product.router.js";
+import routeRecipe from "./router/menu/recipe.router.js";
+import menuSettingsRoutes from "./router/menu/menu-settings.router.js";
 
 /****************************************************
  * KITCHEN ROUTES
@@ -91,16 +91,16 @@ const menuSettingsRoutes = require("./router/menu/menu-settings.router.js");
  * - Preparation sections
  * - Preparation tickets
  ****************************************************/
-const routePreparationSection = require("./router/kitchen/preparation-section.router.js");
-const routePreparationTicket = require("./router/kitchen/preparation-ticket.router.js");
+import routePreparationSection from "./router/kitchen/preparation-section.router.js";
+import routePreparationTicket from "./router/kitchen/preparation-ticket.router.js";
 
 /****************************************************
  * SEATING & RESERVATION ROUTES
  * --------------------------------------------------
  * Table and reservation management
  ****************************************************/
-const routeTable = require("./router/seating/table.router.js");
-const routeReservation = require("./router/seating/reservation.router.js");
+import routeTable from "./router/seating/table.router.js";
+import routeReservation from "./router/seating/reservation.router.js";
 
 /****************************************************
  * INVENTORY ROUTES
@@ -112,22 +112,22 @@ const routeReservation = require("./router/seating/reservation.router.js");
  * - Consumption
  * - Stores
  ****************************************************/
-const routeCategoryStock = require("./router/inventory/category-stock.router.js");
-const routeStockItems = require("./router/inventory/stock-item.router.js");
-const routeStockMovement = require("./router/inventory/stock-movement.router.js");
-const routeConsumption = require("./router/inventory/consumption.router.js");
-const routeStore = require("./router/inventory/store.router.js");
-const inventorySettingsRoutes = require("./router/inventory/inventory-settings.router.js");
+import routeCategoryStock from "./router/inventory/category-stock.router.js";
+import routeStockItems from "./router/inventory/stock-item.router.js";
+import routeStockMovement from "./router/inventory/stock-movement.router.js";
+import routeConsumption from "./router/inventory/consumption.router.js";
+import routeStore from "./router/inventory/store.router.js";
+import inventorySettingsRoutes from "./router/inventory/inventory-settings.router.js";
 
 /****************************************************
  * PURCHASING ROUTES
  * --------------------------------------------------
  * Supplier management and purchase invoices
  ****************************************************/
-const routeSupplier = require("./router/purchasing/supplier.router.js");
-const routeSupplierTransaction = require("./router/purchasing/supplier-transaction.router.js");
-const routePurchase = require("./router/purchasing/purchase.router.js");
-const routePurchaseReturn = require("./router/purchasing/purchase-return-invoice.router.js");
+import routeSupplier from "./router/purchasing/supplier.router.js";
+import routeSupplierTransaction from "./router/purchasing/supplier-transaction.router.js";
+import routePurchase from "./router/purchasing/purchase.router.js";
+import routePurchaseReturn from "./router/purchasing/purchase-return-invoice.router.js";
 
 /****************************************************
  * CASH ROUTES
@@ -137,10 +137,10 @@ const routePurchaseReturn = require("./router/purchasing/purchase-return-invoice
  * - Cash movements
  * - Expenses
  ****************************************************/
-const routeCashRegister = require("./router/cash/cash-register.router.js");
-const routeCashMovement = require("./router/cash/cash-movement.router.js");
-const routeExpense = require("./router/cash/expense.router.js");
-const routeDailyExpense = require("./router/cash/daily-expense.router.js");
+import routeCashRegister from "./router/cash/cash-register.router.js";
+import routeCashMovement from "./router/cash/cash-movement.router.js";
+import routeExpense from "./router/cash/expense.router.js";
+import routeDailyExpense from "./router/cash/daily-expense.router.js";
 
 /****************************************************
  * ACCOUNTING ROUTES
@@ -152,28 +152,28 @@ const routeDailyExpense = require("./router/cash/daily-expense.router.js");
  * - Accounting periods
  * - Reports
  ****************************************************/
-const accountRoutes = require("./router/accounting/account.router.js");
-const journalEntryRoutes = require("./router/accounting/journal-entry.router.js");
-const ledgerRoutes = require("./router/accounting/ledger.router.js");
-const accountingPeriodRoutes = require("./router/accounting/accounting-period.router.js");
-const reportsRoutes = require("./router/accounting/reports.router.js");
+import accountRoutes from "./router/accounting/account.router.js";
+import journalEntryRoutes from "./router/accounting/journal-entry.router.js";
+import ledgerRoutes from "./router/accounting/ledger.router.js";
+import accountingPeriodRoutes from "./router/accounting/accounting-period.router.js";
+import reportsRoutes from "./router/accounting/reports.router.js";
 
 /****************************************************
  * SYSTEM SETTINGS ROUTES
  * --------------------------------------------------
  * General system settings
  ****************************************************/
-const branchSettingsRoutes = require("./router/system/branch-settings.router.js");
-const discountSettingRoutes = require("./router/system/discount-setting.router.js");
-const generalSettingsRoutes = require("./router/system/general-settings.router.js");
-const invoiceSettingsRoutes = require("./router/system/invoice-settings.router.js");
-const notificationSettingsRoutes = require("./router/system/notification-settings.router.js");
-const orderSettingsRoutes = require("./router/system/order-settings.router.js");
-const printSettingsRoutes = require("./router/system/print-settings.router.js");
-const serviceChargeRoutes = require("./router/system/service-charge.router.js");
-const shiftSettingsRoutes = require("./router/system/shift-settings.router.js");
-const taxConfigRoutes = require("./router/system/tax-config.router.js");
-const paymentMethodRoutes = require("./router/system/payment-method.router.js");
+import branchSettingsRoutes from "./router/system/branch-settings.router.js";
+import discountSettingRoutes from "./router/system/discount-setting.router.js";
+import generalSettingsRoutes from "./router/system/general-settings.router.js";
+import invoiceSettingsRoutes from "./router/system/invoice-settings.router.js";
+import notificationSettingsRoutes from "./router/system/notification-settings.router.js";
+import orderSettingsRoutes from "./router/system/order-settings.router.js";
+import printSettingsRoutes from "./router/system/print-settings.router.js";
+import serviceChargeRoutes from "./router/system/service-charge.router.js";
+import shiftSettingsRoutes from "./router/system/shift-settings.router.js";
+import taxConfigRoutes from "./router/system/tax-config.router.js";
+import paymentMethodRoutes from "./router/system/payment-method.router.js";
 
 // Load environment variables
 dotenv.config();

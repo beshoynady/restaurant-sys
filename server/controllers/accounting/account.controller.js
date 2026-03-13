@@ -1,7 +1,7 @@
 // account.controller.js
-const Account = require("../../models/accounting/account.model.js");
-const Joi = require("joi");
-const mongoose = require("mongoose");
+import Account from "../../models/accounting/account.model.js";
+import Joi from "joi";
+import mongoose from "mongoose";
 
 // --------------------------
 // Validation Schemas
@@ -274,9 +274,9 @@ const setAccountStatus = async (req, res) => {
 };
 
 // --------------------------
-// Export all controller functions
+// export  all controller functions
 // --------------------------
-module.exports = {
+export  {
   createAccount,
   getAccounts,
   getAccountById,

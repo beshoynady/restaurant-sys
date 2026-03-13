@@ -106,4 +106,4 @@ const SetupWizard = () => {
   );
 };
 
-export default SetupWizard;
+export   default SetupWizard;

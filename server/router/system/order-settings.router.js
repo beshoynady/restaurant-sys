@@ -1,13 +1,13 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
-const {
+import {
   createOrderSettings,
   updateOrderSettings,
   getOrderSettings,
   deleteOrderSettings,
-} = require("../../controllers/settings/order-settings.controller");
+} from "../../controllers/settings/order-settings.controller.js";
 
 // ✅ Create new order settings
 router.post("/", authenticateToken, createOrderSettings);
@@ -21,4 +21,4 @@ router.get("/:brand/:branch?", authenticateToken, getOrderSettings);
 // ✅ Delete order settings
 router.delete("/:brand/:branch?", authenticateToken, deleteOrderSettings);
 
-module.exports = router;
+export default router;

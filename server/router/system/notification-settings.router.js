@@ -1,12 +1,12 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const { authenticateToken } = require("../../middlewares/authenticate");
-const {
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import {
   createNotificationSettings,
   getNotificationSettings,
   updateNotificationSettings,
   deleteNotificationSettings,
-} = require("../../controllers/settings/notification-settings.controller");
+} from "../../controllers/settings/notification-settings.controller.js";
 
 // -----------------------------
 // Routes for Notification Settings
@@ -16,4 +16,4 @@ router.get("/:branchId", authenticateToken, getNotificationSettings);
 router.put("/:branchId", authenticateToken, updateNotificationSettings);
 router.delete("/:branchId", authenticateToken, deleteNotificationSettings);
 
-module.exports = router;
+export default router;

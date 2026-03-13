@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 const departmentSchema = new mongoose.Schema(
@@ -102,4 +102,4 @@ departmentSchema.index({ slug: 1, brand: 1 }, { unique: true });
 
 const Department = mongoose.model("Department", departmentSchema);
 
-module.exports = Department;
+export Department;

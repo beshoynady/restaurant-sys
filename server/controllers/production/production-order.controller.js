@@ -1,8 +1,8 @@
-const mongoose = require("mongoose");
-const Joi = require("joi");
+import mongoose from "mongoose";
+import Joi from "joi";
 
-const ProductionOrderModel = require("../../models/production/production-order.model");
-const ProductionRecordModel = require("../../models/production/production-record.model");
+import ProductionOrderModel from "../../models/production/production-order.model.js";
+import ProductionRecordModel from "../../models/production/production-record.model.js";
 
 /* ======================================================
    Helpers
@@ -322,10 +322,10 @@ const deleteProductionOrder = async (req, res) => {
 };
 
 /* ======================================================
-   Exports
+   export s
 ====================================================== */
 
-module.exports = {
+export  {
   createProductionOrder,
   getProductionOrders,
   getProductionOrdersByStore,

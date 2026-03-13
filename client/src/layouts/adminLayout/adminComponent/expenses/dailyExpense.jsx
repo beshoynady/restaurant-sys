@@ -976,4 +976,4 @@ const DailyExpense = () => {
   );
 };
 
-export default DailyExpense;
+export   default DailyExpense;

@@ -1,13 +1,13 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
-const {
+import {
   createPaymentMethod,
   updatePaymentMethod,
   getPaymentMethods,
   deletePaymentMethod,
-} = require("../../controllers/payment-method.controller");
+} from "../../controllers/payment-method.controller.js";
 
 // ✅ Create payment method
 router.post("/", authenticateToken, createPaymentMethod);
@@ -21,4 +21,4 @@ router.get("/", authenticateToken, getPaymentMethods);
 // ✅ Delete payment method by ID
 router.delete("/:id", authenticateToken, deletePaymentMethod);
 
-module.exports = router;
+export default router;

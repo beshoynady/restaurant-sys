@@ -21,4 +21,4 @@ const NoInternetPage = () => {
   );
 };
 
-export default NoInternetPage;
+export   default NoInternetPage;

@@ -25,4 +25,4 @@ const StepFinish = ({ lang, theme }) => {
   );
 };
 
-export default StepFinish;
+export   default StepFinish;

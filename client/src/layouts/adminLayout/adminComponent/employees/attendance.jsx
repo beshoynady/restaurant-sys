@@ -1241,4 +1241,4 @@ const AttendanceManagement = () => {
   );
 };
 
-export default AttendanceManagement;
+export   default AttendanceManagement;

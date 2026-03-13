@@ -15,7 +15,7 @@ import "./Offers.css";
 // import required modules
 import { EffectCoverflow, Pagination } from "swiper/modules";
 
-export default function Offers() {
+export   default function Offers() {
   const {
     allProducts,
     productsOffer,

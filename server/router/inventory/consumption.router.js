@@ -1,15 +1,15 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const {
+import {
   getAllConsumptions,
   getConsumptionById,
   getConsumptionBySection,
   createConsumption,
   updateConsumptionById,
   deleteConsumptionById,
-} = require("../../controllers/consumption.controller");
+} from "../../controllers/consumption.controller.js";
 
-const {authenticateToken} = require("../../middlewares/authenticate");
+import {authenticateToken} from "../../middlewares/authenticate.js";
 
 
 // Define routes using router.route for Kitchen Consumptions
@@ -28,4 +28,4 @@ router
   .route("/bysection/:sectionId")
   .get(authenticateToken,getConsumptionBySection)
 
-module.exports = router;
+export default router;

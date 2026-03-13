@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 const invoiceSchema = mongoose.Schema(
@@ -210,4 +210,4 @@ const invoiceSchema = mongoose.Schema(
 invoiceSchema.index({ brand: 1, branch: 1, serial: 1 }, { unique: true });
 
 const invoiceModel = mongoose.model("Invoice", invoiceSchema);
-module.exports = invoiceModel;
+export invoiceModel;

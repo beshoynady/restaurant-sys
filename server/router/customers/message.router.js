@@ -1,6 +1,6 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const {
+import {
   createCustomerMessage,
   getAllCustomerMessages,
   getCustomerMessageById,
@@ -8,11 +8,11 @@ const {
   deleteCustomerMessage,
   softDeleteCustomerMessage,
   restoreCustomerMessage,
-} = require("../../controllers/customers/message.controller");
+} from "../../controllers/customers/message.controller.js";
 // ----------------------------
 // 🔹 Middlewares
 // ----------------------------
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
 router
@@ -35,4 +35,4 @@ router.patch(
   restoreCustomerMessage,
 );
 
-module.exports = router;
+export default router;

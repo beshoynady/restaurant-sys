@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 const StockItemSchema = new mongoose.Schema(
@@ -142,4 +142,4 @@ const StockItemSchema = new mongoose.Schema(
 StockItemSchema.index({ SKU: 1 });
 StockItemSchema.index({ categoryId: 1 });
 
-module.exports = mongoose.model("StockItem", StockItemSchema);
+export mongoose.model("StockItem", StockItemSchema);

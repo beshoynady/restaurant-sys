@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 /**
@@ -157,4 +157,4 @@ cashRegisterSchema.index({ brand: 1, branch: 1, type: 1 });
 cashRegisterSchema.index({ employee: 1 });
 cashRegisterSchema.index({ accountId: 1 });
 
-module.exports = mongoose.model("CashRegister", cashRegisterSchema);
+export mongoose.model("CashRegister", cashRegisterSchema);

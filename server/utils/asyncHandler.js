@@ -5,4 +5,4 @@ const asyncHandler = (fn) => async (req, res, next) => {
         next(err);
     }};
 
-module.exports = asyncHandler;
+export asyncHandler;

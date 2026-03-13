@@ -298,4 +298,4 @@ const DeliveryMan = () => {
   );
 };
 
-export default DeliveryMan;
+export   default DeliveryMan;

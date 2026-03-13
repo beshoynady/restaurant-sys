@@ -1,9 +1,9 @@
-const DailyExpenseModel = require('../models/daily-expense.model');
-const CashMovement = require('../models/cashMovement.model');
-const CashRegister = require('../models/cashRegister.model');
-const ExpenseModel = require('../models/expense.model');
-const Joi = require('joi');
-const mongoose = require('mongoose');
+import DailyExpenseModel from "../models/daily-expense.model.js";
+import CashMovement from "../models/cashMovement.model.js";
+import CashRegister from "../models/cashRegister.model.js";
+import ExpenseModel from "../models/expense.model.js";
+import Joi from "joi";
+import mongoose from "mongoose";
 
 /**
  * Joi validation schema for DailyExpense creation/updating
@@ -202,7 +202,7 @@ const deleteDailyExpense = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   createDailyExpense,
   getAllDailyExpenses,
   getDailyExpenseById,

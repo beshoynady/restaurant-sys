@@ -1,4 +1,4 @@
-const SupplierTransactionModel = require("../../models/supplier-transaction.model");
+import SupplierTransactionModel from "../../models/supplier-transaction.model.js";
 
 // Create a new supplier transaction
 const createSupplierTransaction = async (req, res) => {
@@ -147,7 +147,7 @@ const deleteSupplierTransaction = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   createSupplierTransaction,
   getAllSupplierTransactions,
   getSupplierTransactionById,

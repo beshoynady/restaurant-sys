@@ -1,10 +1,10 @@
-const mongoose = require("mongoose");
-const Joi = require("joi");
-const asyncHandler= require("../../utils/asyncHandler");;
+import mongoose from "mongoose";
+import Joi from "joi";
+import asyncHandler from "../../utils/asyncHandler.js";;
 
-const LoyaltyTransaction = require("../../models/loyalty/loyalty-transaction.model");
-const LoyaltySettings = require("../../models/loyalty/loyalty-settings.model");
-const CustomerLoyalty = require("../../models/loyalty/customer-loyalty.model");
+import LoyaltyTransaction from "../../models/loyalty/loyalty-transaction.model.js";
+import LoyaltySettings from "../../models/loyalty/loyalty-settings.model.js";
+import CustomerLoyalty from "../../models/loyalty/customer-loyalty.model.js";
 
 
 // =====================================================
@@ -292,7 +292,7 @@ const adjustPoints = asyncHandler(async (req, res) => {
 });
 
 
-module.exports = {
+export  {
   earnPointsFromOrder,
   redeemPointsFromOrder,
   getCustomerTransactions,

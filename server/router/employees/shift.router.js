@@ -1,14 +1,14 @@
-const express = require('express');
+import express from "express";
 const router = express.Router();
-const {
+import {
   createShift,
   getAllShifts,
   getShiftById,
   updateShift,
   deleteShift
-} = require('../../controllers/employees/shift.controller');
-const {authenticateToken} = require("../../middlewares/authenticate");
-const checkSubscription = require('../../middlewares/checkSubscription')
+} from "../../controllers/employees/shift.controller.js";
+import {authenticateToken} from "../../middlewares/authenticate.js";
+import checkSubscription from "../../middlewares/checkSubscription.js";
 
 router.route('/')
   .post(authenticateToken,createShift)
@@ -20,4 +20,4 @@ router.route('/:id')
   .put(authenticateToken,updateShift)
   .delete(authenticateToken,deleteShift);
 
-module.exports = router;
+export default router;

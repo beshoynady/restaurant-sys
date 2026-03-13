@@ -1,7 +1,7 @@
-const DepartmentModel = require("../../models/employees/department.model");
-const BrandModel = require("../../models/core/brand.model");
-const BranchModel = require("../../models/core/branch.model");
-const Joi = require("joi");
+import DepartmentModel from "../../models/employees/department.model.js";
+import BrandModel from "../../models/core/brand.model.js";
+import BranchModel from "../../models/core/branch.model.js";
+import Joi from "joi";
 
 // --------------------------- Joi Schemas ---------------------------
 const createDepartmentSchema = Joi.object({
@@ -353,8 +353,8 @@ const deleteDepartment = async (req, res) => {
   }
 };
 
-// --------------------------- Export ---------------------------
-module.exports = {
+// --------------------------- export  ---------------------------
+export  {
   createDepartment,
   updateDepartment,
   getAllDepartments,

@@ -1,13 +1,13 @@
-const express = require("express");
-const {
+import express from "express";
+import {
   CreateCategoryStock,
   getallcategoryStock,
   getonecategoryStock,
   updatecategoryStock,
   deleteCategoryStock,
-} = require("../../controllers/category-stock.controller");
+} from "../../controllers/category-stock.controller.js";
 
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
 const router = express.Router();
@@ -22,4 +22,4 @@ router
   .put(authenticateToken,updatecategoryStock)
   .delete(authenticateToken,deleteCategoryStock);
 
-module.exports = router;
+export default router;

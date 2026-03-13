@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 /**
@@ -159,4 +159,4 @@ offlineCustomerSchema.index(
 );
 offlineCustomerSchema.index({ "addresses.location": "2dsphere" }); // For geospatial queries
 
-module.exports = mongoose.model("OfflineCustomer", offlineCustomerSchema);
+export mongoose.model("OfflineCustomer", offlineCustomerSchema);

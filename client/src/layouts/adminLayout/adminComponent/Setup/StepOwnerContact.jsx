@@ -39,4 +39,4 @@ const StepOwnerContact = ({ onNext, onBack }) => {
   );
 };
 
-export default StepOwnerContact;
+export   default StepOwnerContact;

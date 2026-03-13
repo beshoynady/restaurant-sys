@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { Schema } = mongoose;
 const ObjectId = Schema.Types.ObjectId;
 
@@ -143,9 +143,9 @@ PreparationReturnSchema.index(
   { unique: true },
 );
 
-// Export the model
+// export  the model
 const PreparationReturnModel = mongoose.model(
   "PreparationReturn",
   PreparationReturnSchema,
 );
-module.exports = PreparationReturnModel;
+export PreparationReturnModel;

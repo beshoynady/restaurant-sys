@@ -1,14 +1,14 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const {
+import {
   createDepartment,
   getAllDepartments,
   getDepartmentById,
   updateDepartment,
   deleteDepartment,
-} = require("../../controllers/employees/department.controller");
+} from "../../controllers/employees/department.controller.js";
 
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 router
   .route("/")
@@ -21,4 +21,4 @@ router
   .put(authenticateToken, updateDepartment)
   .delete(authenticateToken, deleteDepartment);
 
-module.exports = router;
+export default router;

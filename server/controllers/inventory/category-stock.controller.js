@@ -1,4 +1,4 @@
-const CategoryStockmodel = require("../../models/category-stock.model");
+import CategoryStockmodel from "../../models/category-stock.model.js";
 
 const CreateCategoryStock = async (req, res, next) => {
   try {
@@ -114,7 +114,7 @@ const deleteCategoryStock = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   CreateCategoryStock,
   getallcategoryStock,
   getonecategoryStock,

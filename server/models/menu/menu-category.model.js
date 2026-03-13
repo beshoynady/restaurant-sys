@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 /**
@@ -99,4 +99,4 @@ menuCategorySchema.methods.softDelete = function (employeeId) {
   return this.save();
 };
 
-module.exports = mongoose.model("MenuCategory", menuCategorySchema);
+export mongoose.model("MenuCategory", menuCategorySchema);

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema.Types;
 
 // Cost Center Schema
@@ -47,4 +47,4 @@ costCenterSchema.index({ brand: 1, code: 1 }, { unique: true });
 
 const CostCenterModel = mongoose.model("CostCenter", costCenterSchema);
 
-module.exports = CostCenterModel;
+export CostCenterModel;

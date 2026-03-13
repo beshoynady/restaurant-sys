@@ -231,4 +231,4 @@ const POSCard = () => {
   );
 };
 
-export default POSCard;
+export   default POSCard;

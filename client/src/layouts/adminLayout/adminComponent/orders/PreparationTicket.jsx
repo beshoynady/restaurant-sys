@@ -562,4 +562,4 @@ const PreparationTicket = () => {
   );
 };
 
-export default PreparationTicket;
+export   default PreparationTicket;

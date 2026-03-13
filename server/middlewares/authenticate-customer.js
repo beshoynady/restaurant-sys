@@ -1,6 +1,6 @@
-const OnlineCustomerModel = require("../models/customers/online-customer.model");
-const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv");
+import OnlineCustomerModel from "../models/customers/online-customer.model.js";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 dotenv.config();
 
 const secretKey = process.env.JWT_SECRET_KEY;
@@ -77,7 +77,7 @@ const generateNewCustomerAccessToken = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   authenticateCustomerToken,
   generateNewCustomerAccessToken,
 };

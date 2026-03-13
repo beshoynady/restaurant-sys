@@ -1,13 +1,13 @@
-const express = require("express");
-const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
+import express from "express";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
 
-const ProductModel = require("../../models/menu/product.model");
+import ProductModel from "../../models/menu/product.model.js";
 
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
-const {
+import {
   createProduct,
   updateProduct,
   getProductById,
@@ -23,7 +23,7 @@ const {
   softDeleteProduct,
   deleteProductPermanently,
   duplicateProduct,
-} = require("../../controllers/menu/product.controller");
+} from "../../controllers/menu/product.controller.js";
 
 const router = express.Router();
 
@@ -199,4 +199,4 @@ router.post(
   setComboGroups
 );
 
-module.exports = router;
+export default router;

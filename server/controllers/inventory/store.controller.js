@@ -1,4 +1,4 @@
-const StoreModel = require("../../models/store.model"); // Adjust the path as needed
+import StoreModel from "../../models/store.model.js"; // Adjust the path as needed
 
 // Create a new store
 const createStore = async (req, res, next) => {
@@ -140,7 +140,7 @@ const deleteStore = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   createStore,
   getAllStores,
   getStoreById,

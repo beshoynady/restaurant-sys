@@ -1,6 +1,6 @@
-const router = require("express").Router();
+import router from "express";.Router();
 
-const {
+import {
   createProductionOrder,
   getProductionOrders,
   getProductionOrdersByStore,
@@ -9,9 +9,9 @@ const {
   updateProductionOrder,
   updateProductionStatus,
   deleteProductionOrder,
-} = require("../../controllers/production-order.controller");
+} from "../../controllers/production-order.controller.js";
 
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
 // Create a new Production Order
@@ -38,4 +38,4 @@ router
   .route("/status/:id")
   .put(authenticateToken,updateProductionStatus);
 
-module.exports = router;
+export default router;

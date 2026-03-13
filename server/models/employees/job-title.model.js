@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 /**
@@ -74,4 +74,4 @@ jobTitleSchema.index({ "name.$**": 1 });
 jobTitleSchema.index({ brand: 1, name: 1 });
 
 const JobTitle = mongoose.model("JobTitle", jobTitleSchema);
-module.exports = JobTitle;
+export JobTitle;

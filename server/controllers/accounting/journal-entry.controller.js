@@ -1,9 +1,9 @@
-const mongoose = require("mongoose");
-const Joi = require("joi");
+import mongoose from "mongoose";
+import Joi from "joi";
 
-const JournalEntry = require("../../models/accounting/journal-entry.model");
-const AccountingPeriod = require("../../models/accounting/accounting-period.model");
-const Account = require("../../models/accounting/account.model");
+import JournalEntry from "../../models/accounting/journal-entry.model.js";
+import AccountingPeriod from "../../models/accounting/accounting-period.model.js";
+import Account from "../../models/accounting/account.model.js";
 
 // --------------------------------------------------
 // Joi Validation Schemas
@@ -261,10 +261,10 @@ const getJournalEntryById = async (req, res) => {
 };
 
 // --------------------------------------------------
-// Export Controllers
+// export  Controllers
 // --------------------------------------------------
 
-module.exports = {
+export  {
   createJournalEntry,
   postJournalEntry,
   rejectJournalEntry,

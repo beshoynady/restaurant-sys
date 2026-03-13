@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { Schema } = mongoose;
 const ObjectId = Schema.Types.ObjectId;
 
@@ -203,9 +203,9 @@ const PreparationTicketSchema = new Schema(
 
 PreparationTicketSchema.index({ brand: 1, branch: 1, order: 1, ticketNumber: 1 }, { unique: true });
 
-// Export the model
+// export  the model
 const PreparationTicketModel = mongoose.model(
   "PreparationTicket",
   PreparationTicketSchema
 );
-module.exports = PreparationTicketModel;
+export PreparationTicketModel;

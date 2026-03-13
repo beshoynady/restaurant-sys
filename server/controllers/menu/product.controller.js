@@ -1,13 +1,13 @@
-const ProductModel = require("../../models/menu/product.model.js");
-const OrderModel = require("../../models/sales/order.model.js");
-const EmployeeModel = require("../../models/employees/employee.model.js");
-const BrandModel = require("../../models/core/brand.model.js");
-const BranchModel = require("../../models/core/branch.model.js");
-const CategoryModel = require("../../models/menu/menu-category.model.js");
-const PreparationSectionModel = require("../../models/kitchen/preparation-section.model.js");
-const Joi =require("joi");
+import ProductModel from "../../models/menu/product.model.js";
+import OrderModel from "../../models/sales/order.model.js";
+import EmployeeModel from "../../models/employees/employee.model.js";
+import BrandModel from "../../models/core/brand.model.js";
+import BranchModel from "../../models/core/branch.model.js";
+import CategoryModel from "../../models/menu/menu-category.model.js";
+import PreparationSectionModel from "../../models/kitchen/preparation-section.model.js";
+import Joi from "joi";
 
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 // Validation schema for creating a new product
 const createProductSchema = Joi.object({
@@ -676,7 +676,7 @@ const deleteProductPermanently = async (req, res) => {
   res.json({ message: "Product deleted permanently" });
 };
 
-module.exports = {
+export  {
   createProduct,
   updateProduct,
   getProductById,

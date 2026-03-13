@@ -1,7 +1,7 @@
 const diningAreaModel = require( "../../models/seating/dining-area.model.js");
-const TableModel = require("../../models/seating/table.model.js");
-const Joi =require("joi");
-const mongoose = require("mongoose");
+import TableModel from "../../models/seating/table.model.js";
+import Joi from "joi";
+import mongoose from "mongoose";
 
 const ObjectId = (value, helpers) => {
   if (!mongoose.Types.ObjectId.isValid(value)) {
@@ -347,7 +347,7 @@ const getDiningAreasWithTables = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   createDiningArea,
   updateDiningArea,
   getDiningAreas,

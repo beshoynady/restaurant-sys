@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
-const Joi = require("joi");
-const NotificationSettings = require("../../models/settings/notification-settings.model");
+import mongoose from "mongoose";
+import Joi from "joi";
+import NotificationSettings from "../../models/settings/notification-settings.model.js";
 
 // -----------------------------
 // Time validation regex
@@ -208,9 +208,9 @@ const deleteNotificationSettings = async (req, res) => {
 };
 
 // -----------------------------
-// Export controller functions
+// export  controller functions
 // -----------------------------
-module.exports = {
+export  {
   createNotificationSettings,
   getNotificationSettings,
   updateNotificationSettings,

@@ -69,4 +69,4 @@ const StepWelcome = ({ onNext, lang, theme }) => {
   );
 };
 
-export default StepWelcome;
+export   default StepWelcome;

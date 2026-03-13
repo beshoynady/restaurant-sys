@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 const WEEK_DAYS = [
@@ -283,4 +283,4 @@ employeeSchema.index({ phone: 1, brand: 1 }, { unique: true });
 
 // model definition
 const Employee = mongoose.model("Employee", employeeSchema);
-module.exports = Employee;
+export Employee;

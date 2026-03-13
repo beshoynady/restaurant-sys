@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema.Types;
 const { Schema } = mongoose;
 
@@ -106,4 +106,4 @@ branchSchema.index({ "name.$**": 1 });
 branchSchema.index({ status: 1 });
 
 const BranchModel = mongoose.model("Branch", branchSchema);
-module.exports = BranchModel;
+export BranchModel;

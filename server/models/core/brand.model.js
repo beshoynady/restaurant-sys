@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema.Types;
 
 
@@ -206,4 +206,4 @@ const brandSchema = new mongoose.Schema(
 brandSchema.index({ "name.$**": 1 });
 
 const Brand = mongoose.model("Brand", brandSchema);
-module.exports = Brand;
+export Brand;

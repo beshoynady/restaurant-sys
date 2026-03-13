@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema.Types;
 
 /**
@@ -154,4 +154,4 @@ const invoiceSettingsSchema = new mongoose.Schema(
 invoiceSettingsSchema.index({ brand: 1, branch: 1 }, { unique: true });
 
 const InvoiceSettings = mongoose.model("InvoiceSettings", invoiceSettingsSchema);
-module.exports = InvoiceSettings;
+export InvoiceSettings;

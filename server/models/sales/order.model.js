@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { Schema } = mongoose;
 const ObjectId = Schema.Types.ObjectId;
 
@@ -272,4 +272,4 @@ const OrderSchema = new Schema(
   },
 );
 
-module.exports = mongoose.model("Order", OrderSchema);
+export mongoose.model("Order", OrderSchema);

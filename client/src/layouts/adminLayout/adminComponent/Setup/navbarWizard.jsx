@@ -80,4 +80,4 @@ const NavbarWizard = ({ lang, setLang, theme, setTheme }) => {
   );
 };
 
-export default NavbarWizard;
+export   default NavbarWizard;

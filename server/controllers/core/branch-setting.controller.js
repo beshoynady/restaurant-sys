@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 import BranchSettingsModel from "../../models/settings/branchSettings.model.js";
-const Joi =require("joi");
+import Joi from "joi";
 
 const { ObjectId } = mongoose.Types;
 
@@ -344,7 +344,7 @@ const deleteBranchSettings = async (req, res) => {
   }
 };
 
-export {
+export   {
   createBranchSettings,
   updateBranchSettings,
   getBranchSettings,

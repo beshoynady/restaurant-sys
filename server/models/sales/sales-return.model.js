@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema.Types;
 
 const SalesReturnSchema = new mongoose.Schema(
@@ -182,4 +182,4 @@ const SalesReturnSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-module.exports = mongoose.model("SalesReturn", SalesReturnSchema);
+export mongoose.model("SalesReturn", SalesReturnSchema);

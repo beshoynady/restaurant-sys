@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
-const Joi =require("joi");
-const PaymentMethodModel = require("../../models/settings/payment-method.model.js");
+import mongoose from "mongoose";
+import Joi from "joi";
+import PaymentMethodModel from "../../models/settings/payment-method.model.js";
 
 const ObjectId = Joi.string().regex(/^[0-9a-fA-F]{24}$/);
 
@@ -168,7 +168,7 @@ const deletePaymentMethod = async (req, res) => {
   }
 };
 
-export {
+export   {
   createPaymentMethod,
   updatePaymentMethod,
   getPaymentMethods,

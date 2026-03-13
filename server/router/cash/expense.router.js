@@ -1,8 +1,8 @@
-const express = require('express');
+import express from "express";
 const router = express.Router();
-const expensesController = require('../../controllers/expense.controller');
-const {authenticateToken} = require("../../middlewares/authenticate");
-const checkSubscription = require('../../middlewares/checkSubscription')
+import expensesController from "../../controllers/expense.controller.js";
+import {authenticateToken} from "../../middlewares/authenticate.js";
+import checkSubscription from "../../middlewares/checkSubscription.js";
 
 
 router.route("/")
@@ -15,4 +15,4 @@ router.route("/:expenseId")
 
 
 
-module.exports = router;
+export default router;

@@ -5,4 +5,4 @@ const throwError = (message, status = 400, errors = []) => {
   throw err;
 };
 
-module.exports = throwError;
+export throwError;

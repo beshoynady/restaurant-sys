@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 const payrollSchema = new mongoose.Schema(
@@ -214,4 +214,4 @@ payrollSchema.index(
   { unique: true }
 );
 
-module.exports = mongoose.model("Payroll", payrollSchema);
+export mongoose.model("Payroll", payrollSchema);

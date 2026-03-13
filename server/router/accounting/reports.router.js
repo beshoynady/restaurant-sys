@@ -1,10 +1,10 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
-const {
+import {
   getProfitAndLoss,
   getBalanceSheet,
-} = require("../../controllers/accounting/reports.controller");
+} from "../../controllers/accounting/reports.controller.js";
 
 // ==============================
 // Financial Reports Routes
@@ -18,4 +18,4 @@ router
   .route("/balance-sheet")
   .get(getBalanceSheet);
 
-module.exports = router;
+export default router;

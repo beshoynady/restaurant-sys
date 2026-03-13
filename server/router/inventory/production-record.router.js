@@ -1,15 +1,15 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
 
 
-const {
+import {
   async
-} = require("../../controllers/inventory/production-record.controller");
+} from "../../controllers/inventory/production-record.controller.js";
 
-const { authenticateToken } = require("../../middlewares/authenticate");
-
-
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
-module.exports = router;
+
+
+export default router;

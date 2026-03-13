@@ -242,4 +242,4 @@ const ProfitAndLoss = () => {
   );
 };
 
-export default ProfitAndLoss;
+export   default ProfitAndLoss;

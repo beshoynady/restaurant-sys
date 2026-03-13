@@ -1,5 +1,5 @@
-const EmployeeFinancialTransaction = require("../../models/employees/employee-financial-transaction.model");
-const Joi = require("joi");
+import EmployeeFinancialTransaction from "../../models/employees/employee-financial-transaction.model.js";
+import Joi from "joi";
 
 /**
  * ==========================================================
@@ -395,7 +395,7 @@ const deleteEmployeeFinancialTransaction = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   createEmployeeFinancialTransaction,
   getAllEmployeeFinancialTransactions,
   getOneEmployeeFinancialTransaction,

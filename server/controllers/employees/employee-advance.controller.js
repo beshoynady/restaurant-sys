@@ -1,5 +1,5 @@
-const Joi = require("joi");
-const EmployeeAdvance = require("../../models/employees/employee-advance.model");
+import Joi from "joi";
+import EmployeeAdvance from "../../models/employees/employee-advance.model.js";
 
 /* ==========================================================
  * Joi Schemas
@@ -301,9 +301,9 @@ const getOneAdvance = async (req, res) => {
 };
 
 /* ==========================================================
- * Export Controllers
+ * export  Controllers
  * ========================================================== */
-module.exports = {
+export  {
   createAdvance,
   updateAdvance,
   approveAdvance,

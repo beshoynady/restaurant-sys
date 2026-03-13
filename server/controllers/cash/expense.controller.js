@@ -1,7 +1,7 @@
-const ExpenseModel = require('../models/expense.model');
-const DailyExpenseModel = require('../models/daily-expense.model');
-const Joi = require('joi');
-const mongoose = require('mongoose');
+import ExpenseModel from "../models/expense.model.js";
+import DailyExpenseModel from "../models/daily-expense.model.js";
+import Joi from "joi";
+import mongoose from "mongoose";
 
 /**
  * Joi validation schema for creating/updating Expense
@@ -164,7 +164,7 @@ const deleteExpense = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   createExpense,
   updateExpense,
   getAllExpenses,

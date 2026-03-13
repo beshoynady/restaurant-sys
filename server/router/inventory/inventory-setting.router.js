@@ -1,15 +1,15 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
 
 
-const {
+import {
   async
-} = require("../../controllers/inventory/inventory-setting.controller");
+} from "../../controllers/inventory/inventory-setting.controller.js";
 
-const { authenticateToken } = require("../../middlewares/authenticate");
-
-
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
-module.exports = router;
+
+
+export default router;

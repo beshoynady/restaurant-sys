@@ -1,5 +1,5 @@
-// const RestaurantModel = require("../../models/core/brand.model");
-// const EmployeeModel = require("../../models/employees/employee.model");
+// import RestaurantModel from "../../models/core/brand.model.js";
+// import EmployeeModel from "../../models/employees/employee.model.js";
 
 // const checkSubscription = async (req, res, next) => {
 //   try {
@@ -33,4 +33,4 @@
 //   }
 // };
 
-// module.exports = checkSubscription;
+// export checkSubscription;

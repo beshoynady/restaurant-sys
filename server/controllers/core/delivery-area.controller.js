@@ -8,11 +8,11 @@
  * - Async error handling via asyncHandler
  */
 
-const asyncHandler = require("../../utils/asyncHandler.js");
-const DeliveryArea = require("../../models/core/delivery-area.model");
-const Joi = require("joi");
-const mongoose = require("mongoose");
-const ensureUniqueMultilangName = require("../../utils/unique-multilang.utils.js");
+import asyncHandler from "../../utils/asyncHandler.js";
+import DeliveryArea from "../../models/core/delivery-area.model.js";
+import Joi from "joi";
+import mongoose from "mongoose";
+import ensureUniqueMultilangName from "../../utils/unique-multilang.utils.js";
 
 const { ObjectId } = mongoose.Types;
 
@@ -271,9 +271,9 @@ const hardDeleteDeliveryArea = asyncHandler(async (req, res) => {
 });
 
 /* ==================================================
-   Export Controllers
+   export  Controllers
 ================================================== */
-module.exports = {
+export  {
   createDeliveryArea,
   getDeliveryAreaById,
   updateDeliveryArea,

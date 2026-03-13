@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 /**
@@ -54,4 +54,4 @@ const DiscountSettingsSchema = new mongoose.Schema(
 // Ensure one settings document per brand/branch
 DiscountSettingsSchema.index({ brand: 1, branch: 1 }, { unique: true });
 
-module.exports = mongoose.model("DiscountSettings", DiscountSettingsSchema);
+export mongoose.model("DiscountSettings", DiscountSettingsSchema);

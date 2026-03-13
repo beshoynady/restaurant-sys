@@ -444,4 +444,4 @@ handleGetTokenAndConfig,
   );
 };
 
-export default BatchStockReport;
+export   default BatchStockReport;

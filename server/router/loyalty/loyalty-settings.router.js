@@ -1,8 +1,8 @@
 // server/routes/loyalty/loyalty-settings.router.js
 
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const {
+import {
   createLoyaltySettings,
   getAllLoyaltySettings,
   getLoyaltySettings,
@@ -10,8 +10,8 @@ const {
   updateLoyaltySettings,
   toggleLoyaltyStatus,
   deleteLoyaltySettings,
-} = require("../../controllers/loyalty/loyalty-settings.controller");
-const {authenticateToken} = require("../../middlewares/authenticate");
+} from "../../controllers/loyalty/loyalty-settings.controller.js";
+import {authenticateToken} from "../../middlewares/authenticate.js";
 
 // All routes require authentication
 router.use(authenticateToken);
@@ -31,4 +31,4 @@ router.route("/brand/:brandId").get(getLoyaltySettingsByBrand);
 // Toggle loyalty program status for a brand
 router.route("/:id/toggle").put(toggleLoyaltyStatus);
 
-module.exports = router;
+export default router;

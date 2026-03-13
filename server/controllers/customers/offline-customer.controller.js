@@ -1,6 +1,6 @@
-const OfflineCustomer = require("../../models/customers/offline-customer.model");
-const Joi = require("joi");
-const mongoose = require("mongoose");
+import OfflineCustomer from "../../models/customers/offline-customer.model.js";
+import Joi from "joi";
+import mongoose from "mongoose";
 
 // ----------------------------
 // 🔹 Joi Schemas for Validation
@@ -483,9 +483,9 @@ const getDeletedOfflineCustomersByBranch = async (req, res) => {
 };
 
 // ----------------------------
-// 🔹 Export all controllers
+// 🔹 export  all controllers
 // ----------------------------
-module.exports = {
+export  {
   createOfflineCustomer,
   updateOfflineCustomer,
   deleteOfflineCustomer,

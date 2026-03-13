@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { Schema, Types } = mongoose;
 
 /**
@@ -127,4 +127,4 @@ const DiningAreaSchema = new Schema(
 // Ensure unique area code per branch
 DiningAreaSchema.index({ branch: 1, code: 1 }, { unique: true });
 
-module.exports = mongoose.model("DiningArea", DiningAreaSchema);
+export mongoose.model("DiningArea", DiningAreaSchema);

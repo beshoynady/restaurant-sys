@@ -1,6 +1,6 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const {
+import {
   createPreparationSection,
   updatePreparationSection,
   getAllPreparationSections,
@@ -8,9 +8,9 @@ const {
   getPreparationSectionById,
   deletePreparationSection,
   togglePreparationSectionStatus,
-} = require("../../controllers/kitchen/preparation-section.controller");
+} from "../../controllers/kitchen/preparation-section.controller.js";
 
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
 /**
@@ -43,4 +43,4 @@ router
   // authMiddleware,
   .patch(authenticateToken,togglePreparationSectionStatus);
 
-module.exports = router;
+export default router;

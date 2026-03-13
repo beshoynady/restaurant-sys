@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema.Types;
 
 /**
@@ -150,4 +150,4 @@ const BranchSettingsModel = mongoose.model(
   branchSettingsSchema
 );
 
-module.exports= BranchSettingsModel;
+module.export s= BranchSettingsModel;

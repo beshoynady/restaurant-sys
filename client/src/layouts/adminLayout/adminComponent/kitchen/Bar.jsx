@@ -870,4 +870,4 @@ const Bar = () => {
   );
 };
 
-export default Bar;
+export   default Bar;

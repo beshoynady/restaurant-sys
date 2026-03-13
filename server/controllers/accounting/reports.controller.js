@@ -1,11 +1,11 @@
-const mongoose = require("mongoose");
-const JournalEntry = require("../../models/accounting/journal-entry.model");
+import mongoose from "mongoose";
+import JournalEntry from "../../models/accounting/journal-entry.model.js";
 
 // =====================================
 // Profit & Loss Report
 // =====================================
 
-exports.getProfitAndLoss = async (req, res) => {
+export s.getProfitAndLoss = async (req, res) => {
   try {
     const { brand, branch, from, to } = req.query;
 
@@ -129,7 +129,7 @@ exports.getProfitAndLoss = async (req, res) => {
 // =====================================
 // Balance Sheet Report
 // =====================================
-exports.getBalanceSheet = async (req, res) => {
+export s.getBalanceSheet = async (req, res) => {
   try {
     const { brand, branch, asOfDate } = req.query;
 

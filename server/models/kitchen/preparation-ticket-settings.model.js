@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { Schema, model } = mongoose;
 const ObjectId = Schema.Types.ObjectId;
 
@@ -60,4 +60,4 @@ const PreparationTicketSettings = model(
   preparationTicketSettingsSchema
 );
 
-module.exports = PreparationTicketSettings;
+export PreparationTicketSettings;

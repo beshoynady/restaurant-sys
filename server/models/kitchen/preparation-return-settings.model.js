@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { Schema } = mongoose;
 const ObjectId = Schema.Types.ObjectId;
 
@@ -90,7 +90,7 @@ PreparationReturnSettingsSchema.index(
   { unique: true },
 );
 
-module.exports = mongoose.model(
+export mongoose.model(
   "PreparationReturnSettings",
   PreparationReturnSettingsSchema,
 );

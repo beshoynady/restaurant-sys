@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 const journalLineSchema = new mongoose.Schema(
@@ -60,4 +60,4 @@ const journalLineSchema = new mongoose.Schema(
   { _id: false, timestamps: true },
 );
 
-module.exports = journalLineSchema;
+export journalLineSchema;

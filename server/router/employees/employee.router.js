@@ -1,8 +1,8 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
 // 🧩 Controllers
-const {
+import {
  createFirstEmployee,
   createEmployee,
   updateEmployee,
@@ -13,13 +13,13 @@ const {
   getEmployeesByBranch,
   softDeleteEmployee,
   restoreEmployee,
-} = require("../../controllers/employees/employee.controller.js");
+} from "../../controllers/employees/employee.controller.js";
 
 // 🧩 Middlewares
-const {
+import {
   authenticateToken,
   refreshAccessToken,
-} = require("../../middlewares/authenticate.js");
+} from "../../middlewares/authenticate.js";
 
 /* ----------------------------------------------------------
  *  PUBLIC ROUTES (No Authentication Required)
@@ -73,6 +73,6 @@ router
   .put(authenticateToken, restoreEmployee);
 
 /* ----------------------------------------------------------
- *  EXPORT ROUTER
+ *  export  ROUTER
  * ---------------------------------------------------------- */
-module.exports = router;
+export default router;

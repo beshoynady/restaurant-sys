@@ -1,6 +1,6 @@
-const Joi = require("joi");
-const mongoose = require("mongoose");
-const InventorySettings = require("../../models/settings/inventory-settings.model");
+import Joi from "joi";
+import mongoose from "mongoose";
+import InventorySettings from "../../models/settings/inventory-settings.model.js";
 
 /**
  * ============================
@@ -173,7 +173,7 @@ const deleteInventorySettings = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   createInventorySettings,
   getInventorySettings,
   updateInventorySettings,

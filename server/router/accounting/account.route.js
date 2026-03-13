@@ -1,4 +1,4 @@
-const {
+import {
   createAccount,
   getAccounts,
   getAccountById,
@@ -7,13 +7,13 @@ const {
   updateAccount,
   deleteAccount,
   setAccountStatus,
-} = require("../../controllers/accounting/account.controller");
+} from "../../controllers/accounting/account.controller.js";
 
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
 
-const router = require("express").Router();
+import router from "express";.Router();
 
 // ==============================
 // Account Routes
@@ -28,4 +28,4 @@ router.route("/code/:code").get(authenticateToken,getAccountByCode);
 router.route("/parent/:parentId").get(authenticateToken,getAccountsByParent);
 router.route("/:id/status").put(authenticateToken,setAccountStatus);
 
-module.exports = router;
+export default router;

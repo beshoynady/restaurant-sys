@@ -1,9 +1,9 @@
-const EmployeeModel = require("../../models/employees/employee.model");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
-const Joi = require("joi");
+import EmployeeModel from "../../models/employees/employee.model.js";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+import Joi from "joi";
 require("dotenv").config();
-const asyncHandler = require("../../utils/asyncHandler.js");
+import asyncHandler from "../../utils/asyncHandler.js";
 
 /* ===========================================================
  * Helper Joi Schema for Multilingual Map Fields
@@ -422,9 +422,9 @@ const restoreEmployee = asyncHandler(async (req, res) => {
 });
 
 /* ===========================================================
- * EXPORT CONTROLLER
+ * export  CONTROLLER
  * =========================================================== */
-module.exports = {
+export  {
   createFirstEmployee,
   createEmployee,
   updateEmployee,

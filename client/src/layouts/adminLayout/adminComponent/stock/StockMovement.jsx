@@ -1674,4 +1674,4 @@ const StockMovement = () => {
   );
 };
 
-export default StockMovement;
+export   default StockMovement;

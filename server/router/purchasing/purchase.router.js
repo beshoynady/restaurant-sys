@@ -1,15 +1,15 @@
-const express = require('express');
+import express from "express";
 const router = express.Router();
-const {
+import {
     createPurchaseInvoice,
     getAllPurchaseInvoices,
     getPurchaseInvoiceById,
     updatePurchaseInvoiceById,
     deletePurchaseInvoiceById
-} = require('../controllers/purchase.controller');
+} from "../controllers/purchase.controller.js";
 
-const {authenticateToken} = require("../../middlewares/authenticate");
-const checkSubscription = require('../../middlewares/checkSubscription')
+import {authenticateToken} from "../../middlewares/authenticate.js";
+import checkSubscription from "../../middlewares/checkSubscription.js";
 
 // Routes for purchase management
 router.route('/')
@@ -21,4 +21,4 @@ router.route('/:id')
     .put(authenticateToken,updatePurchaseInvoiceById)
     .delete(authenticateToken,deletePurchaseInvoiceById);
 
-module.exports = router;
+export default router;

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 /**
@@ -127,4 +127,4 @@ const loyaltySettingsSchema = new mongoose.Schema(
 
 loyaltySettingsSchema.index({ brand: 1 }, { unique: true });
 
-module.exports = mongoose.model("LoyaltySettings", loyaltySettingsSchema);
+export mongoose.model("LoyaltySettings", loyaltySettingsSchema);

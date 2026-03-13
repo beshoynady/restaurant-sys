@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema.Types;
 
 /**
@@ -112,4 +112,4 @@ const PaymentChannelModel = mongoose.model(
   paymentChannelSchema,
 );
 
-module.exports = PaymentChannelModel;
+export PaymentChannelModel;

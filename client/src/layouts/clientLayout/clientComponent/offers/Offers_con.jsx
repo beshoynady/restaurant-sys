@@ -86,4 +86,4 @@ const Offers = () => {
     </section>
   )
 }
-export default Offers
+export   default Offers

@@ -1,14 +1,14 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
-const {
+import {
   createInvoiceSettings,
   getInvoiceSettings,
   updateInvoiceSettings,
   deleteInvoiceSettings,
-} = require("../../controllers/settings/invoice-settings.controller");
+} from "../../controllers/settings/invoice-settings.controller.js";
 
 /**
  * ============================
@@ -40,4 +40,4 @@ router.delete(
   deleteInvoiceSettings
 );
 
-module.exports = router;
+export default router;

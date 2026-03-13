@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema.Types;
 
 /**
@@ -170,4 +170,4 @@ PaymentMethodSchema.index(
   { partialFilterExpression: { isDefault: true } },
 );
 
-module.exports = mongoose.model("PaymentMethod", PaymentMethodSchema);
+export mongoose.model("PaymentMethod", PaymentMethodSchema);

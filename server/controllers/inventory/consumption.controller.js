@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const ConsumptionModel = require("../../models/consumption.model");
+import mongoose from "mongoose";
+import ConsumptionModel from "../../models/consumption.model.js";
 
 // Create a new consumption
 const createConsumption = async (req, res) => {
@@ -251,7 +251,7 @@ const deleteConsumptionById = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   createConsumption,
   updateConsumptionById,
   getAllConsumptions,

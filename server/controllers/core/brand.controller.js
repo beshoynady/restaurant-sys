@@ -11,14 +11,14 @@
  * - Dashboard language enforcement
  */
 
-const mongoose = require("mongoose");
-const Joi = require("joi");
-const fs = require("fs");
-const path = require("path");
+import mongoose from "mongoose";
+import Joi from "joi";
+import fs from "fs";
+import path from "path";
 
-const Brand = require("../../models/core/brand.model");
-const throwError = require("../../utils/throwError");
-const asyncHandler = require("../../utils/asyncHandler");
+import Brand from "../../models/core/brand.model.js";
+import throwError from "../../utils/throwError.js";
+import asyncHandler from "../../utils/asyncHandler.js";
 
 const { ObjectId } = mongoose.Types;
 
@@ -407,10 +407,10 @@ const deleteBrand = asyncHandler(async (req, res) => {
 
 
 /* ===============================
-   Export
+   export 
 =============================== */
 
-module.exports = {
+export  {
   createBrand,
   getBrand,
   updateBrand,

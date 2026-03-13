@@ -581,4 +581,4 @@ const StockCategory = () => {
   );
 };
 
-export default StockCategory;
+export   default StockCategory;

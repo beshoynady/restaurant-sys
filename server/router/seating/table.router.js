@@ -1,15 +1,15 @@
-const express = require("express");
-const { authenticateToken } = require("../../middlewares/authenticate");
+import express from "express";
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
-const {
+import {
   createTable,
   createQR,
   showAllTables,
   showOneTable,
   updateTable,
   deleteTable,
-} = require("../../controllers/seating/table.controller");
+} from "../../controllers/seating/table.controller.js";
 
 const router = express.Router();
 
@@ -23,4 +23,4 @@ router
   .delete(authenticateToken,deleteTable)
   .put(authenticateToken,updateTable);
 router.route("/qr").post(authenticateToken,createQR);
-module.exports = router;
+export default router;

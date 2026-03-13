@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 /**
@@ -183,4 +183,4 @@ const AssetTransactionModel = mongoose.model(
   assetTransactionSchema,
 );
 
-module.exports = AssetTransactionModel;
+export AssetTransactionModel;

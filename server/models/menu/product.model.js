@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema.Types;
 
 const extraDetailsSchema = new mongoose.Schema(
@@ -171,4 +171,4 @@ const ProductSchema = new mongoose.Schema(
 );
 
 const ProductModel = mongoose.model("Product", ProductSchema);
-module.exports = ProductModel;
+export ProductModel;

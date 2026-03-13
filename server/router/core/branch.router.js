@@ -4,11 +4,11 @@
  * Handles branch endpoints
  */
 
-const express = require("express");
+import express from "express";
 
 const router = express.Router();
 
-const {
+import {
   createBranch,
   updateBranch,
   getBranches,
@@ -17,9 +17,9 @@ const {
   softDeleteBranch,
   restoreBranch,
   hardDeleteBranch,
-} = require("../../controllers/core/branch.controller");
+} from "../../controllers/core/branch.controller.js";
 
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
 /* -------------------------------------------------------------------------- */
@@ -68,4 +68,4 @@ router.patch(
   restoreBranch,
 );
 
-module.exports = router;
+export default router;

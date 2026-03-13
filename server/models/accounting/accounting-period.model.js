@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 const accountingPeriodSchema = new mongoose.Schema(
@@ -46,4 +46,4 @@ const AccountingPeriod = mongoose.model(
   "AccountingPeriod",
   accountingPeriodSchema,
 );
-module.exports = AccountingPeriod;
+export AccountingPeriod;

@@ -1,8 +1,8 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const cashRegisterController = require("../../controllers/cash-register.controller");
+import cashRegisterController from "../../controllers/cash-register.controller.js";
 
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
 // Routes related to Cash Register
@@ -40,4 +40,4 @@ router
     cashRegisterController.getCashRegistersByEmployee
   );
 
-module.exports = router;
+export default router;

@@ -1,4 +1,4 @@
-const ShiftModel = require('../../models/employees/shift.model');
+import ShiftModel from "../../models/employees/shift.model.js";
 
 const createShift = async (req, res) => {
     try {
@@ -86,7 +86,7 @@ const deleteShift = async (req, res) => {
     }
 };
 
-module.exports = {
+export  {
     createShift,
     getAllShifts,
     getShiftById,

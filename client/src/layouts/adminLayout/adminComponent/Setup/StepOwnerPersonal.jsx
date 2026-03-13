@@ -60,4 +60,4 @@ const StepOwnerPersonal = ({ onNext, onBack }) => {
   );
 };
 
-export default StepOwnerPersonal;
+export   default StepOwnerPersonal;

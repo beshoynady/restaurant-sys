@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { Schema } = mongoose;
 const { ObjectId } = Schema.Types;
 
@@ -320,4 +320,4 @@ const payrollItemSchema = new Schema(
 payrollItemSchema.index({ brand: 1, category: 1 });
 payrollItemSchema.index({ code: 1 }, { unique: true });
 
-module.exports = mongoose.model("PayrollItem", payrollItemSchema);
+export mongoose.model("PayrollItem", payrollItemSchema);

@@ -1,6 +1,6 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const {
+import {
   createProductionRecipe,
   updateProductionRecipe,
   getOneProductionRecipe,
@@ -8,9 +8,9 @@ const {
   getProductionRecipeByStockItem,
   changeRecipeState,
   deleteProductionRecipe,
-} = require("../../controllers/inventory/production-recipe.controller");
+} from "../../controllers/inventory/production-recipe.controller.js";
 
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
 // ==============================
@@ -40,4 +40,4 @@ router
   .route("/stockitem/:id")
   .get(authenticateToken,getProductionRecipeByStockItem);
 
-module.exports = router;
+export default router;

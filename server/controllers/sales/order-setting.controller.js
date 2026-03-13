@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const Joi =require("joi");
+import mongoose from "mongoose";
+import Joi from "joi";
 import OrderSettingModel from "../../models/settings/order-settings.model.js";
 
 /**
@@ -180,7 +180,7 @@ const deleteOrderSettings = async (req, res) => {
   }
 };
 
-export {
+export   {
   createOrderSettings,
   updateOrderSettings,
   getOrderSettings,

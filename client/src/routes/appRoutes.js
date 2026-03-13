@@ -530,4 +530,4 @@ const AppRoutes = () => {
   );
 };
 
-module.exports = AppRoutes;
+export AppRoutes;

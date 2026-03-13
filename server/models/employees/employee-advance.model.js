@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 const EmployeeAdvanceSchema = new mongoose.Schema(
@@ -154,4 +154,4 @@ const EmployeeAdvanceSchema = new mongoose.Schema(
 EmployeeAdvanceSchema.index({ employee: 1, status: 1 });
 EmployeeAdvanceSchema.index({ branch: 1 });
 
-module.exports = mongoose.model("EmployeeAdvance", EmployeeAdvanceSchema);
+export mongoose.model("EmployeeAdvance", EmployeeAdvanceSchema);

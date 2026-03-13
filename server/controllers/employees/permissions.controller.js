@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-const PermissionsModel = require("../../models/employees/permissions.model");
+import PermissionsModel from "../../models/employees/permissions.model.js";
 
 const createPermission = async (req, res) => {
   try {
@@ -137,7 +137,7 @@ const deletePermissionById = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   createPermission,
   getAllPermissions,
   getPermissionById,

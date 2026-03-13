@@ -6,10 +6,10 @@
  * - Get by branch or by code
  */
 
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
-const {
+import {
   createDeliveryArea,
   getDeliveryAreaById,
   updateDeliveryArea,
@@ -19,9 +19,9 @@ const {
   softDeleteDeliveryArea,
   restoreDeliveryArea,
   hardDeleteDeliveryArea,
-} = require("../../controllers/core/delivery-area.controller");
+} from "../../controllers/core/delivery-area.controller.js";
 
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 /* -------------------------------------------------------------------------- */
 /*                                 🚀 Endpoints                               */
@@ -54,4 +54,4 @@ router.patch("/restore/:id", authenticateToken, restoreDeliveryArea);
 // Hard delete a delivery area by ID
 router.delete("/delete/:id", authenticateToken, hardDeleteDeliveryArea);
 
-module.exports = router;
+export default router;

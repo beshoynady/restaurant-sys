@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 const WarehouseDocumentSchema = new mongoose.Schema(
@@ -108,4 +108,4 @@ WarehouseDocumentSchema.index(
   { unique: true }
 );
 
-module.exports = mongoose.model("WarehouseDocument", WarehouseDocumentSchema);
+export mongoose.model("WarehouseDocument", WarehouseDocumentSchema);

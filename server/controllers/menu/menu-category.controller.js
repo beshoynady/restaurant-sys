@@ -1,7 +1,7 @@
-const mongoose = require("mongoose");
-const MenuCategory = require("../../models/menu/menu-category.model");
-const Product = require("../../models/menu/product.model");
-const Joi = require("joi");
+import mongoose from "mongoose";
+import MenuCategory from "../../models/menu/menu-category.model.js";
+import Product from "../../models/menu/product.model.js";
+import Joi from "joi";
 
 // ==========================
 // JOI validation schemas
@@ -397,9 +397,9 @@ const deleteMenuCategory = async (req, res, next) => {
 };
 
 // ==========================
-// Export controllers
+// export  controllers
 // ==========================
-module.exports = {
+export  {
   createMenuCategory,
   getAllMenuCategories,
   getOneMenuCategory,

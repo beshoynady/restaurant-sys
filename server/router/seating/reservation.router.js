@@ -1,11 +1,11 @@
-const express = require("express");
-const {
+import express from "express";
+import {
   createReservation,
   getAllReservations,
   getReservationById,
   updateReservation,
   deleteReservation,
-} = require("../../controllers/reservation.controler");
+} from "../../controllers/reservation.controler.js";
 
 const router = express.Router();
 
@@ -18,4 +18,4 @@ router
   .put(updateReservation)
   .delete(deleteReservation);
 
-module.exports = router;
+export default router;

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 /**
@@ -290,4 +290,4 @@ onlineCustomerSchema.index({
 // Fast filtering for dashboard
 onlineCustomerSchema.index({ brand: 1, isDeleted: 1 });
 
-module.exports = mongoose.model("OnlineCustomer", onlineCustomerSchema);
+export mongoose.model("OnlineCustomer", onlineCustomerSchema);

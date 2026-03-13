@@ -3,11 +3,11 @@
  * Auto generated
  */
 
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
 // TODO: import controller
-// const controller = require("../../controllers/leave-request.controller");
+// import controller from "../../controllers/leave-request.controller.js";
 
 // router.get("/", controller.list);
 // router.post("/", controller.create);
@@ -15,4 +15,4 @@ const router = express.Router();
 // router.put("/:id", controller.update);
 // router.delete("/:id", controller.remove);
 
-module.exports = router;
+export default router;

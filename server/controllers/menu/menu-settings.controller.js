@@ -1,6 +1,6 @@
-const Joi = require("joi");
-const mongoose = require("mongoose");
-const MenuSetting = require("../../models/menu/menu-settings.model");
+import Joi from "joi";
+import mongoose from "mongoose";
+import MenuSetting from "../../models/menu/menu-settings.model.js";
 
 // ============================
 // Joi Validation Schema
@@ -187,9 +187,9 @@ const deleteMenuSetting = async (req, res) => {
 };
 
 // ============================
-// Export Controller
+// export  Controller
 // ============================
-module.exports = {
+export  {
   createMenuSetting,
   getMenuSetting,
   updateMenuSetting,

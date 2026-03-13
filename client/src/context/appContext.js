@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 
-export const AppContext = createContext(null);
+export   const AppContext = createContext(null);
 
 const cashierSocket = io(`${process.env.REACT_APP_API_URL}/cashier`, {
   reconnection: true,
@@ -2423,4 +2423,4 @@ const AppContextProvider = ({ children }) => {
   );
 };
 
-export default AppContextProvider;
+export   default AppContextProvider;

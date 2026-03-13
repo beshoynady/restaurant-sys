@@ -1,6 +1,6 @@
-const mongoose = require("mongoose");
-const JournalEntry = require("../../models/accounting/journal-entry.model");
-const Account = require("../../models/accounting/account.model");
+import mongoose from "mongoose";
+import JournalEntry from "../../models/accounting/journal-entry.model.js";
+import Account from "../../models/accounting/account.model.js";
 
 /**
  * Get ledger for a specific account
@@ -208,7 +208,7 @@ const getTrialBalance = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   getLedgerByAccount,
   getLedgerMultiAccount,
   getTrialBalance,

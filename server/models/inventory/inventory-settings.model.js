@@ -48,4 +48,4 @@ const InventorySettingModel = model(
   inventorySettingsSchema
 );
 
-module.exports = InventorySettingModel;
+export InventorySettingModel;

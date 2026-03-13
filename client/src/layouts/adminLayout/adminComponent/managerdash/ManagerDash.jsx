@@ -2056,4 +2056,4 @@ const ManagerDash = () => {
   );
 };
 
-export default ManagerDash;
+export   default ManagerDash;

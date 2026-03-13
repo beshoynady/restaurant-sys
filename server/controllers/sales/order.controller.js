@@ -1,4 +1,4 @@
-const OrderModel =require("../../models/sales/Order.model");
+import OrderModel from "../../models/sales/Order.model.js";
 
 // Create a new order
 const createOrder = async (req, res) => {
@@ -302,7 +302,7 @@ const deleteOrder = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   createOrder,
   getOrder,
   getOrders,

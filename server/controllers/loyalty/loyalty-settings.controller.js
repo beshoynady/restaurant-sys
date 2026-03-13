@@ -1,8 +1,8 @@
-const Joi = require("joi");
-const mongoose = require("mongoose");
-const asyncHandler = require("../../utils/asyncHandler");
+import Joi from "joi";
+import mongoose from "mongoose";
+import asyncHandler from "../../utils/asyncHandler.js";
 
-const LoyaltySettings = require("../../models/loyalty/loyalty-settings.model");
+import LoyaltySettings from "../../models/loyalty/loyalty-settings.model.js";
 
 /**
  * =========================================================
@@ -285,11 +285,11 @@ const deleteLoyaltySettings = asyncHandler(async (req, res) => {
 
 /**
  * =========================================================
- * Exports
+ * export s
  * =========================================================
  */
 
-module.exports = {
+export  {
   createLoyaltySettings,
   getAllLoyaltySettings,
   getLoyaltySettings,

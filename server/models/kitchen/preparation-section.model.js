@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 const PreparationSectionConfigSchema = new mongoose.Schema(
@@ -69,7 +69,7 @@ PreparationSectionConfigSchema.index(
   { unique: true, sparse: true }
 );
 
-module.exports = mongoose.model(
+export mongoose.model(
   "PreparationSectionConfig",
   PreparationSectionConfigSchema
 );

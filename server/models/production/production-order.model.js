@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 const productionOrderSchema = new mongoose.Schema(
@@ -79,4 +79,4 @@ const productionOrderSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-module.exports = mongoose.model("ProductionOrder", productionOrderSchema);
+export mongoose.model("ProductionOrder", productionOrderSchema);

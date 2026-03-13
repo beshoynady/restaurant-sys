@@ -1,10 +1,10 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
 // ----------------------------
 // 🔹 Controllers
 // ----------------------------
-const {
+import {
   createOfflineCustomer,
   getAllOfflineCustomers,
   getDeletedOfflineCustomers,
@@ -16,12 +16,12 @@ const {
   getOfflineCustomerByPhone,
   getOfflineCustomersByBranch,
   getDeletedOfflineCustomersByBranch,
-} = require("../../controllers/customers/offline-customer.controller");
+} from "../../controllers/customers/offline-customer.controller.js";
 
 // ----------------------------
 // 🔹 Middlewares
 // ----------------------------
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
 // ===================================================================
@@ -136,6 +136,6 @@ router
   );
 
 // ===================================================================
-// 🔹 Export Router
+// 🔹 export  Router
 // ===================================================================
-module.exports = router;
+export default router;

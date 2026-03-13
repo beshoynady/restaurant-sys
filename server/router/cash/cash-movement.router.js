@@ -1,8 +1,8 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const cashMovementController = require("../../controllers/cash-movement.controller");
+import cashMovementController from "../../controllers/cash-movement.controller.js";
 
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 // Routes related to Cash Movements
 router
@@ -44,4 +44,4 @@ router
     cashMovementController.transferCashBetweenRegisters
   );
 
-module.exports = router;
+export default router;

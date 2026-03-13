@@ -1,6 +1,6 @@
-const JobTitleModel = require("../../models/employees/job-title.model");
-const EmployeeModel = require("../../models/employees/employee.model");
-const Joi = require("joi");
+import JobTitleModel from "../../models/employees/job-title.model.js";
+import EmployeeModel from "../../models/employees/employee.model.js";
+import Joi from "joi";
 
 /**
  * ==================================================
@@ -375,10 +375,10 @@ const deleteJobTitle = async (req, res) => {
 
 /**
  * ==================================================
- * Exports
+ * export s
  * ==================================================
  */
-module.exports = {
+export  {
   createJobTitle,
   updateJobTitle,
   getJobTitles,

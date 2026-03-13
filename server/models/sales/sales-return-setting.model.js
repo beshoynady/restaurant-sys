@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { Schema } = mongoose;
 const ObjectId = Schema.Types.ObjectId;
 
@@ -94,4 +94,4 @@ const SalesReturnSettingsSchema = new Schema(
 /** Unique per brand + branch */
 SalesReturnSettingsSchema.index({ brand: 1, branch: 1 }, { unique: true });
 
-module.exports = mongoose.model("SalesReturnSettings", SalesReturnSettingsSchema);
+export mongoose.model("SalesReturnSettings", SalesReturnSettingsSchema);

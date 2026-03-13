@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 /**
@@ -54,4 +54,4 @@ const userAccountSchema = new mongoose.Schema(
 userAccountSchema.index({ username: 1 }, { unique: true });
 
 const UserAccount = mongoose.model("UserAccount", userAccountSchema);
-module.exports = UserAccount;
+export UserAccount;

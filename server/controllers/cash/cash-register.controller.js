@@ -1,4 +1,4 @@
-const CashRegister = require("../../models/cash-register.model");
+import CashRegister from "../../models/cash-register.model.js";
 
 // Get all cash registers
 const getAllCashRegisters = async (_req, res) => {
@@ -114,7 +114,7 @@ const deleteCashRegister = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   getAllCashRegisters,
   getCashRegisterById,
   getCashRegistersByEmployee,

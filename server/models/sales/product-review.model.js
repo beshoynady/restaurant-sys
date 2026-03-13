@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { Schema } = mongoose;
 const ObjectId = Schema.Types.ObjectId;
 
@@ -121,4 +121,4 @@ ProductReviewSchema.index({ serviceQuality: -1 });
 
 const ProductReviewModel = mongoose.model("ProductReview", ProductReviewSchema);
 
-module.exports = ProductReviewModel;
+export ProductReviewModel;

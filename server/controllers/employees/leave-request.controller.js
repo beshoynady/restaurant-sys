@@ -1,6 +1,6 @@
-const LeaveRequestModel = require("../../models/employees/leave-request.model");
-const EmployeeModel = require("../../models/employees/employee.model");
-const Joi = require("joi");
+import LeaveRequestModel from "../../models/employees/leave-request.model.js";
+import EmployeeModel from "../../models/employees/employee.model.js";
+import Joi from "joi";
 
 /**
  * ==================================================
@@ -356,7 +356,7 @@ const getLeaveRequestById = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   createLeaveRequest,
   updateLeaveRequest,
   approveLeaveRequest,

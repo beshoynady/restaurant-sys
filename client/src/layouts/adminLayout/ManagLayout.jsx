@@ -40,4 +40,4 @@ const { employeeLoginInfo, isLoading } = context;
   );
 };
 
-export default ManagLayout;
+export   default ManagLayout;

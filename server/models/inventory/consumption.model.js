@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 const ConsumptionSchema = new mongoose.Schema({
@@ -148,4 +148,4 @@ status: {
 
 const ConsumptionModel = mongoose.model("Consumption", ConsumptionSchema);
 
-module.exports = ConsumptionModel;
+export ConsumptionModel;

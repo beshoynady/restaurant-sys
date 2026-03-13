@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 const ShiftSettingsSchema = new mongoose.Schema({
@@ -13,4 +13,4 @@ const ShiftSettingsSchema = new mongoose.Schema({
   maxDifferenceAllowed: { type: Number, default: 50 }
 }, { timestamps: true });
 
-module.exports = mongoose.model("ShiftSettings", ShiftSettingsSchema);
+export mongoose.model("ShiftSettings", ShiftSettingsSchema);

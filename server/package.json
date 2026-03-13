@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Backend server for Elbaron BNS, providing APIs for managing products, user authentication, and other essential functionalities.",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node index.js",
     "stop": "pm2 stop elbaron-bns-server",

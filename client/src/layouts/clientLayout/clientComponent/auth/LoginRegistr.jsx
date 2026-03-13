@@ -343,4 +343,4 @@ const LoginRegistr = (props) => {
   );
 };
 
-export default LoginRegistr;
+export   default LoginRegistr;

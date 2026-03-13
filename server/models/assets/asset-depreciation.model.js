@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 /**
@@ -137,4 +137,4 @@ const AssetDepreciationModel = mongoose.model(
   assetDepreciationSchema,
 );
 
-module.exports = AssetDepreciationModel;
+export AssetDepreciationModel;

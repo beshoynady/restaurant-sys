@@ -1,13 +1,13 @@
-const express = require("express");
-const {
+import express from "express";
+import {
   createBranchSettings,
   getBranchSettings,
   updateBranchSettings,
   checkBranchAvailability,
   deleteBranchSettings,
-} = require("../../controllers/settings/branch-settings.controller");
+} from "../../controllers/settings/branch-settings.controller.js";
 
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 const router = express.Router();
 
@@ -55,4 +55,4 @@ router.put("/:branchId", authenticateToken, updateBranchSettings);
  */
 router.delete("/:branchId", authenticateToken, deleteBranchSettings);
 
-module.exports = router;
+export default router;

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema.Types;
 
 /**
@@ -65,4 +65,4 @@ serviceChargeSchema.index({ brand: 1, branch: 1 }, { unique: true });
 
 const ServiceChargeModel = mongoose.model("ServiceCharge", serviceChargeSchema);
 
-module.exports = ServiceChargeModel;
+export ServiceChargeModel;

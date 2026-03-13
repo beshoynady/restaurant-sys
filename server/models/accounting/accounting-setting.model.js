@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema.Types;
 
 /**
@@ -285,7 +285,7 @@ accountingSettingsSchema.index(
   { unique: true }
 );
 
-module.exports = mongoose.model(
+export mongoose.model(
   "AccountingSettings",
   accountingSettingsSchema
 );

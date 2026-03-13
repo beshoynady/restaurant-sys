@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 const productionRecipeSchema = new mongoose.Schema(
@@ -136,7 +136,7 @@ productionRecipeSchema.pre("save", async function (next) {
   next();
 });
 
-module.exports = mongoose.model(
+export mongoose.model(
   "ProductionRecipe",
   productionRecipeSchema
 );

@@ -706,4 +706,4 @@ const CashRegister = () => {
   );
 };
 
-export default CashRegister;
+export   default CashRegister;

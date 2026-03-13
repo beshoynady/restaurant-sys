@@ -1,6 +1,6 @@
-const CustomerMessageModel = require("../../models/customers/message.model");
-const Joi = require("joi");
-const mongoose = require("mongoose");
+import CustomerMessageModel from "../../models/customers/message.model.js";
+import Joi from "joi";
+import mongoose from "mongoose";
 
 /* =====================================================
    🔹 Joi Validation Schemas
@@ -339,10 +339,10 @@ const getCustomerMessagesBySender = async (req, res) => {
 
 
 /* =====================================================
-   🔹 Exports
+   🔹 export s
 ===================================================== */
 
-module.exports = {
+export  {
   createCustomerMessage,
   getAllCustomerMessages,
   getCustomerMessageById,

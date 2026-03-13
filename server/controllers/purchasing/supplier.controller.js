@@ -1,4 +1,4 @@
-const SupplierModel = require("../../models/supplier.model");
+import SupplierModel from "../../models/supplier.model.js";
 
 // Create a new supplier
 const createSupplier = async (req, res) => {
@@ -178,7 +178,7 @@ const deleteSupplierById = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   createSupplier,
   getAllSuppliers,
   getSupplierById,

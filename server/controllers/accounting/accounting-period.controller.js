@@ -1,6 +1,6 @@
-const AccountingPeriod = require("../../models/accounting/accounting-period.model");
-const Joi = require("joi");
-const mongoose = require("mongoose");
+import AccountingPeriod from "../../models/accounting/accounting-period.model.js";
+import Joi from "joi";
+import mongoose from "mongoose";
 
 /**
  * ---------------------------------
@@ -262,10 +262,10 @@ const reopenPeriod = async (req, res) => {
 
 /**
  * ---------------------------------
- * Export Controller Functions
+ * export  Controller Functions
  * ---------------------------------
  */
-module.exports = {
+export  {
   createPeriod,
   getPeriods,
   getPeriodById,

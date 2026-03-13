@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 /**
@@ -226,7 +226,7 @@ const PurchaseSettingsSchema = new mongoose.Schema(
  */
 PurchaseSettingsSchema.index({ brand: 1, branch: 1 }, { unique: true });
 
-module.exports = mongoose.model(
+export mongoose.model(
   "PurchaseSettings",
   PurchaseSettingsSchema
 );

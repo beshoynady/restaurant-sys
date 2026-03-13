@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const { Schema } = mongoose;
 
@@ -77,4 +77,4 @@ const permissionsSchema = new Schema(
 
 const PermissionsModel = mongoose.model("Permissions", permissionsSchema);
 
-module.exports = PermissionsModel;
+export PermissionsModel;

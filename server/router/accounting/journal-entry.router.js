@@ -1,16 +1,16 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
 // Import Journal Entry Controller
-const {
+import {
   createJournalEntry,
   getJournalEntries,
   getJournalEntryById,
   postJournalEntry,
   rejectJournalEntry,
-} = require("../../controllers/accounting/journal-entry.controller");
+} from "../../controllers/accounting/journal-entry.controller.js";
 
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
 
@@ -51,4 +51,4 @@ router
   .route("/:id/reject")
   .put(authenticateToken,rejectJournalEntry);
 
-module.exports = router;
+export default router;

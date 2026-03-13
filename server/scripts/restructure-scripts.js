@@ -1,5 +1,5 @@
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
 
 const modelsDir = path.join(__dirname, "../../models");
 const servicesDir = path.join(__dirname, "../validators");
@@ -49,7 +49,7 @@ class ${capitalize(modelName)}Service {
 
 }
 
-module.exports = new ${capitalize(modelName)}Service();
+export new ${capitalize(modelName)}Service();
 `;
 
       fs.writeFileSync(serviceFile, serviceTemplate.trim());

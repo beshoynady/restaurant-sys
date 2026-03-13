@@ -4,21 +4,21 @@
  * Singleton Brand routes
  */
 
-const express = require("express");
+import express from "express";
 
 const router = express.Router();
 
-const {
+import {
   createBrand,
   getBrand,
   updateBrand,
   updateBrandLogo,
   deleteBrand,
-} = require("../../controllers/core/brand.controller");
+} from "../../controllers/core/brand.controller.js";
 
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
-// const { uploadFile } = require("../../middlewares/fileHandler");
+// import { uploadFile } from "../../middlewares/fileHandler.js";
 
 // ======================================
 // Routes
@@ -58,4 +58,4 @@ router.put(
   updateBrandLogo,
 );
 
-module.exports = router;
+export default router;

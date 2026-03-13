@@ -1,6 +1,6 @@
-const PreparationTicketModel = require("../../models/kitchen/preparation-ticket.model.js");
-const mongoose = require("mongoose");
-const Joi = require("joi");
+import PreparationTicketModel from "../../models/kitchen/preparation-ticket.model.js";
+import mongoose from "mongoose";
+import Joi from "joi";
 
 
 const createPreparationTicketSchema = Joi.object({
@@ -264,7 +264,7 @@ const deletePreparationTicket = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   createPreparationTicket,
   getAllPreparationTickets,
   getActivePreparationTickets,

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { Schema, model } = mongoose;
 const ObjectId = Schema.Types.ObjectId;
 
@@ -73,4 +73,4 @@ const orderSettingsSchema = new Schema(
 orderSettingsSchema.index({ brand: 1, branch: 1 }, { unique: true });
 
 const OrderSettings = model("OrderSettings", orderSettingsSchema);
-module.exports = OrderSettings;
+export OrderSettings;

@@ -36,4 +36,4 @@ const Clientscreen = () => {
   );
 };
 
-export default Clientscreen;
+export   default Clientscreen;

@@ -2155,4 +2155,4 @@ const PurchaseReturn = () => {
   );
 };
 
-export default PurchaseReturn;
+export   default PurchaseReturn;

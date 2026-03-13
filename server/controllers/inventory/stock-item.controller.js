@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const StockItemsModel = require("../../models/inventory/stock-item.model");
+import mongoose from "mongoose";
+import StockItemsModel from "../../models/inventory/stock-item.model.js";
 
 // Create a new stock item
 const createStockItem = async (req, res) => {
@@ -154,7 +154,7 @@ const deleteItem = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   createStockItem,
   getAllStockItems,
   getOneItem,

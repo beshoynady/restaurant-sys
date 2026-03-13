@@ -1,15 +1,15 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const {
+import {
   createPreparationTicket,
   getAllPreparationTickets,
   getActivePreparationTickets,
   getPreparationTicketById,
   updatePreparationTicket,
   deletePreparationTicket,
-} = require("../../controllers/kitchen/preparation-ticket.controller");
+} from "../../controllers/kitchen/preparation-ticket.controller.js";
 
-const {authenticateToken} = require("../../middlewares/authenticate");
+import {authenticateToken} from "../../middlewares/authenticate.js";
 
 
 router
@@ -28,4 +28,4 @@ router
   .put(authenticateToken,updatePreparationTicket)
   .delete(authenticateToken,deletePreparationTicket);
 
-module.exports = router;
+export default router;

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema.Types;
 
 const cashierShiftSchema = new mongoose.Schema(
@@ -114,4 +114,4 @@ const cashierShiftSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("CashierShift", cashierShiftSchema);
+export mongoose.model("CashierShift", cashierShiftSchema);

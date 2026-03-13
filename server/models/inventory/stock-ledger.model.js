@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 const StockLedgerSchema = new mongoose.Schema(
@@ -160,4 +160,4 @@ const StockLedgerSchema = new mongoose.Schema(
 
 StockLedgerSchema.index({ warehouse: 1, stockItem: 1, movementDate: 1 });
 
-module.exports = mongoose.model("StockLedger", StockLedgerSchema);
+export mongoose.model("StockLedger", StockLedgerSchema);

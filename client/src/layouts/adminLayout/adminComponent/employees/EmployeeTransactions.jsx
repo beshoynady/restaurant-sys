@@ -223,7 +223,7 @@ const EmployeeTransactions = () => {
     }
   };
 
-  const exportToExcel = () => {
+  const export ToExcel = () => {
     const data = listofEmployeeTransactions.map((transaction, i) => ({
       م: i + 1,
       الاسم: transaction.employeeId?.username,
@@ -280,7 +280,7 @@ const EmployeeTransactions = () => {
                     href="#"
                     className="d-flex align-items-center justify-content-center h-100 m-0 btn btn-info "
                     data-toggle="modal"
-                    onClick={exportToExcel}
+                    onClick={export ToExcel}
                   >
                     <span>تصدير</span>
                   </a>
@@ -937,4 +937,4 @@ data-target="#deleteEmployeeTransactionsModal"
   );
 };
 
-export default EmployeeTransactions;
+export   default EmployeeTransactions;

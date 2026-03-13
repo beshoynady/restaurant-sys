@@ -1,14 +1,14 @@
-const express = require("express");
+import express from "express";
 
-const {
+import {
   createStockItem,
   getAllStockItems,
   getOneItem,
   updateStockItem,
   movements,
   deleteItem,
-} = require("../../controllers/stock-item.constroller");
-const { authenticateToken } = require("../../middlewares/authenticate");
+} from "../../controllers/stock-item.constroller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
 const router = express.Router();
@@ -22,4 +22,4 @@ router
   .get(authenticateToken,getOneItem)
   .delete(authenticateToken,deleteItem)
   .put(authenticateToken,updateStockItem);
-module.exports = router;
+export default router;

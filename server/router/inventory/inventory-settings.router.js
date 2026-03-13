@@ -1,14 +1,14 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
-const {
+import {
   createInventorySettings,
   getInventorySettings,
   updateInventorySettings,
   deleteInventorySettings,
-} = require("../../controllers/settings/inventory-settings.controller");
+} from "../../controllers/settings/inventory-settings.controller.js";
 
 /**
  * ============================
@@ -40,4 +40,4 @@ router.delete(
   deleteInventorySettings
 );
 
-module.exports = router;
+export default router;

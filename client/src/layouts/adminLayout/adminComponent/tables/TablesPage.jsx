@@ -101,4 +101,4 @@ const TablesPage = () => {
   );
 };
 
-export default TablesPage;
+export   default TablesPage;

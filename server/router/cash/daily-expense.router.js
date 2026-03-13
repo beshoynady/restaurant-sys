@@ -1,7 +1,7 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const dailyExpensesController = require("../../controllers/daily-expense.controller");
-const { authenticateToken } = require("../../middlewares/authenticate");
+import dailyExpensesController from "../../controllers/daily-expense.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
 // Get all daily expenses
@@ -37,4 +37,4 @@ router
     dailyExpensesController.deleteDailyExpense
   );
 
-module.exports = router;
+export default router;

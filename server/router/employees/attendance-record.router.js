@@ -1,14 +1,14 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const {
+import {
   createAttendanceRecord,
   getAllAttendanceRecords,
   getAttendanceRecordById,
   updateAttendanceRecordById,
   deleteAttendanceRecordById,
-} = require("../../controllers/employees/attendance-record.controller.js");
+} from "../../controllers/employees/attendance-record.controller.js";
 
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
 router
@@ -22,4 +22,4 @@ router
   .put(authenticateToken,updateAttendanceRecordById)
   .delete(authenticateToken,deleteAttendanceRecordById);
 
-module.exports = router;
+export default router;

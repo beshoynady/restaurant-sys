@@ -1,5 +1,5 @@
-const express = require("express");
-const {
+import express from "express";
+import {
   createStockMovement,
   updateStockMovement,
   getOneStockMovement,
@@ -7,9 +7,9 @@ const {
   getAllStockMovementByStore,
   getLastStockMovementStore,
   deleteStockMovement,
-} = require("../../controllers/stock-movement.controller");
+} from "../../controllers/stock-movement.controller.js";
 
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
 const router = express.Router();
@@ -32,4 +32,4 @@ router
 router
   .route("/allmovementstore/:storeId")
   .get(authenticateToken,getAllStockMovementByStore);
-module.exports = router;
+export default router;

@@ -1,6 +1,6 @@
-const PreparationSectionModel = require("../../models/kitchen/preparation-section.model");
-const Joi = require("joi");
-const mongoose = require("mongoose");
+import PreparationSectionModel from "../../models/kitchen/preparation-section.model.js";
+import Joi from "joi";
+import mongoose from "mongoose";
 
 /**
  * Custom Joi validator for MongoDB ObjectId
@@ -290,7 +290,7 @@ const togglePreparationSectionStatus = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   createPreparationSection,
   updatePreparationSection,
   getAllPreparationSections,

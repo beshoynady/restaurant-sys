@@ -1,8 +1,8 @@
-const express = require('express');
+import express from "express";
 const router = express.Router();
-const payrollController = require('../../controllers/employees/payroll.controller');
-const {authenticateToken} = require("../../middlewares/authenticate");
-const checkSubscription = require('../../middlewares/checkSubscription')
+import payrollController from "../../controllers/employees/payroll.controller.js";
+import {authenticateToken} from "../../middlewares/authenticate.js";
+import checkSubscription from "../../middlewares/checkSubscription.js";
 
 router.route('/')
     .post(authenticateToken,payrollController.createPayroll)
@@ -15,4 +15,4 @@ router.route('/:id')
 
 router.route('/employee/:employeeId').put(authenticateToken,payrollController.updatePayrollByEmployee)
 
-module.exports = router;
+export default router;

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 const PrintSettingsSchema = new mongoose.Schema({
@@ -22,4 +22,4 @@ const PrintSettingsSchema = new mongoose.Schema({
   autoPrint: { type: Boolean, default: true }
 }, { timestamps: true });
 
-module.exports = mongoose.model("PrintSettings", PrintSettingsSchema);
+export mongoose.model("PrintSettings", PrintSettingsSchema);

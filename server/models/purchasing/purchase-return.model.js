@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema.Types;
 
 
@@ -113,4 +113,4 @@ const PurchaseReturnInvoiceModel = mongoose.model(
   "PurchaseReturnInvoice",
   purchaseReturnInvoiceSchema
 );
-module.exports = PurchaseReturnInvoiceModel;
+export PurchaseReturnInvoiceModel;

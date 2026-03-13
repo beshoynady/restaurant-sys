@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const { ObjectId } = mongoose.Types;
 
@@ -62,4 +62,4 @@ const ensureUniqueMultilangName = async ({
   return { valid: true };
 };
 
-module.exports = ensureUniqueMultilangName;
+export ensureUniqueMultilangName;

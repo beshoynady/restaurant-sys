@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 
@@ -70,4 +70,4 @@ InventorySchema.index(
   { unique: true }
 );
 
-module.exports = mongoose.model("Inventory", InventorySchema);
+export mongoose.model("Inventory", InventorySchema);

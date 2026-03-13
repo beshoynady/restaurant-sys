@@ -1266,4 +1266,4 @@ const PreparationScreen = () => {
   );
 };
 
-export default PreparationScreen;
+export   default PreparationScreen;

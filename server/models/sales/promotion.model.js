@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 /**
@@ -142,4 +142,4 @@ PromotionSchema.index({ activeFrom: 1, activeTo: 1 });
 
 const PromotionModel = mongoose.model("Promotion", PromotionSchema);
 
-module.exports = PromotionModel;
+export PromotionModel;

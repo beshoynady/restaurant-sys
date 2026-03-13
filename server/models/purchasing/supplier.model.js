@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const { Schema } = mongoose;
 const { ObjectId } = mongoose.Schema.Types;
@@ -203,5 +203,5 @@ const SupplierSchema = new Schema(
 // Define the Supplier model
 const SupplierModel = mongoose.model("Supplier", SupplierSchema);
 
-// Export the Supplier model
-module.exports = SupplierModel;
+// export  the Supplier model
+export SupplierModel;

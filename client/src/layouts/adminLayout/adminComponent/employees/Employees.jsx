@@ -424,7 +424,7 @@ const Employees = () => {
     }
   };
 
-  const exportToExcel = () => {
+  const export ToExcel = () => {
     if (permissionsForEmployee && permissionsForEmployee.read === false) {
       toast.error("ليس لك صلاحية لعرض بيانات الموظفين وتصديرها");
       return;
@@ -515,7 +515,7 @@ const Employees = () => {
                   href="#"
                   className="d-flex align-items-center justify-content-center h-100 m-0 btn btn-info"
                   data-toggle="modal"
-                  onClick={exportToExcel}
+                  onClick={export ToExcel}
                 >
                   {" "}
                   <span>تصدير</span>
@@ -1526,4 +1526,4 @@ const Employees = () => {
   );
 };
 
-export default Employees;
+export   default Employees;

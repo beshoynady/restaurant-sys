@@ -1,5 +1,5 @@
-const express = require("express");
-const {
+import express from "express";
+import {
 createEmployeeFinancialTransaction,
   getAllEmployeeFinancialTransactions,
   getOneEmployeeFinancialTransaction,
@@ -8,9 +8,9 @@ createEmployeeFinancialTransaction,
   cancelEmployeeFinancialTransaction,
   getTransactionsPaginated,
   deleteEmployeeFinancialTransaction,
-} = require("../../controllers/employees/employee-financial-transaction.controller.js");
-const { authenticateToken } = require("../../middlewares/authenticate.js");
-const checkSubscription = require("../../middlewares/checkSubscription.js");
+} from "../../controllers/employees/employee-financial-transaction.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import checkSubscription from "../../middlewares/checkSubscription.js";
 
 const router = express.Router();
 
@@ -32,4 +32,4 @@ router
 router
   .route("/paginated")
   .get(authenticateToken,getTransactionsPaginated);
-module.exports = router;
+export default router;

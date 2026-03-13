@@ -1040,4 +1040,4 @@ const SectionConsumption = () => {
   );
 };
 
-export default SectionConsumption;
+export   default SectionConsumption;

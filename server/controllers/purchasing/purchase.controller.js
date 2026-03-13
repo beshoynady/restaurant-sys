@@ -1,4 +1,4 @@
-const purchaseInvoiceModel = require("../../models/purchase.model");
+import purchaseInvoiceModel from "../../models/purchase.model.js";
 
 // Create a new purchase invoice
 const createPurchaseInvoice = async (req, res) => {
@@ -144,7 +144,7 @@ const deletePurchaseInvoiceById = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   createPurchaseInvoice,
   getAllPurchaseInvoices,
   getPurchaseInvoiceById,

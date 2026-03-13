@@ -1,5 +1,5 @@
 // TODO: Implement controller for attendance-record.controller
-const AttendanceRecordModel = require("../../models/employees/attendance-record.model");
+import AttendanceRecordModel from "../../models/employees/attendance-record.model.js";
 
 // Create a new attendance record
 const createAttendanceRecord = async (req, res) => {
@@ -166,7 +166,7 @@ const deleteAttendanceRecordById = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   createAttendanceRecord,
   getAllAttendanceRecords,
   getAttendanceRecordById,

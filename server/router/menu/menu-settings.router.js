@@ -1,13 +1,13 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const {
+import {
   createMenuSetting,
   getMenuSetting,
   updateMenuSetting,
   deleteMenuSetting,
-} = require("../../controllers/menu/menu-settings.controller");
+} from "../../controllers/menu/menu-settings.controller.js";
 
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 // ============================
 // Menu Settings Routes
@@ -25,4 +25,4 @@ router.put("/:id", authenticateToken, updateMenuSetting);
 // Delete menu settings by ID
 router.delete("/:id", authenticateToken, deleteMenuSetting);
 
-module.exports = router;
+export default router;

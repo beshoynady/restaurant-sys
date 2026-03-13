@@ -1183,4 +1183,4 @@ const StockItem = () => {
   );
 };
 
-export default StockItem;
+export   default StockItem;

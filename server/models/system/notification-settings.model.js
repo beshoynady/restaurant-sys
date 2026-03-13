@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { Schema, model } = mongoose;
 const ObjectId = Schema.Types.ObjectId;
 
@@ -210,4 +210,4 @@ notificationSettingsSchema.index({ branch: 1 }, { unique: true });
 
 const NotificationSettingsModel = mongoose.model("NotificationSettings", notificationSettingsSchema);
 
-module.exports = NotificationSettingsModel;
+export NotificationSettingsModel;

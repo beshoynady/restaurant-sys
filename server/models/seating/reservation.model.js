@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { Schema, ObjectId } = mongoose;
 
 /**
@@ -155,4 +155,4 @@ ReservationSchema.index({
   status: 1,
 });
 
-module.exports = mongoose.model("Reservation", ReservationSchema);
+export mongoose.model("Reservation", ReservationSchema);

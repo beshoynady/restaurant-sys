@@ -1483,4 +1483,4 @@
 //   );
 // };
 
-// export default Info;
+// export   default Info;

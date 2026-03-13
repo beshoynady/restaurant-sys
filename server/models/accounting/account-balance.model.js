@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 const accountBalanceSchema = new mongoose.Schema(
@@ -27,4 +27,4 @@ accountBalanceSchema.index(
 );
 
 const AccountBalance = mongoose.model("AccountBalance", accountBalanceSchema);
-module.exports = AccountBalance;
+export AccountBalance;

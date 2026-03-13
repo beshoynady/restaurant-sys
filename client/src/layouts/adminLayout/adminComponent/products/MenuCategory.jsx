@@ -727,4 +727,4 @@ const MenuCategory = () => {
   );
 };
 
-export default MenuCategory;
+export   default MenuCategory;

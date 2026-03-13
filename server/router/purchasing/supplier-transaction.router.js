@@ -1,15 +1,15 @@
-const express = require('express');
+import express from "express";
 const router = express.Router();
-const {
+import {
     createSupplierTransaction,
     getAllSupplierTransactions,
     getSupplierTransactionById,
     updateSupplierTransaction,
     deleteSupplierTransaction,
-} = require('../controllers/supplier-transaction.controller');
+} from "../controllers/supplier-transaction.controller.js";
 
-const {authenticateToken} = require("../../middlewares/authenticate");
-const checkSubscription = require('../../middlewares/checkSubscription')
+import {authenticateToken} from "../../middlewares/authenticate.js";
+import checkSubscription from "../../middlewares/checkSubscription.js";
 
 router.route('/')
     .post(authenticateToken,createSupplierTransaction)
@@ -21,4 +21,4 @@ router.route('/:id')
     .delete(authenticateToken,deleteSupplierTransaction);
 
     
-module.exports = router;
+export default router;

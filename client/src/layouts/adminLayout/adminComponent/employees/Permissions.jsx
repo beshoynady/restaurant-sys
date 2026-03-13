@@ -627,4 +627,4 @@ const PermissionsComponent = () => {
   );
 };
 
-export default PermissionsComponent;
+export   default PermissionsComponent;

@@ -1,10 +1,10 @@
-const RecipeModel = require("../../models/menu/recipe.model");
-const ProductModel = require("../../models/menu/product.model");
-const stockItemsModel = require("../../models/inventory/stock-item.model");
-const stockLedgerModel = require("../../models/inventory/stock-ledger.model");
-const mongoose = require("mongoose");
+import RecipeModel from "../../models/menu/recipe.model.js";
+import ProductModel from "../../models/menu/product.model.js";
+import stockItemsModel from "../../models/inventory/stock-item.model.js";
+import stockLedgerModel from "../../models/inventory/stock-ledger.model.js";
+import mongoose from "mongoose";
 
-const Joi = require("joi");
+import Joi from "joi";
 
 /* =====================================================
    Joi Schemas
@@ -284,9 +284,9 @@ const deleteRecipe = async (req, res) => {
 };
 
 /* =====================================================
-   EXPORTS
+   export S
 ===================================================== */
-module.exports = {
+export  {
   createRecipe,
   updateRecipe,
   getOneRecipe,

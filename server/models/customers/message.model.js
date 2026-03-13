@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const { ObjectId } = mongoose.Schema.Types;
 
@@ -158,4 +158,4 @@ customerMessageSchema.index({ senderType: 1, referenceId: 1 });
 
 const CustomerMessageModel = mongoose.model("CustomerMessage", customerMessageSchema);
 
-module.exports = CustomerMessageModel;
+export CustomerMessageModel;

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 const accountSchema = new mongoose.Schema(
@@ -155,4 +155,4 @@ accountSchema.index({ brand: 1, code: 1 }, { unique: true });
 
 const Account = mongoose.model("Account", accountSchema);
 
-module.exports = Account;
+export Account;

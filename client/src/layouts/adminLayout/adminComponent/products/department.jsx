@@ -525,4 +525,4 @@ const Department = () => {
   );
 };
 
-export default Department;
+export   default Department;

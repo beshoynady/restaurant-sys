@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 const assetPurchaseInvoiceSchema = new mongoose.Schema(
@@ -95,4 +95,4 @@ const AssetPurchaseInvoice = mongoose.model(
   assetPurchaseInvoiceSchema,
 );
 
-module.exports = AssetPurchaseInvoice;
+export AssetPurchaseInvoice;

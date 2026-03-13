@@ -1,16 +1,16 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const { authenticateToken } = require("../../middlewares/authenticate");
+import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
-const {
+import {
   createOrder,
   getOrder,
   getOrders,
   getLimitOrders,
   updateOrder,
   deleteOrder,
-} = require("../../controllers/sales/Order.controller");
+} from "../../controllers/sales/Order.controller.js";
 
 router
   .route("/")
@@ -22,4 +22,4 @@ router
   .put(updateOrder)
   .delete(authenticateToken,deleteOrder);
 router.route("/limit/:limit").get(getLimitOrders);
-module.exports = router;
+export default router;

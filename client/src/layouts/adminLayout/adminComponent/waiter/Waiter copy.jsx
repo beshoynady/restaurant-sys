@@ -471,4 +471,4 @@ const Waiter = () => {
   );
 };
 
-export default Waiter;
+export   default Waiter;

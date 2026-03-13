@@ -1,6 +1,6 @@
-const Joi = require("joi");
-const mongoose = require("mongoose");
-const InvoiceSettings = require("../../models/settings/invoice-settings.model");
+import Joi from "joi";
+import mongoose from "mongoose";
+import InvoiceSettings from "../../models/settings/invoice-settings.model.js";
 
 /**
  * ============================
@@ -204,7 +204,7 @@ const deleteInvoiceSettings = async (req, res) => {
   }
 };
 
-module.exports = {
+export  {
   createInvoiceSettings,
   getInvoiceSettings,
   updateInvoiceSettings,

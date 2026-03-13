@@ -293,4 +293,4 @@ const StepRestaurant = ({ onNext, onBack, lang, theme, apiUrl, config }) => {
   );
 };
 
-export default StepRestaurant;
+export   default StepRestaurant;
