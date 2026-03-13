@@ -181,4 +181,4 @@ cashMovementSchema.index({ cashRegister: 1, createdAt: -1 });
 cashMovementSchema.index({ paymentMethod: 1 });
 cashMovementSchema.index({ movementType: 1 });
 
-export mongoose.model("CashMovement", cashMovementSchema);
+export default mongoose.model("CashMovement", cashMovementSchema);

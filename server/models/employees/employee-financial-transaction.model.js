@@ -99,7 +99,7 @@ const employeeFinancialTransactionSchema = new mongoose.Schema(
 employeeFinancialTransactionSchema.index({ employee: 1, payrollMonth: 1 });
 employeeFinancialTransactionSchema.index({ branch: 1, payrollMonth: 1 });
 
-export mongoose.model(
+export default mongoose.model(
   "EmployeeFinancialTransaction",
   employeeFinancialTransactionSchema,
 );

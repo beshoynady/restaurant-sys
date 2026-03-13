@@ -283,4 +283,4 @@ employeeSchema.index({ phone: 1, brand: 1 }, { unique: true });
 
 // model definition
 const Employee = mongoose.model("Employee", employeeSchema);
-export Employee;
+export default Employee;

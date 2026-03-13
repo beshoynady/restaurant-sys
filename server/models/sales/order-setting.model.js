@@ -73,4 +73,4 @@ const orderSettingsSchema = new Schema(
 orderSettingsSchema.index({ brand: 1, branch: 1 }, { unique: true });
 
 const OrderSettings = model("OrderSettings", orderSettingsSchema);
-export OrderSettings;
+export default OrderSettings;

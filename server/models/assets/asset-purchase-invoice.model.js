@@ -95,4 +95,4 @@ const AssetPurchaseInvoice = mongoose.model(
   assetPurchaseInvoiceSchema,
 );
 
-export AssetPurchaseInvoice;
+export default AssetPurchaseInvoice;

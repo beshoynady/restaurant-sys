@@ -146,4 +146,4 @@ shiftSchema.index({ brand: 1, branch: 1, shiftType: 1 });
 // Optional: fast queries by start and end time for scheduling
 shiftSchema.index({ branch: 1, startMinutes: 1, endMinutes: 1 });
 
-export mongoose.model("Shift", shiftSchema);
+export default mongoose.model("Shift", shiftSchema);

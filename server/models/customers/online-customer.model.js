@@ -290,4 +290,4 @@ onlineCustomerSchema.index({
 // Fast filtering for dashboard
 onlineCustomerSchema.index({ brand: 1, isDeleted: 1 });
 
-export mongoose.model("OnlineCustomer", onlineCustomerSchema);
+export default mongoose.model("OnlineCustomer", onlineCustomerSchema);

@@ -210,4 +210,4 @@ notificationSettingsSchema.index({ branch: 1 }, { unique: true });
 
 const NotificationSettingsModel = mongoose.model("NotificationSettings", notificationSettingsSchema);
 
-export NotificationSettingsModel;
+export default NotificationSettingsModel;

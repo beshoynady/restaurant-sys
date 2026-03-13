@@ -78,4 +78,4 @@ const attendanceRecordSchema = new mongoose.Schema(
 attendanceRecordSchema.index({ brand: 1, branch: 1, employee: 1, currentDate: 1 }, { unique: true });
 attendanceRecordSchema.index({ shift: 1, currentDate: 1 });
 
-export mongoose.model('AttendanceRecord', attendanceRecordSchema);
+export default mongoose.model('AttendanceRecord', attendanceRecordSchema);

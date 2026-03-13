@@ -158,4 +158,4 @@ assetSchema.pre("save", function (next) {
   next();
 });
 
-export mongoose.model("Asset", assetSchema);
+export default mongoose.model("Asset", assetSchema);

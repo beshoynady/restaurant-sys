@@ -73,5 +73,5 @@ const dailyExpenseSchema = new mongoose.Schema(
 // Create a model based on the schema
 const DailyExpenseModel = mongoose.model("DailyExpense", dailyExpenseSchema);
 
-// export  the model
-export DailyExpenseModel;
+// export default  the model
+export default DailyExpenseModel;

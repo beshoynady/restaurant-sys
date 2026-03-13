@@ -210,4 +210,4 @@ const invoiceSchema = mongoose.Schema(
 invoiceSchema.index({ brand: 1, branch: 1, serial: 1 }, { unique: true });
 
 const invoiceModel = mongoose.model("Invoice", invoiceSchema);
-export invoiceModel;
+export default invoiceModel;

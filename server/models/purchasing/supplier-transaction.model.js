@@ -87,4 +87,4 @@ const SupplierTransactionModel = mongoose.model(
   "SupplierTransaction",
   supplierTransactionSchema,
 );
-export SupplierTransactionModel;
+export default SupplierTransactionModel;

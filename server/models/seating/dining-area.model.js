@@ -127,4 +127,4 @@ const DiningAreaSchema = new Schema(
 // Ensure unique area code per branch
 DiningAreaSchema.index({ branch: 1, code: 1 }, { unique: true });
 
-export mongoose.model("DiningArea", DiningAreaSchema);
+export default mongoose.model("DiningArea", DiningAreaSchema);

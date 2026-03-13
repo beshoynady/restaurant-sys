@@ -148,4 +148,4 @@ status: {
 
 const ConsumptionModel = mongoose.model("Consumption", ConsumptionSchema);
 
-export ConsumptionModel;
+export default ConsumptionModel;

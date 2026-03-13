@@ -94,4 +94,4 @@ const TaxConfigSchema = new mongoose.Schema(
  */
 TaxConfigSchema.index({ brand: 1, branch: 1 }, { unique: true });
 
-export mongoose.model("TaxConfig", TaxConfigSchema);
+export default mongoose.model("TaxConfig", TaxConfigSchema);

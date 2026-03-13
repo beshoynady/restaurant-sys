@@ -114,4 +114,4 @@ const cashierShiftSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export mongoose.model("CashierShift", cashierShiftSchema);
+export default mongoose.model("CashierShift", cashierShiftSchema);

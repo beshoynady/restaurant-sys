@@ -108,4 +108,4 @@ WarehouseDocumentSchema.index(
   { unique: true }
 );
 
-export mongoose.model("WarehouseDocument", WarehouseDocumentSchema);
+export default mongoose.model("WarehouseDocument", WarehouseDocumentSchema);

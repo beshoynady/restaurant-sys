@@ -127,4 +127,4 @@ const loyaltySettingsSchema = new mongoose.Schema(
 
 loyaltySettingsSchema.index({ brand: 1 }, { unique: true });
 
-export mongoose.model("LoyaltySettings", loyaltySettingsSchema);
+export default mongoose.model("LoyaltySettings", loyaltySettingsSchema);

@@ -320,4 +320,4 @@ const payrollItemSchema = new Schema(
 payrollItemSchema.index({ brand: 1, category: 1 });
 payrollItemSchema.index({ code: 1 }, { unique: true });
 
-export mongoose.model("PayrollItem", payrollItemSchema);
+export default mongoose.model("PayrollItem", payrollItemSchema);

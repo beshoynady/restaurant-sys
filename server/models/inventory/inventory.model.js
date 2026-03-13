@@ -70,4 +70,4 @@ InventorySchema.index(
   { unique: true }
 );
 
-export mongoose.model("Inventory", InventorySchema);
+export default mongoose.model("Inventory", InventorySchema);

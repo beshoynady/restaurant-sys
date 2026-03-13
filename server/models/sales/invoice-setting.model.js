@@ -154,4 +154,4 @@ const invoiceSettingsSchema = new mongoose.Schema(
 invoiceSettingsSchema.index({ brand: 1, branch: 1 }, { unique: true });
 
 const InvoiceSettings = mongoose.model("InvoiceSettings", invoiceSettingsSchema);
-export InvoiceSettings;
+export default InvoiceSettings;

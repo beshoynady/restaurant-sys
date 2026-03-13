@@ -13,7 +13,8 @@ import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
 
-import router from "express";.Router();
+import express from "express"
+const router = express.Router();
 
 // ==============================
 // Account Routes

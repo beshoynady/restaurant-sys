@@ -272,4 +272,4 @@ const OrderSchema = new Schema(
   },
 );
 
-export mongoose.model("Order", OrderSchema);
+export default mongoose.model("Order", OrderSchema);

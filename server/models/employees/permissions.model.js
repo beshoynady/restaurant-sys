@@ -77,4 +77,4 @@ const permissionsSchema = new Schema(
 
 const PermissionsModel = mongoose.model("Permissions", permissionsSchema);
 
-export PermissionsModel;
+export default PermissionsModel;

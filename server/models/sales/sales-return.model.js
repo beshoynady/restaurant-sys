@@ -182,4 +182,4 @@ const SalesReturnSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-export mongoose.model("SalesReturn", SalesReturnSchema);
+export default mongoose.model("SalesReturn", SalesReturnSchema);

@@ -170,4 +170,4 @@ PaymentMethodSchema.index(
   { partialFilterExpression: { isDefault: true } },
 );
 
-export mongoose.model("PaymentMethod", PaymentMethodSchema);
+export default mongoose.model("PaymentMethod", PaymentMethodSchema);

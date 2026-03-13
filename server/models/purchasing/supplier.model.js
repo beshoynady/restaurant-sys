@@ -203,5 +203,5 @@ const SupplierSchema = new Schema(
 // Define the Supplier model
 const SupplierModel = mongoose.model("Supplier", SupplierSchema);
 
-// export  the Supplier model
-export SupplierModel;
+// export default  the Supplier model
+export default SupplierModel;

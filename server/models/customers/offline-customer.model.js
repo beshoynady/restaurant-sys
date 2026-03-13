@@ -159,4 +159,4 @@ offlineCustomerSchema.index(
 );
 offlineCustomerSchema.index({ "addresses.location": "2dsphere" }); // For geospatial queries
 
-export mongoose.model("OfflineCustomer", offlineCustomerSchema);
+export default mongoose.model("OfflineCustomer", offlineCustomerSchema);

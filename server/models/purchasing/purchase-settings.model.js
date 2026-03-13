@@ -226,7 +226,7 @@ const PurchaseSettingsSchema = new mongoose.Schema(
  */
 PurchaseSettingsSchema.index({ brand: 1, branch: 1 }, { unique: true });
 
-export mongoose.model(
+export default mongoose.model(
   "PurchaseSettings",
   PurchaseSettingsSchema
 );

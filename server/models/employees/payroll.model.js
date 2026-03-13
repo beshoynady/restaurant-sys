@@ -214,4 +214,4 @@ payrollSchema.index(
   { unique: true }
 );
 
-export mongoose.model("Payroll", payrollSchema);
+export default mongoose.model("Payroll", payrollSchema);

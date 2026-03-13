@@ -121,4 +121,4 @@ ProductReviewSchema.index({ serviceQuality: -1 });
 
 const ProductReviewModel = mongoose.model("ProductReview", ProductReviewSchema);
 
-export ProductReviewModel;
+export default ProductReviewModel;

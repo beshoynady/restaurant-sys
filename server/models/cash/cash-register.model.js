@@ -157,4 +157,4 @@ cashRegisterSchema.index({ brand: 1, branch: 1, type: 1 });
 cashRegisterSchema.index({ employee: 1 });
 cashRegisterSchema.index({ accountId: 1 });
 
-export mongoose.model("CashRegister", cashRegisterSchema);
+export default mongoose.model("CashRegister", cashRegisterSchema);

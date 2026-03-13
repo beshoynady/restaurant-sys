@@ -142,4 +142,4 @@ const StockItemSchema = new mongoose.Schema(
 StockItemSchema.index({ SKU: 1 });
 StockItemSchema.index({ categoryId: 1 });
 
-export mongoose.model("StockItem", StockItemSchema);
+export default mongoose.model("StockItem", StockItemSchema);

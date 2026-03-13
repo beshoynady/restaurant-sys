@@ -229,4 +229,4 @@ InventoryCountSchema.index(
 InventoryCountSchema.index({ status: 1 });
 InventoryCountSchema.index({ warehouse: 1 });
 
-export mongoose.model("InventoryCount", InventoryCountSchema);
+export default mongoose.model("InventoryCount", InventoryCountSchema);

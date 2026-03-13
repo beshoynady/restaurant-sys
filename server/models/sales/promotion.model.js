@@ -142,4 +142,4 @@ PromotionSchema.index({ activeFrom: 1, activeTo: 1 });
 
 const PromotionModel = mongoose.model("Promotion", PromotionSchema);
 
-export PromotionModel;
+export default PromotionModel;

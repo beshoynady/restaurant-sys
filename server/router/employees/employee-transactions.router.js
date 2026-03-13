@@ -32,4 +32,5 @@ router
 router
   .route("/paginated")
   .get(authenticateToken,getTransactionsPaginated);
+  
 export default router;

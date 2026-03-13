@@ -102,4 +102,4 @@ departmentSchema.index({ slug: 1, brand: 1 }, { unique: true });
 
 const Department = mongoose.model("Department", departmentSchema);
 
-export Department;
+export default Department;

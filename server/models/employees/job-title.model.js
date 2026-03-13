@@ -74,4 +74,4 @@ jobTitleSchema.index({ "name.$**": 1 });
 jobTitleSchema.index({ brand: 1, name: 1 });
 
 const JobTitle = mongoose.model("JobTitle", jobTitleSchema);
-export JobTitle;
+export default JobTitle;

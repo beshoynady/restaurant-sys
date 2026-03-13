@@ -97,4 +97,4 @@ loyaltyTransactionSchema.index(
   { unique: true, partialFilterExpression: { type: "earn" } },
 );
 
-export mongoose.model("LoyaltyTransaction", loyaltyTransactionSchema);
+export default mongoose.model("LoyaltyTransaction", loyaltyTransactionSchema);

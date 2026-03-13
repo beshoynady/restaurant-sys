@@ -54,4 +54,4 @@ const DiscountSettingsSchema = new mongoose.Schema(
 // Ensure one settings document per brand/branch
 DiscountSettingsSchema.index({ brand: 1, branch: 1 }, { unique: true });
 
-export mongoose.model("DiscountSettings", DiscountSettingsSchema);
+export default mongoose.model("DiscountSettings", DiscountSettingsSchema);

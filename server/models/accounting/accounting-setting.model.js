@@ -285,7 +285,7 @@ accountingSettingsSchema.index(
   { unique: true }
 );
 
-export mongoose.model(
+export default mongoose.model(
   "AccountingSettings",
   accountingSettingsSchema
 );

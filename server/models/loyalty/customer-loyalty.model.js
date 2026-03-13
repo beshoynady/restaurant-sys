@@ -67,4 +67,4 @@ const customerLoyaltySchema = new mongoose.Schema(
 
 customerLoyaltySchema.index({ brand: 1, phone: 1 }, { unique: true });
 
-export mongoose.model("CustomerLoyalty", customerLoyaltySchema);
+export default mongoose.model("CustomerLoyalty", customerLoyaltySchema);

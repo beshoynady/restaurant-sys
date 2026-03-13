@@ -69,4 +69,4 @@ const EmployeeFinancialProfile = mongoose.model(
   "EmployeeFinancialProfile",
   employeeFinancialSchema,
 );
-export EmployeeFinancialProfile;
+export default EmployeeFinancialProfile;

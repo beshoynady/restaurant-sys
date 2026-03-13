@@ -150,4 +150,4 @@ const BranchSettingsModel = mongoose.model(
   branchSettingsSchema
 );
 
-module.export s= BranchSettingsModel;
+export default BranchSettingsModel;

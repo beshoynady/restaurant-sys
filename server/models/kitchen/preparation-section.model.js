@@ -69,7 +69,7 @@ PreparationSectionConfigSchema.index(
   { unique: true, sparse: true }
 );
 
-export mongoose.model(
+export default mongoose.model(
   "PreparationSectionConfig",
   PreparationSectionConfigSchema
 );

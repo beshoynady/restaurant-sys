@@ -72,4 +72,4 @@ index({ brand: 1, categoryCode: 1 }, { unique: true });
 
 const CategoryStockmodel = mongoose.model("StockCategory", categoryStockSchema);
 
-export CategoryStockmodel;
+export default CategoryStockmodel;

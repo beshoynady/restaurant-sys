@@ -99,4 +99,4 @@ menuCategorySchema.methods.softDelete = function (employeeId) {
   return this.save();
 };
 
-export mongoose.model("MenuCategory", menuCategorySchema);
+export default mongoose.model("MenuCategory", menuCategorySchema);

@@ -223,4 +223,4 @@ leaveRequestSchema.index({ brand: 1, branch: 1, employee: 1 });
 leaveRequestSchema.index({ brand: 1, branch: 1, status: 1 });
 leaveRequestSchema.index({ employee: 1, startDate: 1, endDate: 1 });
 
-export mongoose.model("LeaveRequest", leaveRequestSchema);
+export default mongoose.model("LeaveRequest", leaveRequestSchema);

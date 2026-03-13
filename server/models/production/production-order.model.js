@@ -79,4 +79,4 @@ const productionOrderSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-export mongoose.model("ProductionOrder", productionOrderSchema);
+export default mongoose.model("ProductionOrder", productionOrderSchema);

@@ -136,7 +136,7 @@ productionRecipeSchema.pre("save", async function (next) {
   next();
 });
 
-export mongoose.model(
+export default mongoose.model(
   "ProductionRecipe",
   productionRecipeSchema
 );

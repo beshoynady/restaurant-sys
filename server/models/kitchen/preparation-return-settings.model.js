@@ -90,7 +90,7 @@ PreparationReturnSettingsSchema.index(
   { unique: true },
 );
 
-export mongoose.model(
+export default mongoose.model(
   "PreparationReturnSettings",
   PreparationReturnSettingsSchema,
 );

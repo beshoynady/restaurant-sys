@@ -22,4 +22,4 @@ const PrintSettingsSchema = new mongoose.Schema({
   autoPrint: { type: Boolean, default: true }
 }, { timestamps: true });
 
-export mongoose.model("PrintSettings", PrintSettingsSchema);
+export default mongoose.model("PrintSettings", PrintSettingsSchema);

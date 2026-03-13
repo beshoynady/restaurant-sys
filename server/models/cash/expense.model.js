@@ -140,4 +140,4 @@ expenseSchema.index(
 
 const ExpenseModel = mongoose.model("Expense", expenseSchema);
 
-export ExpenseModel;
+export default ExpenseModel;

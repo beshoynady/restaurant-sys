@@ -160,4 +160,4 @@ const StockLedgerSchema = new mongoose.Schema(
 
 StockLedgerSchema.index({ warehouse: 1, stockItem: 1, movementDate: 1 });
 
-export mongoose.model("StockLedger", StockLedgerSchema);
+export default mongoose.model("StockLedger", StockLedgerSchema);

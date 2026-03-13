@@ -65,4 +65,4 @@ serviceChargeSchema.index({ brand: 1, branch: 1 }, { unique: true });
 
 const ServiceChargeModel = mongoose.model("ServiceCharge", serviceChargeSchema);
 
-export ServiceChargeModel;
+export default ServiceChargeModel;

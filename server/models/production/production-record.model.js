@@ -138,4 +138,4 @@ const productionRecordSchema = new mongoose.Schema(
   }
 );
 
-export mongoose.model("ProductionRecord", productionRecordSchema);
+export default mongoose.model("ProductionRecord", productionRecordSchema);

@@ -22,4 +22,5 @@ router
   .get(authenticateToken,getOneItem)
   .delete(authenticateToken,deleteItem)
   .put(authenticateToken,updateStockItem);
+  
 export default router;

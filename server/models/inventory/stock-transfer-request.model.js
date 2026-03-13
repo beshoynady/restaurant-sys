@@ -197,4 +197,4 @@ StockTransferRequestSchema.index(
 StockTransferRequestSchema.index({ status: 1 });
 StockTransferRequestSchema.index({ fromWarehouse: 1, toWarehouse: 1 });
 
-export mongoose.model("StockTransferRequest", StockTransferRequestSchema);
+export default mongoose.model("StockTransferRequest", StockTransferRequestSchema);

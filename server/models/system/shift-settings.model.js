@@ -13,4 +13,4 @@ const ShiftSettingsSchema = new mongoose.Schema({
   maxDifferenceAllowed: { type: Number, default: 50 }
 }, { timestamps: true });
 
-export mongoose.model("ShiftSettings", ShiftSettingsSchema);
+export default mongoose.model("ShiftSettings", ShiftSettingsSchema);

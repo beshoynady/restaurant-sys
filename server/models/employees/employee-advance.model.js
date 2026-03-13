@@ -154,4 +154,4 @@ const EmployeeAdvanceSchema = new mongoose.Schema(
 EmployeeAdvanceSchema.index({ employee: 1, status: 1 });
 EmployeeAdvanceSchema.index({ branch: 1 });
 
-export mongoose.model("EmployeeAdvance", EmployeeAdvanceSchema);
+export default mongoose.model("EmployeeAdvance", EmployeeAdvanceSchema);

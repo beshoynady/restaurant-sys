@@ -109,4 +109,4 @@ loyaltyRewardSchema.index(
   { unique: true, partialFilterExpression: { isActive: true } },
 );
 
-export mongoose.model("LoyaltyReward", loyaltyRewardSchema);
+export default mongoose.model("LoyaltyReward", loyaltyRewardSchema);

@@ -94,4 +94,4 @@ const SalesReturnSettingsSchema = new Schema(
 /** Unique per brand + branch */
 SalesReturnSettingsSchema.index({ brand: 1, branch: 1 }, { unique: true });
 
-export mongoose.model("SalesReturnSettings", SalesReturnSettingsSchema);
+export default mongoose.model("SalesReturnSettings", SalesReturnSettingsSchema);

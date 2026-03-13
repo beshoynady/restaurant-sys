@@ -54,4 +54,4 @@ const userAccountSchema = new mongoose.Schema(
 userAccountSchema.index({ username: 1 }, { unique: true });
 
 const UserAccount = mongoose.model("UserAccount", userAccountSchema);
-export UserAccount;
+export default UserAccount;
