@@ -6,7 +6,7 @@ const helmet = require("helmet"); // Security middleware
 const cookieParser = require("cookie-parser");
 const http = require("http");
 const { Server } = require("socket.io");
-const { notFound} = require("./middlewares/notFound.js");
+const { notFound } = require("./middlewares/notFound.js");
 const { errorHandler } = require("./middlewares/errorHandler.js");
 
 // Import database connection
@@ -60,6 +60,16 @@ const routeEmployeeTransactions = require("./router/employees/employee-transacti
 const routeMessage = require("./router/customers/message.router.js");
 const routeOfflineCustomer = require("./router/customers/offline-customer.router.js");
 const routeOnlineCustomer = require("./router/customers/online-custoner.router.js");
+
+/******************************************************
+ * LOYALTY ROUTES
+ * ----------------------------------------------------
+ * Loyalty program management:
+ */
+const customerLoyaltyRoutes = require("./router/loyalty/customer-loyalty.router.js");
+const loyaltySettingsRoutes = require("./router/loyalty/loyalty-settings.router.js");
+const loyaltyReward = require("./router/loyalty/loyalty-reward.router.js");
+const loyaltyTransactionRoutes = require("./router/loyalty/loyalty-transaction.router.js");
 
 /****************************************************
  * MENU ROUTES
@@ -164,7 +174,6 @@ const serviceChargeRoutes = require("./router/system/service-charge.router.js");
 const shiftSettingsRoutes = require("./router/system/shift-settings.router.js");
 const taxConfigRoutes = require("./router/system/tax-config.router.js");
 const paymentMethodRoutes = require("./router/system/payment-method.router.js");
-const { NOTFOUND } = require("dns");
 
 // Load environment variables
 dotenv.config();
@@ -259,6 +268,11 @@ app.use("/api/customers/offline", routeOfflineCustomer);
 app.use("/api/customers/online", routeOnlineCustomer);
 app.use("/api/message", routeMessage);
 
+// Loyalty
+app.use("/api/loyalty", customerLoyaltyRoutes);
+app.use("/api/loyalty/transactions", loyaltyTransactionRoutes);
+app.use("/api/loyalty/rewards", loyaltyReward);
+app.use("/api/loyalty/settings", loyaltySettingsRoutes);
 // Menu
 app.use("/api/menu/categories", routeMenuCategory);
 app.use("/api/menu/products", routeProduct);
@@ -308,7 +322,6 @@ app.use("/api/settings/branch", branchSettingsRoutes);
 app.use("/api/settings/notification", notificationSettingsRoutes);
 app.use("/api/settings/order", orderSettingsRoutes);
 app.use("/api/settings/payment-methods", paymentMethodRoutes);
-
 
 app.use(notFound);
 app.use(errorHandler);

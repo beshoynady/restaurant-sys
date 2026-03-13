@@ -29,10 +29,11 @@ const loyaltyTransactionSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
-    // Type of transaction
+    // Type of transaction (earn, redeem, adjustment, expiration) 
+    // - determines how points are calculated and displayed
     type: {
       type: String,
-      type: ["earn", "redeem", "adjustment", "expiration"],
+      enum: ["earn", "redeem", "adjustment", "expiration"],
       required: true,
     },
     // Reference to the reward redeemed (if type = redeem)
@@ -40,6 +41,7 @@ const loyaltyTransactionSchema = new mongoose.Schema(
       type: ObjectId,
       ref: "LoyaltyReward",
     },
+    // Points earned or redeemed (positive for earn, negative for redeem)
     points: {
       type: Number,
       required: true,
@@ -55,9 +57,14 @@ const loyaltyTransactionSchema = new mongoose.Schema(
       type: ObjectId,
       ref: "Order",
     },
-
+    // Expiration date for earned points (used when type = earn)
     expirationDate: {
       type: Date,
+    },
+    // used to mark if an earned transaction has been used for redemption
+    isUsed: {
+      type: Boolean,
+      default: false,
     },
     note: {
       type: String,
@@ -87,7 +94,7 @@ loyaltyTransactionSchema.index({
 
 loyaltyTransactionSchema.index(
   { order: 1, type: 1 },
-  { unique: true, partialFilterExpression: { type: "earn" } }
+  { unique: true, partialFilterExpression: { type: "earn" } },
 );
 
 module.exports = mongoose.model("LoyaltyTransaction", loyaltyTransactionSchema);

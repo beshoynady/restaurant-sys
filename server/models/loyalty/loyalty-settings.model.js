@@ -48,6 +48,19 @@ const loyaltySettingsSchema = new mongoose.Schema(
       default: 24,
       min: 0,
     },
+    // Maximum points that can be earned per order to prevent abuse 
+    maxPointsPerOrder: {
+      type: Number,
+      default: 500,
+      min: 0,
+    },
+    // Maximum percentage of order total that can be redeemed with points (0-100)
+    maxRedeemPercentage: {
+      type: Number,
+      default: 50,
+      min: 0,
+      max: 100,
+    },
 
     // Loyalty tiers based on accumulated points
     tiers: {
@@ -56,6 +69,7 @@ const loyaltySettingsSchema = new mongoose.Schema(
           name: {
             type: String,
             required: true,
+            trim: true,
             maxlength: 20,
           },
           minPoints: {
