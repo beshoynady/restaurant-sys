@@ -107,4 +107,4 @@ menuSettingsSchema.index({ brand: 1, branch: 1 }, { unique: true });
 
 const MenuSettingModel = mongoose.model("MenuSetting", menuSettingsSchema);
 
-export MenuSettingModel;
+export default MenuSettingModel;

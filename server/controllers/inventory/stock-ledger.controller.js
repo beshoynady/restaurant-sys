@@ -1,4 +1,4 @@
-import StockMovementModel from "../../models/inventory/stock-movement.model.js";
+import StockMovementModel from "../../models/inventory/stock-ledger.model.js";
 
 
 

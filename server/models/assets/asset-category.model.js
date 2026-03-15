@@ -136,4 +136,4 @@ assetCategorySchema.pre("save", function (next) {
 
 const AssetCategoryModel = mongoose.model("AssetCategory", assetCategorySchema);
 
-export AssetCategoryModel;
+export default AssetCategoryModel;

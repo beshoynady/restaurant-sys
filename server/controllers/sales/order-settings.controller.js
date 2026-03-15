@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Joi from "joi";
-import OrderSettingModel from "../../models/settings/order-settings.model.js";
+import OrderSettingModel from "../../models/sales/order-settings.model.js";
 
 /**
  * ==========================

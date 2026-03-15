@@ -6,7 +6,7 @@ import {
   getStoreById,
   updateStore,
   deleteStore,
-} from "../../controllers/store.controller.js";
+} from "../../controllers/inventory/inventory.controller.js";
 
 import { authenticateToken } from "../../middlewares/authenticate.js";
 

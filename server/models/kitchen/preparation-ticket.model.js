@@ -208,4 +208,4 @@ const PreparationTicketModel = mongoose.model(
   "PreparationTicket",
   PreparationTicketSchema
 );
-export PreparationTicketModel;
+export default PreparationTicketModel;

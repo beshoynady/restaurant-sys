@@ -1,6 +1,6 @@
 import express from "express";
 const router = express.Router();
-import cashRegisterController from "../../controllers/cash-register.controller.js";
+import cashRegisterController from "../../controllers/cash/cash-register.controller.js";
 
 import { authenticateToken } from "../../middlewares/authenticate.js";
 

@@ -1,6 +1,6 @@
 import Joi from "joi";
 import mongoose from "mongoose";
-import InvoiceSettings from "../../models/settings/invoice-settings.model.js";
+import InvoiceSettings from "../../models/sales/invoice-settings.model.js";
 
 /**
  * ============================

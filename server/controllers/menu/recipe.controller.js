@@ -284,7 +284,7 @@ const deleteRecipe = async (req, res) => {
 };
 
 /* =====================================================
-   export S
+   export default S
 ===================================================== */
 export  {
   createRecipe,

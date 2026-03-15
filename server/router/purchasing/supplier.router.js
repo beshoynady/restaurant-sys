@@ -6,7 +6,7 @@ import {
     getSupplierById,
     updateSupplierById,
     deleteSupplierById
-} from "../controllers/supplier.controller.js";
+} from "../../controllers/purchasing/supplier.controller.js";
 
 import {authenticateToken} from "../../middlewares/authenticate.js";
 import checkSubscription from "../../middlewares/checkSubscription.js";

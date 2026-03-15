@@ -8,7 +8,7 @@ import NoInternetPage from "../layouts/adminLayout/adminComponent/LoadingPage/No
 import Clientscreen from "../layouts/clientLayout/Clientscreen.jsx";
 import Login from "../layouts/adminLayout/adminComponent/login/Login";
 import SetupWizard from "../layouts/adminLayout/adminComponent/Setup/SetupWizard.jsx";
-import Brand from "../layouts/adminLayout/adminComponent/setting/brand.jsx";
+import Brand from "../layouts/adminLayout/adminComponent/settings/brand.jsx";
 
 const ManagLayout = React.lazy(() =>
   import("../layouts/adminLayout/ManagLayout")
@@ -23,7 +23,7 @@ const ManagerDashBoard = React.lazy(() =>
   )
 );
 const Info = React.lazy(() =>
-  import("../layouts/adminLayout/adminComponent/setting/info")
+  import("../layouts/adminLayout/adminComponent/settings/info")
 );
 const Orders = React.lazy(() =>
   import("../layouts/adminLayout/adminComponent/orders/Orders")

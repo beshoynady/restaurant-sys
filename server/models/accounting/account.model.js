@@ -155,4 +155,4 @@ accountSchema.index({ brand: 1, code: 1 }, { unique: true });
 
 const Account = mongoose.model("Account", accountSchema);
 
-export Account;
+export default Account;

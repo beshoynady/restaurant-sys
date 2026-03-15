@@ -1,1 +1,1 @@
-// TODO: Implement controller for accounting-setting.controller
+// TODO: Implement controller for accounting-settings.controller

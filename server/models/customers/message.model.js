@@ -158,4 +158,4 @@ customerMessageSchema.index({ senderType: 1, referenceId: 1 });
 
 const CustomerMessageModel = mongoose.model("CustomerMessage", customerMessageSchema);
 
-export CustomerMessageModel;
+export default CustomerMessageModel;

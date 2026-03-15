@@ -1,4 +1,4 @@
-import CashRegister from "../../models/cash-register.model.js";
+import CashRegister from "../../models/cash/cash-register.model.js";
 
 // Get all cash registers
 const getAllCashRegisters = async (_req, res) => {

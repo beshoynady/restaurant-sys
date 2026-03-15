@@ -4,4 +4,4 @@ const notFound = (req, res, next) => {
     next(error);
 };
 
-export notFound;
+export default notFound;

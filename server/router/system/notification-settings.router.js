@@ -6,7 +6,7 @@ import {
   getNotificationSettings,
   updateNotificationSettings,
   deleteNotificationSettings,
-} from "../../controllers/settings/notification-settings.controller.js";
+} from "../../controllers/system/notification-settings.controller.js";
 
 // -----------------------------
 // Routes for Notification Settings

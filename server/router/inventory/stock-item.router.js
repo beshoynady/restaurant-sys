@@ -7,7 +7,7 @@ import {
   updateStockItem,
   movements,
   deleteItem,
-} from "../../controllers/stock-item.constroller.js";
+} from "../../controllers/inventory/stock-item.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
@@ -22,5 +22,5 @@ router
   .get(authenticateToken,getOneItem)
   .delete(authenticateToken,deleteItem)
   .put(authenticateToken,updateStockItem);
-  
+
 export default router;

@@ -7,7 +7,7 @@ import express from "express";
 const router = express.Router();
 
 // TODO: import controller
-// import controller from "../../controllers/stock-category.controller.js";
+// import controller from "../../controllers/inventory/stock-category.controller.js";
 
 // router.get("/", controller.list);
 // router.post("/", controller.create);

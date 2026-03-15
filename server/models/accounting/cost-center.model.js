@@ -47,4 +47,4 @@ costCenterSchema.index({ brand: 1, code: 1 }, { unique: true });
 
 const CostCenterModel = mongoose.model("CostCenter", costCenterSchema);
 
-export CostCenterModel;
+export default CostCenterModel;

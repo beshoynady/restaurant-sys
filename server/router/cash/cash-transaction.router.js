@@ -7,7 +7,7 @@ import express from "express";
 const router = express.Router();
 
 // TODO: import controller
-// import controller from "../../controllers/cash-transaction.controller.js";
+// import controller from "../../controllers/cash/cash-transaction.controller.js";
 
 // router.get("/", controller.list);
 // router.post("/", controller.create);

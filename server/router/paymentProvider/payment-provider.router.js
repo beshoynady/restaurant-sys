@@ -7,7 +7,7 @@ import express from "express";
 const router = express.Router();
 
 // TODO: import controller
-// import controller from "../../controllers/payment-provider.controller.js";
+// import controller from "../../controllers/payments/payment-provider.controller.js";
 
 // router.get("/", controller.list);
 // router.post("/", controller.create);

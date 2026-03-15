@@ -1,5 +1,5 @@
 /**
- * branch-setting Router
+ * discount-settings Router
  * Auto generated
  */
 
@@ -7,7 +7,7 @@ import express from "express";
 const router = express.Router();
 
 // TODO: import controller
-// import controller from "../../controllers/branch-setting.controller.js";
+// import controller from "../../controllers/discount-settings.controller.js";
 
 // router.get("/", controller.list);
 // router.post("/", controller.create);

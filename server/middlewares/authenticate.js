@@ -125,4 +125,4 @@ const refreshAccessToken = async (req, res) => {
   }
 };
 
-export  { authenticateToken, refreshAccessToken };
+export { authenticateToken, refreshAccessToken };

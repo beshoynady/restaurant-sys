@@ -113,4 +113,4 @@ const PurchaseReturnInvoiceModel = mongoose.model(
   "PurchaseReturnInvoice",
   purchaseReturnInvoiceSchema
 );
-export PurchaseReturnInvoiceModel;
+export default PurchaseReturnInvoiceModel;

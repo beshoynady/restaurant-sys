@@ -7,7 +7,7 @@ import express from "express";
 const router = express.Router();
 
 // TODO: import controller
-// import controller from "../../controllers/payment-channel.controller.js";
+// import controller from "../../controllers/payments/payment-channel.controller.js";
 
 // router.get("/", controller.list);
 // router.post("/", controller.create);

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import BranchSettingsModel from "../../models/settings/branchSettings.model.js";
+import BranchSettingsModel from "../../models/core/branch-settings.model.js";
 import Joi from "joi";
 
 const { ObjectId } = mongoose.Types;

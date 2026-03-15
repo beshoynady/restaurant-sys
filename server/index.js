@@ -112,11 +112,11 @@ import routeReservation from "./router/seating/reservation.router.js";
  * - Consumption
  * - Stores
  ****************************************************/
-import routeCategoryStock from "./router/inventory/category-stock.router.js";
+import routeStockCategory from "./router/inventory/stock-category.router.js";
 import routeStockItems from "./router/inventory/stock-item.router.js";
-import routeStockMovement from "./router/inventory/stock-movement.router.js";
+import routeStockMovement from "./router/inventory/stock-ledger.router.js";
 import routeConsumption from "./router/inventory/consumption.router.js";
-import routeStore from "./router/inventory/store.router.js";
+import routeStore from "./router/inventory/inventory.router.js";
 import inventorySettingsRoutes from "./router/inventory/inventory-settings.router.js";
 
 /****************************************************
@@ -126,7 +126,7 @@ import inventorySettingsRoutes from "./router/inventory/inventory-settings.route
  ****************************************************/
 import routeSupplier from "./router/purchasing/supplier.router.js";
 import routeSupplierTransaction from "./router/purchasing/supplier-transaction.router.js";
-import routePurchase from "./router/purchasing/purchase.router.js";
+import routePurchase from "./router/purchasing/purchase-invoice.router.js";
 import routePurchaseReturn from "./router/purchasing/purchase-return-invoice.router.js";
 
 /****************************************************
@@ -138,7 +138,7 @@ import routePurchaseReturn from "./router/purchasing/purchase-return-invoice.rou
  * - Expenses
  ****************************************************/
 import routeCashRegister from "./router/cash/cash-register.router.js";
-import routeCashMovement from "./router/cash/cash-movement.router.js";
+import routeCashMovement from "./router/cash/cash-transaction.router.js";
 import routeExpense from "./router/cash/expense.router.js";
 import routeDailyExpense from "./router/cash/daily-expense.router.js";
 
@@ -164,16 +164,15 @@ import reportsRoutes from "./router/accounting/reports.router.js";
  * General system settings
  ****************************************************/
 import branchSettingsRoutes from "./router/system/branch-settings.router.js";
-import discountSettingRoutes from "./router/system/discount-setting.router.js";
-import generalSettingsRoutes from "./router/system/general-settings.router.js";
-import invoiceSettingsRoutes from "./router/system/invoice-settings.router.js";
+import discountSettingRoutes from "./router/system/discount-settings.router.js";
+import invoiceSettingsRoutes from "./router/sales/invoice-settings.router.js";
 import notificationSettingsRoutes from "./router/system/notification-settings.router.js";
 import orderSettingsRoutes from "./router/system/order-settings.router.js";
 import printSettingsRoutes from "./router/system/print-settings.router.js";
 import serviceChargeRoutes from "./router/system/service-charge.router.js";
 import shiftSettingsRoutes from "./router/system/shift-settings.router.js";
 import taxConfigRoutes from "./router/system/tax-config.router.js";
-import paymentMethodRoutes from "./router/system/payment-method.router.js";
+import paymentMethodRoutes from "./router/payments/payment-method.router.js";
 
 // Load environment variables
 dotenv.config();
@@ -289,7 +288,7 @@ app.use("/api/reservation", routeReservation);
 
 // Inventory
 app.use("/api/inventory/stores", routeStore);
-app.use("/api/inventory/categories", routeCategoryStock);
+app.use("/api/inventory/categories", routeStockCategory);
 app.use("/api/inventory/items", routeStockItems);
 app.use("/api/inventory/movements", routeStockMovement);
 app.use("/api/inventory/consumption", routeConsumption);
@@ -317,7 +316,6 @@ app.use("/api/accounting/periods", accountingPeriodRoutes);
 app.use("/api/reports", reportsRoutes);
 
 // System settings
-app.use("/api/settings/general", generalSettingsRoutes);
 app.use("/api/settings/branch", branchSettingsRoutes);
 app.use("/api/settings/notification", notificationSettingsRoutes);
 app.use("/api/settings/order", orderSettingsRoutes);

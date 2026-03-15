@@ -8,7 +8,7 @@ import {
   getInvoiceSettings,
   updateInvoiceSettings,
   deleteInvoiceSettings,
-} from "../../controllers/settings/invoice-settings.controller.js";
+} from "../../controllers/sales/invoice-settings.controller.js";
 
 /**
  * ============================

@@ -144,4 +144,4 @@ DeliveryAreaSchema.index({ branch: 1, code: 1 }, { unique: true, sparse: true })
 
 const DeliveryAreaModel= mongoose.model("DeliveryArea", DeliveryAreaSchema);
 
-export DeliveryAreaModel
+export default  DeliveryAreaModel

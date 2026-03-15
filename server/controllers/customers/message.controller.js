@@ -339,7 +339,7 @@ const getCustomerMessagesBySender = async (req, res) => {
 
 
 /* =====================================================
-   🔹 export s
+   🔹 export default S
 ===================================================== */
 
 export  {

@@ -1,6 +1,6 @@
 import express from "express";
 const router = express.Router();
-import expensesController from "../../controllers/expense.controller.js";
+import expensesController from "../../controllers/cash/expense.controller.js";
 import {authenticateToken} from "../../middlewares/authenticate.js";
 import checkSubscription from "../../middlewares/checkSubscription.js";
 

@@ -322,7 +322,7 @@ const deleteProductionOrder = async (req, res) => {
 };
 
 /* ======================================================
-   export s
+   export default S
 ====================================================== */
 
 export  {

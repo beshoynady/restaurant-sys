@@ -46,4 +46,4 @@ const AccountingPeriod = mongoose.model(
   "AccountingPeriod",
   accountingPeriodSchema,
 );
-export AccountingPeriod;
+export default AccountingPeriod;

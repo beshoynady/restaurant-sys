@@ -7,7 +7,7 @@ import {
   getAllStockMovementByStore,
   getLastStockMovementStore,
   deleteStockMovement,
-} from "../../controllers/stock-movement.controller.js";
+} from "../../controllers/inventory/stock-ledger.controller.js";
 
 import { authenticateToken } from "../../middlewares/authenticate.js";
 

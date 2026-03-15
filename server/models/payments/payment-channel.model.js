@@ -112,4 +112,4 @@ const PaymentChannelModel = mongoose.model(
   paymentChannelSchema,
 );
 
-export PaymentChannelModel;
+export default PaymentChannelModel;

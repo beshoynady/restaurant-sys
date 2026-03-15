@@ -1,6 +1,6 @@
 import Joi from "joi";
 import mongoose from "mongoose";
-import InventorySettings from "../../models/settings/inventory-settings.model.js";
+import InventorySettings from "../../models/inventory/inventory-settings.model.js";
 
 /**
  * ============================

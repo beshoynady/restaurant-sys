@@ -5,7 +5,7 @@ import {
   updateBranchSettings,
   checkBranchAvailability,
   deleteBranchSettings,
-} from "../../controllers/settings/branch-settings.controller.js";
+} from "../../controllers/core/branch-settings.controller.js";
 
 import { authenticateToken } from "../../middlewares/authenticate.js";
 

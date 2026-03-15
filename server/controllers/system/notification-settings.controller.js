@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Joi from "joi";
-import NotificationSettings from "../../models/settings/notification-settings.model.js";
+import NotificationSettings from "../../models/system/notification-settings.model.js";
 
 // -----------------------------
 // Time validation regex

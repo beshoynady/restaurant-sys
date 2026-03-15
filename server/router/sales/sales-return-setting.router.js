@@ -1,5 +1,5 @@
 /**
- * sales-return-setting Router
+ * sales-return-settings Router
  * Auto generated
  */
 
@@ -7,7 +7,7 @@ import express from "express";
 const router = express.Router();
 
 // TODO: import controller
-// import controller from "../../controllers/sales-return-setting.controller.js";
+// import controller from "../../controllers/sales-return-settings.controller.js";
 
 // router.get("/", controller.list);
 // router.post("/", controller.create);

@@ -148,4 +148,4 @@ const PreparationReturnModel = mongoose.model(
   "PreparationReturn",
   PreparationReturnSchema,
 );
-export PreparationReturnModel;
+export default PreparationReturnModel;

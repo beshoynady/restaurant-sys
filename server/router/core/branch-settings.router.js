@@ -1,5 +1,5 @@
 /**
- * invoice-setting Router
+ * branch-settings Router
  * Auto generated
  */
 
@@ -7,7 +7,7 @@ import express from "express";
 const router = express.Router();
 
 // TODO: import controller
-// import controller from "../../controllers/invoice-setting.controller.js";
+// import controller from "../../controllers/branch-settings.controller.js";
 
 // router.get("/", controller.list);
 // router.post("/", controller.create);

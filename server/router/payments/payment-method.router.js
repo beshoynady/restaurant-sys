@@ -7,7 +7,7 @@ import {
   updatePaymentMethod,
   getPaymentMethods,
   deletePaymentMethod,
-} from "../../controllers/payment-method.controller.js";
+} from "../../controllers/payments/payment-method.controller.js";
 
 // ✅ Create payment method
 router.post("/", authenticateToken, createPaymentMethod);

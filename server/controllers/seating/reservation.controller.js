@@ -1,4 +1,4 @@
-import ReservationModel from "../../models/reservation-table.model.js";
+import ReservationModel from "../../models/seating/reservation.model.js";
 
 // Create a new reservation
 const createReservation = async (req, res) => {

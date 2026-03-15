@@ -1,4 +1,4 @@
-import PurchaseReturnInvoiceModel from "../models/purchase-return.model.js";
+import PurchaseReturnInvoiceModel from "../../models/sales/sales-return.model.js";
 
 // Create a new purchase return invoice
 const createPurchaseReturnInvoice = async (req, res) => {

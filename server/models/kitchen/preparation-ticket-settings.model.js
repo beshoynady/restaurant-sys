@@ -60,4 +60,4 @@ const PreparationTicketSettings = model(
   preparationTicketSettingsSchema
 );
 
-export PreparationTicketSettings;
+export default PreparationTicketSettings;

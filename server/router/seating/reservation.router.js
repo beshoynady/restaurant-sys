@@ -5,7 +5,7 @@ import {
   getReservationById,
   updateReservation,
   deleteReservation,
-} from "../../controllers/reservation.controler.js";
+} from "../../controllers/seating/reservation.controller.js";
 
 const router = express.Router();
 

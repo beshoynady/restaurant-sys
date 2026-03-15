@@ -5,7 +5,7 @@ import JournalEntry from "../../models/accounting/journal-entry.model.js";
 // Profit & Loss Report
 // =====================================
 
-export s.getProfitAndLoss = async (req, res) => {
+const getProfitAndLoss = async (req, res) => {
   try {
     const { brand, branch, from, to } = req.query;
 
@@ -129,7 +129,7 @@ export s.getProfitAndLoss = async (req, res) => {
 // =====================================
 // Balance Sheet Report
 // =====================================
-export s.getBalanceSheet = async (req, res) => {
+const getBalanceSheet = async (req, res) => {
   try {
     const { brand, branch, asOfDate } = req.query;
 
@@ -187,3 +187,6 @@ export s.getBalanceSheet = async (req, res) => {
     res.status(500).json({ message: "Dine-in server error" });
   }
 };
+
+
+export { getProfitAndLoss, getBalanceSheet};

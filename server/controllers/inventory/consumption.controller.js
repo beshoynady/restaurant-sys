@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import ConsumptionModel from "../../models/consumption.model.js";
+import ConsumptionModel from "../../models/inventory/consumption.model.js";
 
 // Create a new consumption
 const createConsumption = async (req, res) => {

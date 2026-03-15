@@ -1,6 +1,6 @@
 import express from "express";
 const router = express.Router();
-import dailyExpensesController from "../../controllers/daily-expense.controller.js";
+import dailyExpensesController from "../../controllers/cash/daily-expense.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 
 

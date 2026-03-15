@@ -102,4 +102,4 @@ RecipeSchema.index({ product: 1, brand: 1, branch: 1 }, { unique: true });
 
 const RecipeModel = mongoose.model("Recipe", RecipeSchema);
 
-export RecipeModel;
+export default RecipeModel;

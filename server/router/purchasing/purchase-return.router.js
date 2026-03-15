@@ -7,7 +7,7 @@ import express from "express";
 const router = express.Router();
 
 // TODO: import controller
-// import controller from "../../controllers/purchase-return.controller.js";
+// import controller from "../../controllers/purchasing/purchase-return.controller.js";
 
 // router.get("/", controller.list);
 // router.post("/", controller.create);

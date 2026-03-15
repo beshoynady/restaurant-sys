@@ -49,7 +49,7 @@ const StepWelcome = ({ onNext, lang, theme }) => {
       >
         {isArabic
           ? "مرحبًا بك في معالج إعداد القائمة الذكية. لنبدأ بإعداد حسابك وتفاصيل المطعم بخطوات سهلة وسريعة."
-          : "Welcome to the Smart Menu setup wizard. Let’s begin setting up your account and restaurant details in easy steps."}
+          : "Welcome to the Smart Menu setup wizard. Let’s begin settings up your account and restaurant details in easy steps."}
       </motion.p>
 
       {/* Button */}

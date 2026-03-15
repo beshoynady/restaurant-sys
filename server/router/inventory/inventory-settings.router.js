@@ -8,7 +8,7 @@ import {
   getInventorySettings,
   updateInventorySettings,
   deleteInventorySettings,
-} from "../../controllers/settings/inventory-settings.controller.js";
+} from "../../controllers/inventory/inventory-settings.controller.js";
 
 /**
  * ============================

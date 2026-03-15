@@ -139,4 +139,4 @@ const PurchaseInvoiceModel = mongoose.model(
   "PurchaseInvoice",
   purchaseInvoiceSchema,
 );
-export PurchaseInvoiceModel;
+export default PurchaseInvoiceModel;

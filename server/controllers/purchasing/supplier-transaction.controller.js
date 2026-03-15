@@ -1,4 +1,4 @@
-import SupplierTransactionModel from "../../models/supplier-transaction.model.js";
+import SupplierTransactionModel from "../../models/purchasing/supplier-transaction.model.js";
 
 // Create a new supplier transaction
 const createSupplierTransaction = async (req, res) => {

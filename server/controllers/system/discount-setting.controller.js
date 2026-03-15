@@ -1,1 +1,1 @@
-// TODO: Implement controller for discount-setting.controller
+// TODO: Implement controller for discount-settings.controller

@@ -1,5 +1,5 @@
 /**
- * accounting-setting Router
+ * accounting-settings Router
  * Auto generated
  */
 
@@ -7,7 +7,7 @@ import express from "express";
 const router = express.Router();
 
 // TODO: import controller
-// import controller from "../../controllers/accounting-setting.controller.js";
+// import controller from "../../controllers/accounting-settings.controller.js";
 
 // router.get("/", controller.list);
 // router.post("/", controller.create);

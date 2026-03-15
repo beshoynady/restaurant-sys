@@ -1,8 +1,9 @@
-import CashMovement from "../../models/cash-movement.model.js";
-import CashRegister from "../../models/cash-register.model.js";
+import CashMovement from "../../models/cash/cash-transaction.model.js";
+import CashRegister from "../../models/cash/cash-register.model.js";
+
 
 // Controller function to create a cash movement
-export s.createCashMovement = async (req, res) => {
+const createCashMovement = async (req, res) => {
   try {
     const {
       brand,
@@ -78,7 +79,7 @@ export s.createCashMovement = async (req, res) => {
 };
 
 // Controller function to get all cash movements
-export s.getAllCashMovements = async (req, res) => {
+const getAllCashMovements = async (req, res) => {
   try {
     const cashMovements = await CashMovement.find()
       .populate("registerId")
@@ -93,7 +94,7 @@ export s.getAllCashMovements = async (req, res) => {
 };
 
 // Controller function to get a cash movement by ID
-export s.getCashMovementById = async (req, res) => {
+const getCashMovementById = async (req, res) => {
   try {
     const cashMovement = await CashMovement.findById(req.params.id)
       .populate("registerId")
@@ -111,7 +112,7 @@ export s.getCashMovementById = async (req, res) => {
 };
 
 // Controller function to update a cash movement by ID
-export s.updateCashMovement = async (req, res) => {
+const updateCashMovement = async (req, res) => {
   try {
     const {
       registerId,
@@ -157,7 +158,7 @@ export s.updateCashMovement = async (req, res) => {
 };
 
 // Controller function to delete a cash movement by ID
-export s.deleteCashMovement = async (req, res) => {
+const deleteCashMovement = async (req, res) => {
   try {
     const cashMovement = await CashMovement.findByIdAndDelete(req.params.id);
     if (!cashMovement) {
@@ -169,7 +170,7 @@ export s.deleteCashMovement = async (req, res) => {
   }
 };
 
-export s.transferCashBetweenRegisters = async (req, res) => {
+const transferCashBetweenRegisters = async (req, res) => {
   try {
     const { fromRegisterId, toRegisterId, amount, description } = req.body;
 
@@ -206,7 +207,7 @@ export s.transferCashBetweenRegisters = async (req, res) => {
 };
 
 // Function to record a payment (outgoing transaction)
-export s.recordPayment = async (req, res) => {
+const recordPayment = async (req, res) => {
   try {
     const { brand, branch, cashRegister, amount, description } = req.body;
     const createdBy = req.user.id;
@@ -250,7 +251,7 @@ export s.recordPayment = async (req, res) => {
 };
 
 // Function to record a receipt (incoming transaction)
-export s.recordReceipt = async (req, res) => {
+const recordReceipt = async (req, res) => {
   try {
     const { brand, branch, cashRegister, amount, description } = req.body;
     const createdBy = req.user.id;
@@ -286,4 +287,16 @@ export s.recordReceipt = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: "Failed to record receipt", error });
   }
+};
+
+
+export {
+  createCashMovement,
+  getAllCashMovements,
+  getCashMovementById,
+  updateCashMovement,
+  deleteCashMovement,
+  transferCashBetweenRegisters,
+  recordPayment,
+  recordReceipt,
 };

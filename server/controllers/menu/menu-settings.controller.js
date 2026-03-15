@@ -30,7 +30,7 @@ const updateSchema = createSchema.fork(
 );
 
 // ============================
-// Create Menu Setting
+// Create Menu settings
 // ============================
 const createMenuSetting = async (req, res) => {
   try {
@@ -82,7 +82,7 @@ const createMenuSetting = async (req, res) => {
 };
 
 // ============================
-// Get Menu Setting
+// Get Menu settings
 // ============================
 const getMenuSetting = async (req, res) => {
   try {
@@ -110,7 +110,7 @@ const getMenuSetting = async (req, res) => {
 };
 
 // ============================
-// Update Menu Setting
+// Update Menu settings
 // ============================
 const updateMenuSetting = async (req, res) => {
   try {
@@ -166,7 +166,7 @@ const updateMenuSetting = async (req, res) => {
 };
 
 // ============================
-// Delete Menu Setting
+// Delete Menu settings
 // ============================
 const deleteMenuSetting = async (req, res) => {
   try {

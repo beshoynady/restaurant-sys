@@ -72,6 +72,6 @@ const deleteFile = (folder, filename) => {
 };
 
 
-export  { uploadFile, deleteFile };
+export { uploadFile, deleteFile };
 
 

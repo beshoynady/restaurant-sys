@@ -70,4 +70,4 @@ journalEntrySchema.index(
 );
 const JournalEntry = mongoose.model("JournalEntry", journalEntrySchema);
 
-export JournalEntry;
+export default JournalEntry;

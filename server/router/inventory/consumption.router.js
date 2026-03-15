@@ -7,7 +7,7 @@ import {
   createConsumption,
   updateConsumptionById,
   deleteConsumptionById,
-} from "../../controllers/consumption.controller.js";
+} from "../../controllers/inventory/consumption.controller.js";
 
 import {authenticateToken} from "../../middlewares/authenticate.js";
 

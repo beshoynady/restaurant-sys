@@ -206,4 +206,4 @@ const brandSchema = new mongoose.Schema(
 brandSchema.index({ "name.$**": 1 });
 
 const Brand = mongoose.model("Brand", brandSchema);
-export Brand;
+export default Brand;

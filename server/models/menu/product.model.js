@@ -143,7 +143,7 @@ const ProductSchema = new mongoose.Schema(
     isTaxable: { type: Boolean, default: true }, // Whether product is subject to tax
     taxRate: {
       type: ObjectId,
-      ref: "TaxConfig", // Reference to tax setting
+      ref: "TaxConfig", // Reference to tax settings
       default: null,
     }, // Applicable tax rate percentage
 
@@ -171,4 +171,4 @@ const ProductSchema = new mongoose.Schema(
 );
 
 const ProductModel = mongoose.model("Product", ProductSchema);
-export ProductModel;
+export default ProductModel;

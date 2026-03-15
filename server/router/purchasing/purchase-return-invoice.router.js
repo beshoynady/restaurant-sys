@@ -6,7 +6,7 @@ import {
     getPurchaseReturnInvoiceById,
     updatePurchaseReturnInvoiceById,
     deletePurchaseReturnInvoiceById
-} from "../controllers/purchase-return.controller.js";
+} from "../../controllers/purchasing/purchase-return.controller.js";
 
 import {authenticateToken} from "../../middlewares/authenticate.js";
 import checkSubscription from "../../middlewares/checkSubscription.js";

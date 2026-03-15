@@ -285,7 +285,7 @@ const deleteLoyaltySettings = asyncHandler(async (req, res) => {
 
 /**
  * =========================================================
- * export s
+ * export default S
  * =========================================================
  */
 

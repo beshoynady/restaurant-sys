@@ -7,7 +7,7 @@ import {
   updateOrderSettings,
   getOrderSettings,
   deleteOrderSettings,
-} from "../../controllers/settings/order-settings.controller.js";
+} from "../../controllers/sales/order-settings.controller.js";
 
 // ✅ Create new order settings
 router.post("/", authenticateToken, createOrderSettings);

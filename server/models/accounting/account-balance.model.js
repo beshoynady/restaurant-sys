@@ -27,4 +27,4 @@ accountBalanceSchema.index(
 );
 
 const AccountBalance = mongoose.model("AccountBalance", accountBalanceSchema);
-export AccountBalance;
+export default AccountBalance;

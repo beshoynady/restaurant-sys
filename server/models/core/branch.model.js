@@ -106,4 +106,4 @@ branchSchema.index({ "name.$**": 1 });
 branchSchema.index({ status: 1 });
 
 const BranchModel = mongoose.model("Branch", branchSchema);
-export BranchModel;
+export default BranchModel;
