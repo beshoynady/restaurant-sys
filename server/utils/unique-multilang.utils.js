@@ -62,4 +62,4 @@ const ensureUniqueMultilangName = async ({
   return { valid: true };
 };
 
-export default EnsureUniqueMultilangName;
+export default ensureUniqueMultilangName;

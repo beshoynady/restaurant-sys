@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-const { ObjectId } = Schema.Types;
+const { ObjectId } = mongoose.Schema.Types;
 
 const inventorySettingsSchema = new mongoose.Schema(
   {
@@ -43,7 +43,7 @@ const inventorySettingsSchema = new mongoose.Schema(
 // One inventory settings per branch
 inventorySettingsSchema.index({ branch: 1 }, { unique: true });
 
-const InventorySettingModel = model(
+const InventorySettingModel = mongoose.model(
   "InventorySetting",
   inventorySettingsSchema
 );

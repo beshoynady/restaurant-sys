@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 
 const { ObjectId } = mongoose.Schema;
-import journalLineSchema from "./journal-line.model.js";
 
 const journalEntrySchema = new mongoose.Schema(
   {
@@ -32,7 +31,13 @@ const journalEntrySchema = new mongoose.Schema(
       maxlength: 500,
     },
     // array of journal lines
-    lines: [journalLineSchema],
+    lines: [
+      {
+        type: ObjectId,
+        ref: "JournalLine",
+        required: true,
+      }
+    ],
 
     /** Status of the journal entry
      * "Pending" - created but not posted yet

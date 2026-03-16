@@ -2,7 +2,8 @@ import EmployeeModel from "../../models/employees/employee.model.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import Joi from "joi";
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
 import asyncHandler from "../../utils/asyncHandler.js";
 
 /* ===========================================================

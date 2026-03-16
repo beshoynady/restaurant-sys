@@ -2,6 +2,7 @@ import express from "express";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { fileURLToPath } from "url";
 
 import ProductModel from "../../models/menu/product.model.js";
 
@@ -28,18 +29,41 @@ import {
 const router = express.Router();
 
 /* ===============================
+   ESM Path Helpers
+================================ */
+
+/**
+ * Re-create __filename and __dirname for ES module scope.
+ */
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+/* ===============================
    Images Config
 ================================ */
 
-const imagesDir = path.join(__dirname, "..", "images");
+/**
+ * Absolute directory path used to store uploaded product images.
+ * Current router file location:
+ * server/router/menu/product.router.js
+ * Target images folder:
+ * server/images
+ */
+const imagesDir = path.join(__dirname, "..", "..", "images");
 
+/**
+ * Ensure the images directory exists before multer writes files into it.
+ */
 if (!fs.existsSync(imagesDir)) {
   fs.mkdirSync(imagesDir, { recursive: true });
 }
 
+/**
+ * Multer storage configuration for product image uploads.
+ */
 const storage = multer.diskStorage({
-  destination: (_, __, cb) => cb(null, imagesDir),
-  filename: (_, file, cb) => {
+  destination: (_req, _file, cb) => cb(null, imagesDir),
+  filename: (_req, file, cb) => {
     const uniqueName =
       Date.now() +
       "-" +
@@ -50,15 +74,20 @@ const storage = multer.diskStorage({
   },
 });
 
+/**
+ * Multer upload middleware with file size and mime type validation.
+ */
 const upload = multer({
   storage,
-  limits: { fileSize: 1024 * 1024 },
-  fileFilter: (_, file, cb) => {
+  limits: { fileSize: 1024 * 1024 }, // 1 MB
+  fileFilter: (_req, file, cb) => {
     const allowed = ["image/jpeg", "image/png", "image/jpg"];
 
-    allowed.includes(file.mimetype)
-      ? cb(null, true)
-      : cb(new Error("Only JPG, JPEG, PNG allowed"));
+    if (allowed.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only JPG, JPEG, PNG allowed"));
+    }
   },
 });
 
@@ -66,6 +95,11 @@ const upload = multer({
    Image Helpers
 ================================ */
 
+/**
+ * Delete image file from disk if it exists.
+ *
+ * @param {string} imageName
+ */
 const deleteImageIfExists = (imageName) => {
   if (!imageName) return;
 
@@ -80,35 +114,55 @@ const deleteImageIfExists = (imageName) => {
    Middlewares
 ================================ */
 
+/**
+ * Delete the old product image when uploading a new one.
+ */
 const deleteOldImageMiddleware = async (req, res, next) => {
   try {
     if (!req.file) return next();
 
     const product = await ProductModel.findById(req.params.id);
 
-    if (!product)
-      return res.status(404).json({ message: "Product not found" });
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
 
     deleteImageIfExists(product.image);
 
     next();
-  } catch (err) {
-    res.status(500).json({ message: "Image delete error" });
+  } catch (_err) {
+    res.status(500).json({
+      success: false,
+      message: "Image delete error",
+    });
   }
 };
 
+/**
+ * Delete the current product image before permanent product deletion.
+ */
 const deleteProductImageMiddleware = async (req, res, next) => {
   try {
     const product = await ProductModel.findById(req.params.id);
 
-    if (!product)
-      return res.status(404).json({ message: "Product not found" });
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
 
     deleteImageIfExists(product.image);
 
     next();
-  } catch (err) {
-    res.status(500).json({ message: "Image delete error" });
+  } catch (_err) {
+    res.status(500).json({
+      success: false,
+      message: "Image delete error",
+    });
   }
 };
 
@@ -116,87 +170,125 @@ const deleteProductImageMiddleware = async (req, res, next) => {
    Routes
 ================================ */
 
-// create + get products
-router
-  .route("/")
-  .post(
-    authenticateToken,
-    upload.single("image"),
-    createProduct
-  )
-  .get(getProducts);
+/**
+ * @route   POST /
+ * @desc    Create product
+ * @access  Private
+ */
+router.post(
+  "/",
+  authenticateToken,
+  upload.single("image"),
+  createProduct
+);
 
-// search
+/**
+ * @route   GET /
+ * @desc    Get all products
+ * @access  Public
+ */
+router.get("/", getProducts);
+
+/**
+ * @route   GET /search
+ * @desc    Search products
+ * @access  Public
+ */
 router.get("/search", searchProducts);
 
-// menu products
+/**
+ * @route   GET /menu
+ * @desc    Get menu-ready products
+ * @access  Public
+ */
 router.get("/menu", getProductsForMenu);
 
-// products by category
+/**
+ * @route   GET /category/:categoryId
+ * @desc    Get products by category
+ * @access  Public
+ */
 router.get("/category/:categoryId", getProductsByCategory);
 
-// product by id
-router
-  .route("/:id")
-  .get(getProductById)
-  .put(
-    authenticateToken,
-    upload.single("image"),
-    deleteOldImageMiddleware,
-    updateProduct
-  )
-  .delete(
-    authenticateToken,
-    deleteProductImageMiddleware,
-    deleteProductPermanently
-  );
+/**
+ * @route   GET /:id
+ * @desc    Get product by id
+ * @access  Public
+ */
+router.get("/:id", getProductById);
 
-// toggle status
-router.patch(
-  "/:id/status",
+/**
+ * @route   PUT /:id
+ * @desc    Update product
+ * @access  Private
+ */
+router.put(
+  "/:id",
   authenticateToken,
-  toggleProductStatus
+  upload.single("image"),
+  deleteOldImageMiddleware,
+  updateProduct
 );
 
-// soft delete
-router.patch(
-  "/:id/soft-delete",
-  authenticateToken,
-  softDeleteProduct
-);
-
-// duplicate product
-router.post(
-  "/:id/duplicate",
-  authenticateToken,
-  duplicateProduct
-);
-
-// extras
-router.post(
-  "/:id/extras",
-  authenticateToken,
-  setProductExtras
-);
-
+/**
+ * @route   DELETE /:id
+ * @desc    Permanently delete product
+ * @access  Private
+ */
 router.delete(
-  "/:id/extras",
+  "/:id",
   authenticateToken,
-  removeProductExtras
+  deleteProductImageMiddleware,
+  deleteProductPermanently
 );
 
-// sizes
-router.post(
-  "/:id/sizes",
-  authenticateToken,
-  addSizeToProduct
-);
+/**
+ * @route   PATCH /:id/status
+ * @desc    Toggle product active status
+ * @access  Private
+ */
+router.patch("/:id/status", authenticateToken, toggleProductStatus);
 
-// combos
-router.post(
-  "/:id/combos",
-  authenticateToken,
-  setComboGroups
-);
+/**
+ * @route   PATCH /:id/soft-delete
+ * @desc    Soft delete product
+ * @access  Private
+ */
+router.patch("/:id/soft-delete", authenticateToken, softDeleteProduct);
+
+/**
+ * @route   POST /:id/duplicate
+ * @desc    Duplicate product
+ * @access  Private
+ */
+router.post("/:id/duplicate", authenticateToken, duplicateProduct);
+
+/**
+ * @route   POST /:id/extras
+ * @desc    Set product extras
+ * @access  Private
+ */
+router.post("/:id/extras", authenticateToken, setProductExtras);
+
+/**
+ * @route   DELETE /:id/extras
+ * @desc    Remove product extras
+ * @access  Private
+ */
+router.delete("/:id/extras", authenticateToken, removeProductExtras);
+
+/**
+ * @route   POST /:id/sizes
+ * @desc    Add size to product
+ * @access  Private
+ */
+router.post("/:id/sizes", authenticateToken, addSizeToProduct);
+
+/**
+ * @route   POST /:id/combos
+ * @desc    Set combo groups
+ * @access  Private
+ */
+router.post("/:id/combos", authenticateToken, setComboGroups);
 
 export default router;

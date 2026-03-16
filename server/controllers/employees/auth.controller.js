@@ -1,7 +1,8 @@
 import Usermodel from "../../models/employees/user-account.model.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-require("dotenv").config();
+import dotenv from "dotenv";
+dotenv.config();
 
 const signup = async (req, res) => {
   try {

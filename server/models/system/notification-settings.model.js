@@ -1,8 +1,7 @@
 import mongoose from "mongoose";
-const { Schema, model } = mongoose;
-const ObjectId = Schema.Types.ObjectId;
+const {ObjectId} = mongoose.Schema.Types;
 
-const notificationSettingsSchema = new Schema(
+const notificationSettingsSchema = new mongoose.Schema(
   {
     // 🔗 Relations
     brand: { type: ObjectId, ref: "Brand", required: true },
@@ -11,7 +10,7 @@ const notificationSettingsSchema = new Schema(
     // 🔔 Enable / Disable notifications at branch level
     enabled: {
       type: Boolean,
-      default: true,
+      default: { type: Boolean, default: true },
     },
 
     /**
@@ -49,12 +48,12 @@ const notificationSettingsSchema = new Schema(
       orderCancelled: {
         enabled: { type: Boolean, default: true },
         roles: {
-          cashier: true,
-          manager: true,
+          cashier: { type: Boolean, default: true },
+          manager: { type: Boolean, default: true },
         },
         channels: {
-          inApp: true,
-          push: false,
+          inApp: { type: Boolean, default: true },
+          push: { type: Boolean, default: false },
         },
       },
     },
@@ -77,7 +76,7 @@ const notificationSettingsSchema = new Schema(
         enabled: { type: Boolean, default: false },
         delayMinutes: { type: Number, default: 15 },
         roles: {
-          manager: true,
+          manager: { type: Boolean, default: true },
         },
       },
     },
@@ -96,17 +95,26 @@ const notificationSettingsSchema = new Schema(
           default: "minimum",
         },
         roles: {
-          storekeeper: true,
-          manager: true,
+          storekeeper: { type: Boolean, default: true },
+          manager: { type: Boolean, default: true },
         },
       },
 
       outOfStock: {
         enabled: { type: Boolean, default: true },
         roles: {
-          cashier: true,
-          kitchen: true,
-          manager: true,
+          cashier: {
+            type: Boolean,
+            default: { type: Boolean, default: true },
+          },
+          kitchen: {
+            type: Boolean,
+            default: { type: Boolean, default: true },
+          },
+          manager: {
+            type: Boolean,
+            default: { type: Boolean, default: true },
+          },
         },
       },
     },
@@ -120,16 +128,16 @@ const notificationSettingsSchema = new Schema(
       shiftClosed: {
         enabled: { type: Boolean, default: true },
         roles: {
-          manager: true,
-          accountant: true,
+          manager: { type: Boolean, default: true },
+          accountant: { type: Boolean, default: true },
         },
       },
 
       paymentFailed: {
         enabled: { type: Boolean, default: true },
         roles: {
-          cashier: true,
-          manager: true,
+          cashier: { type: Boolean, default: true },
+          manager: { type: Boolean, default: true },
         },
       },
     },
@@ -143,8 +151,8 @@ const notificationSettingsSchema = new Schema(
       newReservation: {
         enabled: { type: Boolean, default: true },
         roles: {
-          receptionist: true,
-          manager: true,
+          receptionist: { type: Boolean, default: true },
+          manager: { type: Boolean, default: true },
         },
       },
 
@@ -152,8 +160,8 @@ const notificationSettingsSchema = new Schema(
         enabled: { type: Boolean, default: false },
         reminderBeforeMinutes: { type: Number, default: 30 },
         channels: {
-          push: true,
-          whatsapp: false,
+          push: { type: Boolean, default: true },
+          whatsapp: { type: Boolean, default: false },
         },
       },
     },
@@ -167,17 +175,17 @@ const notificationSettingsSchema = new Schema(
       orderStatusUpdates: {
         enabled: { type: Boolean, default: true },
         channels: {
-          push: true,
-          whatsapp: false,
-          sms: false,
+          push: { type: Boolean, default: true },
+          whatsapp: { type: Boolean, default: false },
+          sms: { type: Boolean, default: false },
         },
       },
 
       promotions: {
         enabled: { type: Boolean, default: false },
         channels: {
-          push: true,
-          email: false,
+          push: { type: Boolean, default: true },
+          email: { type: Boolean, default: false },
         },
       },
     },
@@ -192,7 +200,7 @@ const notificationSettingsSchema = new Schema(
         enabled: { type: Boolean, default: false },
         sendAt: { type: String, default: "23:59" },
         roles: {
-          manager: true,
+          manager: { type: Boolean, default: true },
         },
       },
     },
