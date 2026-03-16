@@ -1,7 +1,7 @@
-import mongoose, { Schema, model } from "mongoose";
+import mongoose from "mongoose";
 const { ObjectId } = Schema.Types;
 
-const inventorySettingsSchema = new Schema(
+const inventorySettingsSchema = new mongoose.Schema(
   {
     brand: { type: ObjectId, ref: "Brand", required: true },
     branch: { type: ObjectId, ref: "Branch", required: false },

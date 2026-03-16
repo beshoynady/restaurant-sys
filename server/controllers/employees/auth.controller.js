@@ -1,7 +1,6 @@
 import Usermodel from "../../models/employees/user-account.model.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import { validationResult } from "express-validator";
 require("dotenv").config();
 
 const signup = async (req, res) => {
@@ -9,11 +8,6 @@ const signup = async (req, res) => {
     const { username, email, address, deliveryArea, phone, password } =
       req.body;
 
-    // Validate input fields
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
 
     const isUserExist = await Usermodel.findOne({ phone });
     if (isUserExist) {

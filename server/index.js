@@ -6,8 +6,8 @@ import helmet from "helmet"; // Security middleware
 import cookieParser from "cookie-parser";
 import http from "http";
 import { Server } from "socket.io";
-import { notFound } from "./middlewares/notFound.js";
-import { errorHandler } from "./middlewares/errorHandler.js";
+import notFound from "./middlewares/notFound.js";
+import errorHandler from "./middlewares/errorHandler.js";
 
 // Import database connection
 import connectdb from "./database/connectdb.js";

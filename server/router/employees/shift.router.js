@@ -8,7 +8,7 @@ import {
   deleteShift
 } from "../../controllers/employees/shift.controller.js";
 import {authenticateToken} from "../../middlewares/authenticate.js";
-import checkSubscription from "../../middlewares/checkSubscription.js";
+
 
 router.route('/')
   .post(authenticateToken,createShift)

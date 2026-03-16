@@ -34,7 +34,7 @@ const updateAccountSchema = Joi.object({
     "Liability",
     "Equity",
     "Revenue",
-    "Expense"
+    "Expense",
   ),
   normalBalance: Joi.string().valid("Debit", "Credit"),
   parent: Joi.string().allow(null),
@@ -183,11 +183,9 @@ const updateAccount = async (req, res) => {
       parent: account._id,
     });
     if (childAccounts.length > 0) {
-      return res
-        .status(400)
-        .json({
-          message: "Cannot update a grouping account with child accounts.",
-        });
+      return res.status(400).json({
+        message: "Cannot update a grouping account with child accounts.",
+      });
     }
 
     Object.assign(account, value, { updatedBy: req.user._id });
@@ -276,7 +274,7 @@ const setAccountStatus = async (req, res) => {
 // --------------------------
 // export  all controller functions
 // --------------------------
-export  {
+export {
   createAccount,
   getAccounts,
   getAccountById,

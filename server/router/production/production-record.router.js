@@ -11,7 +11,7 @@ import {
 } from "../../controllers/production-record.controller.js";
 
 import { authenticateToken } from "../../middlewares/authenticate.js";
-import checkSubscription from "../../middlewares/checkSubscription.js";
+
 
 // Create a new Production Record
 router

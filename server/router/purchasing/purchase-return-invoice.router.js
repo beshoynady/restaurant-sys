@@ -9,7 +9,7 @@ import {
 } from "../../controllers/purchasing/purchase-return.controller.js";
 
 import {authenticateToken} from "../../middlewares/authenticate.js";
-import checkSubscription from "../../middlewares/checkSubscription.js";
+
 
 // Routes for purchase return management
 router.route('/')

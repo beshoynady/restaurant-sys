@@ -9,7 +9,7 @@ import {
 } from "../../controllers/purchasing/supplier-transaction.controller.js";
 
 import {authenticateToken} from "../../middlewares/authenticate.js";
-import checkSubscription from "../../middlewares/checkSubscription.js";
+
 
 router.route('/')
     .post(authenticateToken,createSupplierTransaction)

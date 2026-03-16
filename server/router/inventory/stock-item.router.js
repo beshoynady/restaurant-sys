@@ -5,7 +5,6 @@ import {
   getAllStockItems,
   getOneItem,
   updateStockItem,
-  movements,
   deleteItem,
 } from "../../controllers/inventory/stock-item.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";

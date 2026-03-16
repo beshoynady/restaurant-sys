@@ -10,7 +10,7 @@ createEmployeeFinancialTransaction,
   deleteEmployeeFinancialTransaction,
 } from "../../controllers/employees/employee-financial-transaction.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
-import checkSubscription from "../../middlewares/checkSubscription.js";
+
 
 const router = express.Router();
 

@@ -59,5 +59,6 @@ const journalLineSchema = new mongoose.Schema(
   },
   { _id: false, timestamps: true },
 );
+const JournalLineModel = mongoose.model("JournalLine", journalLineSchema);
 
-export journalLineSchema;
+export default JournalLineModel;

@@ -3,8 +3,7 @@ import diningAreaModel from "../../models/seating/dining-area.model.js";
 import Joi from "joi";
 import mongoose from "mongoose";
 import QRCode from "qrcode";
-import uuid from "uuid";
-const uuidv4 = uuid.v4;
+import { v4 as uuidv4 } from "uuid";
 const { ObjectId } = mongoose.Types;
 
 /* =============================
@@ -534,7 +533,7 @@ const getTableByCode = async (req, res) => {
   }
 };
 
-export  {
+export {
   createTable,
   updateTable,
   getAllTables,

@@ -11,22 +11,21 @@ import {
 
 import { authenticateToken } from "../../middlewares/authenticate.js";
 
-
-
-import express from "express"
+import express from "express";
 const router = express.Router();
 
 // ==============================
 // Account Routes
 // ==============================
-router.route("/").post(authenticateToken,createAccount).get(getAccounts);
+router.route("/").post(authenticateToken, createAccount).get(getAccounts);
 router
   .route("/:id")
-  .get(authenticateToken,getAccountById)
-  .put(authenticateToken,updateAccount)
-  .delete(authenticateToken,deleteAccount);
-router.route("/code/:code").get(authenticateToken,getAccountByCode);
-router.route("/parent/:parentId").get(authenticateToken,getAccountsByParent);
-router.route("/:id/status").put(authenticateToken,setAccountStatus);
+  .get(authenticateToken, getAccountById)
+  .put(authenticateToken, updateAccount)
+  .delete(authenticateToken, deleteAccount);
+  
+router.route("/code/:code").get(authenticateToken, getAccountByCode);
+router.route("/parent/:parentId").get(authenticateToken, getAccountsByParent);
+router.route("/:id/status").put(authenticateToken, setAccountStatus);
 
 export default router;

@@ -4,7 +4,7 @@ const router = express.Router();
 
 
 import {
-  async
+  
 } from "../../controllers/employees/auth.controller.js";
 
 import { authenticateToken } from "../../middlewares/authenticate.js";

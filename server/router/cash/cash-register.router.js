@@ -1,6 +1,13 @@
 import express from "express";
 const router = express.Router();
-import cashRegisterController from "../../controllers/cash/cash-register.controller.js";
+import {
+   getAllCashRegisters,
+  getCashRegisterById,
+  getCashRegistersByEmployee,
+  createCashRegister,
+  updateCashRegister,
+  deleteCashRegister,
+} from "../../controllers/cash/cash-register.controller.js";
 
 import { authenticateToken } from "../../middlewares/authenticate.js";
 
@@ -10,34 +17,29 @@ router
   .route("/")
   .post(
     authenticateToken,
-   
-    cashRegisterController.createCashRegister
+    createCashRegister
   )
   .get(
     authenticateToken,
-   
-    cashRegisterController.getAllCashRegisters
+    getAllCashRegisters
   );
 
 router
   .route("/:id")
   .get(
     authenticateToken,
-   
-    cashRegisterController.getCashRegisterById
+    getCashRegisterById
   )
-  .put(authenticateToken, cashRegisterController.updateCashRegister)
+  .put(authenticateToken, updateCashRegister)
   .delete(
     authenticateToken,
-   
-    cashRegisterController.deleteCashRegister
+    deleteCashRegister
   );
 router
   .route("/employee/:employeeId")
   .get(
     authenticateToken,
-   
-    cashRegisterController.getCashRegistersByEmployee
+    getCashRegistersByEmployee
   );
 
 export default router;

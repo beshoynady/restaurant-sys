@@ -1,15 +1,19 @@
 import express from "express";
 import {
   createBranchSettings,
-  getBranchSettings,
   updateBranchSettings,
-  checkBranchAvailability,
+  getBranchSettings,
+  getBranchSettingsById,
+  softDeleteBranchSettings,
+  restoreBranchSettings,
   deleteBranchSettings,
 } from "../../controllers/core/branch-settings.controller.js";
 
 import { authenticateToken } from "../../middlewares/authenticate.js";
 
 const router = express.Router();
+
+router.use(authenticateToken);
 
 /**
  * =====================================================
@@ -24,35 +28,48 @@ const router = express.Router();
  * @desc    Create branch settings (one document per branch)
  * @access  Private (Authenticated users)
  */
-router.post("/", authenticateToken, createBranchSettings);
+router.post("/", createBranchSettings);
 
 /**
- * @route   GET /availability/check
- * @desc    Check branch availability for a service at a specific time
- * @query   branchId, service, time (HH:mm)
- * @access  Public (used by client / QR menu)
+ * @route   GET /by-id/:id
+ * @desc    Get branch settings by settings document ID
+ * @access  Private (Authenticated users)
  */
-router.get("/availability/check", checkBranchAvailability);
+router.get("/by-id/:id", getBranchSettingsById);
 
 /**
  * @route   GET /:branchId
  * @desc    Get branch settings by branch ID
  * @access  Private (Authenticated users)
  */
-router.get("/:branchId", authenticateToken, getBranchSettings);
+router.get("/:branchId", getBranchSettings);
 
 /**
  * @route   PUT /:branchId
  * @desc    Update branch settings (partial update allowed)
  * @access  Private (Authenticated users)
  */
-router.put("/:branchId", authenticateToken, updateBranchSettings);
+router.put("/:branchId", updateBranchSettings);
+
+/**
+ * @route   DELETE /soft/:branchId
+ * @desc    Soft delete branch settings
+ * @access  Private (Authenticated users - Admin/Owner recommended)
+ */
+router.delete("/soft/:branchId", softDeleteBranchSettings);
+
+/**
+ * @route   PATCH /restore/:branchId
+ * @desc    Restore soft deleted branch settings
+ * @access  Private (Authenticated users - Admin/Owner recommended)
+ */
+router.patch("/restore/:branchId", restoreBranchSettings);
 
 /**
  * @route   DELETE /:branchId
- * @desc    Delete branch settings
+ * @desc    Permanently delete branch settings
  * @access  Private (Authenticated users - Admin/Owner recommended)
  */
-router.delete("/:branchId", authenticateToken, deleteBranchSettings);
+router.delete("/:branchId", deleteBranchSettings);
 
 export default router;

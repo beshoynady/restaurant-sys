@@ -200,7 +200,7 @@ const deletePayroll = async (req, res) => {
   }
 };
 
-export  {
+export {
   createPayroll,
   getAllPayroll,
   getPayrollById,

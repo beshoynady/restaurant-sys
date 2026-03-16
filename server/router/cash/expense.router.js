@@ -1,17 +1,23 @@
 import express from "express";
 const router = express.Router();
-import expensesController from "../../controllers/cash/expense.controller.js";
+import {
+    createExpense,
+    updateExpense,
+    getAllExpenses,
+    getExpenseById,
+    deleteExpense
+} from "../../controllers/cash/expense.controller.js";
 import {authenticateToken} from "../../middlewares/authenticate.js";
-import checkSubscription from "../../middlewares/checkSubscription.js";
 
+router.use(authenticateToken)
 
 router.route("/")
-    .post(authenticateToken,expensesController.createExpense)
-    .get(authenticateToken,expensesController.getAllExpenses);
+    .post(createExpense)
+    .get(getAllExpenses);
 router.route("/:expenseId")
-    .get(authenticateToken,expensesController.getExpenseById)
-    .put(authenticateToken,expensesController.updateExpense)
-    .delete(authenticateToken,expensesController.deleteExpense);
+    .get(getExpenseById)
+    .put(updateExpense)
+    .delete(deleteExpense);
 
 
 

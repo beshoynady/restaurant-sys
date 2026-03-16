@@ -1,40 +1,23 @@
 import express from "express";
 const router = express.Router();
-import dailyExpensesController from "../../controllers/cash/daily-expense.controller.js";
+import {
+  createDailyExpense,
+  getAllDailyExpenses,
+  getDailyExpenseById,
+  updateDailyExpense,
+  deleteDailyExpense,
+} from "../../controllers/cash/daily-expense.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 
-
+router.use(authenticateToken);
 // Get all daily expenses
-router
-  .route("/")
-  .post(
-    authenticateToken,
-   
-    dailyExpensesController.addDailyExpense
-  )
-  .get(
-    authenticateToken,
-   
-    dailyExpensesController.getAllDailyExpenses
-  );
+router.route("/").post(createDailyExpense).get(getAllDailyExpenses);
 
 // Get one daily expense by ID
 router
   .route("/:dailyexpenseId")
-  .get(
-    authenticateToken,
-   
-    dailyExpensesController.getDailyExpenseById
-  )
-  .put(
-    authenticateToken,
-   
-    dailyExpensesController.updateDailyExpense
-  )
-  .delete(
-    authenticateToken,
-   
-    dailyExpensesController.deleteDailyExpense
-  );
+  .get(getDailyExpenseById)
+  .put(updateDailyExpense)
+  .delete(deleteDailyExpense);
 
 export default router;

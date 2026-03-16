@@ -10,7 +10,7 @@ import {
 } from "../../controllers/employees/permissions.controller.js";
 
 import {authenticateToken} from "../../middlewares/authenticate.js";
-import checkSubscription from "../../middlewares/checkSubscription.js";
+
 
 router.route('/')
     .post(authenticateToken,createPermission)
