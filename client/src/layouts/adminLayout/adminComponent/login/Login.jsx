@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { AppContext } from "../../../../context/appContext";
-import SetupWizard from "../setup/SetupWizard"; // ✅ Import setup wizard screen
+// import SetupWizard from "../setup/SetupWizard"; // ✅ Import setup wizard screen
 
 // Images
 import restaurant from "../../../../image/SmartRestaurant.jpg";
@@ -111,9 +111,9 @@ const Login = () => {
   }
 
   // No employees yet → show setup wizard
-  if (hasEmployees === false) {
-    return <SetupWizard />;
-  }
+  // if (hasEmployees === false) {
+  //   return <SetupWizard />;
+  // }
 
   // Employees exist → show login screen
   return (
