@@ -9,7 +9,6 @@ import Clientscreen from "../layouts/clientLayout/Clientscreen.jsx";
 import Login from "../layouts/adminLayout/adminComponent/login/Login";
 import SetupWizard from "../layouts/adminLayout/adminComponent/setup/SetupWizard.jsx";
 
-// ⚠️ FIX: استخدم Info بدل Brand
 import Info from "../layouts/adminLayout/adminComponent/settings/info";
 
 // Lazy Imports
