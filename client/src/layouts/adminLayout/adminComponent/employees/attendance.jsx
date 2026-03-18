@@ -52,7 +52,7 @@ const AttendanceManagement = () => {
 
   const recordArrival = async (e) => {
     e.preventDefault();
-    if (permissionsForattendance-recordreate === false) {
+    if (permissionsForAttendance.recordreate === false) {
       toast.info("ليس لك صلاحية لانشاء سجل");
       return;
     }

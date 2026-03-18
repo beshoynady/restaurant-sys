@@ -7,7 +7,7 @@ import LoadingPage from "../layouts/adminLayout/adminComponent/LoadingPage/Loadi
 import NoInternetPage from "../layouts/adminLayout/adminComponent/LoadingPage/NoInternetPage";
 import Clientscreen from "../layouts/clientLayout/Clientscreen.jsx";
 import Login from "../layouts/adminLayout/adminComponent/login/Login";
-import SetupWizard from "../layouts/adminLayout/adminComponent/Setup/SetupWizard.jsx";
+import SetupWizard from "../layouts/adminLayout/adminComponent/setup/SetupWizard.jsx";
 import Brand from "../layouts/adminLayout/adminComponent/settings/brand.jsx";
 
 const ManagLayout = React.lazy(() =>
@@ -530,4 +530,4 @@ const AppRoutes = () => {
   );
 };
 
-export AppRoutes;
+export default AppRoutes;
