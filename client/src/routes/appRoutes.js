@@ -7,7 +7,7 @@ import LoadingPage from "../layouts/adminLayout/adminComponent/LoadingPage/Loadi
 import NoInternetPage from "../layouts/adminLayout/adminComponent/LoadingPage/NoInternetPage";
 import Clientscreen from "../layouts/clientLayout/Clientscreen.jsx";
 import Login from "../layouts/adminLayout/adminComponent/login/Login";
-import SetupWizard from "../layouts/adminLayout/adminComponent/setup/SetupWizard.jsx";
+// import SetupWizard from "../layouts/adminLayout/adminComponent/setup/SetupWizard.jsx";
 
 import Info from "../layouts/adminLayout/adminComponent/settings/info";
 
@@ -171,7 +171,7 @@ const AppRoutes = () => {
 
       {/* 🔐 Auth */}
       <Route path="/login" element={<Login />} />
-      <Route path="/setup" element={<SetupWizard />} />
+      {/* <Route path="/setup" element={<SetupWizard />} /> */}
 
       {/* 🛑 Admin */}
       <Route
