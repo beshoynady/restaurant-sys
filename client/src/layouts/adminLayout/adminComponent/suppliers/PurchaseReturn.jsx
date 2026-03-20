@@ -580,8 +580,8 @@ const PurchaseReturn = () => {
     try {
       // await handleAddSupplierTransactionPaymentPurchase()
 
-      const cashMovement = await axios.post(
-        apiUrl + "/api/cashMovement/",
+      const cashTransaction = await axios.post(
+        apiUrl + "/api/cashTransaction/",
         {
           registerId: cashRegister,
           amount: refundedAmount,
@@ -591,7 +591,7 @@ const PurchaseReturn = () => {
         config
       );
 
-      if (cashMovement) {
+      if (cashTransaction) {
         toast.success("تم تسجيل حركه الخزينه بنجاح");
 
         const updatecashRegister = await axios.put(

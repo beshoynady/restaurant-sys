@@ -301,8 +301,8 @@ const POS = () => {
         const updatedBalance = oldBalance + revenue;
 
         // إنشاء سجل حركة نقدية
-        const cashMovement = await axios.post(
-          `${apiUrl}/api/cashMovement/`,
+        const cashTransaction = await axios.post(
+          `${apiUrl}/api/cashTransaction/`,
           {
             registerId: registerSelected,
             createdBy: employeeLoginInfo.id,
@@ -312,8 +312,8 @@ const POS = () => {
           },
           config
         );
-        const cashMovementData = cashMovement.data;
-        if (cashMovement) {
+        const cashTransactionData = cashTransaction.data;
+        if (cashTransaction) {
           toast.success("تم تسجيل حركه الخزينه");
           const updateCashRegister = await axios.put(
             `${apiUrl}/api/cashregister/${registerSelected}`,
@@ -326,8 +326,8 @@ const POS = () => {
           if (updateCashRegisterData) {
             toast.success("تم اضافه اليراد لرصيد الخزينه بنجاح");
           } else {
-            const deletecashMovement = await axios.delete(
-              `${apiUrl}/api/cashMovement/${cashMovementData._id}`,
+            const deletecashTransaction = await axios.delete(
+              `${apiUrl}/api/cashTransaction/${cashTransactionData._id}`,
               config
             );
             toast.warn(

@@ -2,14 +2,14 @@
   "name": "elbaron-bns-server",
   "version": "1.0.0",
   "description": "Backend server for Elbaron BNS, providing APIs for managing products, user authentication, and other essential functionalities.",
-  "main": "index.js",
+  "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node index.js",
+    "start": "node server.js",
     "stop": "pm2 stop elbaron-bns-server",
     "restart": "pm2 restart elbaron-bns-server",
     "logs": "pm2 logs elbaron-bns-server",
-    "dev": "nodemon index.js",
+    "dev": "nodemon server.js",
     "test": "echo \"No test specified\" && exit 0"
   },
   "author": "Beshoy Nady",

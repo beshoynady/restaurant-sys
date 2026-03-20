@@ -45,7 +45,7 @@ const PayRoll = () => {
   // State variables
   const [expenseId, setexpenseId] = useState("");
   const [rollId, setrollId] = useState("");
-  const [cashMovementId, setcashMovementId] = useState("");
+  const [cashTransactionId, setcashTransactionId] = useState("");
   const [dailyexpenseId, setdailyexpenseId] = useState("");
   const [expenseDescription, setexpenseDescription] = useState("");
   const [amount, setamount] = useState();
@@ -532,8 +532,8 @@ const PayRoll = () => {
 
     const config = await handleGetTokenAndConfig();
     try {
-      const cashMovement = await axios.post(
-        apiUrl + "/api/cashMovement/",
+      const cashTransaction = await axios.post(
+        apiUrl + "/api/cashTransaction/",
         {
           registerId: cashRegister,
           createdBy: paidBy,
@@ -544,7 +544,7 @@ const PayRoll = () => {
         config
       );
 
-      const cashMovementId = cashMovement.data.cashMovement._id;
+      const cashTransactionId = cashTransaction.data.cashTransaction._id;
 
       const dailyExpense = await axios.post(
         apiUrl + "/api/dailyexpense/",
@@ -552,7 +552,7 @@ const PayRoll = () => {
           expenseId,
           expenseDescription,
           cashRegister,
-          cashMovementId,
+          cashTransactionId,
           paidBy,
           amount,
           notes,

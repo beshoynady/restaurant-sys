@@ -50,7 +50,7 @@ const DailyExpense = () => {
 
   const [expenseId, setexpenseId] = useState("");
   const [date, setdate] = useState("");
-  const [cashMovementId, setcashMovementId] = useState("");
+  const [cashTransactionId, setcashTransactionId] = useState("");
   const [dailyexpenseId, setdailyexpenseId] = useState("");
   const [expenseDescription, setexpenseDescription] = useState("");
   const [amount, setamount] = useState();
@@ -115,8 +115,8 @@ const DailyExpense = () => {
       }
 
       // Create a new cash movement
-      const cashMovementResponse = await axios.post(
-        `${apiUrl}/api/cashMovement/`,
+      const cashTransactionResponse = await axios.post(
+        `${apiUrl}/api/cashTransaction/`,
         {
           registerId: cashRegister,
           createdBy: paidBy,
@@ -127,7 +127,7 @@ const DailyExpense = () => {
         config
       );
 
-      const cashMovementId = cashMovementResponse.data.cashMovement._id;
+      const cashTransactionId = cashTransactionResponse.data.cashTransaction._id;
 
       // Create a new daily expense
       const dailyExpenseResponse = await axios.post(
@@ -137,7 +137,7 @@ const DailyExpense = () => {
           date,
           expenseDescription,
           cashRegister,
-          cashMovementId,
+          cashTransactionId,
           paidBy,
           amount,
           notes,
@@ -188,8 +188,8 @@ const DailyExpense = () => {
       const prevExpenseAmount = prevExpenseData.amount;
 
       const updatedbalance = CashRegisterBalance + prevExpenseAmount - amount;
-      if (cashMovementId) {
-        // Ensure cashMovementId has a value before sending the request
+      if (cashTransactionId) {
+        // Ensure cashTransactionId has a value before sending the request
         const response = await axios.put(
           `${apiUrl}/api/dailyexpense/${dailyexpenseId}`,
           {
@@ -205,8 +205,8 @@ const DailyExpense = () => {
 
         const data = response.data;
 
-        const cashMovement = await axios.put(
-          `${apiUrl}/api/cashMovement/${cashMovementId}`,
+        const cashTransaction = await axios.put(
+          `${apiUrl}/api/cashTransaction/${cashTransactionId}`,
           {
             registerId: cashRegister,
             createdBy: paidBy,
@@ -254,15 +254,15 @@ const DailyExpense = () => {
       // Calculate the difference between the new balance and the previous amount
       const updatedbalance = CashRegisterBalance + amount;
 
-      if (cashMovementId) {
-        // Ensure cashMovementId has a value before sending the request
+      if (cashTransactionId) {
+        // Ensure cashTransactionId has a value before sending the request
         // Delete the expense record after extracting previous expense data
         const deleteExpenseRecord = await axios.delete(
           `${apiUrl}/api/dailyexpense/${dailyexpenseId}`,
           config
         );
-        const deleteCashMovement = await axios.delete(
-          `${apiUrl}/api/cashMovement/${cashMovementId}`,
+        const deletecashTransaction = await axios.delete(
+          `${apiUrl}/api/cashTransaction/${cashTransactionId}`,
           config
         );
 
@@ -553,7 +553,7 @@ const DailyExpense = () => {
                           <td>{dailyexpense.expenseDescription}</td>
                           <td>{dailyexpense.amount}</td>
                           <td>{dailyexpense.cashRegister?.name}</td>
-                          <td>{dailyexpense.cashMovementId?.type}</td>
+                          <td>{dailyexpense.cashTransactionId?.type}</td>
                           <td>{dailyexpense.notes}</td>
                           <td>{dailyexpense.paidBy?.username}</td>
                           <td>{formatDateTime(dailyexpense.date)}</td>
@@ -564,8 +564,8 @@ const DailyExpense = () => {
                               data-toggle="modal"
                               onClick={() => {
                                 handlecashRegister(employeeLoginInfo.id);
-                                setcashMovementId(
-                                  dailyexpense.cashMovementId?._id
+                                setcashTransactionId(
+                                  dailyexpense.cashTransactionId?._id
                                 );
                                 setexpenseId(dailyexpense.expenseId?._id);
                                 setcashRegister(dailyexpense.cashRegister._id);
@@ -599,8 +599,8 @@ const DailyExpense = () => {
                                 setdailyexpenseId(dailyexpense._id);
                                 setamount(dailyexpense.amount);
                                 setdailyexpenseId(dailyexpense._id);
-                                setcashMovementId(
-                                  dailyexpense.cashMovementId._id
+                                setcashTransactionId(
+                                  dailyexpense.cashTransactionId._id
                                 );
                               }}
                             >

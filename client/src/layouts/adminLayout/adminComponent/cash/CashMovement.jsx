@@ -4,7 +4,7 @@ import { AppContext } from "../../../../context/appContext";
 import { toast } from "react-toastify";
 import "../orders/Orders.css";
 
-const CashMovement = () => {
+const cashTransaction = () => {
   const {
     permissionsList,
     setStartDate,
@@ -24,7 +24,7 @@ const CashMovement = () => {
     apiUrl,
   } = useContext(AppContext);
 
-  const cashMovementPermissions = permissionsList?.filter(
+  const cashTransactionPermissions = permissionsList?.filter(
     (permission) => permission.resource === "Cash Movement"
   )[0];
 
@@ -101,11 +101,11 @@ const CashMovement = () => {
     setCashRegisterBalance(cashRegisterSelected.balance);
   };
 
-  const [AllCashMovement, setAllCashMovement] = useState([]);
-  const getCashMovement = async () => {
+  const [AllcashTransaction, setAllcashTransaction] = useState([]);
+  const getcashTransaction = async () => {
     const config = await handleGetTokenAndConfig();
 
-    if (cashMovementPermissions && cashMovementPermissions.read === false) {
+    if (cashTransactionPermissions && cashTransactionPermissions.read === false) {
       toast.warn("ليس لك صلاحية لعرض حسابات الخزينه");
       return;
     }
@@ -113,20 +113,20 @@ const CashMovement = () => {
     try {
       const employeeId = await employeeLoginInfo.id;
 
-      const response = await axios.get(apiUrl + "/api/cashmovement/", config);
-      const AllCashMovement = response.data.reverse();
-      if (AllCashMovement.length > 0) {
+      const response = await axios.get(apiUrl + "/api/cashTransaction/", config);
+      const AllcashTransaction = response.data.reverse();
+      if (AllcashTransaction.length > 0) {
         if (
           employeeLoginInfo.role === "owner" ||
           employeeLoginInfo.role === "manager"
         ) {
-          setAllCashMovement(AllCashMovement);
+          setAllcashTransaction(AllcashTransaction);
         } else {
-          const myCashMovement = AllCashMovement.filter(
+          const mycashTransaction = AllcashTransaction.filter(
             (movement) => movement.registerId?.employee === employeeId
           );
 
-          setAllCashMovement(myCashMovement);
+          setAllcashTransaction(mycashTransaction);
         }
       }
     } catch (error) {
@@ -160,16 +160,16 @@ const CashMovement = () => {
   const [description, setDescription] = useState("");
 
   // Function to add cash movement and update balance
-  const addCashMovementAndUpdateBalance = async () => {
+  const addcashTransactionAndUpdateBalance = async () => {
     const config = await handleGetTokenAndConfig();
-    if (cashMovementPermissions && cashMovementPermissions.create === false) {
+    if (cashTransactionPermissions && cashTransactionPermissions.create === false) {
       toast.warn("ليس لك صلاحية لانشاء حركه في حسابات الخزينه");
       return;
     }
     try {
       // Send cash movement data to the API
-      const cashMovementResponse = await axios.post(
-        apiUrl + "/api/cashmovement/",
+      const cashTransactionResponse = await axios.post(
+        apiUrl + "/api/cashTransaction/",
         {
           registerId: cashRegister,
           createdBy,
@@ -181,7 +181,7 @@ const CashMovement = () => {
       );
 
       // If the cash movement is recorded successfully
-      if (cashMovementResponse.data) {
+      if (cashTransactionResponse.data) {
         const isWithdrawal = type === "Withdraw";
         const updateAmount = isWithdrawal ? -amount : amount;
         const newBalance = CashRegisterBalance + updateAmount;
@@ -200,7 +200,7 @@ const CashMovement = () => {
           // Show success toast message
           toast.success("تم تسجيل حركة النقدية بنجاح");
           // Refresh the displayed cash movements and registers
-          getCashMovement();
+          getcashTransaction();
           getAllCashRegisters();
         } else {
           // Show error toast message if updating cash register balance fails
@@ -217,7 +217,7 @@ const CashMovement = () => {
     }
   };
 
-  const handelCashMovement = (id, Type) => {
+  const handelcashTransaction = (id, Type) => {
     setSubmitted(false);
     handlecashRegister(id);
     setType(Type);
@@ -231,7 +231,7 @@ const CashMovement = () => {
     if (!submitted) {
       setSubmitted(true);
 
-      await addCashMovementAndUpdateBalance();
+      await addcashTransactionAndUpdateBalance();
 
       const modal = document.getElementById("DepositModal");
       if (modal) {
@@ -248,12 +248,12 @@ const CashMovement = () => {
 
     try {
       const config = await handleGetTokenAndConfig();
-      if (cashMovementPermissions && cashMovementPermissions.create === false) {
+      if (cashTransactionPermissions && cashTransactionPermissions.create === false) {
         toast.warn("ليس لك صلاحية لانشاء حركه في حسابات الخزينه");
         return;
       }
 
-      const sendCashMovementData = {
+      const sendcashTransactionData = {
         registerId: sendRegister,
         createdBy,
         amount,
@@ -263,16 +263,16 @@ const CashMovement = () => {
         status: "Pending",
       };
 
-      const sendCashMovementResponse = await axios.post(
-        `${apiUrl}/api/cashmovement/`,
-        sendCashMovementData,
+      const sendcashTransactionResponse = await axios.post(
+        `${apiUrl}/api/cashTransaction/`,
+        sendcashTransactionData,
         config
       );
-      if (sendCashMovementResponse) {
-        const sendCashMovementResult = sendCashMovementResponse.data;
-        const movementId = sendCashMovementResult.cashMovement._id;
+      if (sendcashTransactionResponse) {
+        const sendcashTransactionResult = sendcashTransactionResponse.data;
+        const movementId = sendcashTransactionResult.cashTransaction._id;
 
-        const receivCashMovementData = {
+        const receivcashTransactionData = {
           registerId: receivRegister,
           createdBy,
           amount,
@@ -283,20 +283,20 @@ const CashMovement = () => {
           movementId,
         };
 
-        const receivCashMovementResponse = await axios.post(
-          `${apiUrl}/api/cashmovement/`,
-          receivCashMovementData,
+        const receivcashTransactionResponse = await axios.post(
+          `${apiUrl}/api/cashTransaction/`,
+          receivcashTransactionData,
           config
         );
-        const receivCashMovementResult = receivCashMovementResponse.data;
+        const receivcashTransactionResult = receivcashTransactionResponse.data;
 
-        if (receivCashMovementResult) {
+        if (receivcashTransactionResult) {
           toast.success("تم تسجيل التحويل وينتظر الموافقة من المستلم");
-          getCashMovement();
+          getcashTransaction();
           getAllCashRegisters();
         } else {
-          const sendCashMovementResponse = await axios.delete(
-            `${apiUrl}/api/cashmovement/${movementId}`,
+          const sendcashTransactionResponse = await axios.delete(
+            `${apiUrl}/api/cashTransaction/${movementId}`,
             config
           );
           toast.warn(
@@ -315,17 +315,17 @@ const CashMovement = () => {
       const config = await handleGetTokenAndConfig();
 
       // Fetch details of the cash movement
-      const receivcashMovementResponse = await axios.get(
-        `${apiUrl}/api/cashmovement/${id}`,
+      const receivcashTransactionResponse = await axios.get(
+        `${apiUrl}/api/cashTransaction/${id}`,
         config
       );
-      const receivcashMovement = receivcashMovementResponse.data;
+      const receivcashTransaction = receivcashTransactionResponse.data;
       const {
         movementId,
         transferFrom: sendregister,
         registerId: receivregister,
         amount,
-      } = receivcashMovement;
+      } = receivcashTransaction;
 
       console.log({
         movementId: movementId._id,
@@ -337,12 +337,12 @@ const CashMovement = () => {
       if (statusTransfer === "Rejected") {
         // Reject transfer
         await axios.put(
-          `${apiUrl}/api/cashmovement/${id}`,
+          `${apiUrl}/api/cashTransaction/${id}`,
           { status: "Rejected" },
           config
         );
         await axios.put(
-          `${apiUrl}/api/cashmovement/${movementId._id}`,
+          `${apiUrl}/api/cashTransaction/${movementId._id}`,
           { status: "Rejected" },
           config
         );
@@ -350,7 +350,7 @@ const CashMovement = () => {
       } else if (statusTransfer === "Completed") {
         // Update receiver's cash movement status
         await axios.put(
-          `${apiUrl}/api/cashmovement/${id}`,
+          `${apiUrl}/api/cashTransaction/${id}`,
           { status: "Completed" },
           config
         );
@@ -372,7 +372,7 @@ const CashMovement = () => {
 
         // Update sender's cash movement status
         await axios.put(
-          `${apiUrl}/api/cashmovement/${movementId._id}`,
+          `${apiUrl}/api/cashTransaction/${movementId._id}`,
           { status: "Completed" },
           config
         );
@@ -391,7 +391,7 @@ const CashMovement = () => {
           { balance: newsenderBalance },
           config
         );
-        getCashMovement();
+        getcashTransaction();
         getAllCashRegisters();
 
         toast.success("تم التحويل بنجاح");
@@ -404,35 +404,35 @@ const CashMovement = () => {
 
   const filterByType = (type) => {
     if (!type) {
-      getCashMovement();
+      getcashTransaction();
       return;
     }
-    const filterList = AllCashMovement.filter(
+    const filterList = AllcashTransaction.filter(
       (movement) => movement.type === type
     );
-    setAllCashMovement(filterList);
+    setAllcashTransaction(filterList);
   };
 
   const filterByCashRegisters = (cashregisterId) => {
     if (!cashregisterId) {
-      getCashMovement();
+      getcashTransaction();
       return;
     }
-    const filterList = AllCashMovement.filter(
+    const filterList = AllcashTransaction.filter(
       (movement) => movement.registerId?._id === cashregisterId
     );
-    setAllCashMovement(filterList);
+    setAllcashTransaction(filterList);
   };
 
   useEffect(() => {
     // getEmployeeInfoFromToken()
     getAllCashRegisters();
-    getCashMovement();
+    getcashTransaction();
   }, []);
 
   // useEffect(() => {
   //   getAllCashRegisters()
-  //   getCashMovement()
+  //   getcashTransaction()
   // }, [EmployeeLoginInfo])
 
   return (
@@ -447,14 +447,14 @@ const CashMovement = () => {
                 </h2>
               </div>
               <div className="col-sm-6 h-100 d-flex justify-content-end">
-                {cashMovementPermissions?.create && (
+                {cashTransactionPermissions?.create && (
                   <>
                     <a
                       href="#DepositModal"
                       className="d-flex align-items-center justify-content-center h-100 m-0 btn btn-success"
                       data-toggle="modal"
                       onClick={() =>
-                        handelCashMovement(employeeLoginInfo.id, "Deposit")
+                        handelcashTransaction(employeeLoginInfo.id, "Deposit")
                       }
                     >
                       <span>ايداع</span>
@@ -464,7 +464,7 @@ const CashMovement = () => {
                       className="d-flex align-items-center justify-content-center h-100 m-0 btn btn-danger"
                       data-toggle="modal"
                       onClick={() =>
-                        handelCashMovement(employeeLoginInfo.id, "Withdraw")
+                        handelcashTransaction(employeeLoginInfo.id, "Withdraw")
                       }
                     >
                       <span>سحب</span>
@@ -474,7 +474,7 @@ const CashMovement = () => {
                       className="d-flex align-items-center justify-content-center h-100 m-0 btn btn-warning"
                       data-toggle="modal"
                       onClick={() =>
-                        handelCashMovement(employeeLoginInfo.id, "Transfer")
+                        handelcashTransaction(employeeLoginInfo.id, "Transfer")
                       }
                     >
                       <span>تحويل</span>
@@ -558,8 +558,8 @@ const CashMovement = () => {
                   <select
                     className="form-control border-primary m-0 p-2 h-auto"
                     onChange={(e) =>
-                      setAllCashMovement(
-                        filterByTime(e.target.value, AllCashMovement)
+                      setAllcashTransaction(
+                        filterByTime(e.target.value, AllcashTransaction)
                       )
                     }
                   >
@@ -605,7 +605,7 @@ const CashMovement = () => {
                       type="button"
                       className="btn btn-primary h-100 p-2 "
                       onClick={() =>
-                        setAllCashMovement(filterByDateRange(AllCashMovement))
+                        setAllcashTransaction(filterByDateRange(AllcashTransaction))
                       }
                     >
                       <i className="fa fa-search"></i>
@@ -613,7 +613,7 @@ const CashMovement = () => {
                     <button
                       type="button"
                       className="btn btn-warning h-100 p-2"
-                      onClick={getCashMovement}
+                      onClick={getcashTransaction}
                     >
                       استعادة
                     </button>
@@ -638,8 +638,8 @@ const CashMovement = () => {
               </tr>
             </thead>
             <tbody>
-              {AllCashMovement.length > 0
-                ? AllCashMovement.map((movement, i) => {
+              {AllcashTransaction.length > 0
+                ? AllcashTransaction.map((movement, i) => {
                     if ((i >= startPagination) & (i < endPagination)) {
                       return (
                         <tr key={i}>
@@ -717,11 +717,11 @@ const CashMovement = () => {
             <div className="hint-text text-dark">
               عرض{" "}
               <b>
-                {AllCashMovement.length > endPagination
+                {AllcashTransaction.length > endPagination
                   ? endPagination
-                  : AllCashMovement.length}
+                  : AllcashTransaction.length}
               </b>{" "}
-              من <b>{AllCashMovement.length}</b> عنصر
+              من <b>{AllcashTransaction.length}</b> عنصر
             </div>
             <ul className="pagination">
               <li onClick={EditPagination} className="page-item disabled">
@@ -1136,4 +1136,4 @@ const CashMovement = () => {
   );
 };
 
-export   default CashMovement;
+export   default cashTransaction;

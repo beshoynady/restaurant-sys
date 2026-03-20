@@ -666,7 +666,7 @@ const SideBar = () => {
                             permission.resource === "Cash Movement"
                         )[0]?.read) && (
                         <li className="list">
-                          <Link to="cashmovement">تسجيل حركة</Link>
+                          <Link to="cashTransaction">تسجيل حركة</Link>
                         </li>
                       )}
                     </ul>

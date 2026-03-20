@@ -1,5 +1,5 @@
 import DailyExpenseModel from "../../models/cash/daily-expense.model.js";
-import CashMovement from "../../models/cash/cash-transaction.model.js";
+import cashTransaction from "../../models/cash/cash-transaction.model.js";
 import CashRegister from "../../models/cash/cash-register.model.js";
 import ExpenseModel from "../../models/cash/expense.model.js";
 import Joi from "joi";
@@ -22,7 +22,7 @@ const dailyExpenseValidationSchema = Joi.object({
 /**
  * Create a new DailyExpense
  * -------------------------
- * Automatically creates a CashMovement entry for the expense
+ * Automatically creates a cashTransaction entry for the expense
  * Handles rounding/adjustments if needed
  */
 const createDailyExpense = async (req, res) => {
@@ -58,8 +58,8 @@ const createDailyExpense = async (req, res) => {
     register.balance -= amount; // Expense reduces cash
     await register.save();
     
-    // Create CashMovement
-    const cashMovement = await CashMovement.create({
+    // Create cashTransaction
+    const cashTransaction = await cashTransaction.create({
       brand: expenseDoc.brand,
       branch: expenseDoc.branch,
       description: `Payment for ${expenseDescription}`,
@@ -72,7 +72,7 @@ const createDailyExpense = async (req, res) => {
     });
 
 
-    res.status(201).json({ dailyExpense, cashMovement });
+    res.status(201).json({ dailyExpense, cashTransaction });
   } catch (err) {
     console.error("Error creating daily expense:", err);
     res.status(500).json({ message: "Internal server error" });
@@ -128,7 +128,7 @@ const getDailyExpenseById = async (req, res) => {
  * Update DailyExpense
  * ------------------
  * Allows updating description, amount, notes
- * Updates corresponding CashMovement and CashRegister balance
+ * Updates corresponding cashTransaction and CashRegister balance
  */
 const updateDailyExpense = async (req, res) => {
   try {
@@ -149,12 +149,12 @@ const updateDailyExpense = async (req, res) => {
     Object.assign(dailyExpense, value);
     await dailyExpense.save();
 
-    // Update corresponding CashMovement
-    const cashMovement = await CashMovement.findOne({ dailyExpenseId: dailyExpense._id, type: 'Expense' });
-    if (cashMovement) {
-      cashMovement.amount = newAmount;
-      cashMovement.description = `Payment for ${value.expenseDescription}`;
-      await cashMovement.save();
+    // Update corresponding cashTransaction
+    const cashTransaction = await cashTransaction.findOne({ dailyExpenseId: dailyExpense._id, type: 'Expense' });
+    if (cashTransaction) {
+      cashTransaction.amount = newAmount;
+      cashTransaction.description = `Payment for ${value.expenseDescription}`;
+      await cashTransaction.save();
     }
 
     // Update CashRegister balance
@@ -164,7 +164,7 @@ const updateDailyExpense = async (req, res) => {
       await register.save();
     }
 
-    res.status(200).json({ dailyExpense, cashMovement });
+    res.status(200).json({ dailyExpense, cashTransaction });
   } catch (err) {
     console.error("Error updating daily expense:", err);
     res.status(500).json({ message: "Internal server error" });
@@ -190,8 +190,8 @@ const deleteDailyExpense = async (req, res) => {
       await register.save();
     }
 
-    // Delete corresponding CashMovement
-    await CashMovement.deleteMany({ dailyExpenseId: dailyExpense._id });
+    // Delete corresponding cashTransaction
+    await cashTransaction.deleteMany({ dailyExpenseId: dailyExpense._id });
 
     await DailyExpenseModel.findByIdAndDelete(dailyExpense._id);
 

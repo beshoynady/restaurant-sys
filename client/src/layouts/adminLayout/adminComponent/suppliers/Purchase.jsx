@@ -617,8 +617,8 @@ const Purchase = () => {
 
     try {
       // Perform the cash movement
-      const cashMovementResponse = await axios.post(
-        `${apiUrl}/api/cashMovement/`,
+      const cashTransactionResponse = await axios.post(
+        `${apiUrl}/api/cashTransaction/`,
         {
           registerId: cashRegister,
           amount: paidAmount,
@@ -628,9 +628,9 @@ const Purchase = () => {
         config
       );
 
-      const cashMovement = cashMovementResponse.data.cashMovement;
+      const cashTransaction = cashTransactionResponse.data.cashTransaction;
 
-      if (cashMovementResponse) {
+      if (cashTransactionResponse) {
         toast.success("تم تسجيل حركه الخزينه بنجاح");
 
         // Update the cash register balance
@@ -648,7 +648,7 @@ const Purchase = () => {
         } else {
           // If updating the cash register fails, roll back the cash movement
           await axios.delete(
-            `${apiUrl}/api/cashMovement/${cashMovement._id}`,
+            `${apiUrl}/api/cashTransaction/${cashTransaction._id}`,
             config
           );
           toast.error("فشل في تحديث رصيد الخزينة. تم إلغاء حركة الخزينة.");

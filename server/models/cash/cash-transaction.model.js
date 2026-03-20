@@ -2,12 +2,12 @@ import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 /**
- * CashMovement
+ * cashTransaction
  * ------------
  * Single source of truth for ALL money movements (cash & non-cash)
  * Operational ledger (not GL journal)
  */
-const cashMovementSchema = new mongoose.Schema(
+const cashTransactionSchema = new mongoose.Schema(
   {
     /* =============================
        Ownership & Scope
@@ -122,7 +122,7 @@ const cashMovementSchema = new mongoose.Schema(
      */
     relatedMovement: {
       type: ObjectId,
-      ref: "CashMovement",
+      ref: "cashTransaction",
       default: null,
     },
 
@@ -176,9 +176,9 @@ const cashMovementSchema = new mongoose.Schema(
 /* =============================
    Indexes
 ============================== */
-cashMovementSchema.index({ brand: 1, branch: 1, createdAt: -1 });
-cashMovementSchema.index({ cashRegister: 1, createdAt: -1 });
-cashMovementSchema.index({ paymentMethod: 1 });
-cashMovementSchema.index({ movementType: 1 });
+cashTransactionSchema.index({ brand: 1, branch: 1, createdAt: -1 });
+cashTransactionSchema.index({ cashRegister: 1, createdAt: -1 });
+cashTransactionSchema.index({ paymentMethod: 1 });
+cashTransactionSchema.index({ movementType: 1 });
 
-export default mongoose.model("CashMovement", cashMovementSchema);
+export default mongoose.model("cashTransaction", cashTransactionSchema);
