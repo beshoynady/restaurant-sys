@@ -125,56 +125,57 @@ const updateEmployeeSchema = Joi.object({
  * 2. CREATE FIRST EMPLOYEE (SYSTEM OWNER)
  * =========================================================== */
 const createFirstEmployee = asyncHandler(async (req, res) => {
-    const { error } = createFirstEmployeeSchema.validate(req.body, {
-      abortEarly: false,
-    });
-    if (error)
-      return res.status(400).json({
-        success: false,
-        message: "Validation failed",
-        errors: error.details.map((e) => e.message),
-      });
-
-    const exists = await EmployeeModel.countDocuments();
-    if (exists > 0)
-      return res.status(400).json({
-        success: false,
-        message: "System already initialized",
-      });
-
-    const { credentials } = req.body;
-    const hashedPassword = await bcrypt.hash(credentials.password, 10);
-
-    const employee = await EmployeeModel.create({
-      ...req.body,
-      employmentInfo: {
-        isOwner: true,
-        isVerified: true,
-        isActive: true,
-      },
-      credentials: {
-        ...credentials,
-        password: hashedPassword,
-      },
+  const { error } = createFirstEmployeeSchema.validate(req.body, {
+    abortEarly: false,
+  });
+  if (error)
+    return res.status(400).json({
+      success: false,
+      message: "Validation failed",
+      errors: error.details.map((e) => e.message),
     });
 
-    const accessToken = jwt.sign(
-      { id: employee._id,
-        isAdmin: employee.type === "system_user",
-          status: employee.employmentInfo.status,
-          isVerified: employee.employmentInfo.isVerified,
-          isOwner: employee.employmentInfo.isOwner,
-         },
-      process.env.JWT_SECRET_KEY,
-      { expiresIn: "15m" },
-    );
-
-    return res.status(201).json({
-      success: true,
-      message: "First employee created successfully",
-      data: employee,
-      accessToken,
+  const exists = await EmployeeModel.countDocuments();
+  if (exists > 0)
+    return res.status(400).json({
+      success: false,
+      message: "System already initialized",
     });
+
+  const { credentials } = req.body;
+  const hashedPassword = await bcrypt.hash(credentials.password, 10);
+
+  const employee = await EmployeeModel.create({
+    ...req.body,
+    employmentInfo: {
+      isOwner: true,
+      isVerified: true,
+      isActive: true,
+    },
+    credentials: {
+      ...credentials,
+      password: hashedPassword,
+    },
+  });
+
+  const accessToken = jwt.sign(
+    {
+      id: employee._id,
+      isAdmin: employee.type === "system_user",
+      status: employee.employmentInfo.status,
+      isVerified: employee.employmentInfo.isVerified,
+      isOwner: employee.employmentInfo.isOwner,
+    },
+    process.env.JWT_SECRET_KEY,
+    { expiresIn: "15m" },
+  );
+
+  return res.status(201).json({
+    success: true,
+    message: "First employee created successfully",
+    data: employee,
+    accessToken,
+  });
 });
 
 /* ===========================================================
@@ -185,147 +186,147 @@ const createEmployee = asyncHandler(async (req, res) => {
     abortEarly: false,
   });
   if (error)
-      return res.status(400).json({
-        success: false,
-        message: "Validation failed",
-        errors: error.details.map((e) => e.message),
-      });
-
-    const { credentials, contactInfo, personalInfo } = req.body;
-
-    // Check duplicates (username, phone, nationalID)
-    const duplicate = await EmployeeModel.findOne({
-      $or: [
-        { "credentials.username": credentials.username },
-        { "contactInfo.phone": contactInfo.phone },
-        { "personalInfo.nationalID": personalInfo.nationalID },
-      ],
+    return res.status(400).json({
+      success: false,
+      message: "Validation failed",
+      errors: error.details.map((e) => e.message),
     });
 
-    if (duplicate)
-      return res.status(409).json({
-        success: false,
-        message: "Employee already exists",
-      });
+  const { credentials, contactInfo, personalInfo } = req.body;
 
-    const hashedPassword = await bcrypt.hash(credentials.password, 10);
+  // Check duplicates (username, phone, nationalID)
+  const duplicate = await EmployeeModel.findOne({
+    $or: [
+      { "credentials.username": credentials.username },
+      { "contactInfo.phone": contactInfo.phone },
+      { "personalInfo.nationalID": personalInfo.nationalID },
+    ],
+  });
 
-    const employee = await EmployeeModel.create({
-      ...req.body,
-      credentials: {
-        ...credentials,
-        password: hashedPassword,
-      },
-      createdBy: req.user?._id || null,
+  if (duplicate)
+    return res.status(409).json({
+      success: false,
+      message: "Employee already exists",
     });
 
-    return res.status(201).json({
-      success: true,
-      message: "Employee created successfully",
-      data: employee,
-    });
+  const hashedPassword = await bcrypt.hash(credentials.password, 10);
+
+  const employee = await EmployeeModel.create({
+    ...req.body,
+    credentials: {
+      ...credentials,
+      password: hashedPassword,
+    },
+    createdBy: req.user?._id || null,
+  });
+
+  return res.status(201).json({
+    success: true,
+    message: "Employee created successfully",
+    data: employee,
+  });
 });
 
 /* ===========================================================
  * 4. UPDATE EMPLOYEE
  * =========================================================== */
 const updateEmployee = asyncHandler(async (req, res) => {
-    const { employeeId } = req.params;
+  const { employeeId } = req.params;
 
-    if (req.body.credentials?.password) {
-      req.body.credentials.password = await bcrypt.hash(
-        req.body.credentials.password,
-        10,
-      );
-    }
-
-    const { error } = updateEmployeeSchema.validate(req.body, {
-      abortEarly: false,
-    });
-    if (error)
-      return res.status(400).json({
-        success: false,
-        message: "Validation failed",
-        errors: error.details.map((e) => e.message),
-      });
-
-    const employee = await EmployeeModel.findOneAndUpdate(
-      { _id: employeeId, isDeleted: false },
-      { ...req.body, updatedBy: req.user?._id || null },
-      { new: true },
+  if (req.body.credentials?.password) {
+    req.body.credentials.password = await bcrypt.hash(
+      req.body.credentials.password,
+      10,
     );
+  }
 
-    if (!employee)
-      return res.status(404).json({
-        success: false,
-        message: "Employee not found",
-      });
+  const { error } = updateEmployeeSchema.validate(req.body, {
+    abortEarly: false,
+  });
+  if (error)
+    return res.status(400).json({
+      success: false,
+      message: "Validation failed",
+      errors: error.details.map((e) => e.message),
+    });
 
-    return res.status(200).json({
-      success: true,
-      message: "Employee updated successfully",
-      data: employee,
-    }); 
+  const employee = await EmployeeModel.findOneAndUpdate(
+    { _id: employeeId, isDeleted: false },
+    { ...req.body, updatedBy: req.user?._id || null },
+    { new: true },
+  );
+
+  if (!employee)
+    return res.status(404).json({
+      success: false,
+      message: "Employee not found",
+    });
+
+  return res.status(200).json({
+    success: true,
+    message: "Employee updated successfully",
+    data: employee,
+  });
 });
 
 /* ===========================================================
  * 5. LOGIN EMPLOYEE
  * =========================================================== */
 const loginEmployee = asyncHandler(async (req, res) => {
-    const { username, password } = req.body;
+  const { username, password } = req.body;
 
-    const employee = await EmployeeModel.findOne({
-      "credentials.username": username,
-      isDeleted: false,
-    }).select("+credentials.password");
+  const employee = await EmployeeModel.findOne({
+    "credentials.username": username,
+    isDeleted: false,
+  }).select("+credentials.password");
 
-    if (!employee)
-      return res.status(401).json({
-        success: false,
-        message: "Invalid credentials",
-      });
-
-    const match = await bcrypt.compare(password, employee.credentials.password);
-    if (!match)
-      return res.status(401).json({
-        success: false,
-        message: "Invalid credentials",
-      });
-
-    const accessToken = jwt.sign(
-      {
-        id: employee._id,
-        isAdmin: employee.type === "system_user",
-        isOwner: employee.employmentInfo?.isOwner || false,
-        isVerified: employee.employmentInfo?.isVerified || false,
-        isActive: employee.employmentInfo?.status === "active",
-        brand: employee.brand.toString(),
-        branch: employee.branch ? employee.branch.toString() : null,
-      },
-      process.env.JWT_SECRET_KEY,
-      { expiresIn: "15m" },
-    );
-
-    return res.status(200).json({
-      success: true,
-      message: "Login successful",
-      accessToken,
-      employee,
+  if (!employee)
+    return res.status(401).json({
+      success: false,
+      message: "Invalid credentials",
     });
+
+  const match = await bcrypt.compare(password, employee.credentials.password);
+  if (!match)
+    return res.status(401).json({
+      success: false,
+      message: "Invalid credentials",
+    });
+
+  const accessToken = jwt.sign(
+    {
+      id: employee._id,
+      isAdmin: employee.type === "system_user",
+      isOwner: employee.employmentInfo?.isOwner || false,
+      isVerified: employee.employmentInfo?.isVerified || false,
+      isActive: employee.employmentInfo?.status === "active",
+      brand: employee.brand.toString(),
+      branch: employee.branch ? employee.branch.toString() : null,
+    },
+    process.env.JWT_SECRET_KEY,
+    { expiresIn: "15m" },
+  );
+
+  return res.status(200).json({
+    success: true,
+    message: "Login successful",
+    accessToken,
+    employee,
   });
+});
 
 /* ===========================================================
  * 5. LOGOUT EMPLOYEE
  * =========================================================== */
 const logoutEmployee = asyncHandler(async (req, res) => {
-    res.clearCookie("refreshToken", {
-      httpOnly: true,
-      sameSite: "strict",
-      secure: process.env.NODE_ENV === "production",
-    });
-    res
-      .status(200)
-      .json({ status: "success", message: "✅ Logged out successfully." });
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    sameSite: "strict",
+    secure: process.env.NODE_ENV === "production",
+  });
+  res
+    .status(200)
+    .json({ status: "success", message: "✅ Logged out successfully." });
 });
 
 /* ===========================================================
@@ -335,51 +336,50 @@ const logoutEmployee = asyncHandler(async (req, res) => {
 const getOneEmployee = asyncHandler(async (req, res) => {
   const { employeeId } = req.params;
   const employee = await EmployeeModel.findOne({
-      _id: employeeId,
-    }).populate("branch department jobTitle");
-    if (!employee)
-      return res.status(404).json({ success: false, message: "Not found" });
-    return res.status(200).json({ success: true, data: employee });
-  
+    _id: employeeId,
+  }).populate("branch department jobTitle");
+  if (!employee)
+    return res.status(404).json({ success: false, message: "Not found" });
+  return res.status(200).json({ success: true, data: employee });
 });
 /* ===========================================================
  * 6. GET EMPLOYEES (PAGINATION)
  * =========================================================== */
 const getEmployeesWithPagination = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 20 } = req.query;
+  const { page = 1, limit = 20 } = req.query;
 
-    const data = await EmployeeModel.find({ isDeleted: false })
-      .skip((page - 1) * limit)
-      .limit(Number(limit))
-      .populate("branch department jobTitle");
+  const data = await EmployeeModel.find({ isDeleted: false })
+    .skip((page - 1) * limit)
+    .limit(Number(limit))
+    .populate("branch department jobTitle");
 
-    const total = await EmployeeModel.countDocuments({ isDeleted: false });
+  const total = await EmployeeModel.countDocuments({ isDeleted: false });
 
-    return res.status(200).json({
-      success: true,
-      total,
-      page: Number(page),
-      pages: Math.ceil(total / limit),
-      data,
-    });
+  return res.status(200).json({
+    success: true,
+    total,
+    page: Number(page),
+    pages: Math.ceil(total / limit),
+    data,
+  });
 });
 
 const getEmployeesByBranch = asyncHandler(async (req, res) => {
   const { branchId } = req.params;
   const { page = 1, limit = 20 } = req.query;
 
-    const employees = await EmployeeModel.find({
-      branch: branchId,
-      isDeleted: false,
-    })
-      .skip((page - 1) * limit)
-      .limit(Number(limit))
-      .populate("department jobTitle");
+  const employees = await EmployeeModel.find({
+    branch: branchId,
+    isDeleted: false,
+  })
+    .skip((page - 1) * limit)
+    .limit(Number(limit))
+    .populate("department jobTitle");
 
-    return res.status(200).json({
-      success: true,
-      data: employees,
-    });
+  return res.status(200).json({
+    success: true,
+    data: employees,
+  });
 });
 
 /* ===========================================================
@@ -390,42 +390,42 @@ const softDeleteEmployee = asyncHandler(async (req, res) => {
   if (!employee)
     return res.status(404).json({ success: false, message: "Not found" });
 
-    employee.isDeleted = true;
-    employee.deletedAt = new Date();
-    employee.deletedBy = req.user?._id || null;
-    employee.employmentInfo.status = "archived";
+  employee.isDeleted = true;
+  employee.deletedAt = new Date();
+  employee.deletedBy = req.user?._id || null;
+  employee.employmentInfo.status = "archived";
 
-    await employee.save();
+  await employee.save();
 
-    return res.status(200).json({
-      success: true,
-      message: "Employee deleted successfully",
-    });
+  return res.status(200).json({
+    success: true,
+    message: "Employee deleted successfully",
+  });
 });
 
 const restoreEmployee = asyncHandler(async (req, res) => {
   const employee = await EmployeeModel.findById(req.params.employeeId);
   if (!employee || !employee.isDeleted)
-      return res.status(404).json({ success: false, message: "Not found" });
+    return res.status(404).json({ success: false, message: "Not found" });
 
-    employee.isDeleted = false;
-    employee.deletedAt = null;
-    employee.deletedBy = null;
-    employee.employmentInfo.status = "active";
+  employee.isDeleted = false;
+  employee.deletedAt = null;
+  employee.deletedBy = null;
+  employee.employmentInfo.status = "active";
 
-    await employee.save();
+  await employee.save();
 
-    return res.status(200).json({
-      success: true,
-      message: "Employee restored successfully",
-      data: employee,
-    });
+  return res.status(200).json({
+    success: true,
+    message: "Employee restored successfully",
+    data: employee,
+  });
 });
 
 /* ===========================================================
  * export  CONTROLLER
  * =========================================================== */
-export  {
+export {
   createFirstEmployee,
   createEmployee,
   updateEmployee,

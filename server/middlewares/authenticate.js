@@ -1,6 +1,10 @@
 /**
  * Middleware: Authenticate access token and attach employee context
  */
+import jwt from "jsonwebtoken";
+import EmployeeModel from "../models/employees/employee.model.js";
+const secretKey = process.env.JWT_SECRET || "your_secret_key_here"; // Use environment variable for production
+
 
 const authenticateToken = async (req, res, next) => {
   try {
@@ -84,9 +88,11 @@ const authenticateToken = async (req, res, next) => {
     });
   }
 };
+
 /**
  * Refresh Access Token
  */
+
 const refreshAccessToken = async (req, res) => {
   try {
     const { refreshToken } = req.body;

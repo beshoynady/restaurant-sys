@@ -1,7 +1,7 @@
 import express from "express";
 const router = express.Router();
-// const{signup, login, refresh, logout }= require('../controllers/auth.controller');
-import { signup, login } from "../../controllers/employees/auth.controller.js";
+// const{signup, login, refresh, logout }= require('../controllers/user-auth.controller');
+import { signup, login, rest } from "../../controllers/employees/user-auth.controller.js";
 
 router.post("/signup", signup);
 router.post("/login", login);

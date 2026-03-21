@@ -4,10 +4,20 @@ const { Schema } = mongoose;
 
 const permissionsSchema = new Schema(
   {
+    brand: { type: Schema.Types.ObjectId, ref: "Brand", required: true },
     employee: {
       type: Schema.Types.ObjectId,
       ref: "Employee",
       required: true,
+    },
+    accessLevel: {
+      type: String,
+      enum: ["full", "restricted", "custom"],
+      default: "restricted",
+    },
+    branchAccess: {
+      type: [{ type: Schema.Types.ObjectId, ref: "Branch" }],
+      default: [],
     },
     Permissions: [
       {

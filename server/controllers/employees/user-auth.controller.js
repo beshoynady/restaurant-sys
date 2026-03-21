@@ -2,13 +2,13 @@ import Usermodel from "../../models/employees/user-account.model.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
+import asyncHandler from "../../utils/asyncHandler.js";
 dotenv.config();
+const secretKey = process.env.JWT_SECRET_KEY;
 
-const signup = async (req, res) => {
-  try {
+const signup = asyncHandler(async (req, res) => {
     const { username, email, address, deliveryArea, phone, password } =
       req.body;
-
 
     const isUserExist = await Usermodel.findOne({ phone });
     if (isUserExist) {
@@ -31,14 +31,10 @@ const signup = async (req, res) => {
     const accessToken = generateAccessToken(newUser);
 
     res.status(201).json({ accessToken, newUser });
-  } catch (err) {
-    res.status(500).json({ message: err.message, err });
-  }
-};
+});
 
-const login = async (req, res) => {
-  try {
-    const { phone, password } = req.body;
+const login = asyncHandler(async (req, res) => {
+  const { phone, password } = req.body;
 
     // Validate input
     if (!phone || !password) {
@@ -76,14 +72,8 @@ const login = async (req, res) => {
 
     // Send successful response with user data and access token
     res.status(200).json({ findUser, accessToken });
-  } catch (error) {
-    // Handle server errors
-    console.error("Login error:", error);
-    res
-      .status(500)
-      .json({ success: false, error: "Dine-in server error", error });
-  }
-};
+ 
+});
 
 const generateAccessToken = (user) => {
   return jwt.sign(
@@ -96,10 +86,28 @@ const generateAccessToken = (user) => {
         phone: user.phone,
       },
     },
-    process.env.JWT_SECRET_KEY,
-    { expiresIn: "1y" }
+    secretKey,
+    { expiresIn: "1y" },
   );
 };
 
+const restPass = asyncHandler(async (req, res) => {
+    const { phone, newPassword } = req.body;
 
-export  { signup, login };
+    if (!phone || !newPassword) {
+      return res
+        .status(400)
+        .json({ message: "Phone number and new password are required" });
+    }
+    const user = await Usermodel.findOne({ phone });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+    res.status(200).json({ message: "Password reset successful" });
+  
+});
+
+export { signup, login, restPass };

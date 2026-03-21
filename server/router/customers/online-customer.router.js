@@ -6,7 +6,7 @@ const router = express.Router();
  * Handles all business logic related to online customers authentication and management.
  */
 import {
-  createOnlineCustomer,
+  signupCustomer,
   loginCustomer,
   logoutCustomer,
   getOnlineCustomerById,
@@ -31,7 +31,7 @@ import {
 
 router
   .route("/")
-  .post(createOnlineCustomer)
+  .post(signupCustomer)
   .get(authenticateCustomerToken, getAllOnlineCustomers);
 
 router

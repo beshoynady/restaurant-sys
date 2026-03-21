@@ -35,7 +35,7 @@ const updateSchema = Joi.object({
 /* =====================================================
    🔹 CREATE ONLINE CUSTOMER
 ===================================================== */
-const createOnlineCustomer = async (req, res) => {
+const signupCustomer = async (req, res) => {
   try {
     const brand = req.brand._id;
     const { error, value } = createSchema.validate(req.body);
@@ -198,6 +198,38 @@ const resetPassword = async (req, res) => {
 };
 
 /* =====================================================
+   🔹 UPDATE CUSTOMER
+===================================================== */
+const updateOnlineCustomer = async (req, res) => {
+  try {
+    const { error } = updateSchema.validate(req.body);
+    if (error)
+      return res.status(400).json({ message: error.details[0].message });
+
+    if (req.body.password)
+      req.body.password = await bcrypt.hash(req.body.password, 10);
+
+    const updated = await OnlineCustomer.findOneAndUpdate(
+      { _id: req.params.id, brand: req.brand._id, isDeleted: false },
+      req.body,
+      { new: true },
+    );
+
+    if (!updated)
+      return res.status(404).json({ message: "Customer not found" });
+
+    res.json(updated);
+  } catch (err) {
+    console.error("Update customer error:", err);
+    res.status(500).json({
+      message: "Server error while updating customer",
+      error: err.message,
+    });
+  }
+};
+
+
+/* =====================================================
    🔹 GET CUSTOMER(S)
 ===================================================== */
 const getOnlineCustomerById = async (req, res) => {
@@ -236,36 +268,6 @@ const getAllOnlineCustomers = async (req, res) => {
   }
 };
 
-/* =====================================================
-   🔹 UPDATE CUSTOMER
-===================================================== */
-const updateOnlineCustomer = async (req, res) => {
-  try {
-    const { error } = updateSchema.validate(req.body);
-    if (error)
-      return res.status(400).json({ message: error.details[0].message });
-
-    if (req.body.password)
-      req.body.password = await bcrypt.hash(req.body.password, 10);
-
-    const updated = await OnlineCustomer.findOneAndUpdate(
-      { _id: req.params.id, brand: req.brand._id, isDeleted: false },
-      req.body,
-      { new: true },
-    );
-
-    if (!updated)
-      return res.status(404).json({ message: "Customer not found" });
-
-    res.json(updated);
-  } catch (err) {
-    console.error("Update customer error:", err);
-    res.status(500).json({
-      message: "Server error while updating customer",
-      error: err.message,
-    });
-  }
-};
 
 /* =====================================================
    🔹 SOFT DELETE
@@ -291,7 +293,7 @@ const deleteOnlineCustomer = async (req, res) => {
 };
 
 export  {
-  createOnlineCustomer,
+  signupCustomer,
   loginCustomer,
   logoutCustomer,
   resetPassword,

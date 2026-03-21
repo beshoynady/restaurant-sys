@@ -1,16 +1,6 @@
 import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
-const WEEK_DAYS = [
-  "saturday",
-  "sunday",
-  "monday",
-  "tuesday",
-  "wednesday",
-  "thursday",
-  "friday",
-];
-
 /**
  * Employee Core Model
  * Contains personal info and employment-related data.
@@ -19,7 +9,18 @@ const WEEK_DAYS = [
 const employeeSchema = new mongoose.Schema(
   {
     brand: { type: ObjectId, ref: "Brand", required: true },
-    branch: { type: ObjectId, ref: "Branch", default: null },
+    // Branch Access Control
+    branches: {
+      type: [{ type: ObjectId, ref: "Branch" }],
+      required: true,
+    },
+    // Default working branch (used in login/session)
+    defaultBranch: {
+      type: ObjectId,
+      ref: "Branch",
+      required: true,
+    },
+
     // Personal Information
     firstName: {
       type: Map,
@@ -31,6 +32,7 @@ const employeeSchema = new mongoose.Schema(
       },
       required: true,
     }, // { en: "John Doe", ar: "جون دو" }
+
     lastName: {
       type: Map,
       of: {
@@ -41,7 +43,17 @@ const employeeSchema = new mongoose.Schema(
       },
       required: true,
     }, // { en: "John Doe", ar: "جون دو" }
-    middleName: { type: Map, of: String }, // { en: "Michael", ar: "مايكل" }
+
+    middleName: {
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      required: true,
+    }, // { en: "Michael", ar: "مايكل" }
 
     gender: { type: String, enum: ["male", "female"], required: true },
     dateOfBirth: { type: Date, required: true },
@@ -67,11 +79,11 @@ const employeeSchema = new mongoose.Schema(
       type: String,
       enum: ["single", "married", "divorced", "widowed"],
     },
+
     profileImage: { type: String, default: "" },
 
     defaultLanguage: {
       type: String,
-      enum: ["EN", "AR", "FR", "ES", "DE", "IT", "ZH", "JA", "RU"],
       uppercase: true,
       minlength: 2,
       maxlength: 2,
@@ -92,24 +104,27 @@ const employeeSchema = new mongoose.Schema(
       trim: true,
       required: true,
     },
-    emergencyContact: {
-      name: {
-        type: String,
-        trim: true,
-        maxlength: 100,
+    emergencyContact: [
+      {
+        name: {
+          type: String,
+          trim: true,
+          maxlength: 100,
+        },
+        phone: {
+          type: String,
+          minlength: 7,
+          maxlength: 20,
+          trim: true,
+        },
+        relation: {
+          type: String,
+          trim: true,
+          maxlength: 100,
+        },
       },
-      phone: {
-        type: String,
-        minlength: 7,
-        maxlength: 20,
-        trim: true,
-      },
-      relation: {
-        type: String,
-        trim: true,
-        maxlength: 100,
-      },
-    },
+    ],
+
     whatsapp: {
       type: String,
       minlength: 7,
@@ -186,24 +201,40 @@ const employeeSchema = new mongoose.Schema(
       minlength: 3,
       maxlength: 20,
     },
+
     department: { type: ObjectId, ref: "Department", required: true },
     jobTitle: { type: ObjectId, ref: "JobTitle", required: true },
     hireDate: { type: Date, default: Date.now },
     contractType: {
       type: String,
-      enum: ["permanent", "temporary", "part-time", "internship"],
+      trim: true,
+      maxlength: 50,
       default: "permanent",
     },
-    shift: { type: ObjectId, ref: "Shift", default: null },
+    shift: {
+      type: ObjectId,
+      ref: "Shift",
+      default: null,
+    },
     workMode: {
       type: String,
-      enum: ["on-site", "remote", "hybrid"],
+      trim: true,
+      maxlength: 50,
       default: "on-site",
     },
 
     dailyWorkingHours: { type: Number, min: 1, max: 24, default: 8 },
-    weeklyOffDay: { type: [String], enum: WEEK_DAYS, default: ["friday"] },
+
+    weeklyOffDay: {
+      type: [String],
+      default: [],
+    },
+
+    // leave policy defaults (can be overridden in EmployeeFinancialProfile for specific employees)
     annualLeaveDays: { type: Number, min: 0, max: 365, default: 21 },
+    emergencyLeaveDays: { type: Number, min: 0, max: 30, default: 3 },
+    sickLeaveDays: { type: Number, min: 0, max: 365, default: 7 },
+
     documents: [
       {
         name: {
@@ -220,16 +251,6 @@ const employeeSchema = new mongoose.Schema(
         documentType: {
           type: String,
           required: true,
-          enum: [
-            "id_card",
-            "passport",
-            "contract",
-            "certification",
-            "insurance",
-            "cv",
-            "cover_letter",
-            "other",
-          ],
         },
         fileUrl: {
           type: String,
@@ -240,10 +261,12 @@ const employeeSchema = new mongoose.Schema(
         uploadedAt: { type: Date, default: Date.now },
       },
     ],
-
+    hasAccount: { type: Boolean, default: false }, // Flag to indicate if a user account has been created for this employee
     // Status & Roles
     isVerified: { type: Boolean, default: false },
     isOwner: { type: Boolean, default: false },
+
+    // Employment status tracking for better HR management and reporting
     terminationDate: { type: Date, default: null },
     terminationReason: { type: String, trim: true, maxlength: 200 },
     status: {
@@ -274,7 +297,7 @@ const employeeSchema = new mongoose.Schema(
 );
 
 // Indexes
-employeeSchema.index({ brand: 1, branch: 1 });
+employeeSchema.index({ brand: 1, branches: 1 });
 employeeSchema.index({ brand: 1, department: 1 });
 employeeSchema.index({ brand: 1, jobTitle: 1 });
 employeeSchema.index({ employeeCode: 1, brand: 1 }, { unique: true });

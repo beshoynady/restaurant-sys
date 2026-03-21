@@ -8,9 +8,6 @@ const { ObjectId } = mongoose.Schema;
 const userAccountSchema = new mongoose.Schema(
   {
     brand: { type: ObjectId, ref: "Brand", required: true },
-    branch: { type: ObjectId, ref: "Branch", default: null },
-
-    employee: { type: ObjectId, ref: "Employee", required: true },
     username: {
       type: String,
       required: true,
@@ -18,15 +15,27 @@ const userAccountSchema = new mongoose.Schema(
       minlength: 3,
       maxlength: 30,
     },
+
     password: {
       type: String,
       required: true,
       trim: true,
       minlength: 6,
-      maxlength: 50,
       select: false,
     },
+    
+    role: {
+      type: String,
+      enum: ["owner", "admin", "employee"],
+      required: true,
+      default: "employee",
+    },
 
+    employee: {
+      type: ObjectId,
+      ref: "Employee",
+      default: null,
+    },
     permissions: {
       type: ObjectId,
       ref: "Permissions",
