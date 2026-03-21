@@ -5,7 +5,8 @@ import dotenv from "dotenv";
 import helmet from "helmet"; // Security middleware
 import cookieParser from "cookie-parser";
 import http from "http";
-import { Server } from "socket.io";
+import path from "path";
+import { initSocket } from "./socket.js";
 import notFound from "./middlewares/notFound.js";
 import errorHandler from "./middlewares/errorHandler.js";
 
@@ -96,67 +97,8 @@ app.use(errorHandler);
 // HTTP SERVER
 // -------------------
 const server = http.createServer(app);
-
-// -------------------
-// SOCKET.IO SETUP
-// -------------------
-const io = new Server(server, {
-  cors: { origin: allowedOrigins, methods: ["GET", "POST"], credentials: true },
-});
-
-// Namespaces
-const cashierNamespace = io.of("/cashier");
-const waiterNamespace = io.of("/waiter");
-// production section namespaces for order notifications
-const kitchenNamespace = io.of("/kitchen");
-const barNamespace = io.of("/bar");
-const grillNamespace = io.of("/grill");
-// Cashier connections
-cashierNamespace.on("connection", (socket) => {
-  socket.on("neworder", (notification) =>
-    cashierNamespace.emit("neworder", notification),
-  );
-  socket.on("disconnect", () => {});
-});
-
-// Kitchen connections
-kitchenNamespace.on("connection", (socket) => {
-  socket.on("orderkitchen", (notification) =>
-    kitchenNamespace.emit("orderkitchen", notification),
-  );
-  socket.on("disconnect", () => {});
-});
-
-// Bar connections
-barNamespace.on("connection", (socket) => {
-  socket.on("orderBar", (notification) =>
-    barNamespace.emit("orderBar", notification),
-  );
-  socket.on("disconnect", () => {});
-});
-
-// Grill connections
-grillNamespace.on("connection", (socket) => {
-  socket.on("orderGrill", (notification) =>
-    grillNamespace.emit("orderGrill", notification),
-  );
-  socket.on("disconnect", () => {});
-});
-
-// Waiter connections
-waiterNamespace.on("connection", (socket) => {
-  socket.on("orderReady", (notification) =>
-    waiterNamespace.emit("orderReady", notification),
-  );
-  socket.on("helprequest", (notification) =>
-    waiterNamespace.emit("helprequest", notification),
-  );
-  socket.on("orderwaiter", (notification) =>
-    waiterNamespace.emit("orderwaiter", notification),
-  );
-  socket.on("disconnect", () => {});
-});
-
+// Initialize Socket.IO with the HTTP server
+initSocket(server); 
 // -------------------
 // START SERVER
 // -------------------
