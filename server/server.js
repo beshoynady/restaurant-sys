@@ -6,7 +6,7 @@ import helmet from "helmet"; // Security middleware
 import cookieParser from "cookie-parser";
 import http from "http";
 import path from "path";
-import { initSocket } from "./socket.js";
+import { initSocket } from "./socket/socket.js";
 import notFound from "./middlewares/notFound.js";
 import errorHandler from "./middlewares/errorHandler.js";
 
