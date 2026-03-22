@@ -81,6 +81,12 @@ const bankAccountSchema = new mongoose.Schema(
       required: true,
     },
 
+    balance: {
+      type: Number,
+      default: 0,
+      required: true,
+    },
+
     /**
      * GL Account (important)
      */
