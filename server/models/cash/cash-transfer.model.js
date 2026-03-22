@@ -37,9 +37,15 @@ const cashTransferSchema = new mongoose.Schema(
       default: "EGP",
     },
 
-    type: {
+    fromType: {
       type: String,
-      enum: ["fromCashToBank", "fromBankToCash", "betweenCash", "betweenBank"],
+      enum: ["CASH_REGISTER", "BANK_ACCOUNT"],
+      required: true,
+    },
+
+    toType: {
+      type: String,
+      enum: ["CASH_REGISTER", "BANK_ACCOUNT"],
       required: true,
     },
     /* =============================
@@ -110,15 +116,12 @@ const cashTransferSchema = new mongoose.Schema(
       maxlength: 300,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 /**
  * Indexes
  */
-cashTransferSchema.index(
-  { brand: 1, number: 1 },
-  { unique: true }
-);
+cashTransferSchema.index({ brand: 1, number: 1 }, { unique: true });
 
 export default mongoose.model("CashTransfer", cashTransferSchema);

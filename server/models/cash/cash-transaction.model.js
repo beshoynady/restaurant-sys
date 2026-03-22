@@ -146,6 +146,7 @@ const cashTransactionSchema = new mongoose.Schema(
       enum: ["DRAFT", "POSTED"],
       default: "DRAFT",
     },
+    postedAt: Date,
 
     /* =============================
        References
