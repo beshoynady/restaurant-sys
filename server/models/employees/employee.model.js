@@ -32,6 +32,17 @@ const employeeSchema = new mongoose.Schema(
       },
       required: true,
     }, // { en: "John Doe", ar: "جون دو" }
+    
+    middleName: {
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      required: true,
+    }, // { en: "Michael", ar: "مايكل" }
 
     lastName: {
       type: Map,
@@ -43,17 +54,6 @@ const employeeSchema = new mongoose.Schema(
       },
       required: true,
     }, // { en: "John Doe", ar: "جون دو" }
-
-    middleName: {
-      type: Map,
-      of: {
-        type: String,
-        trim: true,
-        minlength: 2,
-        maxlength: 100,
-      },
-      required: true,
-    }, // { en: "Michael", ar: "مايكل" }
 
     gender: { type: String, enum: ["male", "female"], required: true },
     dateOfBirth: { type: Date, required: true },
@@ -75,6 +75,7 @@ const employeeSchema = new mongoose.Schema(
 
       required: true,
     },
+    // Marital status is important for benefits and tax purposes
     maritalStatus: {
       type: String,
       enum: ["single", "married", "divorced", "widowed"],
@@ -137,6 +138,7 @@ const employeeSchema = new mongoose.Schema(
       lowercase: true,
       match: [/\S+@\S+\.\S+/, "Invalid email address"],
     },
+
     address: {
       country: {
         type: Map,
@@ -192,7 +194,7 @@ const employeeSchema = new mongoose.Schema(
       landmark: { type: Map, of: String }, //
     },
 
-    // Employment Info
+    // Employment Information 
     employeeCode: {
       type: String,
       trim: true,
@@ -201,7 +203,7 @@ const employeeSchema = new mongoose.Schema(
       minlength: 3,
       maxlength: 20,
     },
-
+    // For better HR management and reporting, we track employment details directly in the Employee model.
     department: { type: ObjectId, ref: "Department", required: true },
     jobTitle: { type: ObjectId, ref: "JobTitle", required: true },
     hireDate: { type: Date, default: Date.now },
@@ -261,6 +263,7 @@ const employeeSchema = new mongoose.Schema(
         uploadedAt: { type: Date, default: Date.now },
       },
     ],
+    
     hasAccount: { type: Boolean, default: false }, // Flag to indicate if a user account has been created for this employee
     // Status & Roles
     isVerified: { type: Boolean, default: false },

@@ -122,13 +122,14 @@ import routePurchaseReturn from "./purchasing/purchase-return.router.js";
  * --------------------------------------------------
  * Cash management:
  * - Cash registers
- * - Cash movements
+ * - Cash transactions
  * - Expenses
  ****************************************************/
 import routeCashRegister from "./cash/cash-register.router.js";
 import routecashTransaction from "./cash/cash-transaction.router.js";
-import routeExpense from "./cash/expense.router.js";
-import routeDailyExpense from "./cash/daily-expense.router.js";
+
+import routeExpense from "./expenses/expense.router.js";
+import routeDailyExpense from "./expenses/daily-expense.router.js";
 
 /****************************************************
  * ACCOUNTING ROUTES
@@ -214,7 +215,7 @@ router.use("/api/reservation", routeReservation);
 router.use("/api/inventory/stores", routeStore);
 router.use("/api/inventory/categories", routeStockCategory);
 router.use("/api/inventory/items", routeStockItems);
-router.use("/api/inventory/movements", routeStockMovement);
+router.use("/api/inventory/transactions", routeStockMovement);
 router.use("/api/inventory/consumption", routeConsumption);
 router.use("/api/inventory/settings", inventorySettingsRoutes);
 
@@ -224,9 +225,11 @@ router.use("/api/suppliers/transactions", routeSupplierTransaction);
 router.use("/api/purchases/invoices", routePurchase);
 router.use("/api/purchases/returns", routePurchaseReturn);
 
-// Cash & Expenses
+// Cash
 router.use("/api/cash/registers", routeCashRegister);
-router.use("/api/cash/movements", routecashTransaction);
+router.use("/api/cash/transactions", routecashTransaction);
+
+// Expenses
 router.use("/api/expenses", routeExpense);
 router.use("/api/expenses/daily", routeDailyExpense);
 

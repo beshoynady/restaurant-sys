@@ -177,7 +177,7 @@ const brandSchema = new mongoose.Schema(
      */
     setupStatus: {
       type: String,
-      enum: ["draft", "basic", "branches", "ready"],
+      enum: ["draft", "basic", "complete"],
       default: "draft",
       description: "Setup progress of brand in the system",
     },

@@ -1,7 +1,7 @@
-import DailyExpenseModel from "../../models/cash/daily-expense.model.js";
+import DailyExpenseModel from "../../models/expenses/daily-expense.model.js";
 import cashTransaction from "../../models/cash/cash-transaction.model.js";
 import CashRegister from "../../models/cash/cash-register.model.js";
-import ExpenseModel from "../../models/cash/expense.model.js";
+import ExpenseModel from "../../models/expenses/expense.model.js";
 import Joi from "joi";
 import mongoose from "mongoose";
 

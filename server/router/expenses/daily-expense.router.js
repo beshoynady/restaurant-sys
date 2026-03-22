@@ -6,7 +6,7 @@ import {
   getDailyExpenseById,
   updateDailyExpense,
   deleteDailyExpense,
-} from "../../controllers/cash/daily-expense.controller.js";
+} from "../../controllers/expenses/daily-expense.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 
 router.use(authenticateToken);

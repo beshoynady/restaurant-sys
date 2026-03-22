@@ -3,7 +3,7 @@ import cashTransaction from "../../models/cash/cash-transaction.model.js";
 import CashRegister from "../../models/cash/cash-register.model.js";
 
 
-// Controller function to create a cash movement
+// Controller function to create a cash transaction
 const createcashTransaction = async (req, res) => {
   try {
     const {
@@ -15,7 +15,7 @@ const createcashTransaction = async (req, res) => {
       description,
       transferTo,
       transferFrom,
-      movementId,
+      transactionId,
       status,
     } = req.body;
     const createdBy = req.user.id;
@@ -50,7 +50,7 @@ const createcashTransaction = async (req, res) => {
     register.balance += balanceChange;
     await register.save();
 
-    // Create a new cash movement
+    // Create a new cash transaction
     const newcashTransaction = await cashTransaction.create({
       brand,
       branch,
@@ -61,25 +61,25 @@ const createcashTransaction = async (req, res) => {
       description,
       transferTo,
       transferFrom,
-      movementId,
+      transactionId,
       status,
     });
 
-    // Save the new cash movement to the database
+    // Save the new cash transaction to the database
     await newcashTransaction.save();
 
-    // Respond with success message and the created cash movement
+    // Respond with success message and the created cash transaction
     res.status(201).json({
-      message: "Cash movement created successfully",
+      message: "Cash transaction created successfully",
       cashTransaction: newcashTransaction,
     });
   } catch (error) {
     // Handle errors during the creation process
-    res.status(500).json({ error: "Failed to create cash movement", error });
+    res.status(500).json({ error: "Failed to create cash transaction", error });
   }
 };
 
-// Controller function to get all cash movements
+// Controller function to get all cash transactions
 const getAllcashTransactions = async (req, res) => {
   try {
     const cashTransactions = await cashTransaction.find()
@@ -87,14 +87,14 @@ const getAllcashTransactions = async (req, res) => {
       .populate("createdBy")
       .populate("transferTo")
       .populate("transferFrom")
-      .populate("movementId");
+      .populate("transactionId");
     res.status(200).json(cashTransactions);
   } catch (error) {
-    res.status(500).json({ error: "Failed to retrieve cash movements", error });
+    res.status(500).json({ error: "Failed to retrieve cash transactions", error });
   }
 };
 
-// Controller function to get a cash movement by ID
+// Controller function to get a cash transaction by ID
 const getcashTransactionById = async (req, res) => {
   try {
     const cashTransaction = await cashTransaction.findById(req.params.id)
@@ -102,17 +102,17 @@ const getcashTransactionById = async (req, res) => {
       .populate("createdBy")
       .populate("transferTo")
       .populate("transferFrom")
-      .populate("movementId");
+      .populate("transactionId");
     if (!cashTransaction) {
-      return res.status(404).json({ message: "Cash movement not found" });
+      return res.status(404).json({ message: "Cash transaction not found" });
     }
     res.status(200).json(cashTransaction);
   } catch (error) {
-    res.status(500).json({ error: "Failed to retrieve cash movement", error });
+    res.status(500).json({ error: "Failed to retrieve cash transaction", error });
   }
 };
 
-// Controller function to update a cash movement by ID
+// Controller function to update a cash transaction by ID
 const updatecashTransaction = async (req, res) => {
   try {
     const {
@@ -127,7 +127,7 @@ const updatecashTransaction = async (req, res) => {
 
     const cashTransaction = await cashTransaction.findById(req.params.id);
     if (!cashTransaction) {
-      return res.status(404).json({ message: "Cash movement not found" });
+      return res.status(404).json({ message: "Cash transaction not found" });
     }
     const updatedcashTransaction = await cashTransaction.findByIdAndUpdate(
       req.params.id,
@@ -146,28 +146,28 @@ const updatecashTransaction = async (req, res) => {
     );
 
     if (!updatedcashTransaction) {
-      return res.status(404).json({ message: "Cash movement not found" });
+      return res.status(404).json({ message: "Cash transaction not found" });
     }
 
     res.status(200).json({
-      message: "Cash movement updated successfully",
+      message: "Cash transaction updated successfully",
       cashTransaction: updatedcashTransaction,
     });
   } catch (error) {
-    res.status(500).json({ error: "Failed to update cash movement", error });
+    res.status(500).json({ error: "Failed to update cash transaction", error });
   }
 };
 
-// Controller function to delete a cash movement by ID
+// Controller function to delete a cash transaction by ID
 const deletecashTransaction = async (req, res) => {
   try {
     const cashTransaction = await cashTransaction.findByIdAndDelete(req.params.id);
     if (!cashTransaction) {
-      return res.status(404).json({ message: "Cash movement not found" });
+      return res.status(404).json({ message: "Cash transaction not found" });
     }
-    res.status(200).json({ message: "Cash movement deleted successfully" });
+    res.status(200).json({ message: "Cash transaction deleted successfully" });
   } catch (error) {
-    res.status(500).json({ error: "Failed to delete cash movement", error });
+    res.status(500).json({ error: "Failed to delete cash transaction", error });
   }
 };
 
@@ -178,11 +178,11 @@ const transferCashBetweenRegisters = async (req, res) => {
     // Check if both registers exist and handle errors if not found
     // Your logic here to validate register IDs
 
-    // Create cash movements for both registers (one for outgoing, one for incoming)
+    // Create cash transactions for both registers (one for outgoing, one for incoming)
     const outgoingMovement = new cashTransaction({
       registerId: fromRegisterId,
       createdBy: req.user._id, // Assuming user information is included in the request after authentication
-      amount: -amount, // Negative amount for outgoing movement
+      amount: -amount, // Negative amount for outgoing transaction
       type: "Transfer",
       description: description || "Transfer to another register",
     });
@@ -195,7 +195,7 @@ const transferCashBetweenRegisters = async (req, res) => {
       description: description || "Transfer from another register",
     });
 
-    // Save both cash movements
+    // Save both cash transactions
     await outgoingMovement.save();
     await incomingMovement.save();
 
@@ -228,7 +228,7 @@ const recordPayment = async (req, res) => {
     register.balance -= amount;
     await register.save();
 
-    // Create cash movement
+    // Create cash transaction
     const paymentMovement = await cashTransaction.create({
       brand,
       branch,
@@ -267,7 +267,7 @@ const recordReceipt = async (req, res) => {
     register.balance += amount;
     await register.save();
 
-    // Create cash movement
+    // Create cash transaction
     const receiptMovement = await cashTransaction.create({
       brand,
       branch,

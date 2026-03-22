@@ -7,11 +7,10 @@ const { ObjectId } = mongoose.Schema;
  * Represents ANY cash or cash-equivalent account in the restaurant:
  * - POS cash drawer
  * - Branch safe
- * - Bank account
  * - Employee custody
  * - Suspense / adjustment account
  *
- * All cash movements must reference a CashRegister.
+ * All cash transactions must reference a CashRegister.
  */
 const cashRegisterSchema = new mongoose.Schema(
   {
@@ -36,6 +35,7 @@ const cashRegisterSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+
     code: {
       type: String,
       required: true,
@@ -52,7 +52,6 @@ const cashRegisterSchema = new mongoose.Schema(
       enum: [
         "POS", // Cashier / sales drawer
         "SAFE", // Branch safe
-        "BANK", // Bank account
         "EMPLOYEE", // Employee custody
         "SUSPENSE", // Rounding / differences
       ],
@@ -76,7 +75,6 @@ const cashRegisterSchema = new mongoose.Schema(
      * Linked GL Account (Accounting Integration)
      * Example:
      * - Cash on Hand
-     * - Bank Account
      * - Cash Differences
      */
     accountId: {
@@ -109,18 +107,6 @@ const cashRegisterSchema = new mongoose.Schema(
       type: Number,
       default: null,
     },
-
-    bankDetails: {
-      bankName: {
-        type: String,
-        trim: true,
-        maxlength: 100,
-      },
-      branch: { type: String, trim: true, maxlength: 100 },
-      accountNumber: { type: String, trim: true, maxlength: 50 },
-      iban: { type: String, trim: true, maxlength: 34 },
-      swiftCode: { type: String, trim: true, maxlength: 11 },
-    },
     /**
      * Notes or internal description
      */
@@ -128,7 +114,7 @@ const cashRegisterSchema = new mongoose.Schema(
 
     /**
      * Active flag
-     * Inactive registers cannot receive new movements
+     * Inactive registers cannot receive new transactions
      */
     isActive: { type: Boolean, default: true },
 
@@ -154,6 +140,7 @@ const cashRegisterSchema = new mongoose.Schema(
  * Indexes
  */
 cashRegisterSchema.index({ brand: 1, branch: 1, type: 1 });
+cashRegisterSchema.index({ brand: 1, code: 1 }, { unique: true });
 cashRegisterSchema.index({ employee: 1 });
 cashRegisterSchema.index({ accountId: 1 });
 

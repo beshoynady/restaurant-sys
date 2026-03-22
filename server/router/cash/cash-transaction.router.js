@@ -15,7 +15,7 @@ import { authenticateToken } from "../../middlewares/authenticate.js";
 
 router.use(authenticateToken);
 
-// Routes related to Cash Movements
+// Routes related to Cash Transactions
 router
   .route("/")
   .get(

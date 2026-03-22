@@ -17,7 +17,7 @@ const employeeFinancialSchema = new mongoose.Schema(
       default: "monthly",
     },
     basicSalary: { type: Number, min: 0 },
-
+    
     attendanceRequired: { type: Boolean, default: true },
     overtimeEligible: { type: Boolean, default: true },
     overtimeRateType: {
@@ -48,7 +48,7 @@ const employeeFinancialSchema = new mongoose.Schema(
 
     salaryStartDate: { type: Date, required: true },
     salaryEndDate: { type: Date, default: null },
-
+    // Bank Details (used for payroll processing and payment)
     bankName: { type: String, trim: true, maxlength: 100 },
     bankAccount: { type: String, trim: true, maxlength: 50 },
     bankBranch: { type: String, trim: true, maxlength: 100 },

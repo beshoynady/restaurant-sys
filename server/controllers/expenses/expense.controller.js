@@ -1,5 +1,5 @@
-import ExpenseModel from "../../models/cash/expense.model.js";
-import DailyExpenseModel from "../../models/cash/daily-expense.model.js";
+import ExpenseModel from "../../models/expenses/expense.model.js";
+import DailyExpenseModel from "../../models/expenses/daily-expense.model.js";
 import Joi from "joi";
 import mongoose from "mongoose";
 

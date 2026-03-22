@@ -6,7 +6,7 @@ import {
     getAllExpenses,
     getExpenseById,
     deleteExpense
-} from "../../controllers/cash/expense.controller.js";
+} from "../../controllers/expenses/expense.controller.js";
 import {authenticateToken} from "../../middlewares/authenticate.js";
 
 router.use(authenticateToken)

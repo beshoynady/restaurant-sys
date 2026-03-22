@@ -4,7 +4,7 @@ const { ObjectId } = mongoose.Schema;
 /**
  * cashTransaction
  * ------------
- * Single source of truth for ALL money movements (cash & non-cash)
+ * Single source of truth for ALL money transactions (cash & non-cash)
  * Operational ledger (not GL journal)
  */
 const cashTransactionSchema = new mongoose.Schema(
@@ -19,10 +19,24 @@ const cashTransactionSchema = new mongoose.Schema(
        Classification
     ============================== */
 
-    /**
-     * Business reason of the movement
+        /**
+     * Physical or logical custody of money
+     * (POS, Safe, Bank, Employee)
      */
-    movementType: {
+    cashRegister: {
+      type: ObjectId,
+      ref: "CashRegister",
+    },
+
+    bankAccount: {
+      type: ObjectId,
+      ref: "BankAccount",
+    },
+
+    /**
+     * Business reason of the transaction
+     */
+    transactionType: {
       type: String,
       enum: [
         "SALE",          // Invoice payment
@@ -47,11 +61,13 @@ const cashTransactionSchema = new mongoose.Schema(
       enum: ["INFLOW", "OUTFLOW"],
       required: true,
     },
+
     number: {
       type: Number,
       required: true,
       min: 1,
     },
+    
     date: {
       type: Date,
       default: Date.now,
@@ -84,16 +100,6 @@ const cashTransactionSchema = new mongoose.Schema(
     },
 
     /**
-     * Physical or logical custody of money
-     * (POS, Safe, Bank, Employee)
-     */
-    cashRegister: {
-      type: ObjectId,
-      ref: "CashRegister",
-      required: true,
-    },
-
-    /**
      * Electronic route (optional)
      * POS terminal, wallet, gateway
      */
@@ -118,9 +124,9 @@ const cashTransactionSchema = new mongoose.Schema(
     ============================== */
 
     /**
-     * Used to link paired movements (Transfer / Settlement)
+     * Used to link paired transactions (Transfer / Settlement)
      */
-    relatedMovement: {
+    relatedTransaction: {
       type: ObjectId,
       ref: "cashTransaction",
       default: null,
@@ -179,6 +185,6 @@ const cashTransactionSchema = new mongoose.Schema(
 cashTransactionSchema.index({ brand: 1, branch: 1, createdAt: -1 });
 cashTransactionSchema.index({ cashRegister: 1, createdAt: -1 });
 cashTransactionSchema.index({ paymentMethod: 1 });
-cashTransactionSchema.index({ movementType: 1 });
+cashTransactionSchema.index({ transactionType: 1 });
 
 export default mongoose.model("cashTransaction", cashTransactionSchema);
