@@ -53,12 +53,12 @@ const categoryStockSchema = new mongoose.Schema(
     },
     createdBy: {
       type: ObjectId,
-      ref: "Employee",
+      ref: "UserAccount",
       required: [true, "Creator is required"],
     },
     updatedBy: {
       type: ObjectId,
-      ref: "Employee",
+      ref: "UserAccount",
     },
     notes: {
       type: String,

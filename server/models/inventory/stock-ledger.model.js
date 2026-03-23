@@ -147,12 +147,12 @@ const StockLedgerSchema = new mongoose.Schema(
 
     createdBy: {
       type: ObjectId,
-      ref: "Employee",
+      ref: "UserAccount",
       required: true,
     },
     updatedBy: {
       type: ObjectId,
-      ref: "Employee",
+      ref: "UserAccount",
     },
   },
   { timestamps: true, versionKey: false },

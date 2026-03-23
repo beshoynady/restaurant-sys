@@ -52,7 +52,7 @@ const journalEntrySchema = new mongoose.Schema(
     /*
       References to employees for auditing
     */
-    createdBy: { type: ObjectId, ref: "Employee", required: true },
+    createdBy: { type: ObjectId, ref: "UserAccount", required: true },
     postedBy: { type: ObjectId, ref: "Employee", default: null },
     postedAt: { type: Date, default: null },
 

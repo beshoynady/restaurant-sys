@@ -30,10 +30,10 @@ const accountingPeriodSchema = new mongoose.Schema(
     endDate: { type: Date, required: true },
 
     // created by employee reference
-    createdBy: { type: ObjectId, ref: "Employee", required: true },
+    createdBy: { type: ObjectId, ref: "UserAccount", required: true },
 
     status: { type: String, enum: ["Open", "Closed"], default: "Open" },
-    closedBy: { type: ObjectId, ref: "Employee", default: null },
+    closedBy: { type: ObjectId, ref: "UserAccount", default: null },
     closedAt: { type: Date, default: null },
     isLocked: { type: Boolean, default: false },
   },

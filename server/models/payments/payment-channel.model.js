@@ -101,8 +101,8 @@ const paymentChannelSchema = new mongoose.Schema({
 
   isActive: { type: Boolean, default: true },
 
-  createdBy: { type: ObjectId, ref: "Employee", required: true },
-  updatedBy: { type: ObjectId, ref: "Employee" },
+  createdBy: { type: ObjectId, ref: "UserAccount", required: true },
+  updatedBy: { type: ObjectId, ref: "UserAccount" },
 });
 
 paymentChannelSchema.index({ brand: 1, branch: 1, code: 1 }, { unique: true });

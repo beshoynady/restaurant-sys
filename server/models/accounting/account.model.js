@@ -136,17 +136,17 @@ const accountSchema = new mongoose.Schema(
 
     createdBy: {
       type: ObjectId,
-      ref: "Employee",
+      ref: "UserAccount",
       required: true,
     },
     updatedBy: {
       type: ObjectId,
-      ref: "Employee",
+      ref: "UserAccount",
       default: null,
     },
     isDeleted: { type: Boolean, default: false },
     deletedAt: { type: Date, default: null },
-    deletedBy: { type: ObjectId, ref: "Employee", default: null },
+    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
   { timestamps: true },
 );

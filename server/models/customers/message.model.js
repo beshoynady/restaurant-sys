@@ -139,9 +139,7 @@ const customerMessageSchema = new mongoose.Schema(
     deletedAt: {
       type: Date,
     },
-    deletedBy: {
-      type: ObjectId,
-      ref: "Employee",
+    deletedBy: { type: ObjectId, ref: "UserAccount",
     },
   },
   { timestamps: true },

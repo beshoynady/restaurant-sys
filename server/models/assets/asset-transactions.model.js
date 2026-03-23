@@ -153,7 +153,7 @@ const assetTransactionSchema = new mongoose.Schema(
     // Employee who performed or recorded this transaction
     createdBy: {
       type: ObjectId,
-      ref: "Employee",
+      ref: "UserAccount",
       required: true,
     },
   },

@@ -102,8 +102,8 @@ const purchaseReturnInvoiceSchema = new mongoose.Schema(
      },
 
     // Employee who created the return invoice
-    createdBy: { type: ObjectId, ref: "Employee", required: true },
-    updatedBy: { type: ObjectId, ref: "Employee" },
+    createdBy: { type: ObjectId, ref: "UserAccount", required: true },
+    updatedBy: { type: ObjectId, ref: "UserAccount" },
     isActive: { type: Boolean, default: true },
   },
   { timestamps: true }

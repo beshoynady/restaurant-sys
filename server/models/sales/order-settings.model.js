@@ -61,8 +61,8 @@ const orderSettingsSchema = new Schema(
     autoMergeTickets: { type: Boolean, default: false },
 
     // Audit
-    createdBy: { type: ObjectId, ref: "Employee", required: true },
-    updatedBy: { type: ObjectId, ref: "Employee", default: null },
+    createdBy: { type: ObjectId, ref: "UserAccount", required: true },
+    updatedBy: { type: ObjectId, ref: "UserAccount", default: null },
 
     isActive: { type: Boolean, default: true },
   },

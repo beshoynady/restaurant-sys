@@ -106,7 +106,7 @@ const cashTransferSchema = new mongoose.Schema(
 
     createdBy: {
       type: ObjectId,
-      ref: "Employee",
+      ref: "UserAccount",
       required: true,
     },
 

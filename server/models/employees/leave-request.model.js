@@ -201,13 +201,13 @@ const leaveRequestSchema = new mongoose.Schema(
     // 🔹 Audit fields
     createdBy: {
       type: ObjectId,
-      ref: "Employee",
+      ref: "UserAccount",
       required: true,
       description: "Employee who created this request",
     },
     updatedBy: {
       type: ObjectId,
-      ref: "Employee",
+      ref: "UserAccount",
       default: null,
       description: "Employee who last updated this request",
     },

@@ -188,8 +188,8 @@ const payrollSchema = new mongoose.Schema(
     /* =====================================================
      * Audit Trail
      * ===================================================== */
-    createdBy: { type: ObjectId, ref: "Employee", required: true },
-    updatedBy: { type: ObjectId, ref: "Employee" },
+    createdBy: { type: ObjectId, ref: "UserAccount", required: true },
+    updatedBy: { type: ObjectId, ref: "UserAccount" },
 
     calculatedBy: { type: ObjectId, ref: "Employee" },
     calculatedAt: { type: Date, default: null },

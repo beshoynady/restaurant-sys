@@ -82,8 +82,8 @@ const assetPurchaseInvoiceSchema = new mongoose.Schema(
       index: true,
     },
 
-    createdBy: { type: ObjectId, ref: "Employee", required: true },
-    updatedBy: { type: ObjectId, ref: "Employee" },
+    createdBy: { type: ObjectId, ref: "UserAccount", required: true },
+    updatedBy: { type: ObjectId, ref: "UserAccount" },
     postedBy: { type: ObjectId, ref: "Employee" },
     postedAt: { type: Date },
   },

@@ -145,7 +145,7 @@ const InventoryCountSchema = new mongoose.Schema(
     // Employee who created the count
     createdBy: {
       type: ObjectId,
-      ref: "Employee",
+      ref: "UserAccount",
       required: true,
     },
 
@@ -205,9 +205,7 @@ const InventoryCountSchema = new mongoose.Schema(
       type: Date,
     },
 
-    deletedBy: {
-      type: ObjectId,
-      ref: "Employee",
+    deletedBy: { type: ObjectId, ref: "UserAccount",
     },
   },
   {

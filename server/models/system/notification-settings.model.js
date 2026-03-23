@@ -206,8 +206,8 @@ const notificationSettingsSchema = new mongoose.Schema(
     },
 
     // 🧾 Audit
-    createdBy: { type: ObjectId, ref: "Employee", required: true },
-    updatedBy: { type: ObjectId, ref: "Employee" },
+    createdBy: { type: ObjectId, ref: "UserAccount", required: true },
+    updatedBy: { type: ObjectId, ref: "UserAccount" },
   },
   { timestamps: true }
 );

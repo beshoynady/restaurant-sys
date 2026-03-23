@@ -109,13 +109,13 @@ const DeliveryAreaSchema = new mongoose.Schema(
 
     createdBy: {
       type: ObjectId,
-      ref: "Employee",
+      ref: "UserAccount",
       default: null,
     },
 
     updatedBy: {
       type: ObjectId,
-      ref: "Employee",
+      ref: "UserAccount",
       default: null,
     },
 
@@ -123,9 +123,7 @@ const DeliveryAreaSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
-    deletedBy: {
-      type: ObjectId,
-      ref: "Employee",
+    deletedBy: { type: ObjectId, ref: "UserAccount",
       default: null,
     },
   },

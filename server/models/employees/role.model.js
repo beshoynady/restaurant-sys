@@ -174,8 +174,8 @@ const roleSchema = new Schema(
 
     status: { type: String, enum: ["active", "inactive"], default: "active" },
 
-    createdBy: { type: ObjectId, ref: "Employee" },
-    updatedBy: { type: ObjectId, ref: "Employee" },
+    createdBy: { type: ObjectId, ref: "UserAccount" },
+    updatedBy: { type: ObjectId, ref: "UserAccount" },
   },
   { timestamps: true }
 );

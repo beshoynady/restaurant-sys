@@ -248,9 +248,7 @@ const onlineCustomerSchema = new mongoose.Schema(
     },
 
     deletedAt: Date,
-    deletedBy: {
-      type: ObjectId,
-      ref: "Employee",
+    deletedBy: { type: ObjectId, ref: "UserAccount",
     },
 
     changePasswordToken: String,

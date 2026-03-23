@@ -129,8 +129,8 @@ const purchaseInvoiceSchema = new mongoose.Schema(
     costCenter: { type: ObjectId, ref: "CostCenter" },
 
     // Employee who created the invoice
-    createdBy: { type: ObjectId, ref: "Employee", required: true },
-    updatedBy: { type: ObjectId, ref: "Employee" },
+    createdBy: { type: ObjectId, ref: "UserAccount", required: true },
+    updatedBy: { type: ObjectId, ref: "UserAccount" },
   },
   { timestamps: true },
 );

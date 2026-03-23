@@ -96,21 +96,19 @@ const shiftSchema = new mongoose.Schema(
     // Audit fields
     createdBy: {
       type: ObjectId,
-      ref: "Employee",
+      ref: "UserAccount",
       required: true,
       description: "Reference to the employee who created this shift",
     },
 
     updatedBy: {
       type: ObjectId,
-      ref: "Employee",
+      ref: "UserAccount",
       default: null,
       description: "Reference to the employee who last updated this shift",
     },
 
-    deletedBy: {
-      type: ObjectId,
-      ref: "Employee",
+    deletedBy: { type: ObjectId, ref: "UserAccount",
       default: null,
       description:
         "Reference to the employee who deleted this shift (soft delete)",

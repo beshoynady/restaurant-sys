@@ -128,9 +128,9 @@ const PromotionSchema = new mongoose.Schema(
     isActive: { type: Boolean, default: true },
 
     // Audit fields
-    createdBy: { type: ObjectId, ref: "Employee", required: true },
-    updatedBy: { type: ObjectId, ref: "Employee" },
-    deletedBy: { type: ObjectId, ref: "Employee" },
+    createdBy: { type: ObjectId, ref: "UserAccount", required: true },
+    updatedBy: { type: ObjectId, ref: "UserAccount" },
+    deletedBy: { type: ObjectId, ref: "UserAccount" },
     deletedAt: { type: Date },
   },
   { timestamps: true }

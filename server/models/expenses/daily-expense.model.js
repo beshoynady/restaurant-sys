@@ -62,8 +62,8 @@ const dailyExpenseSchema = new mongoose.Schema(
       trim: true,
       maxlength: 200,
     },
-    createdBy: { type: ObjectId, ref: "Employee", required: true },
-    updatedBy: { type: ObjectId, ref: "Employee" },
+    createdBy: { type: ObjectId, ref: "UserAccount", required: true },
+    updatedBy: { type: ObjectId, ref: "UserAccount" },
   },
   {
     timestamps: true,

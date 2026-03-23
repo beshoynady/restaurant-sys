@@ -76,14 +76,11 @@ const branchSchema = mongoose.Schema(
       default: "active",
     },
     // Audit fields
-    createdBy: { type: ObjectId, ref: "Employee", required: true },
-    updatedBy: { type: ObjectId, ref: "Employee" },
+    createdBy: { type: ObjectId, ref: "UserAccount", required: true },
+    updatedBy: { type: ObjectId, ref: "UserAccount" },
 
     // Soft delete
-    deletedBy: {
-      type: ObjectId,
-      ref: "Employee",
-    },
+    deletedBy: { type: ObjectId, ref: "UserAccount" },
 
     isDeleted: {
       type: Boolean,

@@ -110,18 +110,16 @@ const bankAccountSchema = new mongoose.Schema(
 
     createdBy: {
       type: ObjectId,
-      ref: "Employee",
+      ref: "UserAccount",
       required: true,
     },
 
     updatedBy: {
       type: ObjectId,
-      ref: "Employee",
+      ref: "UserAccount",
     },
 
-    deletedBy: {
-      type: ObjectId,
-      ref: "Employee",
+    deletedBy: { type: ObjectId, ref: "UserAccount",
     },
 
     deletedAt: {

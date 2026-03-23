@@ -136,10 +136,10 @@ const assetSchema = new mongoose.Schema(
        ========================= */
 
     // Employee who created the asset record
-    createdBy: { type: ObjectId, ref: "Employee", required: true },
+    createdBy: { type: ObjectId, ref: "UserAccount", required: true },
 
     // Employee who last updated the asset
-    updatedBy: { type: ObjectId, ref: "Employee" },
+    updatedBy: { type: ObjectId, ref: "UserAccount" },
   },
   {
     timestamps: true, // createdAt & updatedAt

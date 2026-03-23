@@ -161,11 +161,11 @@ const ProductSchema = new mongoose.Schema(
     /* =========================
        AUDIT & SOFT DELETE
     ========================= */
-    createdBy: { type: ObjectId, ref: "Employee", required: true },
-    updatedBy: { type: ObjectId, ref: "Employee" },
+    createdBy: { type: ObjectId, ref: "UserAccount", required: true },
+    updatedBy: { type: ObjectId, ref: "UserAccount" },
     isDeleted: { type: Boolean, default: false },
     deletedAt: { type: Date },
-    deletedBy: { type: ObjectId, ref: "Employee" },
+    deletedBy: { type: ObjectId, ref: "UserAccount" },
   },
   { timestamps: true }, // Automatically creates createdAt and updatedAt
 );

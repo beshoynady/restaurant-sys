@@ -133,9 +133,9 @@ const branchSettingsSchema = new mongoose.Schema(
     isActive: { type: Boolean, default: true }, // General active flag
 
     // 📝 Audit Fields
-    createdBy: { type: ObjectId, ref: "Employee", required: true }, // Employee who created
-    updatedBy: { type: ObjectId, ref: "Employee" },                // Employee who last updated
-    deletedBy: { type: ObjectId, ref: "Employee" },                // Employee who deleted
+    createdBy: { type: ObjectId, ref: "UserAccount", required: true }, // Employee who created
+    updatedBy: { type: ObjectId, ref: "UserAccount" },                // Employee who last updated
+    deletedBy: { type: ObjectId, ref: "UserAccount" },                // Employee who deleted
     isDeleted: { type: Boolean, default: false },                  // Soft delete flag
     deletedAt: { type: Date, default: null },                      // Soft delete timestamp
   },

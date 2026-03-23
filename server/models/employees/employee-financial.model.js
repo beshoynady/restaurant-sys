@@ -56,12 +56,12 @@ const employeeFinancialSchema = new mongoose.Schema(
     swiftCode: { type: String, trim: true, maxlength: 11 },
     payDay: { type: Number, min: 1, max: 31, default: 1 },
 
-    createdBy: { type: ObjectId, ref: "Employee", required: true },
-    updatedBy: { type: ObjectId, ref: "Employee", default: null },
+    createdBy: { type: ObjectId, ref: "UserAccount", required: true },
+    updatedBy: { type: ObjectId, ref: "UserAccount", default: null },
 
     isDeleted: { type: Boolean, default: false },
     deletedAt: { type: Date, default: null },
-    deletedBy: { type: ObjectId, ref: "Employee", default: null },
+    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
   { timestamps: true, versionKey: false },
 );

@@ -76,12 +76,12 @@ const menuCategorySchema = new mongoose.Schema(
     },
 
     // Audit fields
-    createdBy: { type: ObjectId, ref: "Employee", required: true },
-    updatedBy: { type: ObjectId, ref: "Employee", default: null },
+    createdBy: { type: ObjectId, ref: "UserAccount", required: true },
+    updatedBy: { type: ObjectId, ref: "UserAccount", default: null },
 
     isDeleted: { type: Boolean, default: false, index: true },
     deletedAt: { type: Date, default: null },
-    deletedBy: { type: ObjectId, ref: "Employee", default: null },
+    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
   { timestamps: true, versionKey: false },
 );

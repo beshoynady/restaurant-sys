@@ -106,8 +106,8 @@ const cashierShiftSchema = new mongoose.Schema(
     // ===============================
     // Audit
     // ===============================
-    openedBy: { type: ObjectId, ref: "Employee", required: true },
-    closedBy: { type: ObjectId, ref: "Employee" },
+    openedBy: { type: ObjectId, ref: "UserAccount", required: true },
+    closedBy: { type: ObjectId, ref: "UserAccount" },
 
     notes: { type: String, trim: true },
   },

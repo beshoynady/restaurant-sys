@@ -99,7 +99,7 @@ const assetDepreciationSchema = new mongoose.Schema(
 
     createdBy: {
       type: ObjectId,
-      ref: "Employee",
+      ref: "UserAccount",
       required: true,
     },
 
@@ -109,7 +109,7 @@ const assetDepreciationSchema = new mongoose.Schema(
     
     updatedBy: {
       type: ObjectId,
-      ref: "Employee",
+      ref: "UserAccount",
     },
   },
   {

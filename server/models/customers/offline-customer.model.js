@@ -133,19 +133,19 @@ const offlineCustomerSchema = new mongoose.Schema(
     // 🔹 Metadata / Audit
     createdBy: {
       type: ObjectId,
-      ref: "Employee",
+      ref: "UserAccount",
       required: true,
       // Employee who created this record
     },
     updatedBy: {
       type: ObjectId,
-      ref: "Employee",
+      ref: "UserAccount",
       default: null,
       // Last employee who updated this record
     },
 
     isDeleted: { type: Boolean, default: false },
-    deletedBy: { type: ObjectId, ref: "Employee", default: null },
+    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
     deletedAt: { type: Date, default: null },
     // Soft delete tracking
   },

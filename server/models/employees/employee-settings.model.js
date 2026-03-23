@@ -235,8 +235,8 @@ const employeeSettingSchema = new mongoose.Schema(
     // ===============================
     // Audit
     // ===============================
-    createdBy: { type: ObjectId, ref: "Employee" },
-    updatedBy: { type: ObjectId, ref: "Employee" },
+    createdBy: { type: ObjectId, ref: "UserAccount" },
+    updatedBy: { type: ObjectId, ref: "UserAccount" },
   },
   {
     timestamps: true,

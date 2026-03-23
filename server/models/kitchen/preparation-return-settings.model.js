@@ -78,8 +78,8 @@ const PreparationReturnSettingsSchema = new Schema(
       default: true,
     },
 
-    createdBy: { type: ObjectId, ref: "Employee", required: true },
-    updatedBy: { type: ObjectId, ref: "Employee", default: null },
+    createdBy: { type: ObjectId, ref: "UserAccount", required: true },
+    updatedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
   { timestamps: true },
 );

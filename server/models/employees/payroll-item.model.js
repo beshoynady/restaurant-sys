@@ -298,13 +298,13 @@ const payrollItemSchema = new Schema(
     // ======================================================
     createdBy: {
       type: ObjectId,
-      ref: "Employee",
+      ref: "UserAccount",
       required: true,
     },
 
     updatedBy: {
       type: ObjectId,
-      ref: "Employee",
+      ref: "UserAccount",
       default: null,
     },
   },

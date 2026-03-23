@@ -175,9 +175,7 @@ const StockTransferRequestSchema = new mongoose.Schema(
 
     deletedAt: Date,
 
-    deletedBy: {
-      type: ObjectId,
-      ref: "Employee",
+    deletedBy: { type: ObjectId, ref: "UserAccount",
     },
   },
   {
