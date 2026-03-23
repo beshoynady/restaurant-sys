@@ -1,17 +1,17 @@
 import mongoose from "mongoose";
 
-import PermissionsModel from "../../models/employees/permissions.model.js";
+import RoleModel from "../../models/employees/role.model.js";
 
 const createPermission = async (req, res) => {
   try {
-    const { employee, Permissions } = req.body;
+    const { employee, Role } = req.body;
     const createdBy = req.user.id;
 
     if (!mongoose.Types.ObjectId.isValid(employee)) {
       return res.status(400).json({ message: "معرف الموظف غير صالح." });
     }
 
-    if (!Permissions || Permissions.length === 0) {
+    if (!Role || Role.length === 0) {
       return res.status(400).json({ message: "الرجاء توفير الصلاحيات." });
     }
 
@@ -19,9 +19,9 @@ const createPermission = async (req, res) => {
       return res.status(400).json({ message: "معرف المنشئ غير صالح." });
     }
 
-    const newPermission = await PermissionsModel.create({
+    const newPermission = await RoleModel.create({
       employee,
-      Permissions,
+      Role,
       createdBy,
     });
 
@@ -36,27 +36,27 @@ const createPermission = async (req, res) => {
   }
 };
 
-const getAllPermissions = async (req, res) => {
+const getAllRole = async (req, res) => {
   try {
-    const permissions = await PermissionsModel.find().populate(
+    const role = await RoleModel.find().populate(
       "employee",
       "_id fullname username role"
     );
 
-    if (!permissions || permissions.length === 0) {
+    if (!role || role.length === 0) {
       return res.status(404).json({ message: "لا توجد صلاحيات." });
     }
 
-    res.status(200).json(permissions);
+    res.status(200).json(role);
   } catch (error) {
-    console.error("Error in getAllPermissions:", error);
+    console.error("Error in getAllRole:", error);
     res.status(500).json({ message: "خطأ في الخادم الداخلي.", error });
   }
 };
 
 const getPermissionById = async (req, res) => {
   try {
-    const permission = await PermissionsModel.findById(req.params.id).populate(
+    const permission = await RoleModel.findById(req.params.id).populate(
       "employee",
       "_id fullname username role"
     );
@@ -79,7 +79,7 @@ const getPermissionByEmployee = async (req, res) => {
       return res.status(400).json({ message: "Invalid employee ID" });
     }
 
-    const permission = await PermissionsModel.findOne({
+    const permission = await RoleModel.findOne({
       employee: employeeId,
     }).populate("employee", "_id fullname username role");
 
@@ -96,19 +96,19 @@ const getPermissionByEmployee = async (req, res) => {
 
 const updatePermissionById = async (req, res) => {
   try {
-    const { Permissions } = req.body;
+    const { Role } = req.body;
     const updatedBy = req.user.id;
 
     // Check for required data
-    if (!Permissions || Permissions.length === 0) {
+    if (!Role || Role.length === 0) {
       return res
         .status(400)
         .json({ message: "Please provide valid information for update." });
     }
 
-    const updatedPermission = await PermissionsModel.findByIdAndUpdate(
+    const updatedPermission = await RoleModel.findByIdAndUpdate(
       req.params.id,
-      { Permissions, updatedBy },
+      { Role, updatedBy },
       { new: true }
     );
 
@@ -125,7 +125,7 @@ const updatePermissionById = async (req, res) => {
 const deletePermissionById = async (req, res) => {
   try {
     const id = await req.params.id;
-    const deletedPermission = await PermissionsModel.findByIdAndDelete(id);
+    const deletedPermission = await RoleModel.findByIdAndDelete(id);
 
     if (!deletedPermission) {
       return res.status(404).json({ message: "الصلاحية غير موجودة" });
@@ -139,7 +139,7 @@ const deletePermissionById = async (req, res) => {
 
 export  {
   createPermission,
-  getAllPermissions,
+  getAllRole,
   getPermissionById,
   getPermissionByEmployee,
   updatePermissionById,

@@ -3,7 +3,7 @@ const { ObjectId } = mongoose.Schema;
 
 /**
  * User Account Model
- * Contains login credentials, roles, and permissions for system access.
+ * Contains login credentials, roles, and role for system access.
  */
 const userAccountSchema = new mongoose.Schema(
   {
@@ -16,6 +16,17 @@ const userAccountSchema = new mongoose.Schema(
       maxlength: 30,
     },
 
+    email:{
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    phone:{
+      type: String,
+      required: true,
+      trim: true,
+    },
     password: {
       type: String,
       required: true,
@@ -34,13 +45,13 @@ const userAccountSchema = new mongoose.Schema(
     employee: {
       type: ObjectId,
       ref: "Employee",
-      default: null,
+      default: null
     },
-    permissions: {
+    role: {
       type: ObjectId,
-      ref: "Permissions",
+      ref: "Role",
       default: null,
-    }, // Reference to Permissions document for fine-grained access control
+    }, // Reference to Role document for fine-grained access control
 
     isActive: { type: Boolean, default: true },
     lastLogin: { type: Date, default: null },
@@ -49,7 +60,7 @@ const userAccountSchema = new mongoose.Schema(
     twoFactorEnabled: { type: Boolean, default: false },
     twoFactorSecret: { type: String, trim: true, default: "" },
 
-    createdBy: { type: ObjectId, ref: "Employee", required: true },
+    createdBy: { type: ObjectId, ref: "Employee", default: null },
     updatedBy: { type: ObjectId, ref: "Employee", default: null },
 
     isDeleted: { type: Boolean, default: false },

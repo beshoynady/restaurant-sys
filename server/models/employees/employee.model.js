@@ -289,7 +289,7 @@ const employeeSchema = new mongoose.Schema(
     },
 
     // Metadata
-    createdBy: { type: ObjectId, ref: "Employee", required: true },
+    createdBy: { type: ObjectId, ref: "Employee", default: null},
     updatedBy: { type: ObjectId, ref: "Employee", default: null },
 
     isDeleted: { type: Boolean, default: false },

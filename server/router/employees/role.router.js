@@ -2,19 +2,19 @@ import express from "express";
 const router = express.Router();
 import {
     createPermission,
-    getAllPermissions,
+    getAllRole,
     getPermissionById,
     getPermissionByEmployee,
     updatePermissionById,
     deletePermissionById
-} from "../../controllers/employees/permissions.controller.js";
+} from "../../controllers/employees/role.controller.js";
 
 import {authenticateToken} from "../../middlewares/authenticate.js";
 
 
 router.route('/')
     .post(authenticateToken,createPermission)
-    .get(authenticateToken,getAllPermissions);
+    .get(authenticateToken,getAllRole);
 
 router.route('/:id')
     .get(authenticateToken,getPermissionById)

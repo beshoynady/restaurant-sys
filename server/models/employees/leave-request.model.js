@@ -5,7 +5,7 @@ const { ObjectId } = mongoose.Schema;
  * =========================================================
  * Leave & Permission Request Model
  * ---------------------------------------------------------
- * Handles leave, emergency, unpaid leave, and permissions.
+ * Handles leave, emergency, unpaid leave, and role.
  * Can be scheduled for future or current execution.
  * Impacts AttendanceRecord and optionally Payroll.
  * =========================================================
@@ -86,7 +86,7 @@ const leaveRequestSchema = new mongoose.Schema(
       type: Number,
       min: 0,
       default: 0,
-      description: "For partial day leaves/permissions, total hours requested",
+      description: "For partial day leaves/role, total hours requested",
     },
 
     // 🔹 Payment behavior (HR decision)

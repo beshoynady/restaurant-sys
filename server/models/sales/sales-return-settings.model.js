@@ -8,7 +8,7 @@ const SalesReturnSettingsSchema = new Schema(
     brand: { type: ObjectId, ref: "Brand", required: true },
     branch: { type: ObjectId, ref: "Branch", default: null }, // null = default
 
-    /** Return permissions */
+    /** Return role */
     allowReturn: {
       type: Boolean,
       default: true,

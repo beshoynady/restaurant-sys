@@ -32,7 +32,7 @@ import routeEmployee from "./employees/employee.router.js";
 import routeUserAcount from "./employees/user-account.router.js";
 import routeDepartment from "./employees/department.router.js";
 import routeJobTitle from "./employees/job-title.router.js";
-import routePermission from "./employees/permissions.router.js";
+import routePermission from "./employees/role.router.js";
 import routeAttendance from "./employees/attendance-record.router.js";
 import routeShift from "./employees/shift.router.js";
 import routePayroll from "./employees/payroll.router.js";

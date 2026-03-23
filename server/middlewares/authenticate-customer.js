@@ -35,7 +35,7 @@ const authenticateCustomerToken = async (req, res, next) => {
       return res.status(404).json({ message: "Customer not found" });
     }
 
-    // Check permissions
+    // Check role
     if (!customer.isActive) {
       return res.status(403).json({ message: "Forbidden: Customer is not active" });
     }
