@@ -23,14 +23,20 @@ const accountSchema = new mongoose.Schema(
       maxlength: 30,
     },
 
-    name: {
-      type: Map,
-      of: {
-        type: String,
-        trim: true,
-        minlength: 2,
-        maxlength: 100,
-      },
+    name: [
+  {
+    lang: {
+      type: String,
+      enum: ["EN", "AR"],
+    },
+    value: {
+      type: String,
+      trim: true,
+      minlength: 2,
+      maxlength: 100,
+    },
+  },
+],
       // { en: "Cash on Hand", ar: "النقدية بالصندوق" }
       required: true,
     },

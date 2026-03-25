@@ -134,7 +134,8 @@ const branchSettingsSchema = new mongoose.Schema(
 
     // 📝 Audit Fields
     createdBy: { type: ObjectId, ref: "UserAccount", required: true }, // Employee who created
-    updatedBy: { type: ObjectId, ref: "UserAccount" },                // Employee who last updated
+    updatedBy: { type: ObjectId, ref: "UserAccount" },  
+    // Soft delete fields for tracking who deleted and when a branch settings document was deleted
     deletedBy: { type: ObjectId, ref: "UserAccount" },                // Employee who deleted
     isDeleted: { type: Boolean, default: false },                  // Soft delete flag
     deletedAt: { type: Date, default: null },                      // Soft delete timestamp

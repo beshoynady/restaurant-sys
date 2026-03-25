@@ -13,28 +13,40 @@ const menuCategorySchema = new mongoose.Schema(
     branch: { type: ObjectId, ref: "Branch", default: null, index: true },
 
     // Category name and description (multilingual)
-    name: {
-      type: Map,
-      of: {
-        type: String,
-        trim: true,
-        minlength: 2,
-        maxlength: 100,
-      },
+    name: [
+  {
+    lang: {
+      type: String,
+      enum: ["EN", "AR"],
+    },
+    value: {
+      type: String,
+      trim: true,
+      minlength: 2,
+      maxlength: 100,
+    },
+  },
+],
 
       required: true,
       trim: true,
       minlength: 2,
       maxlength: 50,
     },
-    description: {
-      type: Map,
-      of: {
-        type: String,
-        trim: true,
-        minlength: 2,
-        maxlength: 100,
-      },
+    description: [
+  {
+    lang: {
+      type: String,
+      enum: ["EN", "AR"],
+    },
+    value: {
+      type: String,
+      trim: true,
+      minlength: 2,
+      maxlength: 100,
+    },
+  },
+],
       default: {},
       maxlength: 200,
     },

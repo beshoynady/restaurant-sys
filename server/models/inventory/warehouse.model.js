@@ -17,17 +17,21 @@ const WarehouseSchema = new mongoose.Schema(
       index: true,
     },
 
-    name: {
-      type: Map,
-      of: {
-        type: String,
-        trim: true,
-        minlength: 2,
-        maxlength: 100,
+    name: [
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
+        required: true,
       },
-
-      required: true, // { en, ar }
-    },
+    ],
 
     code: {
       type: String,
@@ -63,25 +67,35 @@ const WarehouseSchema = new mongoose.Schema(
       default: false,
     },
 
-    description: {
-      type: Map,
-      of: {
-        type: String,
-        trim: true,
-        minlength: 2,
-        maxlength: 100,
+    description: [
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
       },
-    },
+    ],
 
-    address: {
-      type: Map,
-      of: {
-        type: String,
-        trim: true,
-        minlength: 2,
-        maxlength: 100,
+    address: [
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
       },
-    },
+    ],
 
     storekeepers: [
       {
@@ -111,8 +125,7 @@ const WarehouseSchema = new mongoose.Schema(
 
     isDeleted: { type: Boolean, default: false },
     deletedAt: Date,
-    deletedBy: { type: ObjectId, ref: "UserAccount",
-    },
+    deletedBy: { type: ObjectId, ref: "UserAccount" },
   },
   { timestamps: true, versionKey: false },
 );

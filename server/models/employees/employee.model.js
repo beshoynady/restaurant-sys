@@ -22,38 +22,50 @@ const employeeSchema = new mongoose.Schema(
     },
 
     // Personal Information
-    firstName: {
-      type: Map,
-      of: {
-        type: String,
-        trim: true,
-        minlength: 2,
-        maxlength: 100,
+    firstName: [
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
       },
-      required: true,
-    }, // { en: "John Doe", ar: "جون دو" }
-    
-    middleName: {
-      type: Map,
-      of: {
-        type: String,
-        trim: true,
-        minlength: 2,
-        maxlength: 100,
-      },
-      required: true,
-    }, // { en: "Michael", ar: "مايكل" }
+    ],
 
-    lastName: {
-      type: Map,
-      of: {
-        type: String,
-        trim: true,
-        minlength: 2,
-        maxlength: 100,
+    middleName: [
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
       },
-      required: true,
-    }, // { en: "John Doe", ar: "جون دو" }
+    ],
+
+    lastName: [
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
+      },
+    ],
 
     gender: { type: String, enum: ["male", "female"], required: true },
     dateOfBirth: { type: Date, required: true },
@@ -64,17 +76,20 @@ const employeeSchema = new mongoose.Schema(
       minlength: 10,
       maxlength: 30,
     },
-    nationality: {
-      type: Map,
-      of: {
-        type: String,
-        trim: true,
-        minlength: 2,
-        maxlength: 100,
+    nationality: [
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
       },
-
-      required: true,
-    },
+    ],
     // Marital status is important for benefits and tax purposes
     maritalStatus: {
       type: String,
@@ -139,62 +154,27 @@ const employeeSchema = new mongoose.Schema(
       match: [/\S+@\S+\.\S+/, "Invalid email address"],
     },
 
-    address: {
-      country: {
-        type: Map,
-        of: {
+    address: [
+      {
+        lang: {
           type: String,
-          trim: true,
-          minlength: 2,
-          maxlength: 100,
+          enum: ["EN", "AR"],
         },
-        required: true,
-      },
-      city: {
-        type: Map,
-        of: {
-          type: String,
-          trim: true,
-          minlength: 2,
-          maxlength: 100,
+        value: {
+          country: { type: String, required: true, trim: true, maxlength: 100 },
+          stateOrProvince: { type: String, trim: true, maxlength: 100 },
+          city: { type: String, required: true, trim: true, maxlength: 100 },
+          area: { type: String, trim: true, maxlength: 100 },
+          street: { type: String, trim: true, maxlength: 150 },
+          buildingNumber: { type: String, trim: true, maxlength: 20 },
+          floor: { type: String, trim: true, maxlength: 10 },
+          landmark: { type: String, trim: true, maxlength: 150 },
+          postalCode: { type: String, trim: true, maxlength: 20 },
         },
-        required: true,
       },
-      area: {
-        type: Map,
-        of: {
-          type: String,
-          trim: true,
-          minlength: 2,
-          maxlength: 100,
-        },
-        required: true,
-      },
-      street: {
-        type: Map,
-        of: {
-          type: String,
-          trim: true,
-          minlength: 2,
-          maxlength: 100,
-        },
-        required: true,
-      },
-      building: {
-        type: Map,
-        of: {
-          type: String,
-          trim: true,
-          minlength: 2,
-          maxlength: 100,
-        },
-        required: true,
-      },
-      floor: { type: Map, of: String },
-      landmark: { type: Map, of: String }, //
-    },
+    ],
 
-    // Employment Information 
+    // Employment Information
     employeeCode: {
       type: String,
       trim: true,
@@ -239,21 +219,34 @@ const employeeSchema = new mongoose.Schema(
 
     documents: [
       {
-        name: {
-          type: Map,
-          of: {
-            type: String,
-            trim: true,
-            minlength: 2,
-            maxlength: 100,
+        name: [
+          {
+            lang: {
+              type: String,
+              enum: ["EN", "AR"],
+            },
+            value: {
+              type: String,
+              trim: true,
+              minlength: 2,
+              maxlength: 1000,
+            },
           },
-
-          required: true,
-        },
-        documentType: {
-          type: String,
-          required: true,
-        },
+        ],
+        documentType: [
+          {
+            lang: {
+              type: String,
+              enum: ["EN", "AR"],
+            },
+            value: {
+              type: String,
+              trim: true,
+              minlength: 2,
+              maxlength: 1000,
+            },
+          },
+        ],
         fileUrl: {
           type: String,
           trim: true,
@@ -263,7 +256,7 @@ const employeeSchema = new mongoose.Schema(
         uploadedAt: { type: Date, default: Date.now },
       },
     ],
-    
+
     hasAccount: { type: Boolean, default: false }, // Flag to indicate if a user account has been created for this employee
     // Status & Roles
     isVerified: { type: Boolean, default: false },
@@ -289,7 +282,7 @@ const employeeSchema = new mongoose.Schema(
     },
 
     // Metadata
-    createdBy: { type: ObjectId, ref: "UserAccount", default: null},
+    createdBy: { type: ObjectId, ref: "UserAccount", default: null },
     updatedBy: { type: ObjectId, ref: "UserAccount", default: null },
 
     isDeleted: { type: Boolean, default: false },

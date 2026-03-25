@@ -14,14 +14,20 @@ const StockItemSchema = new mongoose.Schema(
       ref: "Branch",
       index: true,
     },
-    itemName: {
-      type: Map,
-      of: {
-        type: String,
-        trim: true,
-        minlength: 2,
-        maxlength: 100,
-      },
+    itemName: [
+  {
+    lang: {
+      type: String,
+      enum: ["EN", "AR"],
+    },
+    value: {
+      type: String,
+      trim: true,
+      minlength: 2,
+      maxlength: 100,
+    },
+  },
+],
 
       required: true,
       // { en: "Chicken Breast", ar: "صدر دجاج" }
@@ -102,14 +108,20 @@ const StockItemSchema = new mongoose.Schema(
     maxThreshold: { type: Number, default: 0 },
     reorderQuantity: { type: Number, default: 0 },
 
-    notes: {
-      type: Map,
-      of: {
-        type: String,
-        trim: true,
-        minlength: 2,
-        maxlength: 100,
-      },
+    notes: [
+  {
+    lang: {
+      type: String,
+      enum: ["EN", "AR"],
+    },
+    value: {
+      type: String,
+      trim: true,
+      minlength: 2,
+      maxlength: 100,
+    },
+  },
+],
     },
 
     inventoryAccount: {

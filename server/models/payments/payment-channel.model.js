@@ -15,13 +15,21 @@ const paymentChannelSchema = new mongoose.Schema({
   brand: { type: ObjectId, ref: "Brand", required: true },
   branch: { type: ObjectId, ref: "Branch", default: null },
 
-  name: { type: Map, of: {
-    type: String,
-    trim: true,
-    minlength: 2,
-    maxlength: 100
-  },
- required: true },
+  name: [
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 1000,
+        },
+        required: true,
+      },
+    ],
 
   code: { type: String, required: true, unique: true },
 
@@ -31,12 +39,21 @@ const paymentChannelSchema = new mongoose.Schema({
     required: true,
   },
 
-  providerName: {
-    type: String, // Fawry, Paymob, Vodafone, mobile wallet name, etc.
-    trim: true,
-    maxlength: 100,
-    required: true,
-  },
+  providerName: [
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
+        required: true,
+      },
+    ],
 
   /* =============================
        Accounting Configuration

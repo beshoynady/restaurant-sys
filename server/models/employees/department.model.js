@@ -18,15 +18,21 @@ const departmentSchema = new mongoose.Schema(
       },
     ],
     // Multilingual department name
-    name: {
-      type: Map,
-      of: {
-        type: String,
-        trim: true,
-        maxlength: 100,
+    name: [
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 1000,
+        },
+        required: true,
       },
-      required: [true, "Department name is required"],
-    },
+    ],
     slug: {
       type: String,
       trim: true,

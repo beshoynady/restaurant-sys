@@ -89,21 +89,25 @@ const SupplierSchema = new Schema(
       },
     },
     // Address (multi-language, must match Brand menuLanguages)
-    address: {
-      type: Map,
-      of: new Schema({
-        country: { type: String, required: true, trim: true, maxlength: 100 },
-        stateOrProvince: { type: String, trim: true, maxlength: 100 },
-        city: { type: String, required: true, trim: true, maxlength: 100 },
-        area: { type: String, trim: true, maxlength: 100 },
-        street: { type: String, trim: true, maxlength: 150 },
-        buildingNumber: { type: String, trim: true, maxlength: 20 },
-        floor: { type: String, trim: true, maxlength: 10 },
-        landmark: { type: String, trim: true, maxlength: 150 },
-        postalCode: { type: String, trim: true, maxlength: 20 },
-      }),
-      required: true,
-    },
+    address: [
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          country: { type: String, required: true, trim: true, maxlength: 100 },
+          stateOrProvince: { type: String, trim: true, maxlength: 100 },
+          city: { type: String, required: true, trim: true, maxlength: 100 },
+          area: { type: String, trim: true, maxlength: 100 },
+          street: { type: String, trim: true, maxlength: 150 },
+          buildingNumber: { type: String, trim: true, maxlength: 20 },
+          floor: { type: String, trim: true, maxlength: 10 },
+          landmark: { type: String, trim: true, maxlength: 150 },
+          postalCode: { type: String, trim: true, maxlength: 20 },
+        },
+      },
+    ],
 
     // Items supplied by the supplier
     itemsSupplied: {

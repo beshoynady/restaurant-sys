@@ -17,7 +17,7 @@ const employeeFinancialSchema = new mongoose.Schema(
       default: "monthly",
     },
     basicSalary: { type: Number, min: 0 },
-    
+
     attendanceRequired: { type: Boolean, default: true },
     overtimeEligible: { type: Boolean, default: true },
     overtimeRateType: {

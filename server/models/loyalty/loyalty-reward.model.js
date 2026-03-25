@@ -22,18 +22,35 @@ const loyaltyRewardSchema = new mongoose.Schema(
       default: null,
     },
     // Reward display name
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-      maxlength: 120,
-    },
+    name: [
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
+      },
+    ],
     // Description shown to customers
-    description: {
-      type: String,
-      trim: true,
-      maxlength: 300,
-    },
+    description: [
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
+      },
+    ],
 
     // Points required to redeem this reward
     pointsRequired: {

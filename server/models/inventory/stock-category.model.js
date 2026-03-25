@@ -12,14 +12,20 @@ const categoryStockSchema = new mongoose.Schema(
       ref: "Branch",
       default: null,
     },
-    categoryName: {
-      type: Map,
-      of: {
-        type: String,
-        trim: true,
-        minlength: 2,
-        maxlength: 100,
-      },
+    categoryName: [
+  {
+    lang: {
+      type: String,
+      enum: ["EN", "AR"],
+    },
+    value: {
+      type: String,
+      trim: true,
+      minlength: 2,
+      maxlength: 100,
+    },
+  },
+],
 
       required: [true, "Category name is required"],
     },
@@ -37,14 +43,20 @@ const categoryStockSchema = new mongoose.Schema(
       enum: ["ingredient", "supply", "packaging", "service"],
       default: "ingredient",
     },
-    description: {
-      type: Map,
-      of: {
-        type: String,
-        trim: true,
-        minlength: 2,
-        maxlength: 100,
-      },
+    description: [
+  {
+    lang: {
+      type: String,
+      enum: ["EN", "AR"],
+    },
+    value: {
+      type: String,
+      trim: true,
+      minlength: 2,
+      maxlength: 100,
+    },
+  },
+],
     },
     // { en: "DAIRY", ar: "الألبان" },
     isActive: {

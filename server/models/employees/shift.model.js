@@ -22,19 +22,20 @@ const shiftSchema = new mongoose.Schema(
     },
 
     // Localized display name for the shift
-    name: {
-      type: Map,
-      of: {
-        type: String,
-        trim: true,
-        minlength: 2,
-        maxlength: 100,
+    name: [
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
       },
-
-      required: true,
-      description:
-        "Localized name of the shift (e.g., { en: 'Morning Shift', ar: 'الوردية الصباحية' })",
-    },
+    ],
 
     // Unique internal code for business logic & uniqueness
     code: {
@@ -108,7 +109,9 @@ const shiftSchema = new mongoose.Schema(
       description: "Reference to the employee who last updated this shift",
     },
 
-    deletedBy: { type: ObjectId, ref: "UserAccount",
+    deletedBy: {
+      type: ObjectId,
+      ref: "UserAccount",
       default: null,
       description:
         "Reference to the employee who deleted this shift (soft delete)",

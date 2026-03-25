@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema.Types;
 
-
 /**
  * Brand Configuration Schema
  * --------------------------
@@ -12,31 +11,6 @@ const { ObjectId } = mongoose.Schema.Types;
 const brandSchema = new mongoose.Schema(
   {
     // ===============================
-    // LANGUAGE SETTINGS
-    // ===============================
-    /**
-     * Supported dashboard languages
-     */
-    dashboardLanguages: {
-      type: [String],
-      enum: ["EN", "AR", "FR", "ES", "DE", "IT", "ZH", "JA", "RU"],
-      uppercase: true,
-      default: ["EN", "AR"],
-      description: "Languages available in the dashboard",
-    },
-
-    /**
-     * Default dashboard language
-     */
-    defaultDashboardLanguage: {
-      type: String,
-      enum: ["EN", "AR", "FR", "ES", "DE", "IT", "ZH", "JA", "RU"],
-      default: "EN",
-      uppercase: true,
-      description: "Primary language for dashboard display",
-    },
-
-    // ===============================
     // BRAND IDENTIFICATION
     // ===============================
     /**
@@ -44,18 +18,20 @@ const brandSchema = new mongoose.Schema(
      * Displayed in POS, menus, invoices
      * Supports multiple languages using a Map (e.g., { "en": "My Restaurant", "ar": "مطعمي" })
      */
-    name: {
-      type: Map,
-      of: {
-        type: String,
-        trim: true,
-        minlength: 2,
-        maxlength: 100,
+    name: [
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
       },
-      required: true,
-      description: "Customer-facing brand name in multiple languages",
-    },
-
+    ],
     /**
      * slug for URL and internal references (auto-generated from English name)
      */

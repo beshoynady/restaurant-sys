@@ -8,36 +8,43 @@ const PreparationSectionConfigSchema = new mongoose.Schema(
     branch: { type: ObjectId, ref: "Branch", default: null },
 
     /** Section details */
-    name: {
-      type: Map,
-      of: {
-    type: String,
-    trim: true,
-    minlength: 2,
-    maxlength: 100
-  },
+    name: [
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
+        required: true,
+      },
+    ],
 
-      required: true,
-      trim: true,
-    },
     code: {
       type: String,
       trim: true,
       uppercase: true,
       maxlength: 20,
     },
-    description: {
-      type: Map,
-      of: {
-    type: String,
-    trim: true,
-    minlength: 2,
-    maxlength: 100
-  },
 
-      trim: true,
-      maxlength: 300,
-    },
+    description: [
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
+      },
+    ],
 
     /** Preparation logic */
     averagePreparationTime: { type: Number, default: 10, min: 0 }, // minutes
@@ -60,16 +67,16 @@ const PreparationSectionConfigSchema = new mongoose.Schema(
     deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
     deletedAt: { type: Date, default: null },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Prevent duplicates per brand/branch and code
 PreparationSectionConfigSchema.index(
   { brand: 1, branch: 1, code: 1 },
-  { unique: true, sparse: true }
+  { unique: true, sparse: true },
 );
 
 export default mongoose.model(
   "PreparationSectionConfig",
-  PreparationSectionConfigSchema
+  PreparationSectionConfigSchema,
 );

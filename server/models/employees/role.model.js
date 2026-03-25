@@ -12,17 +12,35 @@ const roleSchema = new Schema(
     brand: { type: ObjectId, ref: "Brand", required: true },
 
     // Name of the role (multi-language support)
-    name: {
-      type: Map,
-      of: String,
-      required: true,
-    },
+    name: [
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
+      },
+    ],
 
-    description: {
-      type: Map,
-      of: String,
-      default: {},
-    },
+    description: [
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
+      },
+    ],
 
     branchAccess: [{ type: ObjectId, ref: "Branch" }],
 
@@ -177,7 +195,7 @@ const roleSchema = new Schema(
     createdBy: { type: ObjectId, ref: "UserAccount" },
     updatedBy: { type: ObjectId, ref: "UserAccount" },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Role = mongoose.model("Role", roleSchema);

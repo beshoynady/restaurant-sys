@@ -9,6 +9,12 @@ const cashierShiftSchema = new mongoose.Schema(
     brand: { type: ObjectId, ref: "Brand", required: true },
     branch: { type: ObjectId, ref: "Branch", required: true },
 
+    num: {
+      type: Number,
+      required: true,
+      description: "Sequential number for the shift within the branch",
+    },
+
     // ===============================
     // Cashier & Register
     // ===============================

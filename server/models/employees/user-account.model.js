@@ -11,7 +11,7 @@ const { ObjectId } = Schema.Types;
 const userAccountSchema = new Schema(
   {
     brand: { type: ObjectId, ref: "Brand", required: true },
-    branch: { type: ObjectId, ref: "Branch", required: true },
+    branch: { type: ObjectId, ref: "Branch", default: null }, // Optional link to a specific branch (for branch managers)
     // Unique username per brand
     username: {
       type: String,

@@ -33,19 +33,20 @@ const DiningAreaSchema = new Schema(
     },
 
     // ─────────── Identity ───────────
-    name: {
-      type: Map,
-      of: {
-        type: String,
-        trim: true,
-        minlength: 2,
-        maxlength: 100,
+    name: [
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
       },
-
-      required: true,
-      trim: true,
-      // Example: { AR: "صالة داخلية", EN: "Indoor Hall" }
-    },
+    ],
 
     code: {
       type: String,

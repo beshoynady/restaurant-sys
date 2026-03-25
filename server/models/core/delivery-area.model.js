@@ -27,17 +27,21 @@ const DeliveryAreaSchema = new mongoose.Schema(
 
     // ─────────── Identity ───────────
     // Multilingual name support: { EN: "Downtown", AR: "وسط المدينة" }
-    name: {
-      type: Map,
-      of: {
-        type: String,
+    name: [
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
         required: true,
-        trim: true,
-        minlength: 2,
-        maxlength: 100,
       },
-      required: true,
-    },
+    ],
 
     code: {
       type: String,
@@ -123,23 +127,24 @@ const DeliveryAreaSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
-    deletedBy: { type: ObjectId, ref: "UserAccount",
-      default: null,
-    },
+    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // ─────────── Indexes ───────────
 // Unique delivery area per branch per language
 DeliveryAreaSchema.index(
   { branch: 1, "name.$**": 1 },
-  { unique: true, partialFilterExpression: { isActive: true } }
+  { unique: true, partialFilterExpression: { isActive: true } },
 );
 
 // Optional: index code per branch for fast lookup
-DeliveryAreaSchema.index({ branch: 1, code: 1 }, { unique: true, sparse: true });
+DeliveryAreaSchema.index(
+  { branch: 1, code: 1 },
+  { unique: true, sparse: true },
+);
 
-const DeliveryAreaModel= mongoose.model("DeliveryArea", DeliveryAreaSchema);
+const DeliveryAreaModel = mongoose.model("DeliveryArea", DeliveryAreaSchema);
 
-export default  DeliveryAreaModel
+export default DeliveryAreaModel;
