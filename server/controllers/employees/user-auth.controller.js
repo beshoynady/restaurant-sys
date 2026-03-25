@@ -1,10 +1,20 @@
-import Usermodel from "../../models/employees/user-account.model.js";
-import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
-import dotenv from "dotenv";
+import userAccountModel from "../../models/employees/user-account.model.js";
 import asyncHandler from "../../utils/asyncHandler.js";
+import jwt from "jsonwebtoken";
+import joi from "joi";
+import dotenv from "dotenv";
 dotenv.config();
 const secretKey = process.env.JWT_SECRET_KEY;
+
+const signupValidationSchema = joi.object({
+  username: joi.string().min(3).max(30).required(),
+  email: joi.string().email().optional(),
+    phone: joi.string().optional(),
+    password: joi.string().min(6).required(),
+    role: joi.string().optional(),
+    employee: joi.string().optional(),
+});
+
 
 const signup = asyncHandler(async (req, res) => {
     const { username, email, address, deliveryArea, phone, password } =

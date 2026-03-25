@@ -135,8 +135,8 @@ const DailyExpense = React.lazy(() =>
 const CashRegister = React.lazy(() =>
   import("../layouts/adminLayout/adminComponent/cash/CashRegister")
 );
-const cashTransaction = React.lazy(() =>
-  import("../layouts/adminLayout/adminComponent/cash/cashTransaction")
+const CashTransaction = React.lazy(() =>
+  import("../layouts/adminLayout/adminComponent/cash/CashTransaction")
 );
 
 const Users = React.lazy(() =>
@@ -261,7 +261,7 @@ const AppRoutes = () => {
 
         {/* Cash */}
         <Route path="cashregister" element={<Suspense fallback={<LoadingPage />}><CashRegister /></Suspense>} />
-        <Route path="cashTransaction" element={<Suspense fallback={<LoadingPage />}><cashTransaction /></Suspense>} />
+        <Route path="cashTransaction" element={<Suspense fallback={<LoadingPage />}><CashTransaction /></Suspense>} />
 
         {/* Users */}
         <Route path="users" element={<Suspense fallback={<LoadingPage />}><Users /></Suspense>} />

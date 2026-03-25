@@ -192,10 +192,11 @@ const brandSchema = new mongoose.Schema(
     // ===============================
     // AUDIT & SOFT DELETE
     // ===============================
-    updatedBy: { type: ObjectId, ref: "UserAccount" },
+    createdBy: { type: ObjectId, ref: "UserAccount", default: null },
+    updatedBy: { type: ObjectId, ref: "UserAccount", default: null },
 
     isDeleted: { type: Boolean, default: false },
-    deletedBy: { type: ObjectId, ref: "UserAccount" },
+    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
     deletedAt: { type: Date, default: null },
   },
   { timestamps: true },

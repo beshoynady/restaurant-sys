@@ -17,7 +17,8 @@ import routeDeliveryArea from "./core/delivery-area.router.js";
  * --------------------------------------------------
  * User authentication and basic permission control
  ****************************************************/
-import routeUserAuth from "./auth/user-auth.router.js";
+// import routeUserAcount from "./employees/user-account.router.js";
+import routeUserAuth from "./employees/user-auth.router.js";
 
 /****************************************************
  * EMPLOYEES & HR ROUTES
@@ -29,7 +30,6 @@ import routeUserAuth from "./auth/user-auth.router.js";
  * - Employee financial transactions
  ****************************************************/
 import routeEmployee from "./employees/employee.router.js";
-import routeUserAcount from "./employees/user-account.router.js";
 import routeDepartment from "./employees/department.router.js";
 import routeJobTitle from "./employees/job-title.router.js";
 import routePermission from "./employees/role.router.js";
@@ -179,7 +179,7 @@ router.use("/api/permission", routePermission);
 
 // Employees & HR
 router.use("/api/employee", routeEmployee);
-router.use("/api/user-account", routeUserAcount);
+// router.use("/api/user-account", routeUserAcount);
 router.use("/api/job-title", routeJobTitle);
 router.use("/api/department", routeDepartment);
 router.use("/api/attendance", routeAttendance);

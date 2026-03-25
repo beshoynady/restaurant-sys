@@ -3,7 +3,7 @@ const router = express.Router();
 
 // 🧩 Controllers
 import {
- createFirstEmployee,
+  createFirstEmployee,
   createEmployee,
   updateEmployee,
   loginEmployee,
@@ -58,9 +58,7 @@ router
   .put(authenticateToken, updateEmployee);
 
 // get employees by branch with pagination
-router
-  .route("/branch/:branchId")
-  .get(authenticateToken, getEmployeesByBranch);
+router.route("/branch/:branchId").get(authenticateToken, getEmployeesByBranch);
 
 // 🧩 Soft delete employee
 router
@@ -68,9 +66,7 @@ router
   .put(authenticateToken, softDeleteEmployee);
 
 // 🧩 Restore soft-deleted employee
-router
-  .route("/:employeeId/restore")
-  .put(authenticateToken, restoreEmployee);
+router.route("/:employeeId/restore").put(authenticateToken, restoreEmployee);
 
 /* ----------------------------------------------------------
  *  export  ROUTER

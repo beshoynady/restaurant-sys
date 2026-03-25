@@ -43,7 +43,7 @@ app.use(cookieParser()); // Parse cookies
 // -------------------
 // CORS CONFIG
 // -------------------
-const allowedOrigins = ["https://restaurant.menufy.tech", frontEnd];
+const allowedOrigins = ["http://localhost:3000", frontEnd];
 app.use(
   cors({
     origin: (origin, callback) => {
