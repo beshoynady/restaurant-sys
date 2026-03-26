@@ -10,14 +10,7 @@ const { ObjectId } = mongoose.Schema.Types;
  */
 const brandSchema = new mongoose.Schema(
   {
-    // ===============================
-    // BRAND IDENTIFICATION
-    // ===============================
-    /**
-     * Brand name (multilingual)
-     * Displayed in POS, menus, invoices
-     * Supports multiple languages using a Map (e.g., { "en": "My Restaurant", "ar": "مطعمي" })
-     */
+    // Multilingual brand name (supports English and Arabic)
     name: [
       {
         lang: {

@@ -24,22 +24,20 @@ const accountSchema = new mongoose.Schema(
     },
 
     name: [
-  {
-    lang: {
-      type: String,
-      enum: ["EN", "AR"],
-    },
-    value: {
-      type: String,
-      trim: true,
-      minlength: 2,
-      maxlength: 100,
-    },
-  },
-],
-      // { en: "Cash on Hand", ar: "النقدية بالصندوق" }
-      required: true,
-    },
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+           },
+},
+
+    ],
     category: {
       type: String,
       upercase: true,

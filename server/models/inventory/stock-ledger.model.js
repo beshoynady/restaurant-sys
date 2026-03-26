@@ -77,22 +77,19 @@ const StockLedgerSchema = new mongoose.Schema(
     },
 
     description: [
-  {
-    lang: {
-      type: String,
-      enum: ["EN", "AR"],
-    },
-    value: {
-      type: String,
-      trim: true,
-      minlength: 2,
-      maxlength: 100,
-    },
-  },
-],
-
-      required: true,
-    },
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
+      },
+    ],
 
     inbound: {
       quantity: { type: Number, default: 0 },

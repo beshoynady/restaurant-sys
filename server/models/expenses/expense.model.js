@@ -11,12 +11,12 @@ const { ObjectId } = mongoose.Schema.Types;
 const expenseSchema = new mongoose.Schema(
   {
     brand: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: ObjectId,
       ref: "Brand",
       required: true,
     },
     branch: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: ObjectId,
       ref: "Branch",
       required: true,
     },
@@ -25,39 +25,35 @@ const expenseSchema = new mongoose.Schema(
      * Example: "Branch Rent", "Electricity Bill", "Delivery Packaging"
      */
     name: [
-  {
-    lang: {
-      type: String,
-      enum: ["EN", "AR"],
-    },
-    value: {
-      type: String,
-      trim: true,
-      minlength: 2,
-      maxlength: 100,
-    },
-  },
-],
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
+      },
+    ],
 
-      required: true,
-    },
     description: [
-  {
-    lang: {
-      type: String,
-      enum: ["EN", "AR"],
-    },
-    value: {
-      type: String,
-      trim: true,
-      minlength: 2,
-      maxlength: 100,
-    },
-  },
-],
-
-      required: true,
-    },
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
+      },
+    ],
+    
     code: {
       type: String,
       required: true,
@@ -134,12 +130,12 @@ const expenseSchema = new mongoose.Schema(
       default: true,
     },
     createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: ObjectId,
       ref: "Employee",
       required: true,
     },
     updatedBy: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: ObjectId,
       ref: "Employee",
     },
   },

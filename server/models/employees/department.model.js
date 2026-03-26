@@ -29,9 +29,9 @@ const departmentSchema = new mongoose.Schema(
           trim: true,
           minlength: 2,
           maxlength: 1000,
-        },
-        required: true,
-      },
+           },
+},
+
     ],
     slug: {
       type: String,

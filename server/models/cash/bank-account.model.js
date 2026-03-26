@@ -25,22 +25,20 @@ const bankAccountSchema = new mongoose.Schema(
       required: true,
     },
     name: [
-  {
-    lang: {
-      type: String,
-      enum: ["EN", "AR"],
-    },
-    value: {
-      type: String,
-      trim: true,
-      minlength: 2,
-      maxlength: 100,
-    },
-  },
-],
-      required: true,
-      trim: true,
-    },
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+           },
+},
+
+    ],
 
     bankName: {
       type: String,
@@ -125,8 +123,7 @@ const bankAccountSchema = new mongoose.Schema(
       ref: "UserAccount",
     },
 
-    deletedBy: { type: ObjectId, ref: "UserAccount",
-    },
+    deletedBy: { type: ObjectId, ref: "UserAccount" },
 
     deletedAt: {
       type: Date,
@@ -140,4 +137,5 @@ const bankAccountSchema = new mongoose.Schema(
  */
 bankAccountSchema.index({ brand: 1, accountNumber: 1 }, { unique: true });
 
-export default mongoose.model("BankAccount", bankAccountSchema);
+const BankAccountModel = mongoose.model("BankAccount", bankAccountSchema);
+export default BankAccountModel;

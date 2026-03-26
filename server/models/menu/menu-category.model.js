@@ -14,42 +14,34 @@ const menuCategorySchema = new mongoose.Schema(
 
     // Category name and description (multilingual)
     name: [
-  {
-    lang: {
-      type: String,
-      enum: ["EN", "AR"],
-    },
-    value: {
-      type: String,
-      trim: true,
-      minlength: 2,
-      maxlength: 100,
-    },
-  },
-],
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
+      },
+    ],
 
-      required: true,
-      trim: true,
-      minlength: 2,
-      maxlength: 50,
-    },
     description: [
-  {
-    lang: {
-      type: String,
-      enum: ["EN", "AR"],
-    },
-    value: {
-      type: String,
-      trim: true,
-      minlength: 2,
-      maxlength: 100,
-    },
-  },
-],
-      default: {},
-      maxlength: 200,
-    },
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
+      },
+    ],
 
     // Display order and visibility for customers
     displayOrder: { type: Number, required: true, min: 0, index: true },
@@ -110,5 +102,6 @@ menuCategorySchema.methods.softDelete = function (employeeId) {
   this.updatedBy = employeeId;
   return this.save();
 };
+const MenuCategoryModel= mongoose.model("MenuCategory", menuCategorySchema);
 
-export default mongoose.model("MenuCategory", menuCategorySchema);
+export default MenuCategoryModel;

@@ -27,37 +27,34 @@ const ProductSchema = new mongoose.Schema(
        DISPLAY
     ========================= */
     name: [
-  {
-    lang: {
-      type: String,
-      enum: ["EN", "AR"],
-    },
-    value: {
-      type: String,
-      trim: true,
-      minlength: 2,
-      maxlength: 100,
-    },
-  },
-],
-      required: true,
-    }, // Product name in multiple languages
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+           },
+},
+
+    ],
     description: [
-  {
-    lang: {
-      type: String,
-      enum: ["EN", "AR"],
-    },
-    value: {
-      type: String,
-      trim: true,
-      minlength: 2,
-      maxlength: 100,
-    },
-  },
-],
-      default: "",
-    }, // Description in multiple languages
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
+      },
+    ],
     image: {
       type: String,
       default: null,
@@ -94,21 +91,19 @@ const ProductSchema = new mongoose.Schema(
     parentProduct: { type: ObjectId, ref: "Product", default: null }, // Reference to main product if this is a size
     isSizeGroup: { type: Boolean, default: false }, // Whether this is a size group container
     sizeLabel: [
-  {
-    lang: {
-      type: String,
-      enum: ["EN", "AR"],
-    },
-    value: {
-      type: String,
-      trim: true,
-      minlength: 2,
-      maxlength: 100,
-    },
-  },
-],
-      default: null,
-    }, // Label like "Small", "Medium", "Large"
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
+      },
+    ],
     sizeOrder: { type: Number, default: 0 }, // Display order of sizes
     sizes: [{ type: ObjectId, ref: "Product" }], // List of size products if this is a size group
 

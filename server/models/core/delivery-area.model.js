@@ -39,7 +39,6 @@ const DeliveryAreaSchema = new mongoose.Schema(
           minlength: 2,
           maxlength: 100,
         },
-        required: true,
       },
     ],
 

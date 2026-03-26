@@ -14,24 +14,21 @@ const StockItemSchema = new mongoose.Schema(
       ref: "Branch",
       index: true,
     },
-    itemName: [
-  {
-    lang: {
-      type: String,
-      enum: ["EN", "AR"],
-    },
-    value: {
-      type: String,
-      trim: true,
-      minlength: 2,
-      maxlength: 100,
-    },
-  },
-],
 
-      required: true,
-      // { en: "Chicken Breast", ar: "صدر دجاج" }
-    },
+    itemName: [
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
+      },
+    ],
 
     SKU: {
       type: String,
@@ -109,20 +106,19 @@ const StockItemSchema = new mongoose.Schema(
     reorderQuantity: { type: Number, default: 0 },
 
     notes: [
-  {
-    lang: {
-      type: String,
-      enum: ["EN", "AR"],
-    },
-    value: {
-      type: String,
-      trim: true,
-      minlength: 2,
-      maxlength: 100,
-    },
-  },
-],
-    },
+      {
+        lang: {
+          type: String,
+          enum: ["EN", "AR"],
+        },
+        value: {
+          type: String,
+          trim: true,
+          minlength: 2,
+          maxlength: 100,
+        },
+      },
+    ],
 
     inventoryAccount: {
       type: ObjectId,
@@ -154,4 +150,5 @@ const StockItemSchema = new mongoose.Schema(
 StockItemSchema.index({ SKU: 1 });
 StockItemSchema.index({ categoryId: 1 });
 
-export default mongoose.model("StockItem", StockItemSchema);
+const StockItemModel = mongoose.model("StockItem", StockItemSchema);
+export default StockItemModel;

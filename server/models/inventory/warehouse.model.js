@@ -28,9 +28,9 @@ const WarehouseSchema = new mongoose.Schema(
           trim: true,
           minlength: 2,
           maxlength: 100,
-        },
-        required: true,
-      },
+           },
+},
+
     ],
 
     code: {

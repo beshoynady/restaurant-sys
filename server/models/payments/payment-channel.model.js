@@ -26,9 +26,9 @@ const paymentChannelSchema = new mongoose.Schema({
           trim: true,
           minlength: 2,
           maxlength: 1000,
-        },
-        required: true,
-      },
+           },
+},
+
     ],
 
   code: { type: String, required: true, unique: true },
@@ -50,9 +50,9 @@ const paymentChannelSchema = new mongoose.Schema({
           trim: true,
           minlength: 2,
           maxlength: 100,
-        },
-        required: true,
-      },
+           },
+},
+
     ],
 
   /* =============================
