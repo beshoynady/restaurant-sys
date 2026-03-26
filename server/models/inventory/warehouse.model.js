@@ -17,21 +17,16 @@ const WarehouseSchema = new mongoose.Schema(
       index: true,
     },
 
-    name: [
-      {
-        lang: {
-          type: String,
-          enum: ["EN", "AR"],
-        },
-        value: {
-          type: String,
-          trim: true,
-          minlength: 2,
-          maxlength: 100,
-           },
+    name: {
+  type: Map,
+  of: {
+    type: String,
+    trim: true,
+    minlength: 2,
+    maxlength: 100,
+  },
+  required: true,
 },
-
-    ],
 
     code: {
       type: String,
@@ -67,35 +62,27 @@ const WarehouseSchema = new mongoose.Schema(
       default: false,
     },
 
-    description: [
-      {
-        lang: {
-          type: String,
-          enum: ["EN", "AR"],
-        },
-        value: {
-          type: String,
-          trim: true,
-          minlength: 2,
-          maxlength: 100,
-        },
-      },
-    ],
+    description: {
+  type: Map,
+  of: {
+    type: String,
+    trim: true,
+    minlength: 2,
+    maxlength: 100,
+  },
+  required: true,
+},
 
-    address: [
-      {
-        lang: {
-          type: String,
-          enum: ["EN", "AR"],
-        },
-        value: {
-          type: String,
-          trim: true,
-          minlength: 2,
-          maxlength: 100,
-        },
-      },
-    ],
+    address: {
+  type: Map,
+  of: {
+    type: String,
+    trim: true,
+    minlength: 2,
+    maxlength: 100,
+  },
+  required: true,
+},
 
     storekeepers: [
       {

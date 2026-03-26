@@ -15,20 +15,16 @@ const StockItemSchema = new mongoose.Schema(
       index: true,
     },
 
-    itemName: [
-      {
-        lang: {
-          type: String,
-          enum: ["EN", "AR"],
-        },
-        value: {
-          type: String,
-          trim: true,
-          minlength: 2,
-          maxlength: 100,
-        },
-      },
-    ],
+    itemName: {
+  type: Map,
+  of: {
+    type: String,
+    trim: true,
+    minlength: 2,
+    maxlength: 100,
+  },
+  required: true,
+},
 
     SKU: {
       type: String,
@@ -105,20 +101,16 @@ const StockItemSchema = new mongoose.Schema(
     maxThreshold: { type: Number, default: 0 },
     reorderQuantity: { type: Number, default: 0 },
 
-    notes: [
-      {
-        lang: {
-          type: String,
-          enum: ["EN", "AR"],
-        },
-        value: {
-          type: String,
-          trim: true,
-          minlength: 2,
-          maxlength: 100,
-        },
-      },
-    ],
+    notes: {
+  type: Map,
+  of: {
+    type: String,
+    trim: true,
+    minlength: 2,
+    maxlength: 100,
+  },
+  required: true,
+},
 
     inventoryAccount: {
       type: ObjectId,

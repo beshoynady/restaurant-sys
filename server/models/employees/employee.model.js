@@ -22,50 +22,38 @@ const employeeSchema = new mongoose.Schema(
     },
 
     // Personal Information
-    firstName: [
-      {
-        lang: {
-          type: String,
-          enum: ["EN", "AR"],
-        },
-        value: {
-          type: String,
-          trim: true,
-          minlength: 2,
-          maxlength: 100,
-        },
-      },
-    ],
+    firstName: {
+  type: Map,
+  of: {
+    type: String,
+    trim: true,
+    minlength: 2,
+    maxlength: 100,
+  },
+  required: true,
+},
 
-    middleName: [
-      {
-        lang: {
-          type: String,
-          enum: ["EN", "AR"],
-        },
-        value: {
-          type: String,
-          trim: true,
-          minlength: 2,
-          maxlength: 100,
-        },
-      },
-    ],
+    middleName: {
+  type: Map,
+  of: {
+    type: String,
+    trim: true,
+    minlength: 2,
+    maxlength: 100,
+  },
+  required: true,
+},
 
-    lastName: [
-      {
-        lang: {
-          type: String,
-          enum: ["EN", "AR"],
-        },
-        value: {
-          type: String,
-          trim: true,
-          minlength: 2,
-          maxlength: 100,
-        },
-      },
-    ],
+    lastName: {
+  type: Map,
+  of: {
+    type: String,
+    trim: true,
+    minlength: 2,
+    maxlength: 100,
+  },
+  required: true,
+},
 
     gender: { type: String, enum: ["male", "female"], required: true },
     dateOfBirth: { type: Date, required: true },
@@ -76,20 +64,16 @@ const employeeSchema = new mongoose.Schema(
       minlength: 10,
       maxlength: 30,
     },
-    nationality: [
-      {
-        lang: {
-          type: String,
-          enum: ["EN", "AR"],
-        },
-        value: {
-          type: String,
-          trim: true,
-          minlength: 2,
-          maxlength: 100,
-        },
-      },
-    ],
+    nationality: {
+  type: Map,
+  of: {
+    type: String,
+    trim: true,
+    minlength: 2,
+    maxlength: 100,
+  },
+  required: true,
+},
     // Marital status is important for benefits and tax purposes
     maritalStatus: {
       type: String,

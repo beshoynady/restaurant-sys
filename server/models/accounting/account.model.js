@@ -23,21 +23,16 @@ const accountSchema = new mongoose.Schema(
       maxlength: 30,
     },
 
-    name: [
-      {
-        lang: {
-          type: String,
-          enum: ["EN", "AR"],
-        },
-        value: {
-          type: String,
-          trim: true,
-          minlength: 2,
-          maxlength: 100,
-           },
-},
-
-    ],
+    name: {
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      required: true,
+    },
     category: {
       type: String,
       upercase: true,
@@ -141,7 +136,7 @@ const accountSchema = new mongoose.Schema(
     createdBy: {
       type: ObjectId,
       ref: "UserAccount",
-      required: true,
+      default: null,
     },
     updatedBy: {
       type: ObjectId,

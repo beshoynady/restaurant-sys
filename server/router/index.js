@@ -1,5 +1,14 @@
 import express from "express";
 const router = express.Router();
+
+
+/****************************************************
+ * SETUP ROUTES
+ * --------------------------------------------------
+ * Initial setup and configuration for new brands
+ ****************************************************/
+import initialSetupRoutes from "./setup/initialSetup.router.js";
+
 /****************************************************
  * CORE ROUTES
  * --------------------------------------------------
@@ -168,6 +177,8 @@ import paymentMethodRoutes from "./payments/payment-method.router.js";
 // -------------------
 // API ROUTES
 // -------------------
+// Initial setup route (must be before all other routes to prevent access if not set up)
+router.use("/api/setup", initialSetupRoutes); // Initial setup routes (must be before all other routes to prevent access if not set up)
 // Core
 router.use("/api/restaurant", routeBrand);
 router.use("/api/branch", routeBranch);

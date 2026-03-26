@@ -23,20 +23,16 @@ const assetSchema = new mongoose.Schema(
     branch: { type: ObjectId, ref: "Branch", required: true },
 
     // Asset name (multi-language support)
-    name: [
-  {
-    lang: {
-      type: String,
-      enum: ["EN", "AR"],
+    name: {
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      required: true,
     },
-    value: {
-      type: String,
-      trim: true,
-      minlength: 2,
-      maxlength: 100,
-    },
-  },
-],
 
     // Asset category (defines depreciation accounts & rules)
     category: {
@@ -60,7 +56,7 @@ const assetSchema = new mongoose.Schema(
 
     // Useful life of the asset in MONTHS
     usefulLife: { type: Number, required: true, min: 1 },
-    
+
     // Date when asset was capitalized in the books
     capitalizationDate: { type: Date, required: true },
 
@@ -145,7 +141,7 @@ const assetSchema = new mongoose.Schema(
   },
   {
     timestamps: true, // createdAt & updatedAt
-  }
+  },
 );
 
 /* =========================

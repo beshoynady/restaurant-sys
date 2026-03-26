@@ -11,33 +11,31 @@ const { ObjectId } = mongoose.Schema;
 const PromotionSchema = new mongoose.Schema(
   {
     // Reference to the brand
-    brand: { 
-      type: ObjectId, 
-      ref: "Brand", 
-      required: true, 
+    brand: {
+      type: ObjectId,
+      ref: "Brand",
+      required: true,
       // The brand that owns this promotion
     },
 
     // Reference to a specific branch (optional)
-    branch: { 
-      type: ObjectId, 
-      ref: "Branch", 
-      default: null, 
+    branch: {
+      type: ObjectId,
+      ref: "Branch",
+      default: null,
       // Null = applies to all branches
     },
 
     // Multilingual promotion name
-    name: { 
-      type: Map, 
+    name: {
+      type: Map,
       of: {
-    type: String,
-    trim: true,
-    minlength: 2,
-    maxlength: 100
-  },
- 
-      required: true, 
-      // Displayed in UI, QR code, and app
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      required: true,
     },
 
     // Scope of the promotion
@@ -45,18 +43,18 @@ const PromotionSchema = new mongoose.Schema(
       type: String,
       uppercase: true,
       enum: ["ORDER", "PRODUCT", "BUY_X_GET_Y"],
-      required: true, 
+      required: true,
       // ORDER → applies to entire order
       // PRODUCT → applies to specific products
       // BUY_X_GET_Y → Buy X products get Y products
     },
 
     // Optional promotion image URL for visual representation
-    imageUrl: { 
-      type: String, 
-      trim: true, 
-      maxlength: 300, 
-      default: null, 
+    imageUrl: {
+      type: String,
+      trim: true,
+      maxlength: 300,
+      default: null,
       // Can be displayed on front-end for promotion banner
     },
 
@@ -69,17 +67,17 @@ const PromotionSchema = new mongoose.Schema(
     },
 
     // Percentage discount (if type = PERCENTAGE)
-    percentage: { 
-      type: Number, 
-      min: 0, 
-      max: 100, 
+    percentage: {
+      type: Number,
+      min: 0,
+      max: 100,
       // Value between 0-100%
     },
 
     // Fixed discount amount (if type = FIXED)
-    fixedAmount: { 
-      type: Number, 
-      min: 0, 
+    fixedAmount: {
+      type: Number,
+      min: 0,
       // Fixed monetary amount to deduct
     },
 
@@ -98,31 +96,33 @@ const PromotionSchema = new mongoose.Schema(
     ],
 
     // Applicable products if appliesTo = PRODUCT
-    applicableProducts: [{ 
-      type: ObjectId, 
-      ref: "Product" 
-    }],
+    applicableProducts: [
+      {
+        type: ObjectId,
+        ref: "Product",
+      },
+    ],
 
     // Minimum order amount to activate promotion
-    minOrderAmount: { 
-      type: Number, 
-      default: 0, 
+    minOrderAmount: {
+      type: Number,
+      default: 0,
       // Order must reach this total to apply promotion
     },
 
     // Determines if promotion is applied automatically without customer action
-    autoApply: { 
-      type: Boolean, 
-      default: false, 
+    autoApply: {
+      type: Boolean,
+      default: false,
     },
 
     // Promotion active period
     activeFrom: { type: Date, required: true }, // Start date/time
-    activeTo: { type: Date, required: true },   // End date/time
+    activeTo: { type: Date, required: true }, // End date/time
 
     // Usage limits
-    usageLimit: { type: Number },        // Total times promotion can be used
-    usagePerCustomer: { type: Number },  // Max usage per customer
+    usageLimit: { type: Number }, // Total times promotion can be used
+    usagePerCustomer: { type: Number }, // Max usage per customer
 
     // Promotion status
     isActive: { type: Boolean, default: true },
@@ -133,7 +133,7 @@ const PromotionSchema = new mongoose.Schema(
     deletedBy: { type: ObjectId, ref: "UserAccount" },
     deletedAt: { type: Date },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Indexes for faster querying by brand/branch and active period

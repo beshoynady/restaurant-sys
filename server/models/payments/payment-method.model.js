@@ -24,20 +24,16 @@ const PaymentMethodSchema = new mongoose.Schema(
      * Localized payment method names
      * Example: { en: "Cash", ar: "نقدي" }
      */
-    name: [
-      {
-        lang: {
-          type: String,
-          enum: ["EN", "AR"],
-        },
-        value: {
-          type: String,
-          trim: true,
-          minlength: 2,
-          maxlength: 100,
-        },
-      },
-    ],
+    name: {
+  type: Map,
+  of: {
+    type: String,
+    trim: true,
+    minlength: 2,
+    maxlength: 100,
+  },
+  required: true,
+},
 
     /**
      * Payment category (business meaning)

@@ -6,8 +6,8 @@ import branchModel from "../../models/core/branch.model.js";
 import warehouseModel from "../../models/inventory/warehouse.model.js";
 import asyncHandler from "../../utils/asyncHandler.js";
 import bcrypt from "bcryptjs";
-import joi from "joi";
 
+import joi from "joi";
 
 // ------------------------
 // Joi validation schema
@@ -23,12 +23,13 @@ const setupValidationSchema = joi.object({
       joi.string().valid("EN", "AR", "FR", "ES", "DE", "IT", "ZH", "JA", "RU"),
     )
     .min(1)
-    .max(2)
-    .unique()
+    .max(5)
+    .default(["EN", "AR"])
     .required(),
   defaultDashboardLanguage: joi
     .string()
-    .valid("EN", "AR", "FR", "ES", "DE", "IT", "ZH", "JA", "RU"),
+    .valid("EN", "AR", "FR", "ES", "DE", "IT", "ZH", "JA", "RU")
+    .default("EN"),
   brandName: joi
     .object()
     .pattern(
@@ -76,9 +77,17 @@ const initialSetupController = asyncHandler(async (req, res) => {
 
     // 4️⃣ Check brandName languages count & uniqueness
     const langs = Object.keys(brandName);
-    if (langs.length > 2)
-      throw new Error("brandName can have at most 2 languages");
+    langs.forEach((lang) => {
+      if (!dashboardLanguages.includes(lang)) {
+        throw new Error(
+          `brandName language ${lang} must be included in dashboardLanguages`,
+        );
+      }
+    });
 
+    if (langs.length > dashboardLanguages.length) {
+      throw new Error("brandName languages exceed dashboardLanguages");
+    }
     const normalizedValues = Object.values(brandName).map((v) =>
       v.trim().toLowerCase(),
     );
@@ -87,7 +96,8 @@ const initialSetupController = asyncHandler(async (req, res) => {
     }
 
     // 5️⃣ Create Brand
-    const brandSlugSource = brandName.EN || brandName.AR;
+    const brandSlugSource =
+      brandName.EN || brandName.AR || Object.values(brandName)[0];
     const slug = brandSlugSource
       .trim()
       .toLowerCase()
@@ -111,17 +121,14 @@ const initialSetupController = asyncHandler(async (req, res) => {
       : { AR: `${brandName.AR} الفرع الرئيسي` };
 
     const branchSlugSource = brandName.EN
-      ? { EN: `${brandName.EN}mainbranch` }
-      : { AR: `${brandName.AR}الفرع الرئيسي` };
-    const slugBranch = branchSlugSource.EN
-      ? branchSlugSource.EN.trim()
-          .toLowerCase()
-          .replace(/\s+/g, "-")
-          .replace(/[^\w-]+/g, "")
-      : branchSlugSource.AR.trim()
-          .toLowerCase()
-          .replace(/\s+/g, "-")
-          .replace(/[^\w-]+/g, "");
+      ? `${brandName.EN} main branch`
+      : `${brandName.AR} الفرع الرئيسي`;
+
+    const slugBranch = branchSlugSource
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^\w-]+/g, "");
 
     const [branch] = await branchModel.create(
       [
@@ -136,10 +143,7 @@ const initialSetupController = asyncHandler(async (req, res) => {
     );
 
     // 9️⃣ Create Owner User
-    const hashedPassword = await bcrypt.hash(password, 12,(err, hash) => {
-      if (err) throw new Error("Error hashing password");
-      return hash;
-    });
+    const hashedPassword = await bcrypt.hash(password, 12);
 
     const [user] = await userAccountModel.create(
       [
@@ -157,18 +161,6 @@ const initialSetupController = asyncHandler(async (req, res) => {
     // 10️⃣ Update Brand createdBy
     brand.createdBy = user._id;
     await brand.save({ session });
-
-    const createdRole = await roleModel.create(
-      [
-        {
-            brand: brand._id,
-            name: "Owner",
-            permissions: ["*"], // Full access
-            createdBy: user._id,
-        },
-        ],
-        { session },
-    );
 
     await session.commitTransaction();
     session.endSession();

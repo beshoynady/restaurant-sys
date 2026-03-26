@@ -23,20 +23,16 @@ const jobTitleSchema = new mongoose.Schema(
       ref: "Department",
       required: [true, "Department reference is required"],
     },
-    name: [
-      {
-        lang: {
-          type: String,
-          enum: ["EN", "AR"],
-        },
-        value: {
-          type: String,
-          trim: true,
-          minlength: 2,
-          maxlength: 100,
-        },
-      },
-    ],
+    name: {
+  type: Map,
+  of: {
+    type: String,
+    trim: true,
+    minlength: 2,
+    maxlength: 100,
+  },
+  required: true,
+},
     description: [
       {
         lang: {

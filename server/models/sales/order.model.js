@@ -140,11 +140,11 @@ const OrderSchema = new Schema(
 
     iternalOrderCategory: {
       type: String,
-      enum: ["STAFF","GUEST", "OTHER"],
+      enum: ["STAFF", "GUEST", "OTHER"],
       default: null,
     },
 
-        // inernal staff member (internal orders)
+    // inernal staff member (internal orders)
     staffMember: {
       type: ObjectId,
       ref: "Employee",
@@ -197,7 +197,7 @@ const OrderSchema = new Schema(
     /**
      * Order operational status
      * Controls order lifecycle
-    */
+     */
 
     status: {
       type: String,
@@ -213,16 +213,16 @@ const OrderSchema = new Schema(
       index: true,
     },
 
-        /**
+    /**
      * Determines if this ticket can be delivered
      * independently or must wait for other tickets
      */
     deliveryPolicy: {
       type: String,
       enum: [
-        "IMMEDIATE",   // Deliver once ready
-        "WAIT_ALL",    // Wait until all order tickets are ready
-        "SCHEDULED",   // Deliver at scheduled time
+        "IMMEDIATE", // Deliver once ready
+        "WAIT_ALL", // Wait until all order tickets are ready
+        "SCHEDULED", // Deliver at scheduled time
       ],
       required: true,
     },
@@ -262,10 +262,9 @@ const OrderSchema = new Schema(
      */
     paymentStatus: {
       type: String,
-      enum: ["UNPAID", "PARTIALLY_PAID", "PAID", "REFUNDED", "CANCELLED",],
+      enum: ["UNPAID", "PARTIALLY_PAID", "PAID", "REFUNDED", "CANCELLED"],
       default: "UNPAID",
     },
-
   },
   {
     timestamps: true,

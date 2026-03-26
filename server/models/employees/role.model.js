@@ -12,42 +12,34 @@ const roleSchema = new Schema(
     brand: { type: ObjectId, ref: "Brand", required: true },
 
     // Name of the role (multi-language support)
-    name: [
-      {
-        lang: {
-          type: String,
-          enum: ["EN", "AR"],
-        },
-        value: {
-          type: String,
-          trim: true,
-          minlength: 2,
-          maxlength: 100,
-        },
+    name: {
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
       },
-    ],
+      required: true,
+    },
 
-    description: [
-      {
-        lang: {
-          type: String,
-          enum: ["EN", "AR"],
-        },
-        value: {
-          type: String,
-          trim: true,
-          minlength: 2,
-          maxlength: 100,
-        },
+    description: {
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
       },
-    ],
+      required: true,
+    },
 
     branchAccess: [{ type: ObjectId, ref: "Branch" }],
 
     // Role per resource (model)
     role: [
       {
-        branch: { type: ObjectId, ref: "Branch", required: true },
+        branch: { type: ObjectId, ref: "Branch", default: null }, // Optional link to a specific branch (for branch-specific roles)
         resource: {
           type: String,
           enum: [
@@ -191,6 +183,9 @@ const roleSchema = new Schema(
     ],
 
     status: { type: String, enum: ["active", "inactive"], default: "active" },
+
+    // System role is a built-in role
+    isSystemRole: { type: Boolean, default: false },
 
     createdBy: { type: ObjectId, ref: "UserAccount" },
     updatedBy: { type: ObjectId, ref: "UserAccount" },

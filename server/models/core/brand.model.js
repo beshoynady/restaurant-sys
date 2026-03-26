@@ -1,30 +1,19 @@
 import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema.Types;
 
-/**
- * Brand Configuration Schema
- * --------------------------
- * This schema represents all brand-level information and settings.
- * It combines basic info, operational settings, currency, and audit fields.
- * Suitable for multi-branch and multi-currency restaurants.
- */
 const brandSchema = new mongoose.Schema(
   {
     // Multilingual brand name (supports English and Arabic)
-    name: [
-      {
-        lang: {
-          type: String,
-          enum: ["EN", "AR"],
-        },
-        value: {
-          type: String,
-          trim: true,
-          minlength: 2,
-          maxlength: 100,
-        },
+    name: {
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
       },
-    ],
+      required: true,
+    },
     /**
      * slug for URL and internal references (auto-generated from English name)
      */
@@ -94,7 +83,18 @@ const brandSchema = new mongoose.Schema(
       default: "EGP",
       description: "Default currency for sales and purchases",
     },
+    dashboardLanguages: {
+      type: [String],
+      enum: ["EN", "AR", "FR", "ES", "DE", "ZH", "JA", "RU"],
+      default: ["EN", "AR"],
+    },
 
+    defaultDashboardLanguage: {
+      type: String,
+      default: "EN",
+      required: true,
+      description: "Default language for brand communications and UI",
+    },
     /**
      * Company registration number
      */

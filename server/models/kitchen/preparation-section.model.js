@@ -8,21 +8,16 @@ const PreparationSectionConfigSchema = new mongoose.Schema(
     branch: { type: ObjectId, ref: "Branch", default: null },
 
     /** Section details */
-    name: [
-      {
-        lang: {
-          type: String,
-          enum: ["EN", "AR"],
-        },
-        value: {
-          type: String,
-          trim: true,
-          minlength: 2,
-          maxlength: 100,
-           },
+    name: {
+  type: Map,
+  of: {
+    type: String,
+    trim: true,
+    minlength: 2,
+    maxlength: 100,
+  },
+  required: true,
 },
-
-    ],
 
     code: {
       type: String,
@@ -31,20 +26,16 @@ const PreparationSectionConfigSchema = new mongoose.Schema(
       maxlength: 20,
     },
 
-    description: [
-      {
-        lang: {
-          type: String,
-          enum: ["EN", "AR"],
-        },
-        value: {
-          type: String,
-          trim: true,
-          minlength: 2,
-          maxlength: 100,
-        },
-      },
-    ],
+    description: {
+  type: Map,
+  of: {
+    type: String,
+    trim: true,
+    minlength: 2,
+    maxlength: 100,
+  },
+  required: true,
+},
 
     /** Preparation logic */
     averagePreparationTime: { type: Number, default: 10, min: 0 }, // minutes
