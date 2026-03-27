@@ -1,27 +1,13 @@
-import expenseModel from "../../models/expenses/expense.model.js";
+import ExpenseModel from "../../models/expenses/expense.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class ExpenseService {
+// Initialize service for expense model
+const expenseService = new AdvancedCrudService(ExpenseModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","accountId","costCenter","createdBy","updatedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await expenseModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await expenseModel.find(filter);
-  }
-
-  async findById(id) {
-    return await expenseModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await expenseModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await expenseModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new ExpenseService();
+export default expenseService;

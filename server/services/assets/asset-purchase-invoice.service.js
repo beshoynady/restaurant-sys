@@ -1,27 +1,13 @@
-import asset-purchase-invoiceModel from "../../models/assets/asset-purchase-invoice.model.js";
+import AssetPurchaseInvoiceModel from "../../models/assets/asset-purchase-invoice.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Asset-purchase-invoiceService {
+// Initialize service for asset-purchase-invoice model
+const assetPurchaseInvoiceService = new AdvancedCrudService(AssetPurchaseInvoiceModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","supplier","taxes","createdBy","updatedBy","postedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await asset-purchase-invoiceModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await asset-purchase-invoiceModel.find(filter);
-  }
-
-  async findById(id) {
-    return await asset-purchase-invoiceModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await asset-purchase-invoiceModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await asset-purchase-invoiceModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Asset-purchase-invoiceService();
+export default assetPurchaseInvoiceService;

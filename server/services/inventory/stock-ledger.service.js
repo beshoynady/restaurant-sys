@@ -1,27 +1,13 @@
-import stock-ledgerModel from "../../models/inventory/stock-ledger.model.js";
+import StockLedgerModel from "../../models/inventory/stock-ledger.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Stock-ledgerService {
+// Initialize service for stock-ledger model
+const stockLedgerService = new AdvancedCrudService(StockLedgerModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","warehouse","stockItem","documentId","createdBy","updatedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await stock-ledgerModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await stock-ledgerModel.find(filter);
-  }
-
-  async findById(id) {
-    return await stock-ledgerModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await stock-ledgerModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await stock-ledgerModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Stock-ledgerService();
+export default stockLedgerService;

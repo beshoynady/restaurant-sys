@@ -1,210 +1,50 @@
-import PayrollModel from "../../models/employees/payroll.model.js";
+import asyncHandler from "../../utils/asyncHandler.js";
+import payrollService from "../../services/employees/payroll.service.js";
 
-const createPayroll = async (req, res) => {
-  const {
-    employeeId,
-    employeeName,
-    Year,
-    Month,
-    shiftHour,
-    salary,
-    basicSalary,
-    dailySalary,
-    workingDays,
-    attendanceDays,
-    leaveDays,
-    OvertimeDays,
-    OvertimeValue,
-    Bonus,
-    TotalDue,
-    AbsenceDays,
-    AbsenceDeduction,
-    Deduction,
-    Predecessor,
-    Insurance,
-    Tax,
-    TotalDeductible,
-    NetSalary,
-  } = req.body;
 
-  try {
-    const payroll = await PayrollModel.create({
-      employeeId,
-      employeeName,
-      Year,
-      Month,
-      shiftHour,
-      salary,
-      basicSalary,
-      dailySalary,
-      workingDays,
-      attendanceDays,
-      leaveDays,
-      OvertimeDays,
-      OvertimeValue,
-      Bonus,
-      TotalDue,
-      AbsenceDays,
-      AbsenceDeduction,
-      Deduction,
-      Predecessor,
-      Insurance,
-      Tax,
-      TotalDeductible,
-      NetSalary,
-    });
+// CRUD Controller for payroll
+const payrollController = {
+  create: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.body.branch ?? req.branch._id;
+    const userId = req.user._id;
+    
+    const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
+    const result = await payrollService.create(payload);
+    res.status(201).json(result);
+  }),
 
-    res.status(201).json(payroll);
-  } catch (error) {
-    res.status(400).json({ error });
-  }
+  getAll: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.branch._id;
+    const result = await payrollService.getAll({ ...req.query, brand: brandId, branch: branchId });
+    res.json(result);
+  }),
+
+  getOne: asyncHandler(async (req, res) => {
+    const result = await payrollService.getById(req.params.id);
+    res.json(result);
+  }),
+
+  update: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.body.branch ?? req.branch._id;
+    const userId = req.user._id;
+    
+    const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
+    const result = await payrollService.update(req.params.id, payload);
+    res.json(result);
+  }),
+
+  delete: asyncHandler(async (req, res) => {
+    const result = await payrollService.delete(req.params.id);
+    res.json(result);
+  }),
+
+  restore: asyncHandler(async (req, res) => {
+    const result = await payrollService.restore(req.params.id);
+    res.json(result);
+  }),
 };
 
-const updatePayrollByEmployee = async (req, res) => {
-  const {
-    employeeName,
-    Year,
-    Month,
-    shiftHour,
-    salary,
-    basicSalary,
-    dailySalary,
-    workingDays,
-    attendanceDays,
-    leaveDays,
-    OvertimeDays,
-    OvertimeValue,
-    Bonus,
-    TotalDue,
-    AbsenceDays,
-    AbsenceDeduction,
-    Deduction,
-    Predecessor,
-    Insurance,
-    Tax,
-    TotalDeductible,
-    NetSalary,
-  } = req.body;
-
-  const employeeId = req.params.employeeId;
-
-  try {
-    const payroll = await PayrollModel.findOneAndUpdate(
-      { employeeId: employeeId },
-      {
-        employeeName,
-        Year,
-        Month,
-        shiftHour,
-        salary,
-        basicSalary,
-        dailySalary,
-        workingDays,
-        attendanceDays,
-        leaveDays,
-        OvertimeDays,
-        OvertimeValue,
-        Bonus,
-        TotalDue,
-        AbsenceDays,
-        AbsenceDeduction,
-        Deduction,
-        Predecessor,
-        Insurance,
-        Tax,
-        TotalDeductible,
-        NetSalary,
-      },
-      { new: true }
-    );
-
-    if (!payroll) {
-      return res
-        .status(404)
-        .json({ success: false, error: "Payroll not found" });
-    }
-
-    res.status(200).json(payroll);
-  } catch (error) {
-    res.status(500).json({ error });
-  }
-};
-
-const updatePayroll = async (req, res) => {
-  const { isPaid, paidBy } = req.body;
-
-  try {
-    const payroll = await PayrollModel.findByIdAndUpdate(
-      req.params.id,
-      { isPaid, paidBy },
-      { new: true }
-    );
-
-    if (!payroll) {
-      return res
-        .status(404)
-        .json({ success: false, error: "Payroll not found" });
-    }
-
-    res.status(200).json({ success: true, payroll });
-  } catch (error) {
-    res.status(500).json({ success: false, error: "Server Error" });
-  }
-};
-
-const getAllPayroll = async (req, res) => {
-  try {
-    const payroll = await PayrollModel.find({})
-      .populate("employeeId")
-      .populate("paidBy");
-
-    res.status(200).json(payroll);
-  } catch (error) {
-    console.error("Error fetching payroll:", error);
-    res.status(500).json({ success: false, error: "خطأ في الخادم" });
-  }
-};
-
-const getPayrollById = async (req, res) => {
-  try {
-    const id = req.params.id;
-    const payroll = await PayrollModel.findById(id)
-      .populate("employeeId")
-      .populate("paidBy");
-
-    if (!payroll) {
-      return res
-        .status(404)
-        .json({ success: false, error: "Payroll not found" });
-    }
-
-    res.status(200).json({ success: true, data: payroll });
-  } catch (error) {
-    res.status(500).json({ success: false, error: "Server Error" });
-  }
-};
-
-const deletePayroll = async (req, res) => {
-  try {
-    const payroll = await PayrollModel.findByIdAndDelete(req.params.id);
-
-    if (!payroll) {
-      return res
-        .status(404)
-        .json({ success: false, error: "Payroll not found" });
-    }
-
-    res.status(200).json({ success: true, data: {} });
-  } catch (error) {
-    res.status(500).json({ success: false, error: "Server Error" });
-  }
-};
-
-export {
-  createPayroll,
-  getAllPayroll,
-  getPayrollById,
-  updatePayroll,
-  updatePayrollByEmployee,
-  deletePayroll,
-};
+export default payrollController;

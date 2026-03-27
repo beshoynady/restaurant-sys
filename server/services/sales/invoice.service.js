@@ -1,27 +1,13 @@
-import invoiceModel from "../../models/sales/invoice.model.js";
+import InvoiceModel from "../../models/sales/invoice.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class InvoiceService {
+// Initialize service for invoice model
+const invoiceService = new AdvancedCrudService(InvoiceModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","cashierShift","cashier","deliveryMan","order","paidBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await invoiceModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await invoiceModel.find(filter);
-  }
-
-  async findById(id) {
-    return await invoiceModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await invoiceModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await invoiceModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new InvoiceService();
+export default invoiceService;

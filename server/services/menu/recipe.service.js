@@ -1,27 +1,13 @@
-import recipeModel from "../../models/menu/recipe.model.js";
+import RecipeModel from "../../models/menu/recipe.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class RecipeService {
+// Initialize service for recipe model
+const recipeService = new AdvancedCrudService(RecipeModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","product","createdBy","updatedBy","deletedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await recipeModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await recipeModel.find(filter);
-  }
-
-  async findById(id) {
-    return await recipeModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await recipeModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await recipeModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new RecipeService();
+export default recipeService;

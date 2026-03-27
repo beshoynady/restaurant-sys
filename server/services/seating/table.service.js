@@ -1,27 +1,13 @@
-import tableModel from "../../models/seating/table.model.js";
+import TableModel from "../../models/seating/table.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class TableService {
+// Initialize service for table model
+const tableService = new AdvancedCrudService(TableModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","diningArea","createdBy","updatedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await tableModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await tableModel.find(filter);
-  }
-
-  async findById(id) {
-    return await tableModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await tableModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await tableModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new TableService();
+export default tableService;

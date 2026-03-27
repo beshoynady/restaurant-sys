@@ -1,156 +1,50 @@
-import SupplierTransactionModel from "../../models/purchasing/supplier-transaction.model.js";
+import asyncHandler from "../../utils/asyncHandler.js";
+import supplierTransactionService from "../../services/purchasing/supplier-transaction.service.js";
 
-// Create a new supplier transaction
-const createSupplierTransaction = async (req, res) => {
-  try {
-    const {
-      invoiceNumber,
-      supplier,
-      transactionDate,
-      transactionType,
-      amount,
-      previousBalance,
-      currentBalance,
-      paymentMethod,
-      notes,
-    } = req.body;
 
-    const recordedBy = req.user.id;
+// CRUD Controller for supplier-transaction
+const supplierTransactionController = {
+  create: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.body.branch ?? req.branch._id;
+    const userId = req.user._id;
+    
+    const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
+    const result = await supplierTransactionService.create(payload);
+    res.status(201).json(result);
+  }),
 
-    // Check the validity of the sent data
-    if (
-      !supplier ||
-      !transactionDate ||
-      !transactionType ||
-      amount === undefined ||
-      previousBalance === undefined ||
-      currentBalance === undefined
-    ) {
-      return res
-        .status(400)
-        .json({ message: "Please provide all required data." });
-    }
+  getAll: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.branch._id;
+    const result = await supplierTransactionService.getAll({ ...req.query, brand: brandId, branch: branchId });
+    res.json(result);
+  }),
 
-    const newTransaction = await SupplierTransactionModel.create({
-      invoiceNumber,
-      supplier,
-      transactionDate,
-      transactionType,
-      amount,
-      previousBalance,
-      currentBalance,
-      paymentMethod,
-      notes,
-      recordedBy,
-    });
+  getOne: asyncHandler(async (req, res) => {
+    const result = await supplierTransactionService.getById(req.params.id);
+    res.json(result);
+  }),
 
-    res.status(201).json(newTransaction);
-  } catch (error) {
-    // Provide a more specific error message
-    res.status(500).json({
-      message: "An error occurred while creating the transaction.",
-      error,
-    });
-  }
+  update: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.body.branch ?? req.branch._id;
+    const userId = req.user._id;
+    
+    const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
+    const result = await supplierTransactionService.update(req.params.id, payload);
+    res.json(result);
+  }),
+
+  delete: asyncHandler(async (req, res) => {
+    const result = await supplierTransactionService.delete(req.params.id);
+    res.json(result);
+  }),
+
+  restore: asyncHandler(async (req, res) => {
+    const result = await supplierTransactionService.restore(req.params.id);
+    res.json(result);
+  }),
 };
 
-// Get all supplier transactions
-const getAllSupplierTransactions = async (req, res) => {
-  try {
-    const transactions = await SupplierTransactionModel.find()
-      .populate("supplier")
-      .populate("recordedBy")
-      .populate("invoiceNumber");
-    res.status(200).json(transactions);
-  } catch (error) {
-    res.status(500).json({ error });
-  }
-};
-
-// Get a single supplier transaction by ID
-const getSupplierTransactionById = async (req, res) => {
-  try {
-    const transaction = await SupplierTransactionModel.findById(req.params.id)
-      .populate("supplier")
-      .populate("recordedBy" )
-      .populate("invoiceNumber");
-    if (!transaction) {
-      return res
-        .status(404)
-        .json({ message: "Supplier transaction not found." });
-    }
-    res.status(200).json(transaction);
-  } catch (error) {
-    res.status(500).json({ error });
-  }
-};
-
-// Update a supplier transaction by ID
-const updateSupplierTransaction = async (req, res) => {
-  try {
-    const {
-      invoiceNumber,
-      supplier,
-      transactionDate,
-      transactionType,
-      amount,
-      previousBalance,
-      currentBalance,
-      paymentMethod,
-      notes,
-    } = req.body;
-    const recordedBy = req.user.id;
-
-    const updatedTransaction = await SupplierTransactionModel.findByIdAndUpdate(
-      req.params.id,
-      {
-        invoiceNumber,
-        supplier,
-        transactionDate,
-        transactionType,
-        amount,
-        previousBalance,
-        currentBalance,
-        paymentMethod,
-        notes,
-        recordedBy,
-      },
-      { new: true }
-    );
-    if (!updatedTransaction) {
-      return res
-        .status(404)
-        .json({ message: "Supplier transaction not found." });
-    }
-    res.status(200).json(updatedTransaction);
-  } catch (error) {
-    res.status(500).json({ error });
-  }
-};
-
-// Delete a supplier transaction by ID
-const deleteSupplierTransaction = async (req, res) => {
-  try {
-    const deletedTransaction = await SupplierTransactionModel.findByIdAndDelete(
-      req.params.id
-    );
-    if (!deletedTransaction) {
-      return res
-        .status(404)
-        .json({ message: "Supplier transaction not found." });
-    }
-    res
-      .status(200)
-      .json({ message: "Supplier transaction deleted successfully." });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-export  {
-  createSupplierTransaction,
-  getAllSupplierTransactions,
-  getSupplierTransactionById,
-  updateSupplierTransaction,
-  deleteSupplierTransaction,
-};
+export default supplierTransactionController;

@@ -1,27 +1,13 @@
-import promotionModel from "../../models/sales/promotion.model.js";
+import PromotionModel from "../../models/sales/promotion.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class PromotionService {
+// Initialize service for promotion model
+const promotionService = new AdvancedCrudService(PromotionModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","createdBy","updatedBy","deletedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await promotionModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await promotionModel.find(filter);
-  }
-
-  async findById(id) {
-    return await promotionModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await promotionModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await promotionModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new PromotionService();
+export default promotionService;

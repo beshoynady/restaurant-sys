@@ -1,27 +1,13 @@
-import shiftModel from "../../models/employees/shift.model.js";
+import ShiftModel from "../../models/employees/shift.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class ShiftService {
+// Initialize service for shift model
+const shiftService = new AdvancedCrudService(ShiftModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","createdBy","updatedBy","deletedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await shiftModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await shiftModel.find(filter);
-  }
-
-  async findById(id) {
-    return await shiftModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await shiftModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await shiftModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new ShiftService();
+export default shiftService;

@@ -1,27 +1,13 @@
-import consumptionModel from "../../models/inventory/consumption.model.js";
+import ConsumptionModel from "../../models/inventory/consumption.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class ConsumptionService {
+// Initialize service for consumption model
+const consumptionService = new AdvancedCrudService(ConsumptionModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","Warehouse","preparationSection","shift","openedBy","closedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await consumptionModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await consumptionModel.find(filter);
-  }
-
-  async findById(id) {
-    return await consumptionModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await consumptionModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await consumptionModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new ConsumptionService();
+export default consumptionService;

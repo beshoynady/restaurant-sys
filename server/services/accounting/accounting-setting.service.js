@@ -1,27 +1,13 @@
-import accounting-settingModel from "../../models/accounting/accounting-setting.model.js";
+import AccountingSettingModel from "../../models/accounting/accounting-setting.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Accounting-settingService {
+// Initialize service for accounting-setting model
+const accountingSettingService = new AdvancedCrudService(AccountingSettingModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","controlAccounts.cash","controlAccounts.bank","controlAccounts.accountsReceivable","controlAccounts.accountsPayable","controlAccounts.inventory","controlAccounts.inventoryAdjustment","controlAccounts.costOfGoodsSold","controlAccounts.operatingExpense","controlAccounts.salesTaxPayable","controlAccounts.purchaseTaxRecoverable","controlAccounts.equityCapital","controlAccounts.retainedEarnings","activities.sales.revenue","activities.sales.tax","activities.sales.discount","activities.sales.serviceCharge","activities.sales.deliveryFee","activities.sales.costOfSales","activities.salesReturn.revenueContra","activities.salesReturn.discountContra","activities.salesReturn.serviceChargeContra","activities.salesReturn.deliveryFeeContra","activities.salesReturn.costOfSalesContra","activities.salesReturn.taxContra","activities.purchase.inventory","activities.purchase.tax","activities.purchase.discount","activities.purchaseReturn.inventoryContra","activities.purchaseReturn.taxContra","activities.expense.defaultExpense","activities.expense.tax","costCenter.defaultCostCenter","createdBy","updatedBy","deletedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await accounting-settingModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await accounting-settingModel.find(filter);
-  }
-
-  async findById(id) {
-    return await accounting-settingModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await accounting-settingModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await accounting-settingModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Accounting-settingService();
+export default accountingSettingService;

@@ -1,25 +1,25 @@
-import asset-categoryModel from "../../models/assets/asset-category.model.js";
+import AssetCategoryModel from "../../models/assets/asset-category.model.js";
 
-class Asset-categoryService {
+class AssetCategoryService {
 
   async create(data) {
-    return await asset-categoryModel.create(data);
+    return await AssetCategoryModel.create(data);
   }
 
   async findAll(filter = {}) {
-    return await asset-categoryModel.find(filter);
+    return await AssetCategoryModel.find(filter);
   }
 
   async findById(id) {
-    return await asset-categoryModel.findById(id);
+    return await AssetCategoryModel.findById(id);
   }
 
   async update(id, data) {
-    return await asset-categoryModel.findByIdAndUpdate(id, data, { new: true });
+    return await AssetCategoryModel.findByIdAndUpdate(id, data, { new: true });
   }
 
   async delete(id) {
-    return await asset-categoryModel.findByIdAndDelete(id);
+    return await AssetCategoryModel.findByIdAndDelete(id);
   }
 
 }

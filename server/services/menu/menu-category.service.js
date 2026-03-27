@@ -1,27 +1,13 @@
-import menu-categoryModel from "../../models/menu/menu-category.model.js";
+import MenuCategoryModel from "../../models/menu/menu-category.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Menu-categoryService {
+// Initialize service for menu-category model
+const menuCategoryService = new AdvancedCrudService(MenuCategoryModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","parentCategory","createdBy","updatedBy","deletedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await menu-categoryModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await menu-categoryModel.find(filter);
-  }
-
-  async findById(id) {
-    return await menu-categoryModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await menu-categoryModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await menu-categoryModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Menu-categoryService();
+export default menuCategoryService;

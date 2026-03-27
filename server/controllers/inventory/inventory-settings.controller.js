@@ -1,181 +1,50 @@
-import Joi from "joi";
-import mongoose from "mongoose";
-import InventorySettings from "../../models/inventory/inventory-settings.model.js";
+import asyncHandler from "../../utils/asyncHandler.js";
+import inventorySettingsService from "../../services/inventory/inventory-settings.service.js";
 
-/**
- * ============================
- * Joi Validation Schemas
- * ============================
- */
 
-const createSchema = Joi.object({
-  brand: Joi.string().required(),
-  branch: Joi.string().optional(),
+// CRUD Controller for inventory-settings
+const inventorySettingsController = {
+  create: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.body.branch ?? req.branch._id;
+    const userId = req.user._id;
+    
+    const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
+    const result = await inventorySettingsService.create(payload);
+    res.status(201).json(result);
+  }),
 
-  autoDeductOnOrder: Joi.boolean(),
-  allowNegativeStock: Joi.boolean(),
-  lowStockThreshold: Joi.number().min(0),
-  enableProduction: Joi.boolean(),
-  productionAutoApprove: Joi.boolean(),
-});
+  getAll: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.branch._id;
+    const result = await inventorySettingsService.getAll({ ...req.query, brand: brandId, branch: branchId });
+    res.json(result);
+  }),
 
-const updateSchema = createSchema.fork(
-  ["brand", "branch"],
-  (schema) => schema.optional()
-);
+  getOne: asyncHandler(async (req, res) => {
+    const result = await inventorySettingsService.getById(req.params.id);
+    res.json(result);
+  }),
 
-/**
- * ============================
- * Create Inventory Settings
- * ============================
- */
-const createInventorySettings = async (req, res) => {
-  try {
-    const {
-      brand,
-      branch,
-      autoDeductOnOrder,
-      allowNegativeStock,
-      lowStockThreshold,
-      enableProduction,
-      productionAutoApprove,
-    } = req.body;
+  update: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.body.branch ?? req.branch._id;
+    const userId = req.user._id;
+    
+    const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
+    const result = await inventorySettingsService.update(req.params.id, payload);
+    res.json(result);
+  }),
 
-    const validation = createSchema.validate(req.body);
-    if (validation.error) {
-      return res.status(400).json({
-        message: "Validation error",
-        errors: validation.error.details,
-      });
-    }
+  delete: asyncHandler(async (req, res) => {
+    const result = await inventorySettingsService.delete(req.params.id);
+    res.json(result);
+  }),
 
-    const exists = await InventorySettings.findOne({ branch });
-    if (exists) {
-      return res.status(409).json({
-        message: "Inventory settings already exist for this branch",
-      });
-    }
-
-    const settings = await InventorySettings.create({
-      brand,
-      branch,
-      autoDeductOnOrder,
-      allowNegativeStock,
-      lowStockThreshold,
-      enableProduction,
-      productionAutoApprove,
-    });
-
-    res.status(201).json(settings);
-  } catch (error) {
-    res.status(500).json({
-      message: "Failed to create inventory settings",
-      error: error.message,
-    });
-  }
+  restore: asyncHandler(async (req, res) => {
+    const result = await inventorySettingsService.restore(req.params.id);
+    res.json(result);
+  }),
 };
 
-/**
- * ============================
- * Get Inventory Settings
- * ============================
- */
-const getInventorySettings = async (req, res) => {
-  try {
-    const { branchId } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(branchId)) {
-      return res.status(400).json({ message: "Invalid branch id" });
-    }
-
-    const settings = await InventorySettings.findOne({ branch: branchId });
-
-    if (!settings) {
-      return res.status(404).json({
-        message: "Inventory settings not found",
-      });
-    }
-
-    res.status(200).json(settings);
-  } catch (error) {
-    res.status(500).json({
-      message: "Failed to fetch inventory settings",
-      error: error.message,
-    });
-  }
-};
-
-/**
- * ============================
- * Update Inventory Settings
- * ============================
- */
-const updateInventorySettings = async (req, res) => {
-  try {
-    const { branchId } = req.params;
-
-    const validation = updateSchema.validate(req.body);
-    if (validation.error) {
-      return res.status(400).json({
-        message: "Validation error",
-        errors: validation.error.details,
-      });
-    }
-
-    const updated = await InventorySettings.findOneAndUpdate(
-      { branch: branchId },
-      { $set: req.body },
-      { new: true }
-    );
-
-    if (!updated) {
-      return res.status(404).json({
-        message: "Inventory settings not found",
-      });
-    }
-
-    res.status(200).json(updated);
-  } catch (error) {
-    res.status(500).json({
-      message: "Failed to update inventory settings",
-      error: error.message,
-    });
-  }
-};
-
-/**
- * ============================
- * Delete Inventory Settings
- * ============================
- */
-const deleteInventorySettings = async (req, res) => {
-  try {
-    const { branchId } = req.params;
-
-    const deleted = await InventorySettings.findOneAndDelete({
-      branch: branchId,
-    });
-
-    if (!deleted) {
-      return res.status(404).json({
-        message: "Inventory settings not found",
-      });
-    }
-
-    res.status(200).json({
-      message: "Inventory settings deleted successfully",
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: "Failed to delete inventory settings",
-      error: error.message,
-    });
-  }
-};
-
-export  {
-  createInventorySettings,
-  getInventorySettings,
-  updateInventorySettings,
-  deleteInventorySettings,
-};
+export default inventorySettingsController;

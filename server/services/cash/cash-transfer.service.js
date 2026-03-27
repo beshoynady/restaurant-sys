@@ -1,27 +1,13 @@
-import cash-transferModel from "../../models/cash/cash-transfer.model.js";
+import CashTransferModel from "../../models/cash/cash-transfer.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Cash-transferService {
+// Initialize service for cash-transfer model
+const cashTransferService = new AdvancedCrudService(CashTransferModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","fromCashRegister","fromBankAccount","toCashRegister","toBankAccount","createdBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await cash-transferModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await cash-transferModel.find(filter);
-  }
-
-  async findById(id) {
-    return await cash-transferModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await cash-transferModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await cash-transferModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Cash-transferService();
+export default cashTransferService;

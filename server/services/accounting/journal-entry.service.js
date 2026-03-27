@@ -1,27 +1,13 @@
-import journal-entryModel from "../../models/accounting/journal-entry.model.js";
+import JournalEntryModel from "../../models/accounting/journal-entry.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Journal-entryService {
+// Initialize service for journal-entry model
+const journalEntryService = new AdvancedCrudService(JournalEntryModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","period","createdBy","postedBy","rejectedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await journal-entryModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await journal-entryModel.find(filter);
-  }
-
-  async findById(id) {
-    return await journal-entryModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await journal-entryModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await journal-entryModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Journal-entryService();
+export default journalEntryService;

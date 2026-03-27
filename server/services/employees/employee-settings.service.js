@@ -1,27 +1,13 @@
-import employee-settingsModel from "../../models/employees/employee-settings.model.js";
+import EmployeeSettingsModel from "../../models/employees/employee-settings.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Employee-settingsService {
+// Initialize service for employee-settings model
+const employeeSettingsService = new AdvancedCrudService(EmployeeSettingsModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","createdBy","updatedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await employee-settingsModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await employee-settingsModel.find(filter);
-  }
-
-  async findById(id) {
-    return await employee-settingsModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await employee-settingsModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await employee-settingsModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Employee-settingsService();
+export default employeeSettingsService;

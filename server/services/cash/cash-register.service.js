@@ -1,27 +1,13 @@
-import cash-registerModel from "../../models/cash/cash-register.model.js";
+import CashRegisterModel from "../../models/cash/cash-register.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Cash-registerService {
+// Initialize service for cash-register model
+const cashRegisterService = new AdvancedCrudService(CashRegisterModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","employee","accountId","createdBy","updatedBy","deletedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await cash-registerModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await cash-registerModel.find(filter);
-  }
-
-  async findById(id) {
-    return await cash-registerModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await cash-registerModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await cash-registerModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Cash-registerService();
+export default cashRegisterService;

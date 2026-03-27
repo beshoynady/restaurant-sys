@@ -1,27 +1,13 @@
-import customer-loyaltyModel from "../../models/loyalty/customer-loyalty.model.js";
+import CustomerLoyaltyModel from "../../models/loyalty/customer-loyalty.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Customer-loyaltyService {
+// Initialize service for customer-loyalty model
+const customerLoyaltyService = new AdvancedCrudService(CustomerLoyaltyModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","createdBy","updatedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await customer-loyaltyModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await customer-loyaltyModel.find(filter);
-  }
-
-  async findById(id) {
-    return await customer-loyaltyModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await customer-loyaltyModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await customer-loyaltyModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Customer-loyaltyService();
+export default customerLoyaltyService;

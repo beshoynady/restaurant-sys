@@ -1,27 +1,13 @@
-import sales-return-settingsModel from "../../models/sales/sales-return-settings.model.js";
+import SalesReturnSettingsModel from "../../models/sales/sales-return-settings.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Sales-return-settingsService {
+// Initialize service for sales-return-settings model
+const salesReturnSettingsService = new AdvancedCrudService(SalesReturnSettingsModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","decisionBy","createdBy","updatedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await sales-return-settingsModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await sales-return-settingsModel.find(filter);
-  }
-
-  async findById(id) {
-    return await sales-return-settingsModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await sales-return-settingsModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await sales-return-settingsModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Sales-return-settingsService();
+export default salesReturnSettingsService;

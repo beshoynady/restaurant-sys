@@ -1,27 +1,13 @@
-import preparation-sectionModel from "../../models/kitchen/preparation-section.model.js";
+import PreparationSectionModel from "../../models/kitchen/preparation-section.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Preparation-sectionService {
+// Initialize service for preparation-section model
+const preparationSectionService = new AdvancedCrudService(PreparationSectionModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","createdBy","updatedBy","deletedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await preparation-sectionModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await preparation-sectionModel.find(filter);
-  }
-
-  async findById(id) {
-    return await preparation-sectionModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await preparation-sectionModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await preparation-sectionModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Preparation-sectionService();
+export default preparationSectionService;

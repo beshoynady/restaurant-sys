@@ -1,27 +1,13 @@
-import orderModel from "../../models/sales/order.model.js";
+import OrderModel from "../../models/sales/order.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class OrderService {
+// Initialize service for order model
+const orderService = new AdvancedCrudService(OrderModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","cashierShift","staffMember","table","orderBy","user","customer"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await orderModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await orderModel.find(filter);
-  }
-
-  async findById(id) {
-    return await orderModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await orderModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await orderModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new OrderService();
+export default orderService;

@@ -1,25 +1,25 @@
-import inventoryModel from "../../models/inventory/inventory.model.js";
+import InventoryModel from "../../models/inventory/inventory.model.js";
 
 class InventoryService {
 
   async create(data) {
-    return await inventoryModel.create(data);
+    return await InventoryModel.create(data);
   }
 
   async findAll(filter = {}) {
-    return await inventoryModel.find(filter);
+    return await InventoryModel.find(filter);
   }
 
   async findById(id) {
-    return await inventoryModel.findById(id);
+    return await InventoryModel.findById(id);
   }
 
   async update(id, data) {
-    return await inventoryModel.findByIdAndUpdate(id, data, { new: true });
+    return await InventoryModel.findByIdAndUpdate(id, data, { new: true });
   }
 
   async delete(id) {
-    return await inventoryModel.findByIdAndDelete(id);
+    return await InventoryModel.findByIdAndDelete(id);
   }
 
 }

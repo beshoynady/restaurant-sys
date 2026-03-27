@@ -1,27 +1,13 @@
-import purchase-returnModel from "../../models/purchasing/purchase-return.model.js";
+import PurchaseReturnModel from "../../models/purchasing/purchase-return.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Purchase-returnService {
+// Initialize service for purchase-return model
+const purchaseReturnService = new AdvancedCrudService(PurchaseReturnModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","originalInvoice","warehouseForAllItems","supplier","taxes","createdBy","updatedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await purchase-returnModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await purchase-returnModel.find(filter);
-  }
-
-  async findById(id) {
-    return await purchase-returnModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await purchase-returnModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await purchase-returnModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Purchase-returnService();
+export default purchaseReturnService;

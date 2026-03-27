@@ -1,27 +1,13 @@
-import service-chargeModel from "../../models/system/service-charge.model.js";
+import ServiceChargeModel from "../../models/system/service-charge.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Service-chargeService {
+// Initialize service for service-charge model
+const serviceChargeService = new AdvancedCrudService(ServiceChargeModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","account","createdBy","updatedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await service-chargeModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await service-chargeModel.find(filter);
-  }
-
-  async findById(id) {
-    return await service-chargeModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await service-chargeModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await service-chargeModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Service-chargeService();
+export default serviceChargeService;

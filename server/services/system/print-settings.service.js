@@ -1,27 +1,13 @@
-import print-settingsModel from "../../models/system/print-settings.model.js";
+import PrintSettingsModel from "../../models/system/print-settings.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Print-settingsService {
+// Initialize service for print-settings model
+const printSettingsService = new AdvancedCrudService(PrintSettingsModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["branch"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await print-settingsModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await print-settingsModel.find(filter);
-  }
-
-  async findById(id) {
-    return await print-settingsModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await print-settingsModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await print-settingsModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Print-settingsService();
+export default printSettingsService;

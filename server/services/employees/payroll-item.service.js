@@ -1,27 +1,27 @@
-import payroll-itemModel from "../../models/employees/payroll-item.model.js";
+import PayrollItemModel from "../../models/employees/payroll-item.model.js";
 
-class Payroll-itemService {
+class PayrollItemService {
 
   async create(data) {
-    return await payroll-itemModel.create(data);
+    return await PayrollItemModel.create(data);
   }
 
   async findAll(filter = {}) {
-    return await payroll-itemModel.find(filter);
+    return await PayrollItemModel.find(filter);
   }
 
   async findById(id) {
-    return await payroll-itemModel.findById(id);
+    return await PayrollItemModel.findById(id);
   }
 
   async update(id, data) {
-    return await payroll-itemModel.findByIdAndUpdate(id, data, { new: true });
+    return await PayrollItemModel.findByIdAndUpdate(id, data, { new: true });
   }
 
   async delete(id) {
-    return await payroll-itemModel.findByIdAndDelete(id);
+    return await PayrollItemModel.findByIdAndDelete(id);
   }
 
 }
 
-export default new Payroll-itemService();
+export default new PayrollItemService();

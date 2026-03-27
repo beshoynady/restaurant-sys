@@ -1,27 +1,13 @@
-import asset-maintenanceModel from "../../models/assets/asset-maintenance.model.js";
+import AssetMaintenanceModel from "../../models/assets/asset-maintenance.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Asset-maintenanceService {
+// Initialize service for asset-maintenance model
+const assetMaintenanceService = new AdvancedCrudService(AssetMaintenanceModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","asset","supplier","createdBy","approvedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await asset-maintenanceModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await asset-maintenanceModel.find(filter);
-  }
-
-  async findById(id) {
-    return await asset-maintenanceModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await asset-maintenanceModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await asset-maintenanceModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Asset-maintenanceService();
+export default assetMaintenanceService;

@@ -1,27 +1,13 @@
-import employee-financialModel from "../../models/employees/employee-financial.model.js";
+import EmployeeFinancialModel from "../../models/employees/employee-financial.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Employee-financialService {
+// Initialize service for employee-financial model
+const employeeFinancialService = new AdvancedCrudService(EmployeeFinancialModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","employee","paymentMethod","tax","insurance","createdBy","updatedBy","deletedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await employee-financialModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await employee-financialModel.find(filter);
-  }
-
-  async findById(id) {
-    return await employee-financialModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await employee-financialModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await employee-financialModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Employee-financialService();
+export default employeeFinancialService;

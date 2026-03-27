@@ -1,187 +1,50 @@
-import SupplierModel from "../../models/purchasing/supplier.model.js";
+import asyncHandler from "../../utils/asyncHandler.js";
+import supplierService from "../../services/purchasing/supplier.service.js";
 
-// Create a new supplier
-const createSupplier = async (req, res) => {
-  try {
-    const {
-      name,
-      responsiblePerson,
-      phone,
-      whatsapp,
-      email,
-      address,
-      paymentType,
-      itemsSupplied,
-      currentBalance,
-      financialInfo,
-      notes,
-    } = req.body;
-    const createdBy = req.user.id;
 
-    // Validate paymentType
-    if (!["Cash", "Installments"].includes(paymentType)) {
-      return res.status(400).json({ message: "Invalid payment type" });
-    }
-    //if namr is used before
-    const existingSupplier = await SupplierModel.findOne({ name });
-    if (existingSupplier) {
-      return res
-        .status(400)
-        .json({ error: "Supplier with this name already exists." });
-    }
+// CRUD Controller for supplier
+const supplierController = {
+  create: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.body.branch ?? req.branch._id;
+    const userId = req.user._id;
+    
+    const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
+    const result = await supplierService.create(payload);
+    res.status(201).json(result);
+  }),
 
-    const supplier = await SupplierModel.create({
-      name,
-      responsiblePerson,
-      phone,
-      whatsapp,
-      email,
-      address,
-      paymentType,
-      itemsSupplied,
-      currentBalance,
-      financialInfo,
-      notes,
-      createdBy,
-    });
+  getAll: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.branch._id;
+    const result = await supplierService.getAll({ ...req.query, brand: brandId, branch: branchId });
+    res.json(result);
+  }),
 
-    res.status(201).json(supplier);
-  } catch (error) {
-    console.error("Error creating supplier:", error);
-    res.status(400).json({
-      message: "Failed to create supplier",
-      error: error.message,
-    });
-  }
+  getOne: asyncHandler(async (req, res) => {
+    const result = await supplierService.getById(req.params.id);
+    res.json(result);
+  }),
+
+  update: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.body.branch ?? req.branch._id;
+    const userId = req.user._id;
+    
+    const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
+    const result = await supplierService.update(req.params.id, payload);
+    res.json(result);
+  }),
+
+  delete: asyncHandler(async (req, res) => {
+    const result = await supplierService.delete(req.params.id);
+    res.json(result);
+  }),
+
+  restore: asyncHandler(async (req, res) => {
+    const result = await supplierService.restore(req.params.id);
+    res.json(result);
+  }),
 };
 
-// Retrieve all suppliers
-const getAllSuppliers = async (req, res) => {
-  try {
-    const suppliers = await SupplierModel.find()
-      .populate("itemsSupplied", "itemName category") 
-      .populate("createdBy", "fullname role"); 
-    if(!suppliers) {
-      return res.status(200).json([]).message("No suppliers found");
-    }
-    res.status(200).json(suppliers);
-  } catch (error) {
-    console.error("Error getting all suppliers:", error);
-    res.status(500).json({
-      message: "Failed to get suppliers",
-      error: error.message,
-    });
-  }
-};
-
-// Retrieve a specific supplier by its ID
-const getSupplierById = async (req, res) => {
-  try {
-    const supplierId = req.params.id;
-    const supplier = await SupplierModel.findById(supplierId)
-      .populate("itemsSupplied", "itemName category")
-      .populate("createdBy", "fullname role");
-
-    if (!supplier) {
-      return res.status(404).json({ message: "Supplier not found" });
-    }
-
-    res.status(200).json(supplier);
-  } catch (error) {
-    console.error("Error getting supplier by ID:", error);
-    res.status(500).json({
-      message: "Failed to get supplier",
-      error: error.message,
-    });
-  }
-};
-
-// Update a specific supplier by its ID
-const updateSupplierById = async (req, res) => {
-  try {
-    const supplierId = req.params.id;
-    const {
-      name,
-      responsiblePerson,
-      phone,
-      whatsapp,
-      email,
-      address,
-      paymentType,
-      itemsSupplied,
-      currentBalance,
-      financialInfo,
-      notes,
-    } = req.body;
-
-    // Validate paymentType if provided
-    if (paymentType && !["Cash", "Installments"].includes(paymentType)) {
-      return res.status(400).json({ message: "Invalid payment type" });
-    }
-
-
-    const updatedSupplier = await SupplierModel.findByIdAndUpdate(
-      supplierId,
-      {$set: {
-        name,
-        responsiblePerson,
-        phone,
-        whatsapp,
-        email,
-        address,
-        paymentType,
-        itemsSupplied,
-        currentBalance,
-        financialInfo,
-        notes,},
-
-      },
-      { new: true, runValidators: true }
-    )
-      .populate("itemsSupplied", "itemName category")
-      .populate("createdBy", "fullname role");
-
-    if (!updatedSupplier) {
-      return res.status(404).json({ message: "Supplier not found" });
-    }
-
-    res.status(200).json({
-      message: "Supplier updated successfully",
-      updatedSupplier,
-    });
-  } catch (error) {
-    console.error("Error updating supplier:", error);
-    res.status(400).json({
-      message: "Failed to update supplier",
-      error: error.message,
-    });
-  }
-};
-
-// Delete a specific supplier by its ID
-const deleteSupplierById = async (req, res) => {
-  try {
-    const supplierId = req.params.id;
-    const deletedSupplier = await SupplierModel.findByIdAndDelete(supplierId);
-
-    if (!deletedSupplier) {
-      return res.status(404).json({ message: "Supplier not found" });
-    }
-
-    res.status(200).json({ message: "Supplier deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting supplier:", error);
-    res.status(400).json({
-      message: "Failed to delete supplier",
-      error: error.message,
-    });
-  }
-};
-
-export  {
-  createSupplier,
-  getAllSuppliers,
-  getSupplierById,
-  updateSupplierById,
-  deleteSupplierById,
-};
+export default supplierController;

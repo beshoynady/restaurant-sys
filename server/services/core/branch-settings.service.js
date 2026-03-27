@@ -1,27 +1,13 @@
-import branch-settingsModel from "../../models/core/branch-settings.model.js";
+import BranchSettingsModel from "../../models/core/branch-settings.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Branch-settingsService {
+// Initialize service for branch-settings model
+const branchSettingsService = new AdvancedCrudService(BranchSettingsModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","createdBy","updatedBy","deletedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await branch-settingsModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await branch-settingsModel.find(filter);
-  }
-
-  async findById(id) {
-    return await branch-settingsModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await branch-settingsModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await branch-settingsModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Branch-settingsService();
+export default branchSettingsService;

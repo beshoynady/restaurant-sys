@@ -1,27 +1,27 @@
-import production-orderModel from "../../models/production/production-order.model.js";
+import ProductionOrderModel from "../../models/production/production-order.model.js";
 
-class Production-orderService {
+class ProductionOrderService {
 
   async create(data) {
-    return await production-orderModel.create(data);
+    return await ProductionOrderModel.create(data);
   }
 
   async findAll(filter = {}) {
-    return await production-orderModel.find(filter);
+    return await ProductionOrderModel.find(filter);
   }
 
   async findById(id) {
-    return await production-orderModel.findById(id);
+    return await ProductionOrderModel.findById(id);
   }
 
   async update(id, data) {
-    return await production-orderModel.findByIdAndUpdate(id, data, { new: true });
+    return await ProductionOrderModel.findByIdAndUpdate(id, data, { new: true });
   }
 
   async delete(id) {
-    return await production-orderModel.findByIdAndDelete(id);
+    return await ProductionOrderModel.findByIdAndDelete(id);
   }
 
 }
 
-export default new Production-orderService();
+export default new ProductionOrderService();

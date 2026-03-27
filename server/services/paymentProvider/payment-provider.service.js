@@ -1,27 +1,27 @@
-import payment-providerModel from "../../models/paymentProvider/payment-provider.model.js";
+import PaymentProviderModel from "../../models/paymentProvider/payment-provider.model.js";
 
-class Payment-providerService {
+class PaymentProviderService {
 
   async create(data) {
-    return await payment-providerModel.create(data);
+    return await PaymentProviderModel.create(data);
   }
 
   async findAll(filter = {}) {
-    return await payment-providerModel.find(filter);
+    return await PaymentProviderModel.find(filter);
   }
 
   async findById(id) {
-    return await payment-providerModel.findById(id);
+    return await PaymentProviderModel.findById(id);
   }
 
   async update(id, data) {
-    return await payment-providerModel.findByIdAndUpdate(id, data, { new: true });
+    return await PaymentProviderModel.findByIdAndUpdate(id, data, { new: true });
   }
 
   async delete(id) {
-    return await payment-providerModel.findByIdAndDelete(id);
+    return await PaymentProviderModel.findByIdAndDelete(id);
   }
 
 }
 
-export default new Payment-providerService();
+export default new PaymentProviderService();

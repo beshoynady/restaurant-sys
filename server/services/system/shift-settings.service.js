@@ -1,27 +1,13 @@
-import shift-settingsModel from "../../models/system/shift-settings.model.js";
+import ShiftSettingsModel from "../../models/system/shift-settings.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Shift-settingsService {
+// Initialize service for shift-settings model
+const shiftSettingsService = new AdvancedCrudService(ShiftSettingsModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await shift-settingsModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await shift-settingsModel.find(filter);
-  }
-
-  async findById(id) {
-    return await shift-settingsModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await shift-settingsModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await shift-settingsModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Shift-settingsService();
+export default shiftSettingsService;

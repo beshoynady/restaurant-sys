@@ -33,7 +33,10 @@ function generateStructure(dir, base = "") {
       const validationFolder = path.join(validationsDir, base);
 
       const serviceFile = path.join(serviceFolder, `${modelName}.service.js`);
-      const validationFile = path.join(validationFolder, `${modelName}.validation.js`);
+      const validationFile = path.join(
+        validationFolder,
+        `${modelName}.validation.js`,
+      );
 
       // fix model import path
       const modelPath = base

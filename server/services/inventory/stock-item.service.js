@@ -1,27 +1,13 @@
-import stock-itemModel from "../../models/inventory/stock-item.model.js";
+import StockItemModel from "../../models/inventory/stock-item.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Stock-itemService {
+// Initialize service for stock-item model
+const stockItemService = new AdvancedCrudService(StockItemModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","categoryId","inventoryAccount","expenseAccount","cogsAccount","createdBy","updatedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await stock-itemModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await stock-itemModel.find(filter);
-  }
-
-  async findById(id) {
-    return await stock-itemModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await stock-itemModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await stock-itemModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Stock-itemService();
+export default stockItemService;

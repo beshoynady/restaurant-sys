@@ -1,27 +1,13 @@
-import user-accountModel from "../../models/employees/user-account.model.js";
+import UserAccountModel from "../../models/employees/user-account.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class User-accountService {
+// Initialize service for user-account model
+const userAccountService = new AdvancedCrudService(UserAccountModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","employee","role","createdBy","updatedBy","deletedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await user-accountModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await user-accountModel.find(filter);
-  }
-
-  async findById(id) {
-    return await user-accountModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await user-accountModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await user-accountModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new User-accountService();
+export default userAccountService;

@@ -1,27 +1,13 @@
-import employeeModel from "../../models/employees/employee.model.js";
+import EmployeeModel from "../../models/employees/employee.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class EmployeeService {
+// Initialize service for employee model
+const employeeService = new AdvancedCrudService(EmployeeModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","defaultBranch","department","jobTitle","shift","createdBy","updatedBy","deletedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await employeeModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await employeeModel.find(filter);
-  }
-
-  async findById(id) {
-    return await employeeModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await employeeModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await employeeModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new EmployeeService();
+export default employeeService;

@@ -1,27 +1,13 @@
-import notification-settingsModel from "../../models/system/notification-settings.model.js";
+import NotificationSettingsModel from "../../models/system/notification-settings.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Notification-settingsService {
+// Initialize service for notification-settings model
+const notificationSettingsService = new AdvancedCrudService(NotificationSettingsModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","createdBy","updatedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await notification-settingsModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await notification-settingsModel.find(filter);
-  }
-
-  async findById(id) {
-    return await notification-settingsModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await notification-settingsModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await notification-settingsModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Notification-settingsService();
+export default notificationSettingsService;

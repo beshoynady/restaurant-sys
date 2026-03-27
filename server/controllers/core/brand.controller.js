@@ -1,68 +1,50 @@
-import BrandService from '../../services/core/brand.service.js';
-import { createBrandSchema, updateBrandSchema } from '../../validations/core/brand.validation.js';
-import asyncHandler from '../../utils/asyncHandler.js';
+import asyncHandler from "../../utils/asyncHandler.js";
+import brandService from "../../services/core/brand.service.js";
 
 
-/*********************
- * Create Brand
- */
+// CRUD Controller for brand
+const brandController = {
+  create: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.body.branch ?? req.branch._id;
+    const userId = req.user._id;
+    
+    const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
+    const result = await brandService.create(payload);
+    res.status(201).json(result);
+  }),
 
-class BrandController {  
-  create = asyncHandler( async (req, res) => {
-      const userId = req.user._id; // Assuming user info is attached to the request
-    const { error, value } = createBrandSchema.validate(req.body);
-    if (error) {
-      return res.status(400).json({ error: error.details[0].message });
-    }
+  getAll: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.branch._id;
+    const result = await brandService.getAll({ ...req.query, brand: brandId, branch: branchId });
+    res.json(result);
+  }),
 
-    const brand = await BrandService.createBrand(value);
-    res.status(201).json({ data: brand });
-  });
+  getOne: asyncHandler(async (req, res) => {
+    const result = await brandService.getById(req.params.id);
+    res.json(result);
+  }),
 
-  getById = asyncHandler( async (req, res) => {
-    const { id } = req.params;
-    const brand = await BrandService.getBrandById(id);
-    res.status(200).json({ data: brand });
-  });
+  update: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.body.branch ?? req.branch._id;
+    const userId = req.user._id;
+    
+    const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
+    const result = await brandService.update(req.params.id, payload);
+    res.json(result);
+  }),
 
-  getAll = asyncHandler( async (req, res) => {
-    const brands = await BrandService.getAllBrands();
-    res.status(200).json({ data: brands });
-  }
-  );
+  delete: asyncHandler(async (req, res) => {
+    const result = await brandService.delete(req.params.id);
+    res.json(result);
+  }),
 
-  update = asyncHandler( async (req, res) => {
-      const userId = req.user._id; // Assuming user info is attached to the request
+  restore: asyncHandler(async (req, res) => {
+    const result = await brandService.restore(req.params.id);
+    res.json(result);
+  }),
+};
 
-    const { id } = req.params;
-    const { error, value } = updateBrandSchema.validate(req.body);
-    if (error) {
-      return res.status(400).json({ error: error.details[0].message });
-    }
-    const updatedBrand = await BrandService.updateBrand(id, value, userId);
-    res.status(200).json({ data: updatedBrand });
-  });
-
-  updateLogo = asyncHandler( async (req, res) => {
-      const userId = req.user._id; // Assuming user info is attached to the request
-    const { id } = req.params;
-    if (!req.file) {
-      return res.status(400).json({ error: "Logo file is required" });
-    }
-    const logoUrl = req.file.path; // Assuming file path is stored in req.file.path
-    const updatedBrand = await BrandService.updateBrandLogo(id, logoUrl, userId);
-    res.status(200).json({ data: updatedBrand });
-  }
-  );
-
-  delete = asyncHandler( async (req, res) => {
-      const userId = req.user._id; // Assuming user info is attached to the request
-
-    const { id } = req.params;
-    await BrandService.deleteBrand(id, userId);
-    res.status(204).send();
-  }
-  );
-}
-
-export default new BrandController();
+export default brandController;

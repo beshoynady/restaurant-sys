@@ -1,212 +1,50 @@
-import DailyExpenseModel from "../../models/expenses/daily-expense.model.js";
-import cashTransaction from "../../models/cash/cash-transaction.model.js";
-import CashRegister from "../../models/cash/cash-register.model.js";
-import ExpenseModel from "../../models/expenses/expense.model.js";
-import Joi from "joi";
-import mongoose from "mongoose";
+import asyncHandler from "../../utils/asyncHandler.js";
+import dailyExpenseService from "../../services/expenses/daily-expense.service.js";
 
-/**
- * Joi validation schema for DailyExpense creation/updating
- */
 
-const dailyExpenseValidationSchema = Joi.object({
-  expense: Joi.string().required(), // Expense ID
-  expenseDescription: Joi.string().max(300).required(),
-  cashRegister: Joi.string().required(), // CashRegister ID
-  paidBy: Joi.string().required(), // Employee ID
-  amount: Joi.number().min(0).required(),
-  date: Joi.date().optional(),
-  notes: Joi.string().max(200).optional(),
-});
-
-/**
- * Create a new DailyExpense
- * -------------------------
- * Automatically creates a cashTransaction entry for the expense
- * Handles rounding/adjustments if needed
- */
-const createDailyExpense = async (req, res) => {
-  try {
-    // Validate request
-    const { error, value } = dailyExpenseValidationSchema.validate(req.body);
-    if (error) return res.status(400).json({ message: error.details[0].message });
-
-    const { expense, expenseDescription, cashRegister, paidBy, amount, date, notes } = value;
-
-    // Validate ObjectIds
-    if (!mongoose.Types.ObjectId.isValid(expense)) return res.status(400).json({ message: "Invalid Expense ID" });
-    if (!mongoose.Types.ObjectId.isValid(cashRegister)) return res.status(400).json({ message: "Invalid CashRegister ID" });
-
-    // Fetch expense for account and type
-    const expenseDoc = await ExpenseModel.findById(expense);
-    if (!expenseDoc) return res.status(404).json({ message: "Expense not found" });
-
-    // Create DailyExpense
-    const dailyExpense = await DailyExpenseModel.create({
-      expense,
-      expenseDescription,
-      cashRegister,
-      paidBy,
-      amount,
-      date: date || new Date(),
-      notes,
-    });
-
-    // Update CashRegister balance
-    const register = await CashRegister.findById(cashRegister);
-    if (!register) return res.status(404).json({ message: "CashRegister not found" });
-    register.balance -= amount; // Expense reduces cash
-    await register.save();
+// CRUD Controller for daily-expense
+const dailyExpenseController = {
+  create: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.body.branch ?? req.branch._id;
+    const userId = req.user._id;
     
-    // Create cashTransaction
-    const cashTransaction = await cashTransaction.create({
-      brand: expenseDoc.brand,
-      branch: expenseDoc.branch,
-      description: `Payment for ${expenseDescription}`,
-      cashRegister,
-      amount,
-      type: 'Expense',
-      status: 'Completed',
-      createdBy: paidBy,
-      dailyExpenseId: dailyExpense._id,
-    });
+    const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
+    const result = await dailyExpenseService.create(payload);
+    res.status(201).json(result);
+  }),
 
+  getAll: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.branch._id;
+    const result = await dailyExpenseService.getAll({ ...req.query, brand: brandId, branch: branchId });
+    res.json(result);
+  }),
 
-    res.status(201).json({ dailyExpense, cashTransaction });
-  } catch (err) {
-    console.error("Error creating daily expense:", err);
-    res.status(500).json({ message: "Internal server error" });
-  }
+  getOne: asyncHandler(async (req, res) => {
+    const result = await dailyExpenseService.getById(req.params.id);
+    res.json(result);
+  }),
+
+  update: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.body.branch ?? req.branch._id;
+    const userId = req.user._id;
+    
+    const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
+    const result = await dailyExpenseService.update(req.params.id, payload);
+    res.json(result);
+  }),
+
+  delete: asyncHandler(async (req, res) => {
+    const result = await dailyExpenseService.delete(req.params.id);
+    res.json(result);
+  }),
+
+  restore: asyncHandler(async (req, res) => {
+    const result = await dailyExpenseService.restore(req.params.id);
+    res.json(result);
+  }),
 };
 
-/**
- * Get all DailyExpenses
- * --------------------
- * Supports optional branch or cashRegister filter
- */
-const getAllDailyExpenses = async (req, res) => {
-  try {
-    const filter = {};
-    if (req.query.branch) filter.branch = req.query.branch;
-    if (req.query.cashRegister) filter.cashRegister = req.query.cashRegister;
-
-    const expenses = await DailyExpenseModel.find(filter)
-      .populate('expense', 'description expenseType accountId')
-      .populate('cashRegister', 'name balance')
-      .populate('paidBy', 'name')
-      .sort({ date: -1 });
-
-    res.status(200).json(expenses);
-  } catch (err) {
-    console.error("Error fetching daily expenses:", err);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-/**
- * Get DailyExpense by ID
- */
-const getDailyExpenseById = async (req, res) => {
-  try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) return res.status(400).json({ message: "Invalid ID" });
-
-    const dailyExpense = await DailyExpenseModel.findById(req.params.id)
-      .populate('expense', 'description expenseType accountId')
-      .populate('cashRegister', 'name balance')
-      .populate('paidBy', 'name');
-
-    if (!dailyExpense) return res.status(404).json({ message: "DailyExpense not found" });
-
-    res.status(200).json(dailyExpense);
-  } catch (err) {
-    console.error("Error fetching daily expense:", err);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-/**
- * Update DailyExpense
- * ------------------
- * Allows updating description, amount, notes
- * Updates corresponding cashTransaction and CashRegister balance
- */
-const updateDailyExpense = async (req, res) => {
-  try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) return res.status(400).json({ message: "Invalid ID" });
-
-    const { error, value } = dailyExpenseValidationSchema.validate(req.body);
-    if (error) return res.status(400).json({ message: error.details[0].message });
-
-    const dailyExpense = await DailyExpenseModel.findById(req.params.id);
-    if (!dailyExpense) return res.status(404).json({ message: "DailyExpense not found" });
-
-    // Calculate difference for cash adjustment
-    const oldAmount = dailyExpense.amount;
-    const newAmount = value.amount;
-    const difference = newAmount - oldAmount;
-
-    // Update DailyExpense
-    Object.assign(dailyExpense, value);
-    await dailyExpense.save();
-
-    // Update corresponding cashTransaction
-    const cashTransaction = await cashTransaction.findOne({ dailyExpenseId: dailyExpense._id, type: 'Expense' });
-    if (cashTransaction) {
-      cashTransaction.amount = newAmount;
-      cashTransaction.description = `Payment for ${value.expenseDescription}`;
-      await cashTransaction.save();
-    }
-
-    // Update CashRegister balance
-    const register = await CashRegister.findById(dailyExpense.cashRegister);
-    if (register) {
-      register.balance -= difference; // adjust for new amount
-      await register.save();
-    }
-
-    res.status(200).json({ dailyExpense, cashTransaction });
-  } catch (err) {
-    console.error("Error updating daily expense:", err);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-/**
- * Delete DailyExpense
- * ------------------
- * Soft delete recommended; updates CashRegister balance accordingly
- */
-const deleteDailyExpense = async (req, res) => {
-  try {
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) return res.status(400).json({ message: "Invalid ID" });
-
-    const dailyExpense = await DailyExpenseModel.findById(req.params.id);
-    if (!dailyExpense) return res.status(404).json({ message: "DailyExpense not found" });
-
-    // Update CashRegister balance
-    const register = await CashRegister.findById(dailyExpense.cashRegister);
-    if (register) {
-      register.balance += dailyExpense.amount; // refund cash
-      await register.save();
-    }
-
-    // Delete corresponding cashTransaction
-    await cashTransaction.deleteMany({ dailyExpenseId: dailyExpense._id });
-
-    await DailyExpenseModel.findByIdAndDelete(dailyExpense._id);
-
-    res.status(200).json({ message: "DailyExpense deleted successfully" });
-  } catch (err) {
-    console.error("Error deleting daily expense:", err);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-export  {
-  createDailyExpense,
-  getAllDailyExpenses,
-  getDailyExpenseById,
-  updateDailyExpense,
-  deleteDailyExpense,
-};
-``
+export default dailyExpenseController;

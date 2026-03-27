@@ -1,27 +1,13 @@
-import preparation-ticketModel from "../../models/kitchen/preparation-ticket.model.js";
+import PreparationTicketModel from "../../models/kitchen/preparation-ticket.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Preparation-ticketService {
+// Initialize service for preparation-ticket model
+const preparationTicketService = new AdvancedCrudService(PreparationTicketModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","order","preparationSection","responsibleEmployee","waiter","createdBy","updatedBy","deletedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await preparation-ticketModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await preparation-ticketModel.find(filter);
-  }
-
-  async findById(id) {
-    return await preparation-ticketModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await preparation-ticketModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await preparation-ticketModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Preparation-ticketService();
+export default preparationTicketService;

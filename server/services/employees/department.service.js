@@ -1,27 +1,13 @@
-import departmentModel from "../../models/employees/department.model.js";
+import DepartmentModel from "../../models/employees/department.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class DepartmentService {
+// Initialize service for department model
+const departmentService = new AdvancedCrudService(DepartmentModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","parentDepartment","createdBy","updatedBy","deletedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await departmentModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await departmentModel.find(filter);
-  }
-
-  async findById(id) {
-    return await departmentModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await departmentModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await departmentModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new DepartmentService();
+export default departmentService;

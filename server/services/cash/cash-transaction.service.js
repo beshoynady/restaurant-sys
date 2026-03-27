@@ -1,27 +1,13 @@
-import cash-transactionModel from "../../models/cash/cash-transaction.model.js";
+import CashTransactionModel from "../../models/cash/cash-transaction.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Cash-transactionService {
+// Initialize service for cash-transaction model
+const cashTransactionService = new AdvancedCrudService(CashTransactionModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","cashRegister","bankAccount","paymentMethod","paymentChannel","relatedTransaction","orderId","invoiceId","supplierTransactionId","dailyExpenseId","createdBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await cash-transactionModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await cash-transactionModel.find(filter);
-  }
-
-  async findById(id) {
-    return await cash-transactionModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await cash-transactionModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await cash-transactionModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Cash-transactionService();
+export default cashTransactionService;

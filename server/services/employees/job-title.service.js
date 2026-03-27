@@ -1,27 +1,13 @@
-import job-titleModel from "../../models/employees/job-title.model.js";
+import JobTitleModel from "../../models/employees/job-title.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Job-titleService {
+// Initialize service for job-title model
+const jobTitleService = new AdvancedCrudService(JobTitleModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","department","createdBy","updatedBy","deletedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await job-titleModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await job-titleModel.find(filter);
-  }
-
-  async findById(id) {
-    return await job-titleModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await job-titleModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await job-titleModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Job-titleService();
+export default jobTitleService;

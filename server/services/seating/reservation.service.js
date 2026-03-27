@@ -1,27 +1,13 @@
-import reservationModel from "../../models/seating/reservation.model.js";
+import ReservationModel from "../../models/seating/reservation.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class ReservationService {
+// Initialize service for reservation model
+const reservationService = new AdvancedCrudService(ReservationModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","table","customer","user","linkedOrder","createdBy","updatedBy","cancelledBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await reservationModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await reservationModel.find(filter);
-  }
-
-  async findById(id) {
-    return await reservationModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await reservationModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await reservationModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new ReservationService();
+export default reservationService;

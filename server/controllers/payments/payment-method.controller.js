@@ -1,176 +1,50 @@
-import mongoose from "mongoose";
-import Joi from "joi";
-import PaymentMethodModel from "../../models/payments/payment-method.model.js";
+import asyncHandler from "../../utils/asyncHandler.js";
+import paymentMethodService from "../../services/payments/payment-method.service.js";
 
-const ObjectId = Joi.string().regex(/^[0-9a-fA-F]{24}$/);
 
-// ============================
-// Joi Validation Schema
-// ============================
-const paymentMethodSchema = Joi.object({
-  brand: ObjectId.required(),
-  branch: ObjectId.allow(null, "").optional(),
+// CRUD Controller for payment-method
+const paymentMethodController = {
+  create: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.body.branch ?? req.branch._id;
+    const userId = req.user._id;
+    
+    const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
+    const result = await paymentMethodService.create(payload);
+    res.status(201).json(result);
+  }),
 
-  name: Joi.object().required(), // Map of translations
+  getAll: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.branch._id;
+    const result = await paymentMethodService.getAll({ ...req.query, brand: brandId, branch: branchId });
+    res.json(result);
+  }),
 
-  paymentCategory: Joi.string()
-    .valid(
-      "Cash",
-      "Card",
-      "MobileWallet",
-      "OnlineGateway",
-      "Credit",
-      "Voucher",
-      "Dine-in",
-      "Other"
-    )
-    .required(),
+  getOne: asyncHandler(async (req, res) => {
+    const result = await paymentMethodService.getById(req.params.id);
+    res.json(result);
+  }),
 
-  paymentType: Joi.string().valid("Offline", "Online").optional(),
+  update: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.body.branch ?? req.branch._id;
+    const userId = req.user._id;
+    
+    const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
+    const result = await paymentMethodService.update(req.params.id, payload);
+    res.json(result);
+  }),
 
-  openCashDrawer: Joi.boolean().optional(),
-  requiresReference: Joi.boolean().optional(),
-  allowSplit: Joi.boolean().optional(),
-  isDefault: Joi.boolean().optional(),
-  icon: Joi.string().max(100).optional(),
-  isActive: Joi.boolean().optional(),
-  notes: Joi.string().max(100).optional(),
-});
+  delete: asyncHandler(async (req, res) => {
+    const result = await paymentMethodService.delete(req.params.id);
+    res.json(result);
+  }),
 
-// ============================
-// Create Payment Method
-// ============================
-const createPaymentMethod = async (req, res) => {
-  try {
-    const { error, value } = paymentMethodSchema.validate(req.body, {
-      abortEarly: false,
-    });
-    if (error)
-      return res
-        .status(400)
-        .json({ message: "Validation error", errors: error.details });
-
-    const { brand, branch } = value;
-
-    // Check duplicate default payment method
-    if (value.isDefault) {
-      const existingDefault = await PaymentMethodModel.findOne({
-        brand,
-        branch: branch || null,
-        isDefault: true,
-      });
-      if (existingDefault)
-        return res
-          .status(409)
-          .json({
-            message:
-              "A default payment method already exists for this brand/branch",
-          });
-    }
-
-    const created = await PaymentMethodModel.create(value);
-    res.status(201).json(created);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error", error: err.message });
-  }
+  restore: asyncHandler(async (req, res) => {
+    const result = await paymentMethodService.restore(req.params.id);
+    res.json(result);
+  }),
 };
 
-// ============================
-// Update Payment Method
-// ============================
-const updatePaymentMethod = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(id))
-      return res.status(400).json({ message: "Invalid payment method ID" });
-
-    const { error, value } = paymentMethodSchema.validate(req.body, {
-      abortEarly: false,
-    });
-    if (error)
-      return res
-        .status(400)
-        .json({ message: "Validation error", errors: error.details });
-
-    // Prevent duplicate default
-    if (value.isDefault) {
-      const pm = await PaymentMethodModel.findOne({
-        brand: value.brand,
-        branch: value.branch || null,
-        isDefault: true,
-        _id: { $ne: id },
-      });
-      if (pm)
-        return res
-          .status(409)
-          .json({
-            message:
-              "Another default payment method exists for this brand/branch",
-          });
-    }
-
-    const updated = await PaymentMethodModel.findByIdAndUpdate(
-      id,
-      { $set: value },
-      { new: true }
-    );
-    if (!updated)
-      return res.status(404).json({ message: "Payment method not found" });
-
-    res.status(200).json(updated);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error", error: err.message });
-  }
-};
-
-// ============================
-// Get Payment Methods
-// ============================
-const getPaymentMethods = async (req, res) => {
-  try {
-    const { brand, branch } = req.query;
-
-    const filter = {};
-    if (brand) filter.brand = brand;
-    if (branch) filter.branch = branch;
-
-    const methods = await PaymentMethodModel.find(filter).sort({
-      createdAt: 1,
-    });
-    res.status(200).json(methods);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error", error: err.message });
-  }
-};
-
-// ============================
-// Delete Payment Method
-// ============================
-const deletePaymentMethod = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(id))
-      return res.status(400).json({ message: "Invalid payment method ID" });
-
-    const deleted = await PaymentMethodModel.findByIdAndDelete(id);
-    if (!deleted)
-      return res.status(404).json({ message: "Payment method not found" });
-
-    res.status(200).json({ message: "Payment method deleted successfully" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error", error: err.message });
-  }
-};
-
-export   {
-  createPaymentMethod,
-  updatePaymentMethod,
-  getPaymentMethods,
-  deletePaymentMethod,
-};
+export default paymentMethodController;

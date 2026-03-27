@@ -11,6 +11,10 @@ import path from "path";
 import fs from "fs";
 import asyncHandler from "../utils/asyncHandler.js";
 
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const uploadFile = ({ folder = "uploads", maxSize = 1024 * 1024 } = {}) => {
   const uploadDir = path.join(__dirname, "..", "uploads", folder);
 
@@ -48,14 +52,6 @@ const uploadFile = ({ folder = "uploads", maxSize = 1024 * 1024 } = {}) => {
   });
 };
 
-
-/**
- * Delete a file safely
- * -------------------
- * @param {string} folder -uploads (brands, products, ...)
- * @param {string} filename - the name of the file to delete
- * @returns {void}
- */
 
 const deleteFile = (folder, filename) => {
   if (!filename) return; // No file to delete

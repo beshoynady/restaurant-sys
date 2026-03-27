@@ -171,16 +171,32 @@ const accountingSettingsSchema = new mongoose.Schema(
        */
       consumptionBehavior: {
         ingredient: {
-          debit: "COGS",
+          debit: {
+            type: String,
+            enum: ["COGS", "INVENTORY_ADJUSTMENT", "OPERATING_EXPENSE"],
+            default: "COGS",
         },
+          },
         packaging: {
-          debit: "COGS",
+          debit: {
+            type: String,
+            enum: ["COGS", "INVENTORY_ADJUSTMENT", "OPERATING_EXPENSE"],
+            default: "COGS",
+          },
         },
         supply: {
-          debit: "OPERATING_EXPENSE",
+          debit: {
+            type: String,
+            enum: ["COGS", "INVENTORY_ADJUSTMENT", "OPERATING_EXPENSE"],
+            default: "COGS",
+          },
         },
         service: {
-          debit: "OPERATING_EXPENSE",
+          debit: {
+            type: String,
+            enum: ["COGS", "INVENTORY_ADJUSTMENT", "OPERATING_EXPENSE"],
+            default: "COGS",
+          },
         },
       },
 
@@ -276,6 +292,10 @@ const accountingSettingsSchema = new mongoose.Schema(
 
     createdBy: { type: ObjectId, ref: "UserAccount", required: true },
     updatedBy: { type: ObjectId, ref: "UserAccount", default: null },
+
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null },
+    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
   { timestamps: true }
 );

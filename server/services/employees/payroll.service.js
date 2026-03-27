@@ -1,27 +1,13 @@
-import payrollModel from "../../models/employees/payroll.model.js";
+import PayrollModel from "../../models/employees/payroll.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class PayrollService {
+// Initialize service for payroll model
+const payrollService = new AdvancedCrudService(PayrollModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","employee","createdBy","updatedBy","calculatedBy","approvedBy","paidBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await payrollModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await payrollModel.find(filter);
-  }
-
-  async findById(id) {
-    return await payrollModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await payrollModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await payrollModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new PayrollService();
+export default payrollService;

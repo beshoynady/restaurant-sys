@@ -1,27 +1,13 @@
-import payment-channelModel from "../../models/payments/payment-channel.model.js";
+import PaymentChannelModel from "../../models/payments/payment-channel.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Payment-channelService {
+// Initialize service for payment-channel model
+const paymentChannelService = new AdvancedCrudService(PaymentChannelModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","clearingAccount","settlementAccount","feeAccount","createdBy","updatedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await payment-channelModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await payment-channelModel.find(filter);
-  }
-
-  async findById(id) {
-    return await payment-channelModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await payment-channelModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await payment-channelModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Payment-channelService();
+export default paymentChannelService;

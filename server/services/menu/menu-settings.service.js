@@ -1,27 +1,13 @@
-import menu-settingsModel from "../../models/menu/menu-settings.model.js";
+import MenuSettingsModel from "../../models/menu/menu-settings.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Menu-settingsService {
+// Initialize service for menu-settings model
+const menuSettingsService = new AdvancedCrudService(MenuSettingsModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","createdBy","updatedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await menu-settingsModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await menu-settingsModel.find(filter);
-  }
-
-  async findById(id) {
-    return await menu-settingsModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await menu-settingsModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await menu-settingsModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Menu-settingsService();
+export default menuSettingsService;

@@ -1,27 +1,13 @@
-import accounting-periodModel from "../../models/accounting/accounting-period.model.js";
+import AccountingPeriodModel from "../../models/accounting/accounting-period.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Accounting-periodService {
+// Initialize service for accounting-period model
+const accountingPeriodService = new AdvancedCrudService(AccountingPeriodModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","createdBy","closedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await accounting-periodModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await accounting-periodModel.find(filter);
-  }
-
-  async findById(id) {
-    return await accounting-periodModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await accounting-periodModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await accounting-periodModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Accounting-periodService();
+export default accountingPeriodService;

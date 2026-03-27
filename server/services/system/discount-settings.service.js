@@ -1,27 +1,13 @@
-import discount-settingsModel from "../../models/system/discount-settings.model.js";
+import DiscountSettingsModel from "../../models/system/discount-settings.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Discount-settingsService {
+// Initialize service for discount-settings model
+const discountSettingsService = new AdvancedCrudService(DiscountSettingsModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await discount-settingsModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await discount-settingsModel.find(filter);
-  }
-
-  async findById(id) {
-    return await discount-settingsModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await discount-settingsModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await discount-settingsModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Discount-settingsService();
+export default discountSettingsService;

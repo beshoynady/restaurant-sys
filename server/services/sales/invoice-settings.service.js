@@ -1,27 +1,13 @@
-import invoice-settingsModel from "../../models/sales/invoice-settings.model.js";
+import InvoiceSettingsModel from "../../models/sales/invoice-settings.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Invoice-settingsService {
+// Initialize service for invoice-settings model
+const invoiceSettingsService = new AdvancedCrudService(InvoiceSettingsModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","createdBy","updatedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await invoice-settingsModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await invoice-settingsModel.find(filter);
-  }
-
-  async findById(id) {
-    return await invoice-settingsModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await invoice-settingsModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await invoice-settingsModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Invoice-settingsService();
+export default invoiceSettingsService;

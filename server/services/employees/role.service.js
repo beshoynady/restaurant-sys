@@ -1,27 +1,13 @@
-import roleModel from "../../models/employees/role.model.js";
+import RoleModel from "../../models/employees/role.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class RoleService {
+// Initialize service for role model
+const roleService = new AdvancedCrudService(RoleModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","createdBy","updatedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await roleModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await roleModel.find(filter);
-  }
-
-  async findById(id) {
-    return await roleModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await roleModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await roleModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new RoleService();
+export default roleService;

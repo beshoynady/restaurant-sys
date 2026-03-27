@@ -1,27 +1,13 @@
-import loyalty-transactionModel from "../../models/loyalty/loyalty-transaction.model.js";
+import LoyaltyTransactionModel from "../../models/loyalty/loyalty-transaction.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Loyalty-transactionService {
+// Initialize service for loyalty-transaction model
+const loyaltyTransactionService = new AdvancedCrudService(LoyaltyTransactionModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","customerLoyalty","reward","order","createdBy","updatedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await loyalty-transactionModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await loyalty-transactionModel.find(filter);
-  }
-
-  async findById(id) {
-    return await loyalty-transactionModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await loyalty-transactionModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await loyalty-transactionModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Loyalty-transactionService();
+export default loyaltyTransactionService;

@@ -1,27 +1,13 @@
-import attendance-recordModel from "../../models/employees/attendance-record.model.js";
+import AttendanceRecordModel from "../../models/employees/attendance-record.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Attendance-recordService {
+// Initialize service for attendance-record model
+const attendanceRecordService = new AdvancedCrudService(AttendanceRecordModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","employee","shift","leaveRequest","createdBy","updatedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await attendance-recordModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await attendance-recordModel.find(filter);
-  }
-
-  async findById(id) {
-    return await attendance-recordModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await attendance-recordModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await attendance-recordModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Attendance-recordService();
+export default attendanceRecordService;

@@ -1,27 +1,27 @@
-import leave-requestModel from "../../models/employees/leave-request.model.js";
+import LeaveRequestModel from "../../models/employees/leave-request.model.js";
 
-class Leave-requestService {
+class LeaveRequestService {
 
   async create(data) {
-    return await leave-requestModel.create(data);
+    return await LeaveRequestModel.create(data);
   }
 
   async findAll(filter = {}) {
-    return await leave-requestModel.find(filter);
+    return await LeaveRequestModel.find(filter);
   }
 
   async findById(id) {
-    return await leave-requestModel.findById(id);
+    return await LeaveRequestModel.findById(id);
   }
 
   async update(id, data) {
-    return await leave-requestModel.findByIdAndUpdate(id, data, { new: true });
+    return await LeaveRequestModel.findByIdAndUpdate(id, data, { new: true });
   }
 
   async delete(id) {
-    return await leave-requestModel.findByIdAndDelete(id);
+    return await LeaveRequestModel.findByIdAndDelete(id);
   }
 
 }
 
-export default new Leave-requestService();
+export default new LeaveRequestService();

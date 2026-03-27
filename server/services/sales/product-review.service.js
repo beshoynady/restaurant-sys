@@ -1,27 +1,13 @@
-import product-reviewModel from "../../models/sales/product-review.model.js";
+import ProductReviewModel from "../../models/sales/product-review.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Product-reviewService {
+// Initialize service for product-review model
+const productReviewService = new AdvancedCrudService(ProductReviewModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","order","relatedSalesReturn","reviewedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await product-reviewModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await product-reviewModel.find(filter);
-  }
-
-  async findById(id) {
-    return await product-reviewModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await product-reviewModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await product-reviewModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Product-reviewService();
+export default productReviewService;

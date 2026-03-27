@@ -1,27 +1,13 @@
-import dining-areaModel from "../../models/seating/dining-area.model.js";
+import DiningAreaModel from "../../models/seating/dining-area.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Dining-areaService {
+// Initialize service for dining-area model
+const diningAreaService = new AdvancedCrudService(DiningAreaModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","createdBy","updatedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await dining-areaModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await dining-areaModel.find(filter);
-  }
-
-  async findById(id) {
-    return await dining-areaModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await dining-areaModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await dining-areaModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Dining-areaService();
+export default diningAreaService;

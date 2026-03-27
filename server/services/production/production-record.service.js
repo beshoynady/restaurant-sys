@@ -1,27 +1,13 @@
-import production-recordModel from "../../models/production/production-record.model.js";
+import ProductionRecordModel from "../../models/production/production-record.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Production-recordService {
+// Initialize service for production-record model
+const productionRecordService = new AdvancedCrudService(ProductionRecordModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["productionOrder","warehouse","stockItem","preparationSection","productionRecipe","createdBy","updatedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await production-recordModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await production-recordModel.find(filter);
-  }
-
-  async findById(id) {
-    return await production-recordModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await production-recordModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await production-recordModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Production-recordService();
+export default productionRecordService;

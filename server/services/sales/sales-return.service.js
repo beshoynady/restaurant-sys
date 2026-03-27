@@ -1,27 +1,13 @@
-import sales-returnModel from "../../models/sales/sales-return.model.js";
+import SalesReturnModel from "../../models/sales/sales-return.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Sales-returnService {
+// Initialize service for sales-return model
+const salesReturnService = new AdvancedCrudService(SalesReturnModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","originalInvoice","order","cashierShift","paidBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await sales-returnModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await sales-returnModel.find(filter);
-  }
-
-  async findById(id) {
-    return await sales-returnModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await sales-returnModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await sales-returnModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Sales-returnService();
+export default salesReturnService;

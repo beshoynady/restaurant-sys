@@ -1,163 +1,50 @@
-import mongoose from "mongoose";
-import StockItemsModel from "../../models/inventory/stock-item.model.js";
+import asyncHandler from "../../utils/asyncHandler.js";
+import stockItemService from "../../services/inventory/stock-item.service.js";
 
-// Create a new stock item
-const createStockItem = async (req, res) => {
-  try {
-    const {
-      SKU,
-      itemName,
-      categoryId,
-      stores,
-      storageUnit,
-      parts,
-      ingredientUnit,
-      minThreshold,
-      maxThreshold,
-      reorderQuantity,
-      costMethod,
-      costPerPart,
-      isActive,
-      notes,
-    } = req.body;
 
-    const createdBy = req.user.id;
+// CRUD Controller for stock-item
+const stockItemController = {
+  create: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.body.branch ?? req.branch._id;
+    const userId = req.user._id;
+    
+    const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
+    const result = await stockItemService.create(payload);
+    res.status(201).json(result);
+  }),
 
-    // Check for unique SKU
-    const existingItem = await StockItemsModel.findOne({ SKU });
-    if (existingItem) {
-      return res
-        .status(400)
-        .json({ error: "Item with this SKU already exists." });
-    }
+  getAll: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.branch._id;
+    const result = await stockItemService.getAll({ ...req.query, brand: brandId, branch: branchId });
+    res.json(result);
+  }),
 
-    // Create new stock item
-    const newStockItem = await StockItemsModel.create({
-      SKU,
-      itemName,
-      categoryId,
-      stores,
-      storageUnit,
-      parts,
-      ingredientUnit,
-      minThreshold,
-      maxThreshold,
-      reorderQuantity,
-      costMethod,
-      costPerPart,
-      isActive,
-      createdBy,
-      notes,
-    });
+  getOne: asyncHandler(async (req, res) => {
+    const result = await stockItemService.getById(req.params.id);
+    res.json(result);
+  }),
 
-    res.status(201).json(newStockItem);
-  } catch (err) {
-    res.status(500).json({ error: `Failed to create item: ${err.message}` });
-  }
+  update: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.body.branch ?? req.branch._id;
+    const userId = req.user._id;
+    
+    const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
+    const result = await stockItemService.update(req.params.id, payload);
+    res.json(result);
+  }),
+
+  delete: asyncHandler(async (req, res) => {
+    const result = await stockItemService.delete(req.params.id);
+    res.json(result);
+  }),
+
+  restore: asyncHandler(async (req, res) => {
+    const result = await stockItemService.restore(req.params.id);
+    res.json(result);
+  }),
 };
 
-// Get all stock items
-const getAllStockItems = async (req, res) => {
-  try {
-    const allItems = await StockItemsModel.find({})
-      .populate("categoryId")
-      .populate("stores")
-      .populate("createdBy");
-    res.status(200).json(allItems);
-  } catch (err) {
-    res.status(500).json({ error: `Failed to retrieve items: ${err.message}` });
-  }
-};
-
-// Get a single stock item by ID
-const getOneItem = async (req, res) => {
-  try {
-    const itemId = req.params.itemId;
-
-    if (!mongoose.Types.ObjectId.isValid(itemId)) {
-      return res.status(400).json({ error: "Invalid item ID format." });
-    }
-
-    const oneItem = await StockItemsModel.findById(itemId)
-      .populate("categoryId")
-      .populate("stores")
-      .populate("createdBy");
-
-    if (!oneItem) {
-      return res.status(404).json({ error: "Item not found." });
-    }
-
-    res.status(200).json(oneItem);
-  } catch (err) {
-    res.status(500).json({ error: `Failed to retrieve item: ${err.message}` });
-  }
-};
-
-// Update a stock item by ID
-const updateStockItem = async (req, res) => {
-  try {
-    const itemId = req.params.itemId;
-    const updatedBy = req.user.id;
-    const updatedData = req.body;
-
-    if (!mongoose.Types.ObjectId.isValid(itemId)) {
-      return res.status(400).json({ error: "Invalid item ID format." });
-    }
-
-    const existingItem = await StockItemsModel.findOne({
-      SKU: updatedData.SKU,
-    });
-    if (existingItem && existingItem._id.toString() !== itemId) {
-      return res
-        .status(400)
-        .json({ error: "Item with this SKU already exists." });
-    }
-    // Add the updatedBy field to the updated data
-    updatedData.updatedBy = updatedBy;
-
-    const updatedStockItem = await StockItemsModel.findByIdAndUpdate(
-      itemId,
-      updatedData,
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedStockItem) {
-      return res.status(404).json({ error: "Item not found." });
-    }
-
-    res.status(200).json(updatedStockItem);
-  } catch (err) {
-    res.status(500).json({ error: `Failed to update item: ${err.message}` });
-  }
-};
-
-// Delete a stock item by ID
-const deleteItem = async (req, res) => {
-  try {
-    const itemId = req.params.itemId;
-
-    if (!mongoose.Types.ObjectId.isValid(itemId)) {
-      return res.status(400).json({ error: "Invalid item ID format." });
-    }
-
-    const deletedItem = await StockItemsModel.findByIdAndDelete(itemId);
-
-    if (!deletedItem) {
-      return res.status(404).json({ error: "Item not found." });
-    }
-
-    res
-      .status(200)
-      .json({ message: "Item deleted successfully.", deletedItem });
-  } catch (err) {
-    res.status(500).json({ error: `Failed to delete item: ${err.message}` });
-  }
-};
-
-export  {
-  createStockItem,
-  getAllStockItems,
-  getOneItem,
-  updateStockItem,
-  deleteItem,
-};
+export default stockItemController;

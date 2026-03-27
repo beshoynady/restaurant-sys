@@ -1,27 +1,13 @@
-import inventory-countModel from "../../models/inventory/inventory-count.model.js";
+import InventoryCountModel from "../../models/inventory/inventory-count.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Inventory-countService {
+// Initialize service for inventory-count model
+const inventoryCountService = new AdvancedCrudService(InventoryCountModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","warehouse","createdBy","approvedBy","executedBy","adjustmentDocument","deletedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await inventory-countModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await inventory-countModel.find(filter);
-  }
-
-  async findById(id) {
-    return await inventory-countModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await inventory-countModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await inventory-countModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Inventory-countService();
+export default inventoryCountService;

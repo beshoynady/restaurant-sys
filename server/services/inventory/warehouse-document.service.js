@@ -1,27 +1,13 @@
-import warehouse-documentModel from "../../models/inventory/warehouse-document.model.js";
+import WarehouseDocumentModel from "../../models/inventory/warehouse-document.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Warehouse-documentService {
+// Initialize service for warehouse-document model
+const warehouseDocumentService = new AdvancedCrudService(WarehouseDocumentModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","sourceWarehouse","destinationWarehouse","journalEntry","createdBy","approvedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await warehouse-documentModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await warehouse-documentModel.find(filter);
-  }
-
-  async findById(id) {
-    return await warehouse-documentModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await warehouse-documentModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await warehouse-documentModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Warehouse-documentService();
+export default warehouseDocumentService;

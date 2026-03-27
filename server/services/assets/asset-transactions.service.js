@@ -1,27 +1,13 @@
-import asset-transactionsModel from "../../models/assets/asset-transactions.model.js";
+import AssetTransactionsModel from "../../models/assets/asset-transactions.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Asset-transactionsService {
+// Initialize service for asset-transactions model
+const assetTransactionsService = new AdvancedCrudService(AssetTransactionsModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","asset","createdBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await asset-transactionsModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await asset-transactionsModel.find(filter);
-  }
-
-  async findById(id) {
-    return await asset-transactionsModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await asset-transactionsModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await asset-transactionsModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Asset-transactionsService();
+export default assetTransactionsService;

@@ -1,27 +1,13 @@
-import preparation-ticket-settingsModel from "../../models/kitchen/preparation-ticket-settings.model.js";
+import PreparationTicketSettingsModel from "../../models/kitchen/preparation-ticket-settings.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Preparation-ticket-settingsService {
+// Initialize service for preparation-ticket-settings model
+const preparationTicketSettingsService = new AdvancedCrudService(PreparationTicketSettingsModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","createdBy","updatedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await preparation-ticket-settingsModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await preparation-ticket-settingsModel.find(filter);
-  }
-
-  async findById(id) {
-    return await preparation-ticket-settingsModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await preparation-ticket-settingsModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await preparation-ticket-settingsModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Preparation-ticket-settingsService();
+export default preparationTicketSettingsService;

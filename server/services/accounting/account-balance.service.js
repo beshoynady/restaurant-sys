@@ -1,27 +1,13 @@
-import account-balanceModel from "../../models/accounting/account-balance.model.js";
+import AccountBalanceModel from "../../models/accounting/account-balance.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Account-balanceService {
+// Initialize service for account-balance model
+const accountBalanceService = new AdvancedCrudService(AccountBalanceModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","period","account"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await account-balanceModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await account-balanceModel.find(filter);
-  }
-
-  async findById(id) {
-    return await account-balanceModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await account-balanceModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await account-balanceModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Account-balanceService();
+export default accountBalanceService;

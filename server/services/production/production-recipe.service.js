@@ -1,27 +1,13 @@
-import production-recipeModel from "../../models/production/production-recipe.model.js";
+import ProductionRecipeModel from "../../models/production/production-recipe.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Production-recipeService {
+// Initialize service for production-recipe model
+const productionRecipeService = new AdvancedCrudService(ProductionRecipeModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","stockItem","createdBy","updatedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await production-recipeModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await production-recipeModel.find(filter);
-  }
-
-  async findById(id) {
-    return await production-recipeModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await production-recipeModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await production-recipeModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Production-recipeService();
+export default productionRecipeService;

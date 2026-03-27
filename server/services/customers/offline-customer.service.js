@@ -1,27 +1,13 @@
-import offline-customerModel from "../../models/customers/offline-customer.model.js";
+import OfflineCustomerModel from "../../models/customers/offline-customer.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Offline-customerService {
+// Initialize service for offline-customer model
+const offlineCustomerService = new AdvancedCrudService(OfflineCustomerModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","createdBy","updatedBy","deletedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await offline-customerModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await offline-customerModel.find(filter);
-  }
-
-  async findById(id) {
-    return await offline-customerModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await offline-customerModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await offline-customerModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Offline-customerService();
+export default offlineCustomerService;

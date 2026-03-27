@@ -1,27 +1,13 @@
-import cost-centerModel from "../../models/accounting/cost-center.model.js";
+import CostCenterModel from "../../models/accounting/cost-center.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Cost-centerService {
+// Initialize service for cost-center model
+const costCenterService = new AdvancedCrudService(CostCenterModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","parent","createdBy","updatedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await cost-centerModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await cost-centerModel.find(filter);
-  }
-
-  async findById(id) {
-    return await cost-centerModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await cost-centerModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await cost-centerModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Cost-centerService();
+export default costCenterService;

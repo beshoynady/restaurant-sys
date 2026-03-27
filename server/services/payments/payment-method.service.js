@@ -1,27 +1,13 @@
-import payment-methodModel from "../../models/payments/payment-method.model.js";
+import PaymentMethodModel from "../../models/payments/payment-method.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Payment-methodService {
+// Initialize service for payment-method model
+const paymentMethodService = new AdvancedCrudService(PaymentMethodModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","createdBy","updatedBy","deletedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await payment-methodModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await payment-methodModel.find(filter);
-  }
-
-  async findById(id) {
-    return await payment-methodModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await payment-methodModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await payment-methodModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Payment-methodService();
+export default paymentMethodService;

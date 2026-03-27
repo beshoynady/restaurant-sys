@@ -1,27 +1,13 @@
-import productModel from "../../models/menu/product.model.js";
+import ProductModel from "../../models/menu/product.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class ProductService {
+// Initialize service for product model
+const productService = new AdvancedCrudService(ProductModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","category","preparationSection","parentProduct","taxRate","createdBy","updatedBy","deletedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await productModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await productModel.find(filter);
-  }
-
-  async findById(id) {
-    return await productModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await productModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await productModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new ProductService();
+export default productService;

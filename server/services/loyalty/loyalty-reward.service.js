@@ -1,27 +1,13 @@
-import loyalty-rewardModel from "../../models/loyalty/loyalty-reward.model.js";
+import LoyaltyRewardModel from "../../models/loyalty/loyalty-reward.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Loyalty-rewardService {
+// Initialize service for loyalty-reward model
+const loyaltyRewardService = new AdvancedCrudService(LoyaltyRewardModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","product","createdBy","updatedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await loyalty-rewardModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await loyalty-rewardModel.find(filter);
-  }
-
-  async findById(id) {
-    return await loyalty-rewardModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await loyalty-rewardModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await loyalty-rewardModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Loyalty-rewardService();
+export default loyaltyRewardService;

@@ -1,27 +1,13 @@
-import branchModel from "../../models/core/branch.model.js";
+import BranchModel from "../../models/core/branch.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class BranchService {
+// Initialize service for branch model
+const branchService = new AdvancedCrudService(BranchModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","createdBy","updatedBy","deletedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await branchModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await branchModel.find(filter);
-  }
-
-  async findById(id) {
-    return await branchModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await branchModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await branchModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new BranchService();
+export default branchService;

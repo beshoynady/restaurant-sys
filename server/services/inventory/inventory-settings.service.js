@@ -1,27 +1,13 @@
-import inventory-settingsModel from "../../models/inventory/inventory-settings.model.js";
+import InventorySettingsModel from "../../models/inventory/inventory-settings.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Inventory-settingsService {
+// Initialize service for inventory-settings model
+const inventorySettingsService = new AdvancedCrudService(InventorySettingsModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await inventory-settingsModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await inventory-settingsModel.find(filter);
-  }
-
-  async findById(id) {
-    return await inventory-settingsModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await inventory-settingsModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await inventory-settingsModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Inventory-settingsService();
+export default inventorySettingsService;

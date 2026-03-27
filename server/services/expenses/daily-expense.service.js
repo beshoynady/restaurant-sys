@@ -1,27 +1,13 @@
-import daily-expenseModel from "../../models/expenses/daily-expense.model.js";
+import DailyExpenseModel from "../../models/expenses/daily-expense.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Daily-expenseService {
+// Initialize service for daily-expense model
+const dailyExpenseService = new AdvancedCrudService(DailyExpenseModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","expense","costCenter","createdBy","updatedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await daily-expenseModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await daily-expenseModel.find(filter);
-  }
-
-  async findById(id) {
-    return await daily-expenseModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await daily-expenseModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await daily-expenseModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Daily-expenseService();
+export default dailyExpenseService;

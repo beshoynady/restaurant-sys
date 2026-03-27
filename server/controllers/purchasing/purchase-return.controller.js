@@ -1,142 +1,50 @@
-import PurchaseReturnInvoiceModel from "../../models/sales/sales-return.model.js";
+import asyncHandler from "../../utils/asyncHandler.js";
+import purchaseReturnService from "../../services/purchasing/purchase-return.service.js";
 
-// Create a new purchase return invoice
-const createPurchaseReturnInvoice = async (req, res) => {
-    try {
-        const {
-            originalInvoice,
-            returnDate,
-            supplier,
-            returnedItems,
-            totalAmount,
-            discount,
-            netAmount,
-            salesTax,
-            refundedAmount,
-            balanceDue,
-            paymentDueDate,
-            additionalCost,
-            cashRegister,
-            returnStatus,
-            paymentMethod,
-            refundMethod,
-            notes,
-        } = req.body;
 
-        // Assume that req.user contains the authenticated employee information
-        const createdBy = req.user.id;
+// CRUD Controller for purchase-return
+const purchaseReturnController = {
+  create: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.body.branch ?? req.branch._id;
+    const userId = req.user._id;
+    
+    const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
+    const result = await purchaseReturnService.create(payload);
+    res.status(201).json(result);
+  }),
 
-        // Check if required fields are missing
-        if (!originalInvoice || !returnDate || !supplier || !returnedItems || !totalAmount || !netAmount || !returnStatus || !refundMethod) {
-            return res.status(400).json({ message: 'Missing required fields.' });
-        }
+  getAll: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.branch._id;
+    const result = await purchaseReturnService.getAll({ ...req.query, brand: brandId, branch: branchId });
+    res.json(result);
+  }),
 
-        const newPurchaseReturnInvoice = await PurchaseReturnInvoiceModel.create({
-            originalInvoice,
-            returnDate,
-            supplier,
-            returnedItems,
-            totalAmount,
-            discount,
-            netAmount,
-            salesTax,
-            refundedAmount,
-            balanceDue,
-            paymentDueDate,
-            additionalCost,
-            cashRegister,
-            returnStatus,
-            paymentMethod,
-            refundMethod,
-            notes,
-            createdBy
-        });
-        
-        // Check if the creation was successful
-        if (!newPurchaseReturnInvoice) {
-            return res.status(500).json({ message: 'Failed to create purchase return invoice.' });
-        }
+  getOne: asyncHandler(async (req, res) => {
+    const result = await purchaseReturnService.getById(req.params.id);
+    res.json(result);
+  }),
 
-        res.status(201).json(newPurchaseReturnInvoice);
-    } catch (error) {
-        res.status(500).json({ message: error.message, error });
-    }
+  update: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.body.branch ?? req.branch._id;
+    const userId = req.user._id;
+    
+    const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
+    const result = await purchaseReturnService.update(req.params.id, payload);
+    res.json(result);
+  }),
+
+  delete: asyncHandler(async (req, res) => {
+    const result = await purchaseReturnService.delete(req.params.id);
+    res.json(result);
+  }),
+
+  restore: asyncHandler(async (req, res) => {
+    const result = await purchaseReturnService.restore(req.params.id);
+    res.json(result);
+  }),
 };
 
-// Retrieve all purchase return invoices
-const getAllPurchaseReturnInvoices = async (req, res) => {
-    try {
-        // Retrieve all purchase return invoices and populate related fields
-        const purchaseReturnInvoices = await PurchaseReturnInvoiceModel.find()
-            .populate('originalInvoice') // Populate originalInvoice field
-            .populate('returnedItems.itemId') // Populate returnedItems.itemId field
-            .populate('supplier') // Populate supplier field
-            .populate('createdBy') // Populate createdBy field
-            .populate('cashRegister'); // Populate cashRegister field
-            
-        // Check if there are no purchase return invoices found
-        if (!purchaseReturnInvoices || purchaseReturnInvoices.length === 0) {
-            return res.status(404).json({ message: 'No purchase return invoices found.' });
-        }
-
-        // If purchase return invoices are found, send them as response
-        res.status(200).json(purchaseReturnInvoices);
-    } catch (error) {
-        // Handle any errors that occur during the process
-        console.error('Error in getAllPurchaseReturnInvoices:', error);
-        res.status(500).json({ message: 'Dine-in server error.' , error});
-    }
-};
-
-
-// Retrieve a single purchase return invoice by ID
-const getPurchaseReturnInvoiceById = async (req, res) => {
-    try {
-        // Populate the supplier, returnedItems, and createdBy fields
-        const purchaseReturnInvoice = await PurchaseReturnInvoiceModel.findById(req.params.id)
-            .populate('supplier') // Populate supplier field
-            .populate('createdBy') // Populate createdBy field
-            .populate('cashRegister'); // Populate cashRegister field
-            
-        if (!purchaseReturnInvoice) {
-            return res.status(404).json({ message: 'Purchase return invoice not found' });
-        }
-        res.status(200).json(purchaseReturnInvoice);
-    } catch (error) {
-        res.status(500).json(error);
-    }
-};
-
-// Update a purchase return invoice by ID
-const updatePurchaseReturnInvoiceById = async (req, res) => {
-    try {
-        const updatedPurchaseReturnInvoice = await PurchaseReturnInvoiceModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!updatedPurchaseReturnInvoice) {
-            return res.status(404).json({ message: 'Purchase return invoice not found' });
-        }
-        res.status(200).json(updatedPurchaseReturnInvoice);
-    } catch (error) {
-        res.status(500).json(error);
-    }
-};
-
-// Delete a purchase return invoice by ID
-const deletePurchaseReturnInvoiceById = async (req, res) => {
-    try {
-        const deletedPurchaseReturnInvoice = await PurchaseReturnInvoiceModel.findByIdAndDelete(req.params.id);
-        if (!deletedPurchaseReturnInvoice) {
-            return res.status(404).json({ message: 'Purchase return invoice not found' });
-        }
-        res.status(200).json({ message: 'Purchase return invoice deleted successfully' });
-    } catch (error) {
-        res.status(500).json(error);
-    }
-};
-
-export  {
-    createPurchaseReturnInvoice,
-    getAllPurchaseReturnInvoices,
-    getPurchaseReturnInvoiceById,
-    updatePurchaseReturnInvoiceById,
-    deletePurchaseReturnInvoiceById
-};
+export default purchaseReturnController;

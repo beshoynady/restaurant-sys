@@ -1,27 +1,13 @@
-import purchase-settingsModel from "../../models/purchasing/purchase-settings.model.js";
+import PurchaseSettingsModel from "../../models/purchasing/purchase-settings.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Purchase-settingsService {
+// Initialize service for purchase-settings model
+const purchaseSettingsService = new AdvancedCrudService(PurchaseSettingsModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","createdBy","updatedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await purchase-settingsModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await purchase-settingsModel.find(filter);
-  }
-
-  async findById(id) {
-    return await purchase-settingsModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await purchase-settingsModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await purchase-settingsModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Purchase-settingsService();
+export default purchaseSettingsService;

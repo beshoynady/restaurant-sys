@@ -1,27 +1,27 @@
-import stock-categoryModel from "../../models/inventory/stock-category.model.js";
+import StockCategoryModel from "../../models/inventory/stock-category.model.js";
 
-class Stock-categoryService {
+class StockCategoryService {
 
   async create(data) {
-    return await stock-categoryModel.create(data);
+    return await StockCategoryModel.create(data);
   }
 
   async findAll(filter = {}) {
-    return await stock-categoryModel.find(filter);
+    return await StockCategoryModel.find(filter);
   }
 
   async findById(id) {
-    return await stock-categoryModel.findById(id);
+    return await StockCategoryModel.findById(id);
   }
 
   async update(id, data) {
-    return await stock-categoryModel.findByIdAndUpdate(id, data, { new: true });
+    return await StockCategoryModel.findByIdAndUpdate(id, data, { new: true });
   }
 
   async delete(id) {
-    return await stock-categoryModel.findByIdAndDelete(id);
+    return await StockCategoryModel.findByIdAndDelete(id);
   }
 
 }
 
-export default new Stock-categoryService();
+export default new StockCategoryService();

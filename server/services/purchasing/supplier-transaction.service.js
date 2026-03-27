@@ -1,27 +1,13 @@
-import supplier-transactionModel from "../../models/purchasing/supplier-transaction.model.js";
+import SupplierTransactionModel from "../../models/purchasing/supplier-transaction.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Supplier-transactionService {
+// Initialize service for supplier-transaction model
+const supplierTransactionService = new AdvancedCrudService(SupplierTransactionModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","supplier","paymentMethod","recordedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await supplier-transactionModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await supplier-transactionModel.find(filter);
-  }
-
-  async findById(id) {
-    return await supplier-transactionModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await supplier-transactionModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await supplier-transactionModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Supplier-transactionService();
+export default supplierTransactionService;

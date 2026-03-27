@@ -1,27 +1,13 @@
-import order-settingsModel from "../../models/sales/order-settings.model.js";
+import OrderSettingsModel from "../../models/sales/order-settings.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Order-settingsService {
+// Initialize service for order-settings model
+const orderSettingsService = new AdvancedCrudService(OrderSettingsModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","createdBy","updatedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await order-settingsModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await order-settingsModel.find(filter);
-  }
-
-  async findById(id) {
-    return await order-settingsModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await order-settingsModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await order-settingsModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Order-settingsService();
+export default orderSettingsService;

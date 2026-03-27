@@ -1,27 +1,13 @@
-import purchase-invoiceModel from "../../models/purchasing/purchase-invoice.model.js";
+import PurchaseInvoiceModel from "../../models/purchasing/purchase-invoice.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Purchase-invoiceService {
+// Initialize service for purchase-invoice model
+const purchaseInvoiceService = new AdvancedCrudService(PurchaseInvoiceModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","branch","returnInvoice","supplier","warehouseForAllItems","taxes","costCenter","createdBy","updatedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await purchase-invoiceModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await purchase-invoiceModel.find(filter);
-  }
-
-  async findById(id) {
-    return await purchase-invoiceModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await purchase-invoiceModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await purchase-invoiceModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Purchase-invoiceService();
+export default purchaseInvoiceService;

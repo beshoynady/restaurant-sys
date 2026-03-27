@@ -1,27 +1,13 @@
-import online-customerModel from "../../models/customers/online-customer.model.js";
+import OnlineCustomerModel from "../../models/customers/online-customer.model.js";
+import AdvancedCrudService from "../AdvancedCrudService.js";
 
-class Online-customerService {
+// Initialize service for online-customer model
+const onlineCustomerService = new AdvancedCrudService(OnlineCustomerModel, {
+  brandScoped: true,
+  softDelete: true,
+  defaultPopulate: ["brand","verifiedBy","deletedBy"],
+  searchFields: [], // specify searchable fields if needed
+  defaultSort: { createdAt: -1 },
+});
 
-  async create(data) {
-    return await online-customerModel.create(data);
-  }
-
-  async findAll(filter = {}) {
-    return await online-customerModel.find(filter);
-  }
-
-  async findById(id) {
-    return await online-customerModel.findById(id);
-  }
-
-  async update(id, data) {
-    return await online-customerModel.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await online-customerModel.findByIdAndDelete(id);
-  }
-
-}
-
-export default new Online-customerService();
+export default onlineCustomerService;
