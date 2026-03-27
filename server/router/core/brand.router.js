@@ -1,24 +1,12 @@
-/**
- * Brand Router
- * ------------
- * Singleton Brand routes
- */
-
 import express from "express";
 
 const router = express.Router();
 
-import {
-  createBrand,
-  getBrand,
-  updateBrand,
-  updateBrandLogo,
-  deleteBrand,
-} from "../../controllers/core/brand.controller.js";
+import BrandController from "../../controllers/core/brand.controller.js";
 
 import { authenticateToken } from "../../middlewares/authenticate.js";
 
-// import { uploadFile } from "../../middlewares/fileHandler.js";
+import { uploadFile } from "../../middlewares/fileHandler.js";
 
 // ======================================
 // Routes
@@ -26,27 +14,14 @@ import { authenticateToken } from "../../middlewares/authenticate.js";
 
 router
   .route("/")
-  /**
-   * Create brand
-   */
-  .post(authenticateToken,
-    //  uploadFile({ folder: "brands", maxSize: 1024 * 1024 }),
-   createBrand)
+  .post(authenticateToken, BrandController.create)
+  .get(authenticateToken, BrandController.getAll);
 
-  /**
-   * Get brand
-   */
-  .get(authenticateToken, getBrand)
 
-  /**
-   * Update brand data
-   */
-  .put(authenticateToken, updateBrand)
-
-  /**
-   * Delete brand
-   */
-  .delete(authenticateToken, deleteBrand);
+router
+  .route("/:id")
+  .put(authenticateToken, BrandController.update)
+  .delete(authenticateToken, BrandController.delete);
 
 /**
  * Update brand logo
@@ -54,8 +29,8 @@ router
 router.put(
   "/logo",
   authenticateToken,
-  // uploadFile({ folder: "brands", maxSize: 1024 * 1024 }),
-  updateBrandLogo,
+  uploadFile({ folder: "brands", maxSize: 1024 * 1024 }),
+  BrandController.updateLogo,
 );
 
 export default router;

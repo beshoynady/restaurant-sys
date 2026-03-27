@@ -142,6 +142,7 @@ const AppContextProvider = ({ children }) => {
     } ${ampm}`;
     return formattedTime;
   };
+
   const formatDateTime = (dateString) => {
     const date = new Date(dateString);
     // Get the hour and minutes
@@ -2281,7 +2282,6 @@ const AppContextProvider = ({ children }) => {
         clientUrl,
 
         // الدوال المتعلقة بالمصادقة
-        apiUrl,
         handleGetTokenAndConfig,
         userLoginInfo,
         employeeLoginInfo,
@@ -2423,4 +2423,4 @@ const AppContextProvider = ({ children }) => {
   );
 };
 
-export   default AppContextProvider;
+export default AppContextProvider;

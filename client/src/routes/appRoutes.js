@@ -1,5 +1,6 @@
 import React, { Suspense, useContext } from "react";
 import { AppContext } from "../context/appContext";
+import { AdminContext } from "../context/adminContext";
 import { Routes, Route, Navigate } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -14,6 +15,10 @@ import Info from "../layouts/adminLayout/adminComponent/settings/info";
 // Lazy Imports
 const ManagLayout = React.lazy(() =>
   import("../layouts/adminLayout/ManagLayout")
+);
+
+const SetupWizard = React.lazy(() =>
+  import("../layouts/adminLayout/adminComponent/setup/SetupWizard.jsx")
 );
 
 const ManagerDash = React.lazy(() =>
@@ -154,14 +159,20 @@ const ProfitLoss = React.lazy(() =>
 );
 
 const AppRoutes = () => {
-  const context = useContext(AppContext);
+  const appContextDeta= useContext(AppContext);
+  const adminContextData = useContext(AdminContext);
 
-  if (!context) {
+  if (!appContextDeta) {
     console.error("AppRoutes must be used within AppContext.Provider");
     return null;
   }
 
-  const { employeeLoginInfo } = context;
+  const { employeeLoginInfo } = appContextDeta;
+  const { brand } = adminContextData;
+
+  if (!brand) {
+    return <SetupWizard/>;
+  }
 
   return (
     <Routes>

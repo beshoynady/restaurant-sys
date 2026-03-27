@@ -1,6 +1,6 @@
 import EmployeeModel from "../../models/employees/employee.model.js";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import Joi from "joi";
 import dotenv from "dotenv";
 dotenv.config();

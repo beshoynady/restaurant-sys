@@ -1,6 +1,6 @@
 import OnlineCustomer from "../../models/customers/online-customer.model.js";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import Joi from "joi";
 
 const secretKey = process.env.JWT_SECRET_KEY;
