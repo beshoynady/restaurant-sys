@@ -1,31 +1,27 @@
-import {
-  createAccount,
-  getAccounts,
-  getAccountById,
-  getAccountByCode,
-  getAccountsByParent,
-  updateAccount,
-  deleteAccount,
-  setAccountStatus,
-} from "../../controllers/accounting/account.controller.js";
-
-import { authenticateToken } from "../../middlewares/authenticate.js";
-
 import express from "express";
+import accountController from "../../controllers/accounting/account.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createaccountSchema, updateaccountSchema } from "../../validation/accounting/account.validation.js";
+
+
 const router = express.Router();
 
-// ==============================
-// Account Routes
-// ==============================
-router.route("/").post(authenticateToken, createAccount).get(getAccounts);
-router
-  .route("/:id")
-  .get(authenticateToken, getAccountById)
-  .put(authenticateToken, updateAccount)
-  .delete(authenticateToken, deleteAccount);
-  
-router.route("/code/:code").get(authenticateToken, getAccountByCode);
-router.route("/parent/:parentId").get(authenticateToken, getAccountsByParent);
-router.route("/:id/status").put(authenticateToken, setAccountStatus);
+router.route("/")
+  .post(authenticateToken, validate(createaccountSchema), accountController.create)
+  .get(authenticateToken, accountController.getAll)
+;
+
+router.route("/:id")
+  .get(authenticateToken, accountController.getOne)
+  .put(authenticateToken, validate(updateaccountSchema), accountController.update)
+  .delete(authenticateToken, accountController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, accountController.restore)
+;
+
+
 
 export default router;

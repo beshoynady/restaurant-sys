@@ -1,8 +1,8 @@
 import JobTitleModel from "../../models/employees/job-title.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for job-title model
-const jobTitleService = new AdvancedCrudService(JobTitleModel, {
+const jobTitleService = new AdvancedService(JobTitleModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","department","createdBy","updatedBy","deletedBy"],

@@ -1,6 +1,6 @@
 import Joi from "joi";
 import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
-import StockTransferRequestModel from "../../models/inventory\stock-transfer-request.model.js";
+import StockTransferRequestModel from "../../models/inventory/stock-transfer-request.model.js";
 
 /* =========================
    Create Schema

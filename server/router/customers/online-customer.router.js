@@ -1,50 +1,27 @@
 import express from "express";
+import onlineCustomerController from "../../controllers/customers/online-customer.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createonlineCustomerSchema, updateonlineCustomerSchema } from "../../validation/customers/online-customer.validation.js";
+
+
 const router = express.Router();
 
-/**
- * Controllers
- * Handles all business logic related to online customers authentication and management.
- */
-import {
-  signupCustomer,
-  loginCustomer,
-  logoutCustomer,
-  getOnlineCustomerById,
-  getAllOnlineCustomers,
-  updateOnlineCustomer,
-  deleteOnlineCustomer,
-  resetPassword,
-} from "../../controllers/customers/online-customer.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createonlineCustomerSchema), onlineCustomerController.create)
+  .get(authenticateToken, onlineCustomerController.getAll)
+;
 
-/**
- * Middlewares
- * - authenticateCustomerToken: Validates the access token for protected routes.
- */
-import {
-  authenticateCustomerToken,
-  generateNewCustomerAccessToken,
-} from "../../middlewares/authenticate-customer.js";
+router.route("/:id")
+  .get(authenticateToken, onlineCustomerController.getOne)
+  .put(authenticateToken, validate(updateonlineCustomerSchema), onlineCustomerController.update)
+  .delete(authenticateToken, onlineCustomerController.delete)
+;
 
-// ======================================================
-// 🔐 AUTHENTICATION ROUTES
-// ======================================================
+router.route("/restore/:id")
+  .patch(authenticateToken, onlineCustomerController.restore)
+;
 
-router
-  .route("/")
-  .post(signupCustomer)
-  .get(authenticateCustomerToken, getAllOnlineCustomers);
 
-router
-  .route("/:id")
-  .get(authenticateCustomerToken, getOnlineCustomerById)
-  .put(authenticateCustomerToken, updateOnlineCustomer)
-  .delete(authenticateCustomerToken, deleteOnlineCustomer);
-
-router.route("/login").post(loginCustomer);
-
-router.route("/logout").post(authenticateCustomerToken, logoutCustomer);
-
-router.route("/reset-password").post(resetPassword);
-router.route("/refresh-token").post(generateNewCustomerAccessToken);
 
 export default router;

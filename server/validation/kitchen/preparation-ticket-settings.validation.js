@@ -1,6 +1,6 @@
 import Joi from "joi";
 import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
-import PreparationTicketSettingsModel from "../../models/kitchen\preparation-ticket-settings.model.js";
+import PreparationTicketSettingsModel from "../../models/kitchen/preparation-ticket-settings.model.js";
 
 /* =========================
    Create Schema

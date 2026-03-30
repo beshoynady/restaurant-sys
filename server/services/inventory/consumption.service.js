@@ -1,8 +1,8 @@
 import ConsumptionModel from "../../models/inventory/consumption.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for consumption model
-const consumptionService = new AdvancedCrudService(ConsumptionModel, {
+const consumptionService = new AdvancedService(ConsumptionModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","Warehouse","preparationSection","shift","openedBy","closedBy"],

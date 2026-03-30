@@ -1,8 +1,8 @@
 import CashRegisterModel from "../../models/cash/cash-register.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for cash-register model
-const cashRegisterService = new AdvancedCrudService(CashRegisterModel, {
+const cashRegisterService = new AdvancedService(CashRegisterModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","employee","accountId","createdBy","updatedBy","deletedBy"],

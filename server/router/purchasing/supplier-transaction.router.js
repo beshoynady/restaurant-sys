@@ -1,24 +1,27 @@
 import express from "express";
+import supplierTransactionController from "../../controllers/purchasing/supplier-transaction.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createsupplierTransactionSchema, updatesupplierTransactionSchema } from "../../validation/purchasing/supplier-transaction.validation.js";
+
+
 const router = express.Router();
-import {
-    createSupplierTransaction,
-    getAllSupplierTransactions,
-    getSupplierTransactionById,
-    updateSupplierTransaction,
-    deleteSupplierTransaction,
-} from "../../controllers/purchasing/supplier-transaction.controller.js";
 
-import {authenticateToken} from "../../middlewares/authenticate.js";
+router.route("/")
+  .post(authenticateToken, validate(createsupplierTransactionSchema), supplierTransactionController.create)
+  .get(authenticateToken, supplierTransactionController.getAll)
+;
+
+router.route("/:id")
+  .get(authenticateToken, supplierTransactionController.getOne)
+  .put(authenticateToken, validate(updatesupplierTransactionSchema), supplierTransactionController.update)
+  .delete(authenticateToken, supplierTransactionController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, supplierTransactionController.restore)
+;
 
 
-router.route('/')
-    .post(authenticateToken,createSupplierTransaction)
-    .get(authenticateToken,getAllSupplierTransactions);
 
-router.route('/:id')
-    .get(authenticateToken,getSupplierTransactionById)
-    .put(authenticateToken,updateSupplierTransaction)
-    .delete(authenticateToken,deleteSupplierTransaction);
-
-    
 export default router;

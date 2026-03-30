@@ -1,18 +1,27 @@
-/**
- * cost-center Router
- * Auto generated
- */
-
 import express from "express";
+import costCenterController from "../../controllers/accounting/cost-center.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createcostCenterSchema, updatecostCenterSchema } from "../../validation/accounting/cost-center.validation.js";
+
+
 const router = express.Router();
 
-// TODO: import controller
-// import controller from "../../controllers/cost-center.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createcostCenterSchema), costCenterController.create)
+  .get(authenticateToken, costCenterController.getAll)
+;
 
-// router.get("/", controller.list);
-// router.post("/", controller.create);
-// router.get("/:id", controller.get);
-// router.put("/:id", controller.update);
-// router.delete("/:id", controller.remove);
+router.route("/:id")
+  .get(authenticateToken, costCenterController.getOne)
+  .put(authenticateToken, validate(updatecostCenterSchema), costCenterController.update)
+  .delete(authenticateToken, costCenterController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, costCenterController.restore)
+;
+
+
 
 export default router;

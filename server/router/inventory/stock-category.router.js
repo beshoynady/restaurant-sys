@@ -1,18 +1,25 @@
-/**
- * stock-category Router
- * Auto generated
- */
-
 import express from "express";
+import stockCategoryController from "../../controllers/inventory/stock-category.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+
+
 const router = express.Router();
 
-// TODO: import controller
-// import controller from "../../controllers/inventory/stock-category.controller.js";
+router.route("/")
+  .post(authenticateToken, stockCategoryController.create)
+  .get(authenticateToken, stockCategoryController.getAll)
+;
 
-// router.get("/", controller.list);
-// router.post("/", controller.create);
-// router.get("/:id", controller.get);
-// router.put("/:id", controller.update);
-// router.delete("/:id", controller.remove);
+router.route("/:id")
+  .get(authenticateToken, stockCategoryController.getOne)
+  .put(authenticateToken, stockCategoryController.update)
+  .delete(authenticateToken, stockCategoryController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, stockCategoryController.restore)
+;
+
+
 
 export default router;

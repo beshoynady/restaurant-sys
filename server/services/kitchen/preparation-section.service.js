@@ -1,8 +1,8 @@
 import PreparationSectionModel from "../../models/kitchen/preparation-section.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for preparation-section model
-const preparationSectionService = new AdvancedCrudService(PreparationSectionModel, {
+const preparationSectionService = new AdvancedService(PreparationSectionModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","createdBy","updatedBy","deletedBy"],

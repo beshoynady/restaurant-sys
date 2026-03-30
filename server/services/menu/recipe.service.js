@@ -1,8 +1,8 @@
 import RecipeModel from "../../models/menu/recipe.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for recipe model
-const recipeService = new AdvancedCrudService(RecipeModel, {
+const recipeService = new AdvancedService(RecipeModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","product","createdBy","updatedBy","deletedBy"],

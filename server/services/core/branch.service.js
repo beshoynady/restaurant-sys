@@ -1,8 +1,8 @@
 import BranchModel from "../../models/core/branch.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for branch model
-const branchService = new AdvancedCrudService(BranchModel, {
+const branchService = new AdvancedService(BranchModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","createdBy","updatedBy","deletedBy"],

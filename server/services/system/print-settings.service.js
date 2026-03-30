@@ -1,8 +1,8 @@
 import PrintSettingsModel from "../../models/system/print-settings.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for print-settings model
-const printSettingsService = new AdvancedCrudService(PrintSettingsModel, {
+const printSettingsService = new AdvancedService(PrintSettingsModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["branch"],

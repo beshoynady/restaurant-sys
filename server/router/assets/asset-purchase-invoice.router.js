@@ -1,18 +1,27 @@
-/**
- * asset-purchase-invoice Router
- * Auto generated
- */
-
 import express from "express";
+import assetPurchaseInvoiceController from "../../controllers/assets/asset-purchase-invoice.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createassetPurchaseInvoiceSchema, updateassetPurchaseInvoiceSchema } from "../../validation/assets/asset-purchase-invoice.validation.js";
+
+
 const router = express.Router();
 
-// TODO: import controller
-// import controller from "../../controllers/asset-purchase-invoice.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createassetPurchaseInvoiceSchema), assetPurchaseInvoiceController.create)
+  .get(authenticateToken, assetPurchaseInvoiceController.getAll)
+;
 
-// router.get("/", controller.list);
-// router.post("/", controller.create);
-// router.get("/:id", controller.get);
-// router.put("/:id", controller.update);
-// router.delete("/:id", controller.remove);
+router.route("/:id")
+  .get(authenticateToken, assetPurchaseInvoiceController.getOne)
+  .put(authenticateToken, validate(updateassetPurchaseInvoiceSchema), assetPurchaseInvoiceController.update)
+  .delete(authenticateToken, assetPurchaseInvoiceController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, assetPurchaseInvoiceController.restore)
+;
+
+
 
 export default router;

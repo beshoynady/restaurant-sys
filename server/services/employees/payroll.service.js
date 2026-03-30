@@ -1,8 +1,8 @@
 import PayrollModel from "../../models/employees/payroll.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for payroll model
-const payrollService = new AdvancedCrudService(PayrollModel, {
+const payrollService = new AdvancedService(PayrollModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","employee","createdBy","updatedBy","calculatedBy","approvedBy","paidBy"],

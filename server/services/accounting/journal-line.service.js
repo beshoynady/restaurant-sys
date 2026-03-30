@@ -1,8 +1,8 @@
 import JournalLineModel from "../../models/accounting/journal-line.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for journal-line model
-const journalLineService = new AdvancedCrudService(JournalLineModel, {
+const journalLineService = new AdvancedService(JournalLineModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","account","costCenter"],

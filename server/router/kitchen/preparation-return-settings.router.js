@@ -1,18 +1,27 @@
-/**
- * preparation-return-settings Router
- * Auto generated
- */
-
 import express from "express";
+import preparationReturnSettingsController from "../../controllers/kitchen/preparation-return-settings.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createpreparationReturnSettingsSchema, updatepreparationReturnSettingsSchema } from "../../validation/kitchen/preparation-return-settings.validation.js";
+
+
 const router = express.Router();
 
-// TODO: import controller
-// import controller from "../../controllers/preparation-return-settings.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createpreparationReturnSettingsSchema), preparationReturnSettingsController.create)
+  .get(authenticateToken, preparationReturnSettingsController.getAll)
+;
 
-// router.get("/", controller.list);
-// router.post("/", controller.create);
-// router.get("/:id", controller.get);
-// router.put("/:id", controller.update);
-// router.delete("/:id", controller.remove);
+router.route("/:id")
+  .get(authenticateToken, preparationReturnSettingsController.getOne)
+  .put(authenticateToken, validate(updatepreparationReturnSettingsSchema), preparationReturnSettingsController.update)
+  .delete(authenticateToken, preparationReturnSettingsController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, preparationReturnSettingsController.restore)
+;
+
+
 
 export default router;

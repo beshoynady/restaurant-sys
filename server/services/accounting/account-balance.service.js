@@ -1,8 +1,8 @@
 import AccountBalanceModel from "../../models/accounting/account-balance.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for account-balance model
-const accountBalanceService = new AdvancedCrudService(AccountBalanceModel, {
+const accountBalanceService = new AdvancedService(AccountBalanceModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","period","account"],

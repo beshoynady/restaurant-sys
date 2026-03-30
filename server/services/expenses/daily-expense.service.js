@@ -1,8 +1,8 @@
 import DailyExpenseModel from "../../models/expenses/daily-expense.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for daily-expense model
-const dailyExpenseService = new AdvancedCrudService(DailyExpenseModel, {
+const dailyExpenseService = new AdvancedService(DailyExpenseModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","expense","costCenter","createdBy","updatedBy"],

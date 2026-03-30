@@ -1,8 +1,8 @@
 import CashTransactionModel from "../../models/cash/cash-transaction.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for cash-transaction model
-const cashTransactionService = new AdvancedCrudService(CashTransactionModel, {
+const cashTransactionService = new AdvancedService(CashTransactionModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","cashRegister","bankAccount","paymentMethod","paymentChannel","relatedTransaction","orderId","invoiceId","supplierTransactionId","dailyExpenseId","createdBy"],

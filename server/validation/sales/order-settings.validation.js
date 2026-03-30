@@ -1,6 +1,6 @@
 import Joi from "joi";
 import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
-import OrderSettingsModel from "../../models/sales\order-settings.model.js";
+import OrderSettingsModel from "../../models/sales/order-settings.model.js";
 
 /* =========================
    Create Schema

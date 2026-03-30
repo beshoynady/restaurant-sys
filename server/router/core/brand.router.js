@@ -1,36 +1,27 @@
 import express from "express";
+import brandController from "../../controllers/core/brand.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createbrandSchema, updatebrandSchema } from "../../validation/core/brand.validation.js";
+
 
 const router = express.Router();
 
-import BrandController from "../../controllers/core/brand.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createbrandSchema), brandController.create)
+  .get(authenticateToken, brandController.getAll)
+;
 
-import { authenticateToken } from "../../middlewares/authenticate.js";
+router.route("/:id")
+  .get(authenticateToken, brandController.getOne)
+  .put(authenticateToken, validate(updatebrandSchema), brandController.update)
+  .delete(authenticateToken, brandController.delete)
+;
 
-import { uploadFile } from "../../middlewares/fileHandler.js";
-
-// ======================================
-// Routes
-// ======================================
-
-router
-  .route("/")
-  .post(authenticateToken, BrandController.create)
-  .get(authenticateToken, BrandController.getAll);
+router.route("/restore/:id")
+  .patch(authenticateToken, brandController.restore)
+;
 
 
-router
-  .route("/:id")
-  .put(authenticateToken, BrandController.update)
-  .delete(authenticateToken, BrandController.delete);
-
-/**
- * Update brand logo
- */
-router.put(
-  "/logo",
-  authenticateToken,
-  uploadFile({ folder: "brands", maxSize: 1024 * 1024 }),
-  BrandController.updateLogo,
-);
 
 export default router;

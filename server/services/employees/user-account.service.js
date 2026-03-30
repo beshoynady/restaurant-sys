@@ -1,8 +1,8 @@
 import UserAccountModel from "../../models/employees/user-account.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for user-account model
-const userAccountService = new AdvancedCrudService(UserAccountModel, {
+const userAccountService = new AdvancedService(UserAccountModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","employee","role","createdBy","updatedBy","deletedBy"],

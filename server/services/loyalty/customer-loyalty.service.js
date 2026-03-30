@@ -1,8 +1,8 @@
 import CustomerLoyaltyModel from "../../models/loyalty/customer-loyalty.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for customer-loyalty model
-const customerLoyaltyService = new AdvancedCrudService(CustomerLoyaltyModel, {
+const customerLoyaltyService = new AdvancedService(CustomerLoyaltyModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","createdBy","updatedBy"],

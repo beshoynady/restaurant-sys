@@ -1,8 +1,8 @@
 import DepartmentModel from "../../models/employees/department.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for department model
-const departmentService = new AdvancedCrudService(DepartmentModel, {
+const departmentService = new AdvancedService(DepartmentModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","parentDepartment","createdBy","updatedBy","deletedBy"],

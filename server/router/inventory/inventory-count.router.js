@@ -1,18 +1,27 @@
-/**
- * inventory-count Router
- * Auto generated
- */
-
 import express from "express";
+import inventoryCountController from "../../controllers/inventory/inventory-count.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createinventoryCountSchema, updateinventoryCountSchema } from "../../validation/inventory/inventory-count.validation.js";
+
+
 const router = express.Router();
 
-// TODO: import controller
-// import controller from "../../controllers/inventory/inventory/inventory-count.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createinventoryCountSchema), inventoryCountController.create)
+  .get(authenticateToken, inventoryCountController.getAll)
+;
 
-// router.get("/", controller.list);
-// router.post("/", controller.create);
-// router.get("/:id", controller.get);
-// router.put("/:id", controller.update);
-// router.delete("/:id", controller.remove);
+router.route("/:id")
+  .get(authenticateToken, inventoryCountController.getOne)
+  .put(authenticateToken, validate(updateinventoryCountSchema), inventoryCountController.update)
+  .delete(authenticateToken, inventoryCountController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, inventoryCountController.restore)
+;
+
+
 
 export default router;

@@ -1,25 +1,27 @@
 import express from "express";
+import purchaseReturnController from "../../controllers/purchasing/purchase-return.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createpurchaseReturnSchema, updatepurchaseReturnSchema } from "../../validation/purchasing/purchase-return.validation.js";
+
+
 const router = express.Router();
-import {
-    createPurchaseReturnInvoice,
-    getAllPurchaseReturnInvoices,
-    getPurchaseReturnInvoiceById,
-    updatePurchaseReturnInvoiceById,
-    deletePurchaseReturnInvoiceById
-} from "../../controllers/purchasing/purchase-return.controller.js";
 
-import {authenticateToken} from "../../middlewares/authenticate.js";
+router.route("/")
+  .post(authenticateToken, validate(createpurchaseReturnSchema), purchaseReturnController.create)
+  .get(authenticateToken, purchaseReturnController.getAll)
+;
 
-router.use(authenticateToken);
+router.route("/:id")
+  .get(authenticateToken, purchaseReturnController.getOne)
+  .put(authenticateToken, validate(updatepurchaseReturnSchema), purchaseReturnController.update)
+  .delete(authenticateToken, purchaseReturnController.delete)
+;
 
-// Routes for purchase return management
-router.route('/')
-    .post(createPurchaseReturnInvoice)
-    .get(getAllPurchaseReturnInvoices);
+router.route("/restore/:id")
+  .patch(authenticateToken, purchaseReturnController.restore)
+;
 
-router.route('/:id')
-    .get(getPurchaseReturnInvoiceById)
-    .put(updatePurchaseReturnInvoiceById)
-    .delete(deletePurchaseReturnInvoiceById);
+
 
 export default router;

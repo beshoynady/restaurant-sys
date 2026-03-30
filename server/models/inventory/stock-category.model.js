@@ -13,19 +13,16 @@ const categoryStockSchema = new mongoose.Schema(
       default: null,
     },
     categoryName: {
-  type: Map,
-  of: {
-    type: String,
-    trim: true,
-    minlength: 2,
-    maxlength: 100,
-  },
-  required: true,
-},
-
-      required: [true, "Category name is required"],
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      required: true,
     },
-    // { en: "Dairy Products", ar: "منتجات الألبان" },
+
     categoryCode: {
       type: String,
       unique: false,
@@ -34,21 +31,22 @@ const categoryStockSchema = new mongoose.Schema(
       match: /^[A-Z0-9]{1,10}$/,
       index: true,
     },
+
     type: {
       type: String,
       enum: ["ingredient", "supply", "packaging", "service"],
       default: "ingredient",
     },
+
     description: {
-  type: Map,
-  of: {
-    type: String,
-    trim: true,
-    minlength: 2,
-    maxlength: 100,
-  },
-  required: true,
-},
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      required: true,
     },
     // { en: "DAIRY", ar: "الألبان" },
     isActive: {

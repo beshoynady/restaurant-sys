@@ -1,18 +1,27 @@
-/**
- * print-settings Router
- * Auto generated
- */
-
 import express from "express";
+import printSettingsController from "../../controllers/system/print-settings.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createprintSettingsSchema, updateprintSettingsSchema } from "../../validation/system/print-settings.validation.js";
+
+
 const router = express.Router();
 
-// TODO: import controller
-// import controller from "../../controllers/print-settings.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createprintSettingsSchema), printSettingsController.create)
+  .get(authenticateToken, printSettingsController.getAll)
+;
 
-// router.get("/", controller.list);
-// router.post("/", controller.create);
-// router.get("/:id", controller.get);
-// router.put("/:id", controller.update);
-// router.delete("/:id", controller.remove);
+router.route("/:id")
+  .get(authenticateToken, printSettingsController.getOne)
+  .put(authenticateToken, validate(updateprintSettingsSchema), printSettingsController.update)
+  .delete(authenticateToken, printSettingsController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, printSettingsController.restore)
+;
+
+
 
 export default router;

@@ -1,18 +1,27 @@
-/**
- * purchase-invoice Router
- * Auto generated
- */
-
 import express from "express";
+import purchaseInvoiceController from "../../controllers/purchasing/purchase-invoice.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createpurchaseInvoiceSchema, updatepurchaseInvoiceSchema } from "../../validation/purchasing/purchase-invoice.validation.js";
+
+
 const router = express.Router();
 
-// TODO: import controller
-// import controller from "../../controllers/purchasing/purchase-invoice.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createpurchaseInvoiceSchema), purchaseInvoiceController.create)
+  .get(authenticateToken, purchaseInvoiceController.getAll)
+;
 
-// router.get("/", controller.list);
-// router.post("/", controller.create);
-// router.get("/:id", controller.get);
-// router.put("/:id", controller.update);
-// router.delete("/:id", controller.remove);
+router.route("/:id")
+  .get(authenticateToken, purchaseInvoiceController.getOne)
+  .put(authenticateToken, validate(updatepurchaseInvoiceSchema), purchaseInvoiceController.update)
+  .delete(authenticateToken, purchaseInvoiceController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, purchaseInvoiceController.restore)
+;
+
+
 
 export default router;

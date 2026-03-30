@@ -1,18 +1,27 @@
-/**
- * shift-settings Router
- * Auto generated
- */
-
 import express from "express";
+import shiftSettingsController from "../../controllers/system/shift-settings.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createshiftSettingsSchema, updateshiftSettingsSchema } from "../../validation/system/shift-settings.validation.js";
+
+
 const router = express.Router();
 
-// TODO: import controller
-// import controller from "../../controllers/employees/shift-settings.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createshiftSettingsSchema), shiftSettingsController.create)
+  .get(authenticateToken, shiftSettingsController.getAll)
+;
 
-// router.get("/", controller.list);
-// router.post("/", controller.create);
-// router.get("/:id", controller.get);
-// router.put("/:id", controller.update);
-// router.delete("/:id", controller.remove);
+router.route("/:id")
+  .get(authenticateToken, shiftSettingsController.getOne)
+  .put(authenticateToken, validate(updateshiftSettingsSchema), shiftSettingsController.update)
+  .delete(authenticateToken, shiftSettingsController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, shiftSettingsController.restore)
+;
+
+
 
 export default router;

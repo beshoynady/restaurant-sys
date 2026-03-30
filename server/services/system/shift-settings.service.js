@@ -1,8 +1,8 @@
 import ShiftSettingsModel from "../../models/system/shift-settings.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for shift-settings model
-const shiftSettingsService = new AdvancedCrudService(ShiftSettingsModel, {
+const shiftSettingsService = new AdvancedService(ShiftSettingsModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch"],

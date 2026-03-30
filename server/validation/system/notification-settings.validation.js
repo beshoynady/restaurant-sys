@@ -1,6 +1,6 @@
 import Joi from "joi";
 import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
-import NotificationSettingsModel from "../../models/system\notification-settings.model.js";
+import NotificationSettingsModel from "../../models/system/notification-settings.model.js";
 
 /* =========================
    Create Schema

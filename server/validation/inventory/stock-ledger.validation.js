@@ -1,6 +1,6 @@
 import Joi from "joi";
 import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
-import StockLedgerModel from "../../models/inventory\stock-ledger.model.js";
+import StockLedgerModel from "../../models/inventory/stock-ledger.model.js";
 
 /* =========================
    Create Schema

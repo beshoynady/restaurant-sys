@@ -1,8 +1,8 @@
 import TableModel from "../../models/seating/table.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for table model
-const tableService = new AdvancedCrudService(TableModel, {
+const tableService = new AdvancedService(TableModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","diningArea","createdBy","updatedBy"],

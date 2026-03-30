@@ -1,6 +1,6 @@
 import Joi from "joi";
 import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
-import MenuSettingsModel from "../../models/menu\menu-settings.model.js";
+import MenuSettingsModel from "../../models/menu/menu-settings.model.js";
 
 /* =========================
    Create Schema

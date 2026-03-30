@@ -1,18 +1,27 @@
-/**
- * asset Router
- * Auto generated
- */
-
 import express from "express";
+import assetController from "../../controllers/assets/asset.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createassetSchema, updateassetSchema } from "../../validation/assets/asset.validation.js";
+
+
 const router = express.Router();
 
-// TODO: import controller
-// import controller from "../../controllers/asset.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createassetSchema), assetController.create)
+  .get(authenticateToken, assetController.getAll)
+;
 
-// router.get("/", controller.list);
-// router.post("/", controller.create);
-// router.get("/:id", controller.get);
-// router.put("/:id", controller.update);
-// router.delete("/:id", controller.remove);
+router.route("/:id")
+  .get(authenticateToken, assetController.getOne)
+  .put(authenticateToken, validate(updateassetSchema), assetController.update)
+  .delete(authenticateToken, assetController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, assetController.restore)
+;
+
+
 
 export default router;

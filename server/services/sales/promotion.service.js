@@ -1,8 +1,8 @@
 import PromotionModel from "../../models/sales/promotion.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for promotion model
-const promotionService = new AdvancedCrudService(PromotionModel, {
+const promotionService = new AdvancedService(PromotionModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","createdBy","updatedBy","deletedBy"],

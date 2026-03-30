@@ -1,8 +1,8 @@
 import SupplierTransactionModel from "../../models/purchasing/supplier-transaction.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for supplier-transaction model
-const supplierTransactionService = new AdvancedCrudService(SupplierTransactionModel, {
+const supplierTransactionService = new AdvancedService(SupplierTransactionModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","supplier","paymentMethod","recordedBy"],

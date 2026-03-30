@@ -1,23 +1,27 @@
 import express from "express";
+import shiftController from "../../controllers/employees/shift.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createshiftSchema, updateshiftSchema } from "../../validation/employees/shift.validation.js";
+
+
 const router = express.Router();
-import {
-  createShift,
-  getAllShifts,
-  getShiftById,
-  updateShift,
-  deleteShift
-} from "../../controllers/employees/shift.controller.js";
-import {authenticateToken} from "../../middlewares/authenticate.js";
+
+router.route("/")
+  .post(authenticateToken, validate(createshiftSchema), shiftController.create)
+  .get(authenticateToken, shiftController.getAll)
+;
+
+router.route("/:id")
+  .get(authenticateToken, shiftController.getOne)
+  .put(authenticateToken, validate(updateshiftSchema), shiftController.update)
+  .delete(authenticateToken, shiftController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, shiftController.restore)
+;
 
 
-router.route('/')
-  .post(authenticateToken,createShift)
-  .get(authenticateToken,getAllShifts);
-
-router.route('/:id')
-
-  .get(authenticateToken,getShiftById)
-  .put(authenticateToken,updateShift)
-  .delete(authenticateToken,deleteShift);
 
 export default router;

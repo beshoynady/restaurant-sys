@@ -1,8 +1,8 @@
 import CashTransferModel from "../../models/cash/cash-transfer.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for cash-transfer model
-const cashTransferService = new AdvancedCrudService(CashTransferModel, {
+const cashTransferService = new AdvancedService(CashTransferModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","fromCashRegister","fromBankAccount","toCashRegister","toBankAccount","createdBy"],

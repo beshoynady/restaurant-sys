@@ -1,43 +1,27 @@
 import express from "express";
+import inventorySettingsController from "../../controllers/inventory/inventory-settings.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createinventorySettingsSchema, updateinventorySettingsSchema } from "../../validation/inventory/inventory-settings.validation.js";
+
+
 const router = express.Router();
 
-import { authenticateToken } from "../../middlewares/authenticate.js";
+router.route("/")
+  .post(authenticateToken, validate(createinventorySettingsSchema), inventorySettingsController.create)
+  .get(authenticateToken, inventorySettingsController.getAll)
+;
 
-import {
-  createInventorySettings,
-  getInventorySettings,
-  updateInventorySettings,
-  deleteInventorySettings,
-} from "../../controllers/inventory/inventory-settings.controller.js";
+router.route("/:id")
+  .get(authenticateToken, inventorySettingsController.getOne)
+  .put(authenticateToken, validate(updateinventorySettingsSchema), inventorySettingsController.update)
+  .delete(authenticateToken, inventorySettingsController.delete)
+;
 
-/**
- * ============================
- * Inventory Settings Routes
- * ============================
- */
+router.route("/restore/:id")
+  .patch(authenticateToken, inventorySettingsController.restore)
+;
 
-router.post(
-  "/",
-  authenticateToken,
-  createInventorySettings
-);
 
-router.get(
-  "/:branchId",
-  authenticateToken,
-  getInventorySettings
-);
-
-router.put(
-  "/:branchId",
-  authenticateToken,
-  updateInventorySettings
-);
-
-router.delete(
-  "/:branchId",
-  authenticateToken,
-  deleteInventorySettings
-);
 
 export default router;

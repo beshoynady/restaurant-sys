@@ -1,27 +1,20 @@
 import express from "express";
-const router = express.Router();
-import {
-  createStore,
-  getAllStores,
-  getStoreById,
-  updateStore,
-  deleteStore,
-} from "../../controllers/inventory/inventory.controller.js";
-
+import storeController from "../../controllers/inventory/store.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
-// Create a new store
-router
-  .route("/")
-  .post(authenticateToken,createStore)
-  .get(authenticateToken,getAllStores);
+const router = express.Router();
 
-// Get a store by ID
-router
-  .route("/:id")
-  .get(authenticateToken,getStoreById)
-  .put(authenticateToken,updateStore)
-  .delete(authenticateToken,deleteStore);
+router.route("/")
+  .post(authenticateToken, storeController.create)
+  .get(authenticateToken, storeController.getAll)
+;
+
+router.route("/:id")
+  .put(authenticateToken, storeController.update)
+  .delete(authenticateToken, storeController.delete)
+;
+
+
 
 export default router;

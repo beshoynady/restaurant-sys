@@ -1,6 +1,6 @@
 import Joi from "joi";
 import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
-import PaymentMethodModel from "../../models/payments\payment-method.model.js";
+import PaymentMethodModel from "../../models/payments/payment-method.model.js";
 
 /* =========================
    Create Schema

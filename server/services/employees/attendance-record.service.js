@@ -1,8 +1,8 @@
 import AttendanceRecordModel from "../../models/employees/attendance-record.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for attendance-record model
-const attendanceRecordService = new AdvancedCrudService(AttendanceRecordModel, {
+const attendanceRecordService = new AdvancedService(AttendanceRecordModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","employee","shift","leaveRequest","createdBy","updatedBy"],

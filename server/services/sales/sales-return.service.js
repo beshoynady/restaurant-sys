@@ -1,8 +1,8 @@
 import SalesReturnModel from "../../models/sales/sales-return.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for sales-return model
-const salesReturnService = new AdvancedCrudService(SalesReturnModel, {
+const salesReturnService = new AdvancedService(SalesReturnModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","originalInvoice","order","cashierShift","paidBy"],

@@ -1,18 +1,25 @@
-/**
- * inventory Router
- * Auto generated
- */
-
 import express from "express";
+import inventoryController from "../../controllers/inventory/inventory.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+
+
 const router = express.Router();
 
-// TODO: import controller
-// import controller from "../../controllers/inventory.controller.js";
+router.route("/")
+  .post(authenticateToken, inventoryController.create)
+  .get(authenticateToken, inventoryController.getAll)
+;
 
-// router.get("/", controller.list);
-// router.post("/", controller.create);
-// router.get("/:id", controller.get);
-// router.put("/:id", controller.update);
-// router.delete("/:id", controller.remove);
+router.route("/:id")
+  .get(authenticateToken, inventoryController.getOne)
+  .put(authenticateToken, inventoryController.update)
+  .delete(authenticateToken, inventoryController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, inventoryController.restore)
+;
+
+
 
 export default router;

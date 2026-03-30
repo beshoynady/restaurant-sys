@@ -1,8 +1,8 @@
 import ShiftModel from "../../models/employees/shift.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for shift model
-const shiftService = new AdvancedCrudService(ShiftModel, {
+const shiftService = new AdvancedService(ShiftModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","createdBy","updatedBy","deletedBy"],

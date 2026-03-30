@@ -1,8 +1,8 @@
 import DiningAreaModel from "../../models/seating/dining-area.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for dining-area model
-const diningAreaService = new AdvancedCrudService(DiningAreaModel, {
+const diningAreaService = new AdvancedService(DiningAreaModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","createdBy","updatedBy"],

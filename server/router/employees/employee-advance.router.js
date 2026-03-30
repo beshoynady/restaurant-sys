@@ -1,18 +1,25 @@
-/**
- * employee-advance Router
- * Auto generated
- */
-
 import express from "express";
+import employeeAdvanceController from "../../controllers/employees/employee-advance.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+
+
 const router = express.Router();
 
-// TODO: import controller
-// import controller from "../../controllers/employee-advance.controller.js";
+router.route("/")
+  .post(authenticateToken, employeeAdvanceController.create)
+  .get(authenticateToken, employeeAdvanceController.getAll)
+;
 
-// router.get("/", controller.list);
-// router.post("/", controller.create);
-// router.get("/:id", controller.get);
-// router.put("/:id", controller.update);
-// router.delete("/:id", controller.remove);
+router.route("/:id")
+  .get(authenticateToken, employeeAdvanceController.getOne)
+  .put(authenticateToken, employeeAdvanceController.update)
+  .delete(authenticateToken, employeeAdvanceController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, employeeAdvanceController.restore)
+;
+
+
 
 export default router;

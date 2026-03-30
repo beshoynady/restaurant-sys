@@ -1,8 +1,8 @@
 import InventoryCountModel from "../../models/inventory/inventory-count.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for inventory-count model
-const inventoryCountService = new AdvancedCrudService(InventoryCountModel, {
+const inventoryCountService = new AdvancedService(InventoryCountModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","warehouse","createdBy","approvedBy","executedBy","adjustmentDocument","deletedBy"],

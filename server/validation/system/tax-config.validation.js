@@ -1,6 +1,6 @@
 import Joi from "joi";
 import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
-import TaxConfigModel from "../../models/system\tax-config.model.js";
+import TaxConfigModel from "../../models/system/tax-config.model.js";
 
 /* =========================
    Create Schema

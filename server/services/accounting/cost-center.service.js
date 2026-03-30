@@ -1,8 +1,8 @@
 import CostCenterModel from "../../models/accounting/cost-center.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for cost-center model
-const costCenterService = new AdvancedCrudService(CostCenterModel, {
+const costCenterService = new AdvancedService(CostCenterModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","parent","createdBy","updatedBy"],

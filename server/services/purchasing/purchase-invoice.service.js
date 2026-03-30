@@ -1,8 +1,8 @@
 import PurchaseInvoiceModel from "../../models/purchasing/purchase-invoice.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for purchase-invoice model
-const purchaseInvoiceService = new AdvancedCrudService(PurchaseInvoiceModel, {
+const purchaseInvoiceService = new AdvancedService(PurchaseInvoiceModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","returnInvoice","supplier","warehouseForAllItems","taxes","costCenter","createdBy","updatedBy"],

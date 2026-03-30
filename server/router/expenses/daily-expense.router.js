@@ -1,23 +1,27 @@
 import express from "express";
-const router = express.Router();
-import {
-  createDailyExpense,
-  getAllDailyExpenses,
-  getDailyExpenseById,
-  updateDailyExpense,
-  deleteDailyExpense,
-} from "../../controllers/expenses/daily-expense.controller.js";
+import dailyExpenseController from "../../controllers/expenses/daily-expense.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createdailyExpenseSchema, updatedailyExpenseSchema } from "../../validation/expenses/daily-expense.validation.js";
 
-router.use(authenticateToken);
-// Get all daily expenses
-router.route("/").post(createDailyExpense).get(getAllDailyExpenses);
 
-// Get one daily expense by ID
-router
-  .route("/:dailyexpenseId")
-  .get(getDailyExpenseById)
-  .put(updateDailyExpense)
-  .delete(deleteDailyExpense);
+const router = express.Router();
+
+router.route("/")
+  .post(authenticateToken, validate(createdailyExpenseSchema), dailyExpenseController.create)
+  .get(authenticateToken, dailyExpenseController.getAll)
+;
+
+router.route("/:id")
+  .get(authenticateToken, dailyExpenseController.getOne)
+  .put(authenticateToken, validate(updatedailyExpenseSchema), dailyExpenseController.update)
+  .delete(authenticateToken, dailyExpenseController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, dailyExpenseController.restore)
+;
+
+
 
 export default router;

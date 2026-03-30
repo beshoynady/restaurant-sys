@@ -1,18 +1,27 @@
-/**
- * employee-financial-transaction Router
- * Auto generated
- */
-
 import express from "express";
+import employeeFinancialTransactionController from "../../controllers/employees/employee-financial-transaction.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createemployeeFinancialTransactionSchema, updateemployeeFinancialTransactionSchema } from "../../validation/employees/employee-financial-transaction.validation.js";
+
+
 const router = express.Router();
 
-// TODO: import controller
-// import controller from "../../controllers/employee-financial-transaction.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createemployeeFinancialTransactionSchema), employeeFinancialTransactionController.create)
+  .get(authenticateToken, employeeFinancialTransactionController.getAll)
+;
 
-// router.get("/", controller.list);
-// router.post("/", controller.create);
-// router.get("/:id", controller.get);
-// router.put("/:id", controller.update);
-// router.delete("/:id", controller.remove);
+router.route("/:id")
+  .get(authenticateToken, employeeFinancialTransactionController.getOne)
+  .put(authenticateToken, validate(updateemployeeFinancialTransactionSchema), employeeFinancialTransactionController.update)
+  .delete(authenticateToken, employeeFinancialTransactionController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, employeeFinancialTransactionController.restore)
+;
+
+
 
 export default router;

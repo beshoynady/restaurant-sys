@@ -1,6 +1,6 @@
 import Joi from "joi";
 import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
-import OfflineCustomerModel from "../../models/customers\offline-customer.model.js";
+import OfflineCustomerModel from "../../models/customers/offline-customer.model.js";
 
 /* =========================
    Create Schema

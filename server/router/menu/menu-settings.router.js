@@ -1,28 +1,27 @@
 import express from "express";
-const router = express.Router();
-import {
-  createMenuSetting,
-  getMenuSetting,
-  updateMenuSetting,
-  deleteMenuSetting,
-} from "../../controllers/menu/menu-settings.controller.js";
-
+import menuSettingsController from "../../controllers/menu/menu-settings.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createmenuSettingsSchema, updatemenuSettingsSchema } from "../../validation/menu/menu-settings.validation.js";
 
-// ============================
-// Menu Settings Routes
-// ============================
 
-// Create menu settings
-router.post("/", authenticateToken, createMenuSetting);
+const router = express.Router();
 
-// Get menu settings (optional branch)
-router.get("/:brandId/:branchId?", authenticateToken, getMenuSetting);
+router.route("/")
+  .post(authenticateToken, validate(createmenuSettingsSchema), menuSettingsController.create)
+  .get(authenticateToken, menuSettingsController.getAll)
+;
 
-// Update menu settings by ID
-router.put("/:id", authenticateToken, updateMenuSetting);
+router.route("/:id")
+  .get(authenticateToken, menuSettingsController.getOne)
+  .put(authenticateToken, validate(updatemenuSettingsSchema), menuSettingsController.update)
+  .delete(authenticateToken, menuSettingsController.delete)
+;
 
-// Delete menu settings by ID
-router.delete("/:id", authenticateToken, deleteMenuSetting);
+router.route("/restore/:id")
+  .patch(authenticateToken, menuSettingsController.restore)
+;
+
+
 
 export default router;

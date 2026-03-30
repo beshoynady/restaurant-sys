@@ -1,41 +1,25 @@
-import router from "express";.Router();
-
-import {
-  createProductionOrder,
-  getProductionOrders,
-  getProductionOrdersByStore,
-  getProductionOrdersByPreparationSection,
-  getProductionOrder,
-  updateProductionOrder,
-  updateProductionStatus,
-  deleteProductionOrder,
-} from "../../controllers/production-order.controller.js";
-
+import express from "express";
+import productionOrderController from "../../controllers/production/production-order.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 
 
-// Create a new Production Order
-router
-  .route("/")
-  .post(authenticateToken,createProductionOrder)
-  .get(authenticateToken,getProductionOrders);
+const router = express.Router();
 
-router
-  .route("/:id")
-  .get(authenticateToken,getProductionOrder)
-  .put(authenticateToken,updateProductionOrder)
-  .delete(authenticateToken,deleteProductionOrder);
+router.route("/")
+  .post(authenticateToken, productionOrderController.create)
+  .get(authenticateToken, productionOrderController.getAll)
+;
 
-router
-  .route("/store/:storeId")
-  .get(authenticateToken,getProductionOrdersByStore);
+router.route("/:id")
+  .get(authenticateToken, productionOrderController.getOne)
+  .put(authenticateToken, productionOrderController.update)
+  .delete(authenticateToken, productionOrderController.delete)
+;
 
-router
-  .route("/section/:sectionId")
-  .get(authenticateToken,getProductionOrdersByPreparationSection);
+router.route("/restore/:id")
+  .patch(authenticateToken, productionOrderController.restore)
+;
 
-router
-  .route("/status/:id")
-  .put(authenticateToken,updateProductionStatus);
+
 
 export default router;

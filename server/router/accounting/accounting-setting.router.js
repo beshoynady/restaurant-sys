@@ -1,18 +1,27 @@
-/**
- * accounting-settings Router
- * Auto generated
- */
-
 import express from "express";
+import accountingSettingController from "../../controllers/accounting/accounting-setting.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createaccountingSettingSchema, updateaccountingSettingSchema } from "../../validation/accounting/accounting-setting.validation.js";
+
+
 const router = express.Router();
 
-// TODO: import controller
-// import controller from "../../controllers/accounting-settings.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createaccountingSettingSchema), accountingSettingController.create)
+  .get(authenticateToken, accountingSettingController.getAll)
+;
 
-// router.get("/", controller.list);
-// router.post("/", controller.create);
-// router.get("/:id", controller.get);
-// router.put("/:id", controller.update);
-// router.delete("/:id", controller.remove);
+router.route("/:id")
+  .get(authenticateToken, accountingSettingController.getOne)
+  .put(authenticateToken, validate(updateaccountingSettingSchema), accountingSettingController.update)
+  .delete(authenticateToken, accountingSettingController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, accountingSettingController.restore)
+;
+
+
 
 export default router;

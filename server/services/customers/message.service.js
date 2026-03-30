@@ -1,8 +1,8 @@
 import MessageModel from "../../models/customers/message.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for message model
-const messageService = new AdvancedCrudService(MessageModel, {
+const messageService = new AdvancedService(MessageModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","order","assignedTo","resolvedBy","deletedBy"],

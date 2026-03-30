@@ -1,8 +1,8 @@
 import ExpenseModel from "../../models/expenses/expense.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for expense model
-const expenseService = new AdvancedCrudService(ExpenseModel, {
+const expenseService = new AdvancedService(ExpenseModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","accountId","costCenter","createdBy","updatedBy"],

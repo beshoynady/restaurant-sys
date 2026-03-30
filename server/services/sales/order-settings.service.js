@@ -1,8 +1,8 @@
 import OrderSettingsModel from "../../models/sales/order-settings.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for order-settings model
-const orderSettingsService = new AdvancedCrudService(OrderSettingsModel, {
+const orderSettingsService = new AdvancedService(OrderSettingsModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","createdBy","updatedBy"],

@@ -1,18 +1,27 @@
-/**
- * order-settings Router
- * Auto generated
- */
-
 import express from "express";
+import orderSettingsController from "../../controllers/sales/order-settings.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createorderSettingsSchema, updateorderSettingsSchema } from "../../validation/sales/order-settings.validation.js";
+
+
 const router = express.Router();
 
-// TODO: import controller
-// import controller from "../../controllers/order-settings.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createorderSettingsSchema), orderSettingsController.create)
+  .get(authenticateToken, orderSettingsController.getAll)
+;
 
-// router.get("/", controller.list);
-// router.post("/", controller.create);
-// router.get("/:id", controller.get);
-// router.put("/:id", controller.update);
-// router.delete("/:id", controller.remove);
+router.route("/:id")
+  .get(authenticateToken, orderSettingsController.getOne)
+  .put(authenticateToken, validate(updateorderSettingsSchema), orderSettingsController.update)
+  .delete(authenticateToken, orderSettingsController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, orderSettingsController.restore)
+;
+
+
 
 export default router;

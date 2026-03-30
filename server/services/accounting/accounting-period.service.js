@@ -1,8 +1,8 @@
 import AccountingPeriodModel from "../../models/accounting/accounting-period.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for accounting-period model
-const accountingPeriodService = new AdvancedCrudService(AccountingPeriodModel, {
+const accountingPeriodService = new AdvancedService(AccountingPeriodModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","createdBy","closedBy"],

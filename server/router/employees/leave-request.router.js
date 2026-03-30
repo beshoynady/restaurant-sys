@@ -1,18 +1,25 @@
-/**
- * leave-request Router
- * Auto generated
- */
-
 import express from "express";
+import leaveRequestController from "../../controllers/employees/leave-request.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+
+
 const router = express.Router();
 
-// TODO: import controller
-// import controller from "../../controllers/leave-request.controller.js";
+router.route("/")
+  .post(authenticateToken, leaveRequestController.create)
+  .get(authenticateToken, leaveRequestController.getAll)
+;
 
-// router.get("/", controller.list);
-// router.post("/", controller.create);
-// router.get("/:id", controller.get);
-// router.put("/:id", controller.update);
-// router.delete("/:id", controller.remove);
+router.route("/:id")
+  .get(authenticateToken, leaveRequestController.getOne)
+  .put(authenticateToken, leaveRequestController.update)
+  .delete(authenticateToken, leaveRequestController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, leaveRequestController.restore)
+;
+
+
 
 export default router;

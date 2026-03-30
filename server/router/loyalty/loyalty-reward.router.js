@@ -1,22 +1,27 @@
 import express from "express";
+import loyaltyRewardController from "../../controllers/loyalty/loyalty-reward.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createloyaltyRewardSchema, updateloyaltyRewardSchema } from "../../validation/loyalty/loyalty-reward.validation.js";
+
+
 const router = express.Router();
 
-import {
-  createReward,
-  getAllRewards,
-  getReward,
-  updateReward,
-  deleteReward,
-  getActiveRewards,
-} from "../../controllers/loyalty/loyalty-reward.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createloyaltyRewardSchema), loyaltyRewardController.create)
+  .get(authenticateToken, loyaltyRewardController.getAll)
+;
 
-import { authenticateToken } from "../../middlewares/authenticate.js";
+router.route("/:id")
+  .get(authenticateToken, loyaltyRewardController.getOne)
+  .put(authenticateToken, validate(updateloyaltyRewardSchema), loyaltyRewardController.update)
+  .delete(authenticateToken, loyaltyRewardController.delete)
+;
 
-router.post("/", authenticateToken, createReward);
-router.get("/", authenticateToken, getAllRewards);
-router.get("/active", authenticateToken, getActiveRewards);
-router.get("/:id", authenticateToken, getReward);
-router.put("/:id", authenticateToken, updateReward);
-router.delete("/:id", authenticateToken, deleteReward);
+router.route("/restore/:id")
+  .patch(authenticateToken, loyaltyRewardController.restore)
+;
+
+
 
 export default router;

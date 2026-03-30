@@ -1,38 +1,27 @@
 import express from "express";
+import loyaltyTransactionController from "../../controllers/loyalty/loyalty-transaction.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createloyaltyTransactionSchema, updateloyaltyTransactionSchema } from "../../validation/loyalty/loyalty-transaction.validation.js";
+
+
 const router = express.Router();
 
-import {
-  earnPointsFromOrder,
-  redeemPointsFromOrder,
-  adjustPoints,
-  getCustomerTransactions,
-} from "../../controllers/loyalty/loyalty-transaction.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createloyaltyTransactionSchema), loyaltyTransactionController.create)
+  .get(authenticateToken, loyaltyTransactionController.getAll)
+;
 
-import {authenticateToken} from "../../middlewares/authenticate.js";
+router.route("/:id")
+  .get(authenticateToken, loyaltyTransactionController.getOne)
+  .put(authenticateToken, validate(updateloyaltyTransactionSchema), loyaltyTransactionController.update)
+  .delete(authenticateToken, loyaltyTransactionController.delete)
+;
 
-// All routes require authentication
-router.use(authenticateToken);
+router.route("/restore/:id")
+  .patch(authenticateToken, loyaltyTransactionController.restore)
+;
 
-/**
- * Earn loyalty points from an order
- * Triggered after order is completed
- */
-router.post("/earn", earnPointsFromOrder);
 
-/**
- * Redeem loyalty points during order payment
- */
-router.post("/redeem", redeemPointsFromOrder);
-
-/**
- * Manual adjustment (admin only)
- * Used for correcting points balance
- */
-router.post("/adjust", adjustPoints);
-
-/**
- * Get all transactions for a specific customer
- */
-router.get("/customer/:customerId", getCustomerTransactions);
 
 export default router;

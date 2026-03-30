@@ -1,8 +1,8 @@
 import AssetMaintenanceModel from "../../models/assets/asset-maintenance.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for asset-maintenance model
-const assetMaintenanceService = new AdvancedCrudService(AssetMaintenanceModel, {
+const assetMaintenanceService = new AdvancedService(AssetMaintenanceModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","asset","supplier","createdBy","approvedBy"],

@@ -1,8 +1,8 @@
 import BankAccountModel from "../../models/cash/bank-account.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for bank-account model
-const bankAccountService = new AdvancedCrudService(BankAccountModel, {
+const bankAccountService = new AdvancedService(BankAccountModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","employee","accountId","createdBy","updatedBy","deletedBy"],

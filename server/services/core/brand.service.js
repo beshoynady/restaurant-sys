@@ -1,8 +1,8 @@
 import BrandModel from "../../models/core/brand.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for brand model
-const brandService = new AdvancedCrudService(BrandModel, {
+const brandService = new AdvancedService(BrandModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["createdBy","updatedBy","deletedBy"],

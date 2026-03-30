@@ -1,8 +1,8 @@
 import StockLedgerModel from "../../models/inventory/stock-ledger.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for stock-ledger model
-const stockLedgerService = new AdvancedCrudService(StockLedgerModel, {
+const stockLedgerService = new AdvancedService(StockLedgerModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","warehouse","stockItem","documentId","createdBy","updatedBy"],

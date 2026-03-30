@@ -1,26 +1,27 @@
 import express from "express";
+import roleController from "../../controllers/employees/role.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createroleSchema, updateroleSchema } from "../../validation/employees/role.validation.js";
+
+
 const router = express.Router();
-import {
-    createPermission,
-    getAllRole,
-    getPermissionById,
-    getPermissionByEmployee,
-    updatePermissionById,
-    deletePermissionById
-} from "../../controllers/employees/role.controller.js";
 
-import {authenticateToken} from "../../middlewares/authenticate.js";
+router.route("/")
+  .post(authenticateToken, validate(createroleSchema), roleController.create)
+  .get(authenticateToken, roleController.getAll)
+;
+
+router.route("/:id")
+  .get(authenticateToken, roleController.getOne)
+  .put(authenticateToken, validate(updateroleSchema), roleController.update)
+  .delete(authenticateToken, roleController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, roleController.restore)
+;
 
 
-router.route('/')
-    .post(authenticateToken,createPermission)
-    .get(authenticateToken,getAllRole);
-
-router.route('/:id')
-    .get(authenticateToken,getPermissionById)
-    .put(authenticateToken,updatePermissionById)
-    .delete(authenticateToken,deletePermissionById);
-
-    router.route('/employee/:id').get(authenticateToken,getPermissionByEmployee);
 
 export default router;

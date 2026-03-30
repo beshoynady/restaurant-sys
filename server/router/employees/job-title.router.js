@@ -1,35 +1,27 @@
 import express from "express";
+import jobTitleController from "../../controllers/employees/job-title.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createjobTitleSchema, updatejobTitleSchema } from "../../validation/employees/job-title.validation.js";
+
+
 const router = express.Router();
 
-import {
-  createJobTitle,
-  updateJobTitle,
-  getJobTitles,
-  getJobTitleById,
-  softDeleteJobTitle,
-  restoreJobTitle,
-  deleteJobTitle,
-} from "../../controllers/employees/job-title.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createjobTitleSchema), jobTitleController.create)
+  .get(authenticateToken, jobTitleController.getAll)
+;
 
-import { authenticateToken } from "../../middlewares/authenticate.js";
+router.route("/:id")
+  .get(authenticateToken, jobTitleController.getOne)
+  .put(authenticateToken, validate(updatejobTitleSchema), jobTitleController.update)
+  .delete(authenticateToken, jobTitleController.delete)
+;
 
-router
-  .route("/")
-  .post(authenticateToken,createJobTitle)
-  .get(getJobTitles);
+router.route("/restore/:id")
+  .patch(authenticateToken, jobTitleController.restore)
+;
 
-router
-  .route("/:id")
-  .get(authenticateToken, getJobTitleById)
-  .put(authenticateToken,updateJobTitle)
-  .delete(authenticateToken,deleteJobTitle);
 
-router
-  .route("/:id/soft-delete")
-  .put(authenticateToken,softDeleteJobTitle);
-
-router
-  .route("/:id/restore")
-  .put(authenticateToken,restoreJobTitle);
 
 export default router;

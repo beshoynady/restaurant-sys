@@ -1,8 +1,8 @@
 import StockTransferRequestModel from "../../models/inventory/stock-transfer-request.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for stock-transfer-request model
-const stockTransferRequestService = new AdvancedCrudService(StockTransferRequestModel, {
+const stockTransferRequestService = new AdvancedService(StockTransferRequestModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","fromWarehouse","toWarehouse","requestedBy","approvedBy","rejectedBy","executedBy","outDocument","inDocument","deletedBy"],

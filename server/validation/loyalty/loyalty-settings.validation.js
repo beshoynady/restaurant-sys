@@ -1,6 +1,6 @@
 import Joi from "joi";
 import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
-import LoyaltySettingsModel from "../../models/loyalty\loyalty-settings.model.js";
+import LoyaltySettingsModel from "../../models/loyalty/loyalty-settings.model.js";
 
 /* =========================
    Create Schema

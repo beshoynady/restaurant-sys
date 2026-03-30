@@ -36,8 +36,22 @@ const branchController = {
     res.json(result);
   }),
 
+  findOneAndUpdate: asyncHandler(async (req, res) => {
+    const brandId = req.brand._id;
+    const branchId = req.body.branch ?? req.branch._id;
+    const payload = { ...req.body, brand: brandId, branch: branchId };
+    const result = await branchService.findOneAndUpdate({ brandId, filter: { _id: req.params.id }, data: payload });
+    res.json(result);
+  }
+  ),
+
   delete: asyncHandler(async (req, res) => {
     const result = await branchService.delete(req.params.id);
+    res.json(result);
+  }),
+  
+  softDelete: asyncHandler(async (req, res) => {
+    const result = await branchService.softDelete(req.params.id);
     res.json(result);
   }),
 
@@ -45,6 +59,8 @@ const branchController = {
     const result = await branchService.restore(req.params.id);
     res.json(result);
   }),
+
+
 };
 
 export default branchController;

@@ -1,59 +1,27 @@
 import express from "express";
-const router = express.Router();
-import {
-  createcashTransaction,
-  getAllcashTransactions,
-  getcashTransactionById,
-  updatecashTransaction,
-  deletecashTransaction,
-  transferCashBetweenRegisters,
-  recordPayment,
-  recordReceipt,
-} from "../../controllers/cash/cash-transaction.controller.js";
-
+import cashTransactionController from "../../controllers/cash/cash-transaction.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createcashTransactionSchema, updatecashTransactionSchema } from "../../validation/cash/cash-transaction.validation.js";
 
-router.use(authenticateToken);
 
-// Routes related to Cash Transactions
-router
-  .route("/")
-  .get(
-    getAllcashTransactions
-  )
-  .post(
-    createcashTransaction
-  );
+const router = express.Router();
 
-router
-  .route("/:id")
-  .get(
-    getcashTransactionById
-  )
-  .put(
-    updatecashTransaction
-  )
-  .delete(
-    deletecashTransaction
-  );
+router.route("/")
+  .post(authenticateToken, validate(createcashTransactionSchema), cashTransactionController.create)
+  .get(authenticateToken, cashTransactionController.getAll)
+;
 
-router
-  .route("/transfer")
-  .post(
-    transferCashBetweenRegisters
-  );
+router.route("/:id")
+  .get(authenticateToken, cashTransactionController.getOne)
+  .put(authenticateToken, validate(updatecashTransactionSchema), cashTransactionController.update)
+  .delete(authenticateToken, cashTransactionController.delete)
+;
 
-router
-  .route("/payment")
-  .post(
-    recordPayment
-  );
-  
-router
-    .route("/receipt")
-    .post(
-      recordReceipt
-    );
-    
+router.route("/restore/:id")
+  .patch(authenticateToken, cashTransactionController.restore)
+;
+
+
 
 export default router;

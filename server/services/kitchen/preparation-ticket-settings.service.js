@@ -1,8 +1,8 @@
 import PreparationTicketSettingsModel from "../../models/kitchen/preparation-ticket-settings.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for preparation-ticket-settings model
-const preparationTicketSettingsService = new AdvancedCrudService(PreparationTicketSettingsModel, {
+const preparationTicketSettingsService = new AdvancedService(PreparationTicketSettingsModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","createdBy","updatedBy"],

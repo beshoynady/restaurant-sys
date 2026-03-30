@@ -1,18 +1,27 @@
-/**
- * journal-line Router
- * Auto generated
- */
-
 import express from "express";
+import journalLineController from "../../controllers/accounting/journal-line.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createjournalLineSchema, updatejournalLineSchema } from "../../validation/accounting/journal-line.validation.js";
+
+
 const router = express.Router();
 
-// TODO: import controller
-// import controller from "../../controllers/journal-line.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createjournalLineSchema), journalLineController.create)
+  .get(authenticateToken, journalLineController.getAll)
+;
 
-// router.get("/", controller.list);
-// router.post("/", controller.create);
-// router.get("/:id", controller.get);
-// router.put("/:id", controller.update);
-// router.delete("/:id", controller.remove);
+router.route("/:id")
+  .get(authenticateToken, journalLineController.getOne)
+  .put(authenticateToken, validate(updatejournalLineSchema), journalLineController.update)
+  .delete(authenticateToken, journalLineController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, journalLineController.restore)
+;
+
+
 
 export default router;

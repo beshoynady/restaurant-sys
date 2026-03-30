@@ -1,8 +1,8 @@
 import TaxConfigModel from "../../models/system/tax-config.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for tax-config model
-const taxConfigService = new AdvancedCrudService(TaxConfigModel, {
+const taxConfigService = new AdvancedService(TaxConfigModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","vatReceivableAccount","vatPayableAccount"],

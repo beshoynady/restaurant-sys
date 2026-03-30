@@ -1,8 +1,8 @@
 import ProductionRecipeModel from "../../models/production/production-recipe.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for production-recipe model
-const productionRecipeService = new AdvancedCrudService(ProductionRecipeModel, {
+const productionRecipeService = new AdvancedService(ProductionRecipeModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","stockItem","createdBy","updatedBy"],

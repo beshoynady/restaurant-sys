@@ -1,18 +1,27 @@
-/**
- * cashier-shift Router
- * Auto generated
- */
-
 import express from "express";
+import cashierShiftController from "../../controllers/employees/cashier-shift.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createcashierShiftSchema, updatecashierShiftSchema } from "../../validation/employees/cashier-shift.validation.js";
+
+
 const router = express.Router();
 
-// TODO: import controller
-// import controller from "../../controllers/cash/cashier-shift.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createcashierShiftSchema), cashierShiftController.create)
+  .get(authenticateToken, cashierShiftController.getAll)
+;
 
-// router.get("/", controller.list);
-// router.post("/", controller.create);
-// router.get("/:id", controller.get);
-// router.put("/:id", controller.update);
-// router.delete("/:id", controller.remove);
+router.route("/:id")
+  .get(authenticateToken, cashierShiftController.getOne)
+  .put(authenticateToken, validate(updatecashierShiftSchema), cashierShiftController.update)
+  .delete(authenticateToken, cashierShiftController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, cashierShiftController.restore)
+;
+
+
 
 export default router;

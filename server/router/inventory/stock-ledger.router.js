@@ -1,18 +1,27 @@
-/**
- * stock-ledger Router
- * Auto generated
- */
-
 import express from "express";
+import stockLedgerController from "../../controllers/inventory/stock-ledger.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createstockLedgerSchema, updatestockLedgerSchema } from "../../validation/inventory/stock-ledger.validation.js";
+
+
 const router = express.Router();
 
-// TODO: import controller
-// import controller from "../../controllers/inventory/stock-ledger.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createstockLedgerSchema), stockLedgerController.create)
+  .get(authenticateToken, stockLedgerController.getAll)
+;
 
-// router.get("/", controller.list);
-// router.post("/", controller.create);
-// router.get("/:id", controller.get);
-// router.put("/:id", controller.update);
-// router.delete("/:id", controller.remove);
+router.route("/:id")
+  .get(authenticateToken, stockLedgerController.getOne)
+  .put(authenticateToken, validate(updatestockLedgerSchema), stockLedgerController.update)
+  .delete(authenticateToken, stockLedgerController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, stockLedgerController.restore)
+;
+
+
 
 export default router;

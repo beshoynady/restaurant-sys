@@ -1,8 +1,8 @@
 import MenuSettingsModel from "../../models/menu/menu-settings.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for menu-settings model
-const menuSettingsService = new AdvancedCrudService(MenuSettingsModel, {
+const menuSettingsService = new AdvancedService(MenuSettingsModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","createdBy","updatedBy"],

@@ -1,18 +1,25 @@
-/**
- * payroll-item Router
- * Auto generated
- */
-
 import express from "express";
+import payrollItemController from "../../controllers/employees/payroll-item.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+
+
 const router = express.Router();
 
-// TODO: import controller
-// import controller from "../../controllers/payroll-item.controller.js";
+router.route("/")
+  .post(authenticateToken, payrollItemController.create)
+  .get(authenticateToken, payrollItemController.getAll)
+;
 
-// router.get("/", controller.list);
-// router.post("/", controller.create);
-// router.get("/:id", controller.get);
-// router.put("/:id", controller.update);
-// router.delete("/:id", controller.remove);
+router.route("/:id")
+  .get(authenticateToken, payrollItemController.getOne)
+  .put(authenticateToken, payrollItemController.update)
+  .delete(authenticateToken, payrollItemController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, payrollItemController.restore)
+;
+
+
 
 export default router;

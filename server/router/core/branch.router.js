@@ -1,71 +1,27 @@
-/**
- * Branch Router
- * -------------
- * Handles branch endpoints
- */
-
 import express from "express";
+import branchController from "../../controllers/core/branch.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createbranchSchema, updatebranchSchema } from "../../validation/core/branch.validation.js";
+
 
 const router = express.Router();
 
-import {
-  createBranch,
-  updateBranch,
-  getBranches,
-  getActiveBranches,
-  getBranchById,
-  softDeleteBranch,
-  restoreBranch,
-  hardDeleteBranch,
-} from "../../controllers/core/branch.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createbranchSchema), branchController.create)
+  .get(authenticateToken, branchController.getAll)
+;
 
-import { authenticateToken } from "../../middlewares/authenticate.js";
+router.route("/:id")
+  .get(authenticateToken, branchController.getOne)
+  .put(authenticateToken, validate(updatebranchSchema), branchController.update)
+  .delete(authenticateToken, branchController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, branchController.restore)
+;
 
 
-/* -------------------------------------------------------------------------- */
-/*                                 🚀 Endpoints                               */
-/* -------------------------------------------------------------------------- */
-
-/**
- * Get active branches
- */
-router.get("/active-branches", authenticateToken, getActiveBranches);
-
-/**
- * Create branch / Get all branches
- */
-router
-  .route("/")
-  .post(authenticateToken,createBranch)
-  .get(authenticateToken, getBranches);
-
-/**
- * Branch by ID
- */
-router
-  .route("/:id")
-  .get(authenticateToken, getBranchById)
-  .put(authenticateToken,updateBranch)
-  .delete(authenticateToken,hardDeleteBranch);
-
-/**
- * Soft delete branch
- */
-router.patch(
-  "/:id/archive",
-  authenticateToken,
- 
-  softDeleteBranch,
-);
-
-/**
- * Restore branch
- */
-router.patch(
-  "/:id/restore",
-  authenticateToken,
- 
-  restoreBranch,
-);
 
 export default router;

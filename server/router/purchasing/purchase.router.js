@@ -1,24 +1,20 @@
 import express from "express";
+import purchaseController from "../../controllers/purchasing/purchase.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+
+
 const router = express.Router();
-import {
-    createPurchaseInvoice,
-    getAllPurchaseInvoices,
-    getPurchaseInvoiceById,
-    updatePurchaseInvoiceById,
-    deletePurchaseInvoiceById
-} from "../../controllers/purchasing/purchase-invoice.controller.js";
 
-import {authenticateToken} from "../../middlewares/authenticate.js";
+router.route("/")
+  .post(authenticateToken, purchaseController.create)
+  .get(authenticateToken, purchaseController.getAll)
+;
+
+router.route("/:id")
+  .put(authenticateToken, purchaseController.update)
+  .delete(authenticateToken, purchaseController.delete)
+;
 
 
-// Routes for purchase management
-router.route('/')
-    .post(authenticateToken,createPurchaseInvoice)
-    .get(authenticateToken,getAllPurchaseInvoices);
-
-router.route('/:id')
-    .get(authenticateToken,getPurchaseInvoiceById)
-    .put(authenticateToken,updatePurchaseInvoiceById)
-    .delete(authenticateToken,deletePurchaseInvoiceById);
 
 export default router;

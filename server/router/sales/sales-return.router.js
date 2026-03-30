@@ -1,18 +1,27 @@
-/**
- * sales-return Router
- * Auto generated
- */
-
 import express from "express";
+import salesReturnController from "../../controllers/sales/sales-return.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createsalesReturnSchema, updatesalesReturnSchema } from "../../validation/sales/sales-return.validation.js";
+
+
 const router = express.Router();
 
-// TODO: import controller
-// import controller from "../../controllers/sales-return.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createsalesReturnSchema), salesReturnController.create)
+  .get(authenticateToken, salesReturnController.getAll)
+;
 
-// router.get("/", controller.list);
-// router.post("/", controller.create);
-// router.get("/:id", controller.get);
-// router.put("/:id", controller.update);
-// router.delete("/:id", controller.remove);
+router.route("/:id")
+  .get(authenticateToken, salesReturnController.getOne)
+  .put(authenticateToken, validate(updatesalesReturnSchema), salesReturnController.update)
+  .delete(authenticateToken, salesReturnController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, salesReturnController.restore)
+;
+
+
 
 export default router;

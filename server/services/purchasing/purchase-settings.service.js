@@ -1,8 +1,8 @@
 import PurchaseSettingsModel from "../../models/purchasing/purchase-settings.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for purchase-settings model
-const purchaseSettingsService = new AdvancedCrudService(PurchaseSettingsModel, {
+const purchaseSettingsService = new AdvancedService(PurchaseSettingsModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","createdBy","updatedBy"],

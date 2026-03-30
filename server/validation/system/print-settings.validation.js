@@ -1,6 +1,6 @@
 import Joi from "joi";
 import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
-import PrintSettingsModel from "../../models/system\print-settings.model.js";
+import PrintSettingsModel from "../../models/system/print-settings.model.js";
 
 /* =========================
    Create Schema

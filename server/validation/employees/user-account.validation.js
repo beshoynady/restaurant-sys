@@ -1,6 +1,6 @@
 import Joi from "joi";
 import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
-import UserAccountModel from "../../models/employees\user-account.model.js";
+import UserAccountModel from "../../models/employees/user-account.model.js";
 
 /* =========================
    Create Schema

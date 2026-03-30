@@ -1,6 +1,6 @@
 import Joi from "joi";
 import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
-import ServiceChargeModel from "../../models/system\service-charge.model.js";
+import ServiceChargeModel from "../../models/system/service-charge.model.js";
 
 /* =========================
    Create Schema

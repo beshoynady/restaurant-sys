@@ -1,8 +1,8 @@
 import ServiceChargeModel from "../../models/system/service-charge.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for service-charge model
-const serviceChargeService = new AdvancedCrudService(ServiceChargeModel, {
+const serviceChargeService = new AdvancedService(ServiceChargeModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","account","createdBy","updatedBy"],

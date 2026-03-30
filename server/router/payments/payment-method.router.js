@@ -1,24 +1,27 @@
 import express from "express";
-const router = express.Router();
+import paymentMethodController from "../../controllers/payments/payment-method.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createpaymentMethodSchema, updatepaymentMethodSchema } from "../../validation/payments/payment-method.validation.js";
 
-import {
-  createPaymentMethod,
-  updatePaymentMethod,
-  getPaymentMethods,
-  deletePaymentMethod,
-} from "../../controllers/payments/payment-method.controller.js";
 
-// ✅ Create payment method
-router.post("/", authenticateToken, createPaymentMethod);
+const router = express.Router();
 
-// ✅ Update payment method by ID
-router.put("/:id", authenticateToken, updatePaymentMethod);
+router.route("/")
+  .post(authenticateToken, validate(createpaymentMethodSchema), paymentMethodController.create)
+  .get(authenticateToken, paymentMethodController.getAll)
+;
 
-// ✅ Get all payment methods (optional filters: brand, branch)
-router.get("/", authenticateToken, getPaymentMethods);
+router.route("/:id")
+  .get(authenticateToken, paymentMethodController.getOne)
+  .put(authenticateToken, validate(updatepaymentMethodSchema), paymentMethodController.update)
+  .delete(authenticateToken, paymentMethodController.delete)
+;
 
-// ✅ Delete payment method by ID
-router.delete("/:id", authenticateToken, deletePaymentMethod);
+router.route("/restore/:id")
+  .patch(authenticateToken, paymentMethodController.restore)
+;
+
+
 
 export default router;

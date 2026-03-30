@@ -1,34 +1,27 @@
 import express from "express";
+import productionRecordController from "../../controllers/production/production-record.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createproductionRecordSchema, updateproductionRecordSchema } from "../../validation/production/production-record.validation.js";
+
+
 const router = express.Router();
 
-import {
-  createProductionRecord,
-  findAllProductionRecords,
-  findProductionRecord,
-  endProductionRecord,
-  updateProductionRecord,
-  deleteProductionRecord,
-} from "../../controllers/production-record.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createproductionRecordSchema), productionRecordController.create)
+  .get(authenticateToken, productionRecordController.getAll)
+;
 
-import { authenticateToken } from "../../middlewares/authenticate.js";
+router.route("/:id")
+  .get(authenticateToken, productionRecordController.getOne)
+  .put(authenticateToken, validate(updateproductionRecordSchema), productionRecordController.update)
+  .delete(authenticateToken, productionRecordController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, productionRecordController.restore)
+;
 
 
-// Create a new Production Record
-router
-  .route("/")
-  .post(authenticateToken,createProductionRecord)
-  .get(authenticateToken,findAllProductionRecords);
-
-// Retrieve all Production Records
-router
-  .route("/:productionRecordId")
-  .get(authenticateToken,findProductionRecord)
-  .put(authenticateToken,updateProductionRecord)
-  .delete(authenticateToken,deleteProductionRecord);
-
-// End a Production Record
-router
-  .route("/end/:productionRecordId")
-  .put(authenticateToken,endProductionRecord);
 
 export default router;

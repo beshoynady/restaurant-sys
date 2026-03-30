@@ -1,18 +1,27 @@
-/**
- * stock-transfer-request Router
- * Auto generated
- */
-
 import express from "express";
+import stockTransferRequestController from "../../controllers/inventory/stock-transfer-request.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createstockTransferRequestSchema, updatestockTransferRequestSchema } from "../../validation/inventory/stock-transfer-request.validation.js";
+
+
 const router = express.Router();
 
-// TODO: import controller
-// import controller from "../../controllers/inventory/stock-transfer-request.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createstockTransferRequestSchema), stockTransferRequestController.create)
+  .get(authenticateToken, stockTransferRequestController.getAll)
+;
 
-// router.get("/", controller.list);
-// router.post("/", controller.create);
-// router.get("/:id", controller.get);
-// router.put("/:id", controller.update);
-// router.delete("/:id", controller.remove);
+router.route("/:id")
+  .get(authenticateToken, stockTransferRequestController.getOne)
+  .put(authenticateToken, validate(updatestockTransferRequestSchema), stockTransferRequestController.update)
+  .delete(authenticateToken, stockTransferRequestController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, stockTransferRequestController.restore)
+;
+
+
 
 export default router;

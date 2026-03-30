@@ -1,48 +1,27 @@
 import express from "express";
+import accountingPeriodController from "../../controllers/accounting/accounting-period.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createaccountingPeriodSchema, updateaccountingPeriodSchema } from "../../validation/accounting/accounting-period.validation.js";
+
+
 const router = express.Router();
 
-// Import Accounting Period Controller
-import {
-  createPeriod,
-  getPeriods,
-  getPeriodById,
-  updatePeriod,
-  getActivePeriod,
-  closePeriod,
-  reopenPeriod,
-} from "../../controllers/accounting/accounting-period.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createaccountingPeriodSchema), accountingPeriodController.create)
+  .get(authenticateToken, accountingPeriodController.getAll)
+;
 
-import { authenticateToken } from "../../middlewares/authenticate.js";
+router.route("/:id")
+  .get(authenticateToken, accountingPeriodController.getOne)
+  .put(authenticateToken, validate(updateaccountingPeriodSchema), accountingPeriodController.update)
+  .delete(authenticateToken, accountingPeriodController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, accountingPeriodController.restore)
+;
 
 
-// ==============================
-// Accounting Period Routes
-// ==============================
-
-/**
- * @route   POST /api/accounting-periods
- * @desc    Create new accounting period
- */
-router
-  .route("/")
-  .post(authenticateToken,createPeriod)
-  .get(authenticateToken,getPeriods);
-
-router
-  .route("/:id")
-  .get(authenticateToken,getPeriodById)
-  .put(authenticateToken,updatePeriod);
-
-router
-  .route("/active")
-  .get(authenticateToken,getActivePeriod);
-
-router
-  .route("/:id/close")
-  .put(authenticateToken,closePeriod);
-
-router
-  .route("/:id/reopen")
-  .put(authenticateToken,reopenPeriod);
 
 export default router;

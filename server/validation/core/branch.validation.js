@@ -1,6 +1,6 @@
 import Joi from "joi";
 import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
-import BranchModel from "../../models/core\branch.model.js";
+import BranchModel from "../../models/core/branch.model.js";
 
 /* =========================
    Create Schema

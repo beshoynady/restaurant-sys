@@ -1,8 +1,8 @@
 import ProductModel from "../../models/menu/product.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for product model
-const productService = new AdvancedCrudService(ProductModel, {
+const productService = new AdvancedService(ProductModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","category","preparationSection","parentProduct","taxRate","createdBy","updatedBy","deletedBy"],

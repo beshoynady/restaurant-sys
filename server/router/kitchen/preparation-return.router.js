@@ -1,18 +1,27 @@
-/**
- * preparation-return Router
- * Auto generated
- */
-
 import express from "express";
+import preparationReturnController from "../../controllers/kitchen/preparation-return.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createpreparationReturnSchema, updatepreparationReturnSchema } from "../../validation/kitchen/preparation-return.validation.js";
+
+
 const router = express.Router();
 
-// TODO: import controller
-// import controller from "../../controllers/preparation-return.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createpreparationReturnSchema), preparationReturnController.create)
+  .get(authenticateToken, preparationReturnController.getAll)
+;
 
-// router.get("/", controller.list);
-// router.post("/", controller.create);
-// router.get("/:id", controller.get);
-// router.put("/:id", controller.update);
-// router.delete("/:id", controller.remove);
+router.route("/:id")
+  .get(authenticateToken, preparationReturnController.getOne)
+  .put(authenticateToken, validate(updatepreparationReturnSchema), preparationReturnController.update)
+  .delete(authenticateToken, preparationReturnController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, preparationReturnController.restore)
+;
+
+
 
 export default router;

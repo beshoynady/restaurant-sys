@@ -1,38 +1,27 @@
 import express from "express";
-const router = express.Router();
-import {
-  createCustomerMessage,
-  getAllCustomerMessages,
-  getCustomerMessageById,
-  updateCustomerMessage,
-  deleteCustomerMessage,
-  softDeleteCustomerMessage,
-  restoreCustomerMessage,
-} from "../../controllers/customers/message.controller.js";
-// ----------------------------
-// 🔹 Middlewares
-// ----------------------------
+import messageController from "../../controllers/customers/message.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createmessageSchema, updatemessageSchema } from "../../validation/customers/message.validation.js";
 
 
-router
-  .route("/")
-  .post(createCustomerMessage)
-  .get(authenticateToken, getAllCustomerMessages);
+const router = express.Router();
 
-router
-  .route("/:id")
-  .get(authenticateToken, getCustomerMessageById)
-  .put(authenticateToken, updateCustomerMessage)
-  .delete(authenticateToken, deleteCustomerMessage);
-router
-  .route("soft-delete/:id")
-  .put(authenticateToken, softDeleteCustomerMessage);
-router.patch(
-  "/restore/:id",
-  authenticateToken,
-  
-  restoreCustomerMessage,
-);
+router.route("/")
+  .post(authenticateToken, validate(createmessageSchema), messageController.create)
+  .get(authenticateToken, messageController.getAll)
+;
+
+router.route("/:id")
+  .get(authenticateToken, messageController.getOne)
+  .put(authenticateToken, validate(updatemessageSchema), messageController.update)
+  .delete(authenticateToken, messageController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, messageController.restore)
+;
+
+
 
 export default router;

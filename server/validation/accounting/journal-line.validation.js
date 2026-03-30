@@ -1,6 +1,6 @@
 import Joi from "joi";
 import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
-import JournalLineModel from "../../models/accounting\journal-line.model.js";
+import JournalLineModel from "../../models/accounting/journal-line.model.js";
 
 /* =========================
    Create Schema

@@ -1,43 +1,27 @@
 import express from "express";
+import invoiceSettingsController from "../../controllers/sales/invoice-settings.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createinvoiceSettingsSchema, updateinvoiceSettingsSchema } from "../../validation/sales/invoice-settings.validation.js";
+
+
 const router = express.Router();
 
-import { authenticateToken } from "../../middlewares/authenticate.js";
+router.route("/")
+  .post(authenticateToken, validate(createinvoiceSettingsSchema), invoiceSettingsController.create)
+  .get(authenticateToken, invoiceSettingsController.getAll)
+;
 
-import {
-  createInvoiceSettings,
-  getInvoiceSettings,
-  updateInvoiceSettings,
-  deleteInvoiceSettings,
-} from "../../controllers/sales/invoice-settings.controller.js";
+router.route("/:id")
+  .get(authenticateToken, invoiceSettingsController.getOne)
+  .put(authenticateToken, validate(updateinvoiceSettingsSchema), invoiceSettingsController.update)
+  .delete(authenticateToken, invoiceSettingsController.delete)
+;
 
-/**
- * ============================
- * Invoice Settings Routes
- * ============================
- */
+router.route("/restore/:id")
+  .patch(authenticateToken, invoiceSettingsController.restore)
+;
 
-router.post(
-  "/",
-  authenticateToken,
-  createInvoiceSettings
-);
 
-router.get(
-  "/",
-  authenticateToken,
-  getInvoiceSettings
-);
-
-router.put(
-  "/:settingsId",
-  authenticateToken,
-  updateInvoiceSettings
-);
-
-router.delete(
-  "/:settingsId",
-  authenticateToken,
-  deleteInvoiceSettings
-);
 
 export default router;

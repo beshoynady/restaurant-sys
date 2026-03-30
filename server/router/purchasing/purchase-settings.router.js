@@ -1,18 +1,27 @@
-/**
- * purchase-settings Router
- * Auto generated
- */
-
 import express from "express";
+import purchaseSettingsController from "../../controllers/purchasing/purchase-settings.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createpurchaseSettingsSchema, updatepurchaseSettingsSchema } from "../../validation/purchasing/purchase-settings.validation.js";
+
+
 const router = express.Router();
 
-// TODO: import controller
-// import controller from "../../controllers/purchasing/purchase-settings.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createpurchaseSettingsSchema), purchaseSettingsController.create)
+  .get(authenticateToken, purchaseSettingsController.getAll)
+;
 
-// router.get("/", controller.list);
-// router.post("/", controller.create);
-// router.get("/:id", controller.get);
-// router.put("/:id", controller.update);
-// router.delete("/:id", controller.remove);
+router.route("/:id")
+  .get(authenticateToken, purchaseSettingsController.getOne)
+  .put(authenticateToken, validate(updatepurchaseSettingsSchema), purchaseSettingsController.update)
+  .delete(authenticateToken, purchaseSettingsController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, purchaseSettingsController.restore)
+;
+
+
 
 export default router;

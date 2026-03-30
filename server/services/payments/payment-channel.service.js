@@ -1,8 +1,8 @@
 import PaymentChannelModel from "../../models/payments/payment-channel.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for payment-channel model
-const paymentChannelService = new AdvancedCrudService(PaymentChannelModel, {
+const paymentChannelService = new AdvancedService(PaymentChannelModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","clearingAccount","settlementAccount","feeAccount","createdBy","updatedBy"],

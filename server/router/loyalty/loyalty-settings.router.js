@@ -1,34 +1,27 @@
-// server/routes/loyalty/loyalty-settings.router.js
-
 import express from "express";
+import loyaltySettingsController from "../../controllers/loyalty/loyalty-settings.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createloyaltySettingsSchema, updateloyaltySettingsSchema } from "../../validation/loyalty/loyalty-settings.validation.js";
+
+
 const router = express.Router();
-import {
-  createLoyaltySettings,
-  getAllLoyaltySettings,
-  getLoyaltySettings,
-  getLoyaltySettingsByBrand,
-  updateLoyaltySettings,
-  toggleLoyaltyStatus,
-  deleteLoyaltySettings,
-} from "../../controllers/loyalty/loyalty-settings.controller.js";
-import {authenticateToken} from "../../middlewares/authenticate.js";
 
-// All routes require authentication
-router.use(authenticateToken);
+router.route("/")
+  .post(authenticateToken, validate(createloyaltySettingsSchema), loyaltySettingsController.create)
+  .get(authenticateToken, loyaltySettingsController.getAll)
+;
 
-// Create a new loyalty settings for a brand
-router.route("/").post(createLoyaltySettings).get(getAllLoyaltySettings);
+router.route("/:id")
+  .get(authenticateToken, loyaltySettingsController.getOne)
+  .put(authenticateToken, validate(updateloyaltySettingsSchema), loyaltySettingsController.update)
+  .delete(authenticateToken, loyaltySettingsController.delete)
+;
 
-// Get, update, delete by ID
-router
-  .route("/:id")
-  .get(getLoyaltySettings)
-  .put(updateLoyaltySettings)
-  .delete(deleteLoyaltySettings);
-  
-// Get loyalty settings by brand ID
-router.route("/brand/:brandId").get(getLoyaltySettingsByBrand);
-// Toggle loyalty program status for a brand
-router.route("/:id/toggle").put(toggleLoyaltyStatus);
+router.route("/restore/:id")
+  .patch(authenticateToken, loyaltySettingsController.restore)
+;
+
+
 
 export default router;

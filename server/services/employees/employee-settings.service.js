@@ -1,8 +1,8 @@
 import EmployeeSettingsModel from "../../models/employees/employee-settings.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for employee-settings model
-const employeeSettingsService = new AdvancedCrudService(EmployeeSettingsModel, {
+const employeeSettingsService = new AdvancedService(EmployeeSettingsModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","createdBy","updatedBy"],

@@ -1,18 +1,27 @@
-/**
- * service-charge Router
- * Auto generated
- */
-
 import express from "express";
+import serviceChargeController from "../../controllers/system/service-charge.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createserviceChargeSchema, updateserviceChargeSchema } from "../../validation/system/service-charge.validation.js";
+
+
 const router = express.Router();
 
-// TODO: import controller
-// import controller from "../../controllers/service-charge.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createserviceChargeSchema), serviceChargeController.create)
+  .get(authenticateToken, serviceChargeController.getAll)
+;
 
-// router.get("/", controller.list);
-// router.post("/", controller.create);
-// router.get("/:id", controller.get);
-// router.put("/:id", controller.update);
-// router.delete("/:id", controller.remove);
+router.route("/:id")
+  .get(authenticateToken, serviceChargeController.getOne)
+  .put(authenticateToken, validate(updateserviceChargeSchema), serviceChargeController.update)
+  .delete(authenticateToken, serviceChargeController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, serviceChargeController.restore)
+;
+
+
 
 export default router;

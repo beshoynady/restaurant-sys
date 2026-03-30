@@ -1,18 +1,27 @@
-/**
- * branch-settings Router
- * Auto generated
- */
-
 import express from "express";
+import branchSettingsController from "../../controllers/core/branch-settings.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createbranchSettingsSchema, updatebranchSettingsSchema } from "../../validation/core/branch-settings.validation.js";
+
+
 const router = express.Router();
 
-// TODO: import controller
-// import controller from "../../controllers/branch-settings.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createbranchSettingsSchema), branchSettingsController.create)
+  .get(authenticateToken, branchSettingsController.getAll)
+;
 
-// router.get("/", controller.list);
-// router.post("/", controller.create);
-// router.get("/:id", controller.get);
-// router.put("/:id", controller.update);
-// router.delete("/:id", controller.remove);
+router.route("/:id")
+  .get(authenticateToken, branchSettingsController.getOne)
+  .put(authenticateToken, validate(updatebranchSettingsSchema), branchSettingsController.update)
+  .delete(authenticateToken, branchSettingsController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, branchSettingsController.restore)
+;
+
+
 
 export default router;

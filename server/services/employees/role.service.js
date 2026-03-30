@@ -1,8 +1,8 @@
 import RoleModel from "../../models/employees/role.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for role model
-const roleService = new AdvancedCrudService(RoleModel, {
+const roleService = new AdvancedService(RoleModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","createdBy","updatedBy"],

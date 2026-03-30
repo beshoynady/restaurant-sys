@@ -1,18 +1,27 @@
-/**
- * asset-depreciation Router
- * Auto generated
- */
-
 import express from "express";
+import assetDepreciationController from "../../controllers/assets/asset-depreciation.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createassetDepreciationSchema, updateassetDepreciationSchema } from "../../validation/assets/asset-depreciation.validation.js";
+
+
 const router = express.Router();
 
-// TODO: import controller
-// import controller from "../../controllers/asset-depreciation.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createassetDepreciationSchema), assetDepreciationController.create)
+  .get(authenticateToken, assetDepreciationController.getAll)
+;
 
-// router.get("/", controller.list);
-// router.post("/", controller.create);
-// router.get("/:id", controller.get);
-// router.put("/:id", controller.update);
-// router.delete("/:id", controller.remove);
+router.route("/:id")
+  .get(authenticateToken, assetDepreciationController.getOne)
+  .put(authenticateToken, validate(updateassetDepreciationSchema), assetDepreciationController.update)
+  .delete(authenticateToken, assetDepreciationController.delete)
+;
+
+router.route("/restore/:id")
+  .patch(authenticateToken, assetDepreciationController.restore)
+;
+
+
 
 export default router;

@@ -1,8 +1,8 @@
 import WarehouseModel from "../../models/inventory/warehouse.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for warehouse model
-const warehouseService = new AdvancedCrudService(WarehouseModel, {
+const warehouseService = new AdvancedService(WarehouseModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","createdBy","updatedBy","deletedBy"],

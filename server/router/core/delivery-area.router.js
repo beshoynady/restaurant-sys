@@ -1,57 +1,27 @@
-/**
- * Delivery Area Router
- * -------------------
- * Routes for managing delivery areas
- * - Create, update, soft delete, restore, hard delete
- * - Get by branch or by code
- */
-
 import express from "express";
+import deliveryAreaController from "../../controllers/core/delivery-area.controller.js";
+import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createdeliveryAreaSchema, updatedeliveryAreaSchema } from "../../validation/core/delivery-area.validation.js";
+
+
 const router = express.Router();
 
-import {
-  createDeliveryArea,
-  getDeliveryAreaById,
-  updateDeliveryArea,
-  getDeliveryAreasByBranch,
-  getActiveDeliveryAreasByBranch,
-  getDeliveryAreaByCode,
-  softDeleteDeliveryArea,
-  restoreDeliveryArea,
-  hardDeleteDeliveryArea,
-} from "../../controllers/core/delivery-area.controller.js";
+router.route("/")
+  .post(authenticateToken, validate(createdeliveryAreaSchema), deliveryAreaController.create)
+  .get(authenticateToken, deliveryAreaController.getAll)
+;
 
-import { authenticateToken } from "../../middlewares/authenticate.js";
+router.route("/:id")
+  .get(authenticateToken, deliveryAreaController.getOne)
+  .put(authenticateToken, validate(updatedeliveryAreaSchema), deliveryAreaController.update)
+  .delete(authenticateToken, deliveryAreaController.delete)
+;
 
-/* -------------------------------------------------------------------------- */
-/*                                 🚀 Endpoints                               */
-/* -------------------------------------------------------------------------- */
+router.route("/restore/:id")
+  .patch(authenticateToken, deliveryAreaController.restore)
+;
 
-// Create a new delivery area
-router
-  .route("/")
-  .post(authenticateToken, createDeliveryArea)
-  .get(authenticateToken, getDeliveryAreaById);
 
-// Get all delivery areas for current branch
-router.get("/branch/:id", authenticateToken, getDeliveryAreasByBranch);
-
-// Get active delivery areas for current branch
-router.get("/active", authenticateToken, getActiveDeliveryAreasByBranch);
-
-// Get delivery area by code (unique per branch)
-router.get("/code/:code", authenticateToken, getDeliveryAreaByCode);
-
-// Update a delivery area by ID
-router.put("/:id", authenticateToken, updateDeliveryArea);
-
-// Soft delete a delivery area by ID
-router.patch("/archive/:id", authenticateToken, softDeleteDeliveryArea);
-
-// Restore a soft-deleted delivery area by ID
-router.patch("/restore/:id", authenticateToken, restoreDeliveryArea);
-
-// Hard delete a delivery area by ID
-router.delete("/delete/:id", authenticateToken, hardDeleteDeliveryArea);
 
 export default router;

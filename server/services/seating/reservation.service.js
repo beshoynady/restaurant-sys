@@ -1,8 +1,8 @@
 import ReservationModel from "../../models/seating/reservation.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for reservation model
-const reservationService = new AdvancedCrudService(ReservationModel, {
+const reservationService = new AdvancedService(ReservationModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","table","customer","user","linkedOrder","createdBy","updatedBy","cancelledBy"],

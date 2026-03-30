@@ -1,8 +1,8 @@
 import PreparationReturnSettingsModel from "../../models/kitchen/preparation-return-settings.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for preparation-return-settings model
-const preparationReturnSettingsService = new AdvancedCrudService(PreparationReturnSettingsModel, {
+const preparationReturnSettingsService = new AdvancedService(PreparationReturnSettingsModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","preparationSection","decisionBy","createdBy","updatedBy"],

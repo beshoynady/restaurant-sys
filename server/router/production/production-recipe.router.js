@@ -1,43 +1,27 @@
 import express from "express";
-const router = express.Router();
-import {
-  createProductionRecipe,
-  updateProductionRecipe,
-  getOneProductionRecipe,
-  getAllProductionRecipes,
-  getProductionRecipeByStockItem,
-  changeRecipeState,
-  deleteProductionRecipe,
-} from "../../controllers/inventory/production-recipe.controller.js";
-
+import productionRecipeController from "../../controllers/production/production-recipe.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
+import validate from "../../middlewares/validate.js";
+import { createproductionRecipeSchema, updateproductionRecipeSchema } from "../../validation/production/production-recipe.validation.js";
 
 
-// ==============================
-// Routes for Production Recipes
-// ==============================
+const router = express.Router();
 
-// Create a new recipe or list all recipes
-router
-  .route("/")
-  .post(authenticateToken,createProductionRecipe)
-  .get(authenticateToken,getAllProductionRecipes);
+router.route("/")
+  .post(authenticateToken, validate(createproductionRecipeSchema), productionRecipeController.create)
+  .get(authenticateToken, productionRecipeController.getAll)
+;
 
-// Get, update a single recipe
-router
-  .route("/:id")
-  .get(authenticateToken,getOneProductionRecipe)
-  .put(authenticateToken,updateProductionRecipe)
-  .delete(authenticateToken,deleteProductionRecipe);
+router.route("/:id")
+  .get(authenticateToken, productionRecipeController.getOne)
+  .put(authenticateToken, validate(updateproductionRecipeSchema), productionRecipeController.update)
+  .delete(authenticateToken, productionRecipeController.delete)
+;
 
-// Change recipe state (activate/deactivate)
-router
-  .route("/:id/state")
-  .patch(authenticateToken,changeRecipeState);
+router.route("/restore/:id")
+  .patch(authenticateToken, productionRecipeController.restore)
+;
 
-// Get recipe by stock item
-router
-  .route("/stockitem/:id")
-  .get(authenticateToken,getProductionRecipeByStockItem);
+
 
 export default router;

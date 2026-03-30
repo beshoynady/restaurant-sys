@@ -1,4 +1,4 @@
-import { AppError } from "../../utils/AppError.js";
+import throwError from "./throwError.js";
 
 /**
  * Advanced CRUD Service (Production Ready)
@@ -52,7 +52,7 @@ class AdvancedService {
       ...this._baseQuery(brandId, includeDeleted),
     });
 
-    if (!record) throw new AppError("Record not found", 404);
+    if (!record) throw throwError("Record not found", 404);
 
     return record;
   }
@@ -71,7 +71,7 @@ class AdvancedService {
     if (excludeId) query._id = { $ne: excludeId };
 
     const exists = await this.model.findOne(query);
-    if (exists) throw new AppError("Duplicate record", 409);
+    if (exists) throw throwError("Duplicate record", 409);
   }
 
   _validateLangFields(data, fieldsWithLang = [], lang) {
@@ -81,11 +81,11 @@ class AdvancedService {
       const val = data[field];
 
       if (!val || typeof val !== "object") {
-        throw new AppError(`${field} must be multilingual object`, 400);
+        throw throwError(`${field} must be multilingual object`, 400);
       }
 
       if (!val[lang]) {
-        throw new AppError(`${field} must include language ${lang}`, 400);
+        throw throwError(`${field} must include language ${lang}`, 400);
       }
     });
   }
@@ -170,7 +170,7 @@ class AdvancedService {
 
     const record = await query.lean();
 
-    if (!record) throw new AppError("Record not found", 404);
+    if (!record) throw throwError("Record not found", 404);
 
     return record;
   }
@@ -190,7 +190,7 @@ class AdvancedService {
 
     const record = await query.lean();
 
-    if (!record) throw new AppError("Record not found", 404);
+    if (!record) throw throwError("Record not found", 404);
 
     return record;
   }
@@ -229,7 +229,7 @@ class AdvancedService {
       { new: true, runValidators: true }
     );
 
-    if (!record) throw new AppError("Record not found", 404);
+    if (!record) throw throwError("Record not found", 404);
 
     return record;
   }
@@ -238,7 +238,7 @@ class AdvancedService {
     const record = await this._findOrFail(id, brandId);
 
     if (!("isActive" in record.toObject())) {
-      throw new AppError("Model does not support status toggle", 400);
+      throw throwError("Model does not support status toggle", 400);
     }
 
     record.isActive = !record.isActive;
@@ -255,7 +255,7 @@ class AdvancedService {
 
   async softDelete(id, brandId, userId) {
     if (!this.softDelete) {
-      throw new AppError("Soft delete disabled", 400);
+      throw throwError("Soft delete disabled", 400);
     }
 
     const record = await this._findOrFail(id, brandId);
@@ -275,7 +275,7 @@ class AdvancedService {
     const record = await this._findOrFail(id, brandId, true);
 
     if (!record.isDeleted) {
-      throw new AppError("Record is not deleted", 400);
+      throw throwError("Record is not deleted", 400);
     }
 
     record.isDeleted = false;
@@ -298,7 +298,7 @@ class AdvancedService {
   }
 
   async bulkSoftDelete(ids = [], brandId, userId) {
-    if (!ids.length) throw new AppError("IDs required", 400);
+    if (!ids.length) throw throwError("IDs required", 400);
 
     const result = await this.model.updateMany(
       {
@@ -316,7 +316,7 @@ class AdvancedService {
   }
 
   async bulkHardDelete(ids = [], brandId) {
-    if (!ids.length) throw new AppError("IDs required", 400);
+    if (!ids.length) throw throwError("IDs required", 400);
 
     const result = await this.model.deleteMany({
       _id: { $in: ids },

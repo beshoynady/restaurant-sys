@@ -1,8 +1,8 @@
 import ProductReviewModel from "../../models/sales/product-review.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for product-review model
-const productReviewService = new AdvancedCrudService(ProductReviewModel, {
+const productReviewService = new AdvancedService(ProductReviewModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch","order","relatedSalesReturn","reviewedBy"],

@@ -1,8 +1,8 @@
 import DiscountSettingsModel from "../../models/system/discount-settings.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for discount-settings model
-const discountSettingsService = new AdvancedCrudService(DiscountSettingsModel, {
+const discountSettingsService = new AdvancedService(DiscountSettingsModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["brand","branch"],

@@ -1,6 +1,6 @@
 import Joi from "joi";
 import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
-import MessageModel from "../../models/customers\message.model.js";
+import MessageModel from "../../models/customers/message.model.js";
 
 /* =========================
    Create Schema

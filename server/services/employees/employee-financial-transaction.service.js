@@ -1,8 +1,8 @@
 import EmployeeFinancialTransactionModel from "../../models/employees/employee-financial-transaction.model.js";
-import AdvancedCrudService from "../AdvancedCrudService.js";
+import AdvancedService from "../../utils/AdvancedService.js";
 
 // Initialize service for employee-financial-transaction model
-const employeeFinancialTransactionService = new AdvancedCrudService(EmployeeFinancialTransactionModel, {
+const employeeFinancialTransactionService = new AdvancedService(EmployeeFinancialTransactionModel, {
   brandScoped: true,
   softDelete: true,
   defaultPopulate: ["branch","employee","approvedBy","createdBy","updatedBy","cancelledBy"],
