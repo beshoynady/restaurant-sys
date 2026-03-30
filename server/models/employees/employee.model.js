@@ -23,37 +23,37 @@ const employeeSchema = new mongoose.Schema(
 
     // Personal Information
     firstName: {
-  type: Map,
-  of: {
-    type: String,
-    trim: true,
-    minlength: 2,
-    maxlength: 100,
-  },
-  required: true,
-},
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      required: true,
+    },
 
     middleName: {
-  type: Map,
-  of: {
-    type: String,
-    trim: true,
-    minlength: 2,
-    maxlength: 100,
-  },
-  required: true,
-},
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      required: true,
+    },
 
     lastName: {
-  type: Map,
-  of: {
-    type: String,
-    trim: true,
-    minlength: 2,
-    maxlength: 100,
-  },
-  required: true,
-},
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      required: true,
+    },
 
     gender: { type: String, enum: ["male", "female"], required: true },
     dateOfBirth: { type: Date, required: true },
@@ -64,16 +64,14 @@ const employeeSchema = new mongoose.Schema(
       minlength: 10,
       maxlength: 30,
     },
+
     nationality: {
-  type: Map,
-  of: {
-    type: String,
-    trim: true,
-    minlength: 2,
-    maxlength: 100,
-  },
-  required: true,
-},
+      type: String,
+      trim: true,
+      minlength: 2,
+      maxlength: 100,
+    },
+
     // Marital status is important for benefits and tax purposes
     maritalStatus: {
       type: String,
@@ -138,13 +136,10 @@ const employeeSchema = new mongoose.Schema(
       match: [/\S+@\S+\.\S+/, "Invalid email address"],
     },
 
-    address: [
-      {
-        lang: {
-          type: String,
-          enum: ["EN", "AR"],
-        },
-        value: {
+    address: {
+      type: Map,
+      of: {
+        type: new Schema({
           country: { type: String, required: true, trim: true, maxlength: 100 },
           stateOrProvince: { type: String, trim: true, maxlength: 100 },
           city: { type: String, required: true, trim: true, maxlength: 100 },
@@ -153,10 +148,9 @@ const employeeSchema = new mongoose.Schema(
           buildingNumber: { type: String, trim: true, maxlength: 20 },
           floor: { type: String, trim: true, maxlength: 10 },
           landmark: { type: String, trim: true, maxlength: 150 },
-          postalCode: { type: String, trim: true, maxlength: 20 },
-        },
+        }),
       },
-    ],
+    },
 
     // Employment Information
     employeeCode: {
@@ -203,34 +197,26 @@ const employeeSchema = new mongoose.Schema(
 
     documents: [
       {
-        name: [
-          {
-            lang: {
-              type: String,
-              enum: ["EN", "AR"],
-            },
-            value: {
-              type: String,
-              trim: true,
-              minlength: 2,
-              maxlength: 1000,
-            },
+        name: {
+          type: Map,
+          of: {
+            type: String,
+            trim: true,
+            minlength: 2,
+            maxlength: 100,
           },
-        ],
-        documentType: [
-          {
-            lang: {
-              type: String,
-              enum: ["EN", "AR"],
-            },
-            value: {
-              type: String,
-              trim: true,
-              minlength: 2,
-              maxlength: 1000,
-            },
+          required: true,
+        },
+        documentType: {
+          type: Map,
+          of: {
+            type: String,
+            trim: true,
+            minlength: 2,
+            maxlength: 100,
           },
-        ],
+          required: true,
+        },
         fileUrl: {
           type: String,
           trim: true,

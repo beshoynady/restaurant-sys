@@ -24,60 +24,47 @@ const jobTitleSchema = new mongoose.Schema(
       required: [true, "Department reference is required"],
     },
     name: {
-  type: Map,
-  of: {
-    type: String,
-    trim: true,
-    minlength: 2,
-    maxlength: 100,
-  },
-  required: true,
-},
-    description: [
-      {
-        lang: {
-          type: String,
-          enum: ["EN", "AR"],
-        },
-        value: {
-          type: String,
-          trim: true,
-          minlength: 2,
-          maxlength: 200,
-        },
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
       },
-    ],
-    responsibilities: [
-      {
-        lang: {
-          type: String,
-          enum: ["EN", "AR"],
-        },
-        value: {
-          type: String,
-          trim: true,
-          minlength: 2,
-          maxlength: 1000,
-        },
+      required: true,
+    },
+    description: {
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 300,
       },
-    ],
+      required: true,
+    },
+    responsibilities: {
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 300,
+      },
+      required: true,
+    },
 
-    requirements: [
-      {
-        lang: {
-          type: String,
-          enum: ["EN", "AR"],
-        },
-        value: {
-          type: String,
-          trim: true,
-          minlength: 2,
-          maxlength: 1000,
-        },
+    requirements: {
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 300,
       },
-    ],
+      required: true,
+    },
 
-    
     status: {
       type: String,
       enum: ["pending", "active", "inactive", "archived", "draft", "suspended"],

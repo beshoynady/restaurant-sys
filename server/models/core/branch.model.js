@@ -18,15 +18,15 @@ const branchSchema = mongoose.Schema(
 
     // Branch Name (multi-language, must match Brand menuLanguages)
     name: {
-  type: Map,
-  of: {
-    type: String,
-    trim: true,
-    minlength: 2,
-    maxlength: 100,
-  },
-  required: true,
-},
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      required: true,
+    },
 
     /*
     slug for URL and internal references (auto-generated from English name)
@@ -41,13 +41,10 @@ const branchSchema = mongoose.Schema(
     },
 
     // Address (multi-language, must match Brand menuLanguages)
-    address: [
-      {
-        lang: {
-          type: String,
-          enum: ["EN", "AR"],
-        },
-        value: {
+    address: {
+      type: Map,
+      of: {
+        type: new Schema({
           country: { type: String, required: true, trim: true, maxlength: 100 },
           stateOrProvince: { type: String, trim: true, maxlength: 100 },
           city: { type: String, required: true, trim: true, maxlength: 100 },
@@ -56,9 +53,9 @@ const branchSchema = mongoose.Schema(
           buildingNumber: { type: String, trim: true, maxlength: 20 },
           floor: { type: String, trim: true, maxlength: 10 },
           landmark: { type: String, trim: true, maxlength: 150 },
-        },
+        }),
       },
-    ],
+    },
 
     postalCode: { type: String, trim: true, maxlength: 20 },
     latitude: { type: Number, min: -90, max: 90 },

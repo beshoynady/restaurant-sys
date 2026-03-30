@@ -21,7 +21,7 @@ const SupplierSchema = new Schema(
     },
     type: {
       type: String,
-      enum: ["individual", "company"],
+      enum: ["individual", "company", "government", "other"],
       required: true,
       default: "individual",
     },
@@ -89,13 +89,10 @@ const SupplierSchema = new Schema(
       },
     },
     // Address (multi-language, must match Brand menuLanguages)
-    address: [
-      {
-        lang: {
-          type: String,
-          enum: ["EN", "AR"],
-        },
-        value: {
+    address: {
+      type: Map,
+      of: {
+        type: new Schema({
           country: { type: String, required: true, trim: true, maxlength: 100 },
           stateOrProvince: { type: String, trim: true, maxlength: 100 },
           city: { type: String, required: true, trim: true, maxlength: 100 },
@@ -105,9 +102,9 @@ const SupplierSchema = new Schema(
           floor: { type: String, trim: true, maxlength: 10 },
           landmark: { type: String, trim: true, maxlength: 150 },
           postalCode: { type: String, trim: true, maxlength: 20 },
-        },
+        }),
       },
-    ],
+    },
 
     // Items supplied by the supplier
     itemsSupplied: {
