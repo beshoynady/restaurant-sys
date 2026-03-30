@@ -85,7 +85,7 @@ const brandSchema = new mongoose.Schema(
     },
     dashboardLanguages: {
       type: [String],
-      enum: ["EN", "AR", "FR", "ES", "DE", "ZH", "JA", "RU"],
+      enum: ["EN", "AR", "FR", "ES", "IT", "ZH", "JA", "RU"],
       default: ["EN", "AR"],
     },
 

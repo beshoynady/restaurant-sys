@@ -22,18 +22,14 @@ const assetCategorySchema = new mongoose.Schema(
   {
     // Category name (multi-language support)
     name: {
-  type: Map,
-  of: {
-    type: String,
-    trim: true,
-    minlength: 2,
-    maxlength: 100,
-  },
-  required: true,
-},
-
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
       required: true,
-      trim: true,
     },
 
     /**
