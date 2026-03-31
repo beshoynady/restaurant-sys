@@ -1,11 +1,15 @@
 import mongoose from "mongoose";
 import JournalEntry from "../../models/accounting/journal-entry.model.js";
 import Account from "../../models/accounting/account.model.js";
+import asyncHandler from "../../utils/asyncHandler.js";
 
 /**
  * Get ledger for a specific account
+ * 
  */
-const getLedgerByAccount = async (req, res) => {
+
+const ledgerController= {
+getLedgerByAccount : asyncHandler(async (req, res) => {
   try {
     const { accountId } = req.params;
     const { brand, branch, startDate, endDate } = req.query;
@@ -72,12 +76,12 @@ const getLedgerByAccount = async (req, res) => {
     console.error(err);
     res.status(500).json({ message: "Dine-in server error" });
   }
-};
+}),
 
 /**
  * Get ledger for multiple accounts (for Trial Balance)
  */
-const getLedgerMultiAccount = async (req, res) => {
+getLedgerMultiAccount :asyncHandler(async (req, res) => {
   try {
     const { brand, branch, startDate, endDate } = req.query;
 
@@ -136,13 +140,13 @@ const getLedgerMultiAccount = async (req, res) => {
     console.error(err);
     res.status(500).json({ message: "Dine-in server error" });
   }
-};
+}),
 
 /**
  * Prepare Trial Balance
  * This function aggregates all accounts to check that total debits = total credits
  */
-const getTrialBalance = async (req, res) => {
+ getTrialBalance :asyncHandler(async (req, res) => {
   try {
     const { brand, branch, startDate, endDate } = req.query;
 
@@ -206,10 +210,7 @@ const getTrialBalance = async (req, res) => {
     console.error(err);
     res.status(500).json({ message: "Dine-in server error" });
   }
-};
+}),
+}
 
-export  {
-  getLedgerByAccount,
-  getLedgerMultiAccount,
-  getTrialBalance,
-};
+export default ledgerController

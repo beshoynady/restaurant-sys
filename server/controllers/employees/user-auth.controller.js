@@ -15,8 +15,8 @@ const signupValidationSchema = joi.object({
     employee: joi.string().optional(),
 });
 
-
-const signup = asyncHandler(async (req, res) => {
+const userAuthController = {
+signup : asyncHandler(async (req, res) => {
     const { username, email, address, deliveryArea, phone, password } =
       req.body;
 
@@ -41,9 +41,9 @@ const signup = asyncHandler(async (req, res) => {
     const accessToken = generateAccessToken(newUser);
 
     res.status(201).json({ accessToken, newUser });
-});
+}),
 
-const login = asyncHandler(async (req, res) => {
+ login : asyncHandler(async (req, res) => {
   const { phone, password } = req.body;
 
     // Validate input
@@ -51,7 +51,7 @@ const login = asyncHandler(async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "Phone number and password are required",
-      });
+      })
     }
 
     // Find user by phone number
@@ -83,9 +83,9 @@ const login = asyncHandler(async (req, res) => {
     // Send successful response with user data and access token
     res.status(200).json({ findUser, accessToken });
  
-});
+}),
 
-const generateAccessToken = (user) => {
+generateAccessToken : (user) => {
   return jwt.sign(
     {
       userinfo: {
@@ -99,9 +99,9 @@ const generateAccessToken = (user) => {
     secretKey,
     { expiresIn: "1y" },
   );
-};
+},
 
-const restPass = asyncHandler(async (req, res) => {
+ restPass : asyncHandler(async (req, res) => {
     const { phone, newPassword } = req.body;
 
     if (!phone || !newPassword) {
@@ -118,6 +118,8 @@ const restPass = asyncHandler(async (req, res) => {
     await user.save();
     res.status(200).json({ message: "Password reset successful" });
   
-});
+}),
 
-export { signup, login, restPass };
+}
+
+export default userAuthController

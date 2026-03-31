@@ -6,7 +6,7 @@ import { authenticateToken } from "../../middlewares/authenticate.js";
 const router = express.Router();
 
 router.route("/")
-  .post(authenticateToken, initialSetupController.create)
+  .post(authenticateToken, initialSetupController)
 ;
 
 

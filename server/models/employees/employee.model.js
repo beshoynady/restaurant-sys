@@ -1,5 +1,8 @@
 import mongoose from "mongoose";
-const { ObjectId } = mongoose.Schema;
+
+const { Schema } = mongoose;
+
+const { ObjectId } = mongoose.Schema.Types;
 
 /**
  * Employee Core Model

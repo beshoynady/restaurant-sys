@@ -165,7 +165,7 @@ import branchSettingsRoutes from "./core/branch-settings.router.js";
 import discountSettingRoutes from "./system/discount-settings.router.js";
 import invoiceSettingsRoutes from "./sales/invoice-settings.router.js";
 import notificationSettingsRoutes from "./system/notification-settings.router.js";
-import orderSettingsRoutes from "./system/order-settings.router.js";
+import orderSettingsRoutes from "./sales/order-settings.router.js";
 import printSettingsRoutes from "./system/print-settings.router.js";
 import serviceChargeRoutes from "./system/service-charge.router.js";
 import shiftSettingsRoutes from "./system/shift-settings.router.js";
