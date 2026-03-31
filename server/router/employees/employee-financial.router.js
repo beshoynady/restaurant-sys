@@ -2,19 +2,19 @@ import express from "express";
 import employeeFinancialController from "../../controllers/employees/employee-financial.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 import validate from "../../middlewares/validate.js";
-import { createemployeeFinancialSchema, updateemployeeFinancialSchema } from "../../validation/employees/employee-financial.validation.js";
+import { createEmployeeFinancialSchema, updateEmployeeFinancialSchema } from "../../validation/employees/employee-financial.validation.js";
 
 
 const router = express.Router();
 
 router.route("/")
-  .post(authenticateToken, validate(createemployeeFinancialSchema), employeeFinancialController.create)
+  .post(authenticateToken, validate(createEmployeeFinancialSchema), employeeFinancialController.create)
   .get(authenticateToken, employeeFinancialController.getAll)
 ;
 
 router.route("/:id")
   .get(authenticateToken, employeeFinancialController.getOne)
-  .put(authenticateToken, validate(updateemployeeFinancialSchema), employeeFinancialController.update)
+  .put(authenticateToken, validate(updateEmployeeFinancialSchema), employeeFinancialController.update)
   .delete(authenticateToken, employeeFinancialController.delete)
 ;
 

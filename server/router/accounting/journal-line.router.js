@@ -2,19 +2,19 @@ import express from "express";
 import journalLineController from "../../controllers/accounting/journal-line.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 import validate from "../../middlewares/validate.js";
-import { createjournalLineSchema, updatejournalLineSchema } from "../../validation/accounting/journal-line.validation.js";
+import { createJournalLineSchema, updateJournalLineSchema } from "../../validation/accounting/journal-line.validation.js";
 
 
 const router = express.Router();
 
 router.route("/")
-  .post(authenticateToken, validate(createjournalLineSchema), journalLineController.create)
+  .post(authenticateToken, validate(createJournalLineSchema), journalLineController.create)
   .get(authenticateToken, journalLineController.getAll)
 ;
 
 router.route("/:id")
   .get(authenticateToken, journalLineController.getOne)
-  .put(authenticateToken, validate(updatejournalLineSchema), journalLineController.update)
+  .put(authenticateToken, validate(updateJournalLineSchema), journalLineController.update)
   .delete(authenticateToken, journalLineController.delete)
 ;
 

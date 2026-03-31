@@ -2,19 +2,19 @@ import express from "express";
 import cashierShiftController from "../../controllers/employees/cashier-shift.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 import validate from "../../middlewares/validate.js";
-import { createcashierShiftSchema, updatecashierShiftSchema } from "../../validation/employees/cashier-shift.validation.js";
+import { createCashierShiftSchema, updateCashierShiftSchema } from "../../validation/employees/cashier-shift.validation.js";
 
 
 const router = express.Router();
 
 router.route("/")
-  .post(authenticateToken, validate(createcashierShiftSchema), cashierShiftController.create)
+  .post(authenticateToken, validate(createCashierShiftSchema), cashierShiftController.create)
   .get(authenticateToken, cashierShiftController.getAll)
 ;
 
 router.route("/:id")
   .get(authenticateToken, cashierShiftController.getOne)
-  .put(authenticateToken, validate(updatecashierShiftSchema), cashierShiftController.update)
+  .put(authenticateToken, validate(updateCashierShiftSchema), cashierShiftController.update)
   .delete(authenticateToken, cashierShiftController.delete)
 ;
 

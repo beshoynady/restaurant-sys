@@ -2,19 +2,19 @@ import express from "express";
 import offlineCustomerController from "../../controllers/customers/offline-customer.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 import validate from "../../middlewares/validate.js";
-import { createofflineCustomerSchema, updateofflineCustomerSchema } from "../../validation/customers/offline-customer.validation.js";
+import { createOfflineCustomerSchema, updateOfflineCustomerSchema } from "../../validation/customers/offline-customer.validation.js";
 
 
 const router = express.Router();
 
 router.route("/")
-  .post(authenticateToken, validate(createofflineCustomerSchema), offlineCustomerController.create)
+  .post(authenticateToken, validate(createOfflineCustomerSchema), offlineCustomerController.create)
   .get(authenticateToken, offlineCustomerController.getAll)
 ;
 
 router.route("/:id")
   .get(authenticateToken, offlineCustomerController.getOne)
-  .put(authenticateToken, validate(updateofflineCustomerSchema), offlineCustomerController.update)
+  .put(authenticateToken, validate(updateOfflineCustomerSchema), offlineCustomerController.update)
   .delete(authenticateToken, offlineCustomerController.delete)
 ;
 

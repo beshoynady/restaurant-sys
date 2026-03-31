@@ -2,19 +2,19 @@ import express from "express";
 import purchaseReturnController from "../../controllers/purchasing/purchase-return.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 import validate from "../../middlewares/validate.js";
-import { createpurchaseReturnSchema, updatepurchaseReturnSchema } from "../../validation/purchasing/purchase-return.validation.js";
+import { createPurchaseReturnSchema, updatePurchaseReturnSchema } from "../../validation/purchasing/purchase-return.validation.js";
 
 
 const router = express.Router();
 
 router.route("/")
-  .post(authenticateToken, validate(createpurchaseReturnSchema), purchaseReturnController.create)
+  .post(authenticateToken, validate(createPurchaseReturnSchema), purchaseReturnController.create)
   .get(authenticateToken, purchaseReturnController.getAll)
 ;
 
 router.route("/:id")
   .get(authenticateToken, purchaseReturnController.getOne)
-  .put(authenticateToken, validate(updatepurchaseReturnSchema), purchaseReturnController.update)
+  .put(authenticateToken, validate(updatePurchaseReturnSchema), purchaseReturnController.update)
   .delete(authenticateToken, purchaseReturnController.delete)
 ;
 

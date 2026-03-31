@@ -2,19 +2,19 @@ import express from "express";
 import cashRegisterController from "../../controllers/cash/cash-register.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 import validate from "../../middlewares/validate.js";
-import { createcashRegisterSchema, updatecashRegisterSchema } from "../../validation/cash/cash-register.validation.js";
+import { createCashRegisterSchema, updateCashRegisterSchema } from "../../validation/cash/cash-register.validation.js";
 
 
 const router = express.Router();
 
 router.route("/")
-  .post(authenticateToken, validate(createcashRegisterSchema), cashRegisterController.create)
+  .post(authenticateToken, validate(createCashRegisterSchema), cashRegisterController.create)
   .get(authenticateToken, cashRegisterController.getAll)
 ;
 
 router.route("/:id")
   .get(authenticateToken, cashRegisterController.getOne)
-  .put(authenticateToken, validate(updatecashRegisterSchema), cashRegisterController.update)
+  .put(authenticateToken, validate(updateCashRegisterSchema), cashRegisterController.update)
   .delete(authenticateToken, cashRegisterController.delete)
 ;
 

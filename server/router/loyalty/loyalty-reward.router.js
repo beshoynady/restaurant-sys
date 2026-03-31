@@ -2,19 +2,19 @@ import express from "express";
 import loyaltyRewardController from "../../controllers/loyalty/loyalty-reward.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 import validate from "../../middlewares/validate.js";
-import { createloyaltyRewardSchema, updateloyaltyRewardSchema } from "../../validation/loyalty/loyalty-reward.validation.js";
+import { createLoyaltyRewardSchema, updateLoyaltyRewardSchema } from "../../validation/loyalty/loyalty-reward.validation.js";
 
 
 const router = express.Router();
 
 router.route("/")
-  .post(authenticateToken, validate(createloyaltyRewardSchema), loyaltyRewardController.create)
+  .post(authenticateToken, validate(createLoyaltyRewardSchema), loyaltyRewardController.create)
   .get(authenticateToken, loyaltyRewardController.getAll)
 ;
 
 router.route("/:id")
   .get(authenticateToken, loyaltyRewardController.getOne)
-  .put(authenticateToken, validate(updateloyaltyRewardSchema), loyaltyRewardController.update)
+  .put(authenticateToken, validate(updateLoyaltyRewardSchema), loyaltyRewardController.update)
   .delete(authenticateToken, loyaltyRewardController.delete)
 ;
 

@@ -2,19 +2,19 @@ import express from "express";
 import orderController from "../../controllers/sales/order.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 import validate from "../../middlewares/validate.js";
-import { createorderSchema, updateorderSchema } from "../../validation/sales/order.validation.js";
+import { createOrderSchema, updateOrderSchema } from "../../validation/sales/order.validation.js";
 
 
 const router = express.Router();
 
 router.route("/")
-  .post(authenticateToken, validate(createorderSchema), orderController.create)
+  .post(authenticateToken, validate(createOrderSchema), orderController.create)
   .get(authenticateToken, orderController.getAll)
 ;
 
 router.route("/:id")
   .get(authenticateToken, orderController.getOne)
-  .put(authenticateToken, validate(updateorderSchema), orderController.update)
+  .put(authenticateToken, validate(updateOrderSchema), orderController.update)
   .delete(authenticateToken, orderController.delete)
 ;
 

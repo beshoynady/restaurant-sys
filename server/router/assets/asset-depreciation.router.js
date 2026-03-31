@@ -2,19 +2,19 @@ import express from "express";
 import assetDepreciationController from "../../controllers/assets/asset-depreciation.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 import validate from "../../middlewares/validate.js";
-import { createassetDepreciationSchema, updateassetDepreciationSchema } from "../../validation/assets/asset-depreciation.validation.js";
+import { createAssetDepreciationSchema, updateAssetDepreciationSchema } from "../../validation/assets/asset-depreciation.validation.js";
 
 
 const router = express.Router();
 
 router.route("/")
-  .post(authenticateToken, validate(createassetDepreciationSchema), assetDepreciationController.create)
+  .post(authenticateToken, validate(createAssetDepreciationSchema), assetDepreciationController.create)
   .get(authenticateToken, assetDepreciationController.getAll)
 ;
 
 router.route("/:id")
   .get(authenticateToken, assetDepreciationController.getOne)
-  .put(authenticateToken, validate(updateassetDepreciationSchema), assetDepreciationController.update)
+  .put(authenticateToken, validate(updateAssetDepreciationSchema), assetDepreciationController.update)
   .delete(authenticateToken, assetDepreciationController.delete)
 ;
 

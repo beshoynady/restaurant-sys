@@ -2,19 +2,19 @@ import express from "express";
 import preparationReturnSettingsController from "../../controllers/kitchen/preparation-return-settings.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 import validate from "../../middlewares/validate.js";
-import { createpreparationReturnSettingsSchema, updatepreparationReturnSettingsSchema } from "../../validation/kitchen/preparation-return-settings.validation.js";
+import { createPreparationReturnSettingsSchema, updatePreparationReturnSettingsSchema } from "../../validation/kitchen/preparation-return-settings.validation.js";
 
 
 const router = express.Router();
 
 router.route("/")
-  .post(authenticateToken, validate(createpreparationReturnSettingsSchema), preparationReturnSettingsController.create)
+  .post(authenticateToken, validate(createPreparationReturnSettingsSchema), preparationReturnSettingsController.create)
   .get(authenticateToken, preparationReturnSettingsController.getAll)
 ;
 
 router.route("/:id")
   .get(authenticateToken, preparationReturnSettingsController.getOne)
-  .put(authenticateToken, validate(updatepreparationReturnSettingsSchema), preparationReturnSettingsController.update)
+  .put(authenticateToken, validate(updatePreparationReturnSettingsSchema), preparationReturnSettingsController.update)
   .delete(authenticateToken, preparationReturnSettingsController.delete)
 ;
 

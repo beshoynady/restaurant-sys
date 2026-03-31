@@ -2,19 +2,19 @@ import express from "express";
 import productionRecipeController from "../../controllers/production/production-recipe.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 import validate from "../../middlewares/validate.js";
-import { createproductionRecipeSchema, updateproductionRecipeSchema } from "../../validation/production/production-recipe.validation.js";
+import { createProductionRecipeSchema, updateProductionRecipeSchema } from "../../validation/production/production-recipe.validation.js";
 
 
 const router = express.Router();
 
 router.route("/")
-  .post(authenticateToken, validate(createproductionRecipeSchema), productionRecipeController.create)
+  .post(authenticateToken, validate(createProductionRecipeSchema), productionRecipeController.create)
   .get(authenticateToken, productionRecipeController.getAll)
 ;
 
 router.route("/:id")
   .get(authenticateToken, productionRecipeController.getOne)
-  .put(authenticateToken, validate(updateproductionRecipeSchema), productionRecipeController.update)
+  .put(authenticateToken, validate(updateProductionRecipeSchema), productionRecipeController.update)
   .delete(authenticateToken, productionRecipeController.delete)
 ;
 

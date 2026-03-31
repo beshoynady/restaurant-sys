@@ -2,19 +2,19 @@ import express from "express";
 import bankAccountController from "../../controllers/cash/bank-account.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 import validate from "../../middlewares/validate.js";
-import { createbankAccountSchema, updatebankAccountSchema } from "../../validation/cash/bank-account.validation.js";
+import { createBankAccountSchema, updateBankAccountSchema } from "../../validation/cash/bank-account.validation.js";
 
 
 const router = express.Router();
 
 router.route("/")
-  .post(authenticateToken, validate(createbankAccountSchema), bankAccountController.create)
+  .post(authenticateToken, validate(createBankAccountSchema), bankAccountController.create)
   .get(authenticateToken, bankAccountController.getAll)
 ;
 
 router.route("/:id")
   .get(authenticateToken, bankAccountController.getOne)
-  .put(authenticateToken, validate(updatebankAccountSchema), bankAccountController.update)
+  .put(authenticateToken, validate(updateBankAccountSchema), bankAccountController.update)
   .delete(authenticateToken, bankAccountController.delete)
 ;
 

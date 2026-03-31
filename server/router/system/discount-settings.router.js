@@ -2,19 +2,19 @@ import express from "express";
 import discountSettingsController from "../../controllers/system/discount-settings.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 import validate from "../../middlewares/validate.js";
-import { creatediscountSettingsSchema, updatediscountSettingsSchema } from "../../validation/system/discount-settings.validation.js";
+import { createDiscountSettingsSchema, updateDiscountSettingsSchema } from "../../validation/system/discount-settings.validation.js";
 
 
 const router = express.Router();
 
 router.route("/")
-  .post(authenticateToken, validate(creatediscountSettingsSchema), discountSettingsController.create)
+  .post(authenticateToken, validate(createDiscountSettingsSchema), discountSettingsController.create)
   .get(authenticateToken, discountSettingsController.getAll)
 ;
 
 router.route("/:id")
   .get(authenticateToken, discountSettingsController.getOne)
-  .put(authenticateToken, validate(updatediscountSettingsSchema), discountSettingsController.update)
+  .put(authenticateToken, validate(updateDiscountSettingsSchema), discountSettingsController.update)
   .delete(authenticateToken, discountSettingsController.delete)
 ;
 
