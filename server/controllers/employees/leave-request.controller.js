@@ -1,52 +1,10 @@
-import asyncHandler from "../../utils/asyncHandler.js";
+import BaseController from "../BaseController.js";
 import leaveRequestService from "../../services/employees/leave-request.service.js";
-import { validateLeaveRequestModel } from "../../validation/employees/leave-request.validation.js";
 
-/* =========================
-   CRUD Controller for leave-request
-========================= */
-const leaveRequestController = {
-  create: asyncHandler(async (req, res) => {
-    const brandId = req.brand._id;
-    const branchId = req.body.branch ?? req.branch._id;
-    const userId = req.user._id;
-    validateLeaveRequestModel(req.body);
-    const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
-    const result = await leaveRequestService.create(payload);
-    res.status(201).json(result);
-  }),
+class LeaveRequestController extends BaseController {
+  constructor() {
+    super(leaveRequestService);
+  }
+}
 
-  getAll: asyncHandler(async (req, res) => {
-    const brandId = req.brand._id;
-    const branchId = req.branch._id;
-    const result = await leaveRequestService.getAll({ ...req.query, brand: brandId, branch: branchId });
-    res.json(result);
-  }),
-
-  getOne: asyncHandler(async (req, res) => {
-    const result = await leaveRequestService.getById(req.params.id);
-    res.json(result);
-  }),
-
-  update: asyncHandler(async (req, res) => {
-    const brandId = req.brand._id;
-    const branchId = req.body.branch ?? req.branch._id;
-    const userId = req.user._id;
-    validateLeaveRequestModel(req.body, true);
-    const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
-    const result = await leaveRequestService.update(req.params.id, payload);
-    res.json(result);
-  }),
-
-  delete: asyncHandler(async (req, res) => {
-    const result = await leaveRequestService.delete(req.params.id);
-    res.json(result);
-  }),
-
-  restore: asyncHandler(async (req, res) => {
-    const result = await leaveRequestService.restore(req.params.id);
-    res.json(result);
-  }),
-};
-
-export default leaveRequestController;
+export default new LeaveRequestController();

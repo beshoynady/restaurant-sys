@@ -2,26 +2,31 @@ import express from "express";
 import employeeSettingsController from "../../controllers/employees/employee-settings.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 import validate from "../../middlewares/validate.js";
-import { createEmployeeSettingsSchema, updateEmployeeSettingsSchema } from "../../validation/employees/employee-settings.validation.js";
-
+import { 
+  createEmployeeSettingsSchema, 
+  updateEmployeeSettingsSchema, 
+  paramsSchema, 
+  querySchema 
+} from "../../validation/employees/employee-settings.validation.js";
 
 const router = express.Router();
 
+// Create & GetAll
 router.route("/")
   .post(authenticateToken, validate(createEmployeeSettingsSchema), employeeSettingsController.create)
-  .get(authenticateToken, employeeSettingsController.getAll)
+  .get(authenticateToken, validate(querySchema()), employeeSettingsController.getAll)
 ;
 
+// GetOne, Update, SoftDelete
 router.route("/:id")
-  .get(authenticateToken, employeeSettingsController.getOne)
+  .get(authenticateToken, validate(paramsSchema()), employeeSettingsController.getOne)
   .put(authenticateToken, validate(updateEmployeeSettingsSchema), employeeSettingsController.update)
-  .delete(authenticateToken, employeeSettingsController.delete)
+  .delete(authenticateToken, validate(paramsSchema()), employeeSettingsController.delete) // soft delete
 ;
 
+// Restore soft-deleted item
 router.route("/restore/:id")
-  .patch(authenticateToken, employeeSettingsController.restore)
+  .patch(authenticateToken, validate(paramsSchema()), employeeSettingsController.restore)
 ;
-
-
 
 export default router;

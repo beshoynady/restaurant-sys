@@ -1,52 +1,10 @@
-import asyncHandler from "../../utils/asyncHandler.js";
+import BaseController from "../BaseController.js";
 import employeeAdvanceService from "../../services/employees/employee-advance.service.js";
-import { validateEmployeeAdvanceModel } from "../../validation/employees/employee-advance.validation.js";
 
-/* =========================
-   CRUD Controller for employee-advance
-========================= */
-const employeeAdvanceController = {
-  create: asyncHandler(async (req, res) => {
-    const brandId = req.brand._id;
-    const branchId = req.body.branch ?? req.branch._id;
-    const userId = req.user._id;
-    validateEmployeeAdvanceModel(req.body);
-    const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
-    const result = await employeeAdvanceService.create(payload);
-    res.status(201).json(result);
-  }),
+class EmployeeAdvanceController extends BaseController {
+  constructor() {
+    super(employeeAdvanceService);
+  }
+}
 
-  getAll: asyncHandler(async (req, res) => {
-    const brandId = req.brand._id;
-    const branchId = req.branch._id;
-    const result = await employeeAdvanceService.getAll({ ...req.query, brand: brandId, branch: branchId });
-    res.json(result);
-  }),
-
-  getOne: asyncHandler(async (req, res) => {
-    const result = await employeeAdvanceService.getById(req.params.id);
-    res.json(result);
-  }),
-
-  update: asyncHandler(async (req, res) => {
-    const brandId = req.brand._id;
-    const branchId = req.body.branch ?? req.branch._id;
-    const userId = req.user._id;
-    validateEmployeeAdvanceModel(req.body, true);
-    const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
-    const result = await employeeAdvanceService.update(req.params.id, payload);
-    res.json(result);
-  }),
-
-  delete: asyncHandler(async (req, res) => {
-    const result = await employeeAdvanceService.delete(req.params.id);
-    res.json(result);
-  }),
-
-  restore: asyncHandler(async (req, res) => {
-    const result = await employeeAdvanceService.restore(req.params.id);
-    res.json(result);
-  }),
-};
-
-export default employeeAdvanceController;
+export default new EmployeeAdvanceController();

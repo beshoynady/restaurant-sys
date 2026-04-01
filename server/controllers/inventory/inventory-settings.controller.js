@@ -1,52 +1,10 @@
-import asyncHandler from "../../utils/asyncHandler.js";
+import BaseController from "../BaseController.js";
 import inventorySettingsService from "../../services/inventory/inventory-settings.service.js";
-import { validateInventorySettingsModel } from "../../validation/inventory/inventory-settings.validation.js";
 
-/* =========================
-   CRUD Controller for inventory-settings
-========================= */
-const inventorySettingsController = {
-  create: asyncHandler(async (req, res) => {
-    const brandId = req.brand._id;
-    const branchId = req.body.branch ?? req.branch._id;
-    const userId = req.user._id;
-    validateInventorySettingsModel(req.body);
-    const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
-    const result = await inventorySettingsService.create(payload);
-    res.status(201).json(result);
-  }),
+class InventorySettingsController extends BaseController {
+  constructor() {
+    super(inventorySettingsService);
+  }
+}
 
-  getAll: asyncHandler(async (req, res) => {
-    const brandId = req.brand._id;
-    const branchId = req.branch._id;
-    const result = await inventorySettingsService.getAll({ ...req.query, brand: brandId, branch: branchId });
-    res.json(result);
-  }),
-
-  getOne: asyncHandler(async (req, res) => {
-    const result = await inventorySettingsService.getById(req.params.id);
-    res.json(result);
-  }),
-
-  update: asyncHandler(async (req, res) => {
-    const brandId = req.brand._id;
-    const branchId = req.body.branch ?? req.branch._id;
-    const userId = req.user._id;
-    validateInventorySettingsModel(req.body, true);
-    const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
-    const result = await inventorySettingsService.update(req.params.id, payload);
-    res.json(result);
-  }),
-
-  delete: asyncHandler(async (req, res) => {
-    const result = await inventorySettingsService.delete(req.params.id);
-    res.json(result);
-  }),
-
-  restore: asyncHandler(async (req, res) => {
-    const result = await inventorySettingsService.restore(req.params.id);
-    res.json(result);
-  }),
-};
-
-export default inventorySettingsController;
+export default new InventorySettingsController();

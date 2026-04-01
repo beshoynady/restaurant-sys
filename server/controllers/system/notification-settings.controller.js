@@ -1,52 +1,10 @@
-import asyncHandler from "../../utils/asyncHandler.js";
+import BaseController from "../BaseController.js";
 import notificationSettingsService from "../../services/system/notification-settings.service.js";
-import { validateNotificationSettingsModel } from "../../validation/system/notification-settings.validation.js";
 
-/* =========================
-   CRUD Controller for notification-settings
-========================= */
-const notificationSettingsController = {
-  create: asyncHandler(async (req, res) => {
-    const brandId = req.brand._id;
-    const branchId = req.body.branch ?? req.branch._id;
-    const userId = req.user._id;
-    validateNotificationSettingsModel(req.body);
-    const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
-    const result = await notificationSettingsService.create(payload);
-    res.status(201).json(result);
-  }),
+class NotificationSettingsController extends BaseController {
+  constructor() {
+    super(notificationSettingsService);
+  }
+}
 
-  getAll: asyncHandler(async (req, res) => {
-    const brandId = req.brand._id;
-    const branchId = req.branch._id;
-    const result = await notificationSettingsService.getAll({ ...req.query, brand: brandId, branch: branchId });
-    res.json(result);
-  }),
-
-  getOne: asyncHandler(async (req, res) => {
-    const result = await notificationSettingsService.getById(req.params.id);
-    res.json(result);
-  }),
-
-  update: asyncHandler(async (req, res) => {
-    const brandId = req.brand._id;
-    const branchId = req.body.branch ?? req.branch._id;
-    const userId = req.user._id;
-    validateNotificationSettingsModel(req.body, true);
-    const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
-    const result = await notificationSettingsService.update(req.params.id, payload);
-    res.json(result);
-  }),
-
-  delete: asyncHandler(async (req, res) => {
-    const result = await notificationSettingsService.delete(req.params.id);
-    res.json(result);
-  }),
-
-  restore: asyncHandler(async (req, res) => {
-    const result = await notificationSettingsService.restore(req.params.id);
-    res.json(result);
-  }),
-};
-
-export default notificationSettingsController;
+export default new NotificationSettingsController();

@@ -1,52 +1,10 @@
-import asyncHandler from "../../utils/asyncHandler.js";
+import BaseController from "../BaseController.js";
 import bankAccountService from "../../services/cash/bank-account.service.js";
-import { validateBankAccountModel } from "../../validation/cash/bank-account.validation.js";
 
-/* =========================
-   CRUD Controller for bank-account
-========================= */
-const bankAccountController = {
-  create: asyncHandler(async (req, res) => {
-    const brandId = req.brand._id;
-    const branchId = req.body.branch ?? req.branch._id;
-    const userId = req.user._id;
-    validateBankAccountModel(req.body);
-    const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
-    const result = await bankAccountService.create(payload);
-    res.status(201).json(result);
-  }),
+class BankAccountController extends BaseController {
+  constructor() {
+    super(bankAccountService);
+  }
+}
 
-  getAll: asyncHandler(async (req, res) => {
-    const brandId = req.brand._id;
-    const branchId = req.branch._id;
-    const result = await bankAccountService.getAll({ ...req.query, brand: brandId, branch: branchId });
-    res.json(result);
-  }),
-
-  getOne: asyncHandler(async (req, res) => {
-    const result = await bankAccountService.getById(req.params.id);
-    res.json(result);
-  }),
-
-  update: asyncHandler(async (req, res) => {
-    const brandId = req.brand._id;
-    const branchId = req.body.branch ?? req.branch._id;
-    const userId = req.user._id;
-    validateBankAccountModel(req.body, true);
-    const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
-    const result = await bankAccountService.update(req.params.id, payload);
-    res.json(result);
-  }),
-
-  delete: asyncHandler(async (req, res) => {
-    const result = await bankAccountService.delete(req.params.id);
-    res.json(result);
-  }),
-
-  restore: asyncHandler(async (req, res) => {
-    const result = await bankAccountService.restore(req.params.id);
-    res.json(result);
-  }),
-};
-
-export default bankAccountController;
+export default new BankAccountController();

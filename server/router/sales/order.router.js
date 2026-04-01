@@ -2,26 +2,31 @@ import express from "express";
 import orderController from "../../controllers/sales/order.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 import validate from "../../middlewares/validate.js";
-import { createOrderSchema, updateOrderSchema } from "../../validation/sales/order.validation.js";
-
+import { 
+  createOrderSchema, 
+  updateOrderSchema, 
+  paramsSchema, 
+  querySchema 
+} from "../../validation/sales/order.validation.js";
 
 const router = express.Router();
 
+// Create & GetAll
 router.route("/")
   .post(authenticateToken, validate(createOrderSchema), orderController.create)
-  .get(authenticateToken, orderController.getAll)
+  .get(authenticateToken, validate(querySchema()), orderController.getAll)
 ;
 
+// GetOne, Update, SoftDelete
 router.route("/:id")
-  .get(authenticateToken, orderController.getOne)
+  .get(authenticateToken, validate(paramsSchema()), orderController.getOne)
   .put(authenticateToken, validate(updateOrderSchema), orderController.update)
-  .delete(authenticateToken, orderController.delete)
+  .delete(authenticateToken, validate(paramsSchema()), orderController.delete) // soft delete
 ;
 
+// Restore soft-deleted item
 router.route("/restore/:id")
-  .patch(authenticateToken, orderController.restore)
+  .patch(authenticateToken, validate(paramsSchema()), orderController.restore)
 ;
-
-
 
 export default router;
