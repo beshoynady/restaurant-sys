@@ -21,7 +21,7 @@ const journalEntrySchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      maxlength: [30, "Entry number cannot exceed 30 characters"],
+      maxlength: 30,
     },
     // brief description of the journal entry
     description: {

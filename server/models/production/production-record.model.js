@@ -1,28 +1,27 @@
 import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
-
 /*
-* Production Record Schema
-* Records details of stock production activities
-* including materials used, costs, and production status.
-* Generates data for inventory adjustments and cost tracking. 
-*/
+ * Production Record Schema
+ * Records details of stock production activities
+ * including materials used, costs, and production status.
+ * Generates data for inventory adjustments and cost tracking.
+ */
 
 const productionRecordSchema = new mongoose.Schema(
   {
     productionNumber: {
       type: Number,
-      required: [true, "Production number is required"],
+      required: true,
       trim: true,
       unique: true,
-      min: [1, "Production number must be at least 1"],
+      min: 1,
       index: true,
     },
     productionOrder: {
       type: ObjectId,
       ref: "ProductionOrder",
-      required: [true, "Production order is required"],
+      required: true,
     },
     warehouse: {
       type: ObjectId,
@@ -33,13 +32,13 @@ const productionRecordSchema = new mongoose.Schema(
     stockItem: {
       type: ObjectId,
       ref: "StockItem",
-      required: [true, "Stock item is required"],
+      required: true,
     },
 
     quantity: {
       type: Number,
-      required: [true, "Quantity is required"],
-      min: [1, "Quantity must be at least 1"],
+      required: true,
+      min: 1,
       default: 1,
     },
 
@@ -47,7 +46,7 @@ const productionRecordSchema = new mongoose.Schema(
       type: String,
       trim: true,
       maxLength: 10,
-      required: [true, "Unit is required"],
+      required: true,
     },
     productionStatus: {
       type: String,
@@ -57,12 +56,13 @@ const productionRecordSchema = new mongoose.Schema(
     preparationSection: {
       type: ObjectId,
       ref: "PreparationSection",
-      required: [true, "Production section is required"],
+      required: true,
     },
+
     productionRecipe: {
       type: ObjectId,
       ref: "ProductionRecipe",
-      required: [true, "Stock Production Recipe is required"],
+      required: true,
     },
 
     materialsUsed: [
@@ -70,21 +70,21 @@ const productionRecordSchema = new mongoose.Schema(
         material: {
           type: ObjectId,
           ref: "StockItem",
-          required: [true, "Material is required"],
+          required: true,
         },
         quantity: {
           type: Number,
-          required: [true, "Quantity is required"],
+          required: true,
         },
         unit: {
           type: String,
           trim: true,
           maxLength: 10,
-          required: [true, "Unit is required"],
+          required: true,
         },
         cost: {
           type: Number,
-          required: [true, "Cost is required"],
+          required: true,
         },
       },
     ],
@@ -94,18 +94,18 @@ const productionRecordSchema = new mongoose.Schema(
         operationType: {
           type: String,
           enum: ["Labor", "Machine", "Overhead", "gas", "electricity", "Other"],
-          required: [true, "Operation type is required"],
+          required: true,
         },
         cost: {
           type: Number,
-          required: [true, "Cost is required"],
+          required: true,
         },
         allocationMethod: {
           type: String,
           enum: ["Fixed", "Variable", "Activity-Based"],
-          required: [true, "Allocation method is required"],
+          required: true,
         },
-      }
+      },
     ],
     productionCost: {
       type: Number,
@@ -113,7 +113,7 @@ const productionRecordSchema = new mongoose.Schema(
     createdBy: {
       type: ObjectId,
       ref: "UserAccount",
-      required: [true, "Created by is required"],
+      required: true,
     },
     updatedBy: {
       type: ObjectId,
@@ -126,7 +126,7 @@ const productionRecordSchema = new mongoose.Schema(
     },
     productionStartTime: {
       type: Date,
-      required: [true, "Production start time is required"],
+      required: true,
       default: Date.now,
     },
     productionEndTime: {
@@ -135,7 +135,7 @@ const productionRecordSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export default mongoose.model("ProductionRecord", productionRecordSchema);

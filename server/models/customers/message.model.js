@@ -35,7 +35,7 @@ const customerMessageSchema = new mongoose.Schema(
       type: String,
       trim: true,
       lowercase: true,
-      match: [/^\S+@\S+\.\S+$/, "Invalid email"],
+      match: /^\S+@\S+\.\S+$/,
     },
 
     phone: {

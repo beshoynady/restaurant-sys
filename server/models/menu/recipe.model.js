@@ -14,16 +14,16 @@ const RecipeSchema = new mongoose.Schema(
     // Number of meals the recipe yields
     numberOfMeals: {
       type: Number,
-      required: [true, "Number of meals is required"],
+      required: true,
       default: 1,
-      min: [1, "Number of meals must be at least 1"],
+      min: 1,
     },
     // Estimated preparation time in minutes
     preparationTime: {
       type: Number,
-      required: [true, "Preparation time is required"],
+      required: true,
       default: 0,
-      min: [0, "Preparation time cannot be negative"],
+      min: 0,
     },
 
     // List of ingredients with quantities and units
@@ -33,27 +33,27 @@ const RecipeSchema = new mongoose.Schema(
         stockItem: {
           type: ObjectId,
           ref: "StockItem",
-          required: [true, "Ingredient item ID is required"],
+          required: true,
         },
 
         amount: {
           type: Number,
-          required: [true, "Ingredient amount is required"],
-          min: [0.01, "Ingredient amount must be greater than 0"],
+          required: true,
+          min: 0.01,
         },
         unit: {
           type: String,
           trim: true,
-          required: [true, "Unit is required"],
-          minlength: [1, "Unit must have at least 1 character"],
-          maxlength: [20, "Unit cannot exceed 20 characters"],
+          required: true,
+          minlength: 1,
+          maxlength: 20,
         },
         // Optional waste percentage for the ingredient
         wastePercentage: {
           type: Number,
           default: 0,
-          min: [0, "Waste percentage cannot be negative"],
-          max: [100, "Waste percentage cannot exceed 100"],
+          min: 0,
+          max: 100,
         },
       },
     ],

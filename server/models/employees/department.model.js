@@ -41,7 +41,7 @@ const departmentSchema = new mongoose.Schema(
       type: String,
       trim: true,
       uppercase: true,
-      maxlength: [20, "Department code must be at most 20 characters long"],
+      maxlength: 20,
     },
 
     // Description (multilingual)
@@ -68,8 +68,8 @@ const departmentSchema = new mongoose.Schema(
       required: [true, "Department classification is required"],
       default: "service",
       trim: true,
-      minlength: [2, "Classification must be at least 2 characters long"],
-      maxlength: [50, "Classification must be at most 50 characters long"],
+      minlength: 2,
+      maxlength: 50,
     },
 
     // Optional parent department (for hierarchical structures)

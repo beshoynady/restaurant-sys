@@ -136,7 +136,7 @@ const employeeSchema = new mongoose.Schema(
       type: String,
       trim: true,
       lowercase: true,
-      match: [/\S+@\S+\.\S+/, "Invalid email address"],
+      match: /\S+@\S+\.\S+/,
     },
 
     address: {

@@ -38,7 +38,7 @@ const menuSettingsSchema = new mongoose.Schema(
      */
     website: {
       type: String,
-      match: [/^https?:\/\/[^\s$.?#].[^\s]*$/, "Invalid URL"],
+      match: /^https?:\/\/[^\s$.?#].[^\s]*$/,
     },
 
     /**
@@ -59,7 +59,7 @@ const menuSettingsSchema = new mongoose.Schema(
         },
         url: {
           type: String,
-          match: [/^https?:\/\/[^\s$.?#].[^\s]*$/, "Invalid URL"],
+          match: /^https?:\/\/[^\s$.?#].[^\s]*$/,
         },
       },
     ],

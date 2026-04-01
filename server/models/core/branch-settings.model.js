@@ -30,7 +30,7 @@ const branchSettingsSchema = new mongoose.Schema(
         lowercase: true,
         trim: true,
         maxlength: 100,
-        match: [/\S+@\S+\.\S+/, "Please enter a valid email address"], // Valid email format
+        match: /\S+@\S+\.\S+/, // Valid email format
       },
     },
 

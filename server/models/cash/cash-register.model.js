@@ -25,15 +25,15 @@ const cashRegisterSchema = new mongoose.Schema(
      * Example: { en: "Main Cashier", ar: "صندوق الكاشير الرئيسي" }
      */
     name: {
-  type: Map,
-  of: {
-    type: String,
-    trim: true,
-    minlength: 2,
-    maxlength: 100,
-  },
-  required: true,
-},
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      required: true,
+    },
 
     code: {
       type: String,

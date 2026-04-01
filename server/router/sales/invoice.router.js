@@ -2,31 +2,26 @@ import express from "express";
 import invoiceController from "../../controllers/sales/invoice.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 import validate from "../../middlewares/validate.js";
-import { 
-  createInvoiceSchema, 
-  updateInvoiceSchema, 
-  paramsSchema, 
-  querySchema 
-} from "../../validation/sales/invoice.validation.js";
+import { createInvoiceSchema, updateInvoiceSchema, invoiceParamsSchema, invoiceQuerySchema } from "../../validation/sales/invoice.validation.js";
 
 const router = express.Router();
 
 // Create & GetAll
 router.route("/")
   .post(authenticateToken, validate(createInvoiceSchema), invoiceController.create)
-  .get(authenticateToken, validate(querySchema()), invoiceController.getAll)
+  .get(authenticateToken, validate(invoiceQuerySchema), invoiceController.getAll)
 ;
 
 // GetOne, Update, SoftDelete
 router.route("/:id")
-  .get(authenticateToken, validate(paramsSchema()), invoiceController.getOne)
+  .get(authenticateToken, validate(invoiceParamsSchema), invoiceController.getOne)
   .put(authenticateToken, validate(updateInvoiceSchema), invoiceController.update)
-  .delete(authenticateToken, validate(paramsSchema()), invoiceController.delete) // soft delete
+  .delete(authenticateToken, validate(invoiceParamsSchema), invoiceController.delete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsSchema()), invoiceController.restore)
+  .patch(authenticateToken, validate(invoiceParamsSchema), invoiceController.restore)
 ;
 
 export default router;

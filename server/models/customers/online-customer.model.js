@@ -37,7 +37,7 @@ const onlineCustomerSchema = new mongoose.Schema(
       maxlength: 100,
       lowercase: true,
       trim: true,
-      match: [/\S+@\S+\.\S+/, "Invalid email format"],
+      match: /\S+@\S+\.\S+/,
     },
 
     phone: {

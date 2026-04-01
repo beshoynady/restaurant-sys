@@ -40,25 +40,25 @@ const productionOrderSchema = new mongoose.Schema(
     unit: {
       type: String,
       trim: true,
-      required: [true, "Unit is required"],
+      required: true,
     },
     quantityRequested: {
       type: Number,
-      required: [true, "Quantity requested is required"],
-      min: [1, "Quantity must be at least 1"],
+      required: true,
+      min: 1,
     },
     plannedStartDate: {
       type: Date,
-      required: [true, "Planned start date is required"],
+      required: true,
     },
     plannedEndDate: {
       type: Date,
-      required: [true, "Planned end date is required"],
+      required: true,
     },
     priority: {
       type: String,
       enum: ["low", "normal", "high"],
-      default: "normal", 
+      default: "normal",
     },
     orderStatus: {
       type: String,
@@ -73,7 +73,7 @@ const productionOrderSchema = new mongoose.Schema(
     createdBy: {
       type: ObjectId,
       ref: "UserAccount",
-      required: [true, "Created by is required"],
+      required: true,
     },
     updatedBy: {
       type: ObjectId,

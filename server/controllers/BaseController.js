@@ -1,4 +1,4 @@
-import asyncHandler from "../utils/asyncHandler";
+import asyncHandler from "../utils/asyncHandler.js";
 
 class BaseController {
   service;
@@ -26,7 +26,7 @@ class BaseController {
   });
 
   // --- GET ALL ---
-  findAll = asyncHandler(async (req, res, next) => {
+  getAll = asyncHandler(async (req, res, next) => {
     const { brandId } = req.user;
 
     const result = await this.service.findAll(brandId, {
@@ -44,7 +44,7 @@ class BaseController {
   });
 
   // --- GET BY ID ---
-  findById = asyncHandler(async (req, res, next) => {
+  getOne = asyncHandler(async (req, res, next) => {
     const data = await this.service.findById(req.params.id, req.populate || []);
 
     res.json({
