@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
-
 /*Inventory Schema to track stock levels in warehouses*/
 
 const InventorySchema = new mongoose.Schema(
@@ -10,28 +9,24 @@ const InventorySchema = new mongoose.Schema(
       type: ObjectId,
       ref: "Brand",
       required: true,
-      index: true,
     },
 
     branch: {
       type: ObjectId,
       ref: "Branch",
       required: true,
-      index: true,
     },
 
     warehouse: {
       type: ObjectId,
       ref: "Warehouse",
       required: true,
-      index: true,
     },
 
     stockItem: {
       type: ObjectId,
       ref: "StockItem",
       required: true,
-      index: true,
     },
 
     quantity: {
@@ -59,15 +54,11 @@ const InventorySchema = new mongoose.Schema(
       trim: true,
       maxlength: 500,
     },
-    cre
   },
-  { timestamps: true, versionKey: false }
+  { timestamps: true, versionKey: false },
 );
 
 // Unique balance per item per warehouse
-InventorySchema.index(
-  { warehouse: 1, stockItem: 1 },
-  { unique: true }
-);
+InventorySchema.index({ warehouse: 1, stockItem: 1 }, { unique: true });
 
 export default mongoose.model("Inventory", InventorySchema);

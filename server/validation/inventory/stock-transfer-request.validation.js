@@ -1,36 +1,26 @@
 import Joi from "joi";
-import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
 import StockTransferRequestModel from "../../models/inventory/stock-transfer-request.model.js";
 
 /* =========================
    Create Schema
 ========================= */
-export const createStockTransferRequestSchema = buildJoiSchema(StockTransferRequestModel.schema);
+export const createStockTransferRequestSchema = createSchema(StockTransferRequestModel.schema);
 
 /* =========================
-   Update Schema (all optional except _id & updatedBy)
+   Update Schema
 ========================= */
-export const updateStockTransferRequestSchema = (function() {
-  const schema = buildJoiSchema(StockTransferRequestModel.schema);
-  return schema.fork(Object.keys(StockTransferRequestModel.schema.paths), (field) => field.optional())
-               .keys({
-                 _id: objectId().required(),
-                 updatedBy: objectId().required()
-               });
-})();
+export const updateStockTransferRequestSchema = updateSchema(
+  StockTransferRequestModel.schema,
+  ["updatedBy"]
+);
 
 /* =========================
    Params Schema
 ========================= */
-export const stockTransferRequestParamsSchema = Joi.object({
-  _id: objectId().required()
-});
+export const stockTransferRequestParamsSchema = paramsSchema();
 
 /* =========================
    Query Schema
 ========================= */
-export const stockTransferRequestQuerySchema = Joi.object({
-  limit: Joi.number().min(1).optional(),
-  skip: Joi.number().min(0).optional(),
-  search: Joi.string().optional()
-});
+export const stockTransferRequestQuerySchema = querySchema();

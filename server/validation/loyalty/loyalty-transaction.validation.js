@@ -1,36 +1,26 @@
 import Joi from "joi";
-import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
 import LoyaltyTransactionModel from "../../models/loyalty/loyalty-transaction.model.js";
 
 /* =========================
    Create Schema
 ========================= */
-export const createLoyaltyTransactionSchema = buildJoiSchema(LoyaltyTransactionModel.schema);
+export const createLoyaltyTransactionSchema = createSchema(LoyaltyTransactionModel.schema);
 
 /* =========================
-   Update Schema (all optional except _id & updatedBy)
+   Update Schema
 ========================= */
-export const updateLoyaltyTransactionSchema = (function() {
-  const schema = buildJoiSchema(LoyaltyTransactionModel.schema);
-  return schema.fork(Object.keys(LoyaltyTransactionModel.schema.paths), (field) => field.optional())
-               .keys({
-                 _id: objectId().required(),
-                 updatedBy: objectId().required()
-               });
-})();
+export const updateLoyaltyTransactionSchema = updateSchema(
+  LoyaltyTransactionModel.schema,
+  ["updatedBy"]
+);
 
 /* =========================
    Params Schema
 ========================= */
-export const loyaltyTransactionParamsSchema = Joi.object({
-  _id: objectId().required()
-});
+export const loyaltyTransactionParamsSchema = paramsSchema();
 
 /* =========================
    Query Schema
 ========================= */
-export const loyaltyTransactionQuerySchema = Joi.object({
-  limit: Joi.number().min(1).optional(),
-  skip: Joi.number().min(0).optional(),
-  search: Joi.string().optional()
-});
+export const loyaltyTransactionQuerySchema = querySchema();

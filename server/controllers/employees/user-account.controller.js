@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import userAccountService from "../../services/employees/user-account.service.js";
+import { validateUserAccountModel } from "../../validation/employees/user-account.validation.js";
 
-
-// CRUD Controller for user-account
+/* =========================
+   CRUD Controller for user-account
+========================= */
 const userAccountController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateUserAccountModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await userAccountService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const userAccountController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateUserAccountModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await userAccountService.update(req.params.id, payload);
     res.json(result);

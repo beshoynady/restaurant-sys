@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import payrollItemService from "../../services/employees/payroll-item.service.js";
+import { validatePayrollItemModel } from "../../validation/employees/payroll-item.validation.js";
 
-
-// CRUD Controller for payroll-item
+/* =========================
+   CRUD Controller for payroll-item
+========================= */
 const payrollItemController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validatePayrollItemModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await payrollItemService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const payrollItemController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validatePayrollItemModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await payrollItemService.update(req.params.id, payload);
     res.json(result);

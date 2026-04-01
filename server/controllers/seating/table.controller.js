@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import tableService from "../../services/seating/table.service.js";
+import { validateTableModel } from "../../validation/seating/table.validation.js";
 
-
-// CRUD Controller for table
+/* =========================
+   CRUD Controller for table
+========================= */
 const tableController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateTableModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await tableService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const tableController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateTableModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await tableService.update(req.params.id, payload);
     res.json(result);

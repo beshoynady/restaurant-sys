@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import inventorySettingsService from "../../services/inventory/inventory-settings.service.js";
+import { validateInventorySettingsModel } from "../../validation/inventory/inventory-settings.validation.js";
 
-
-// CRUD Controller for inventory-settings
+/* =========================
+   CRUD Controller for inventory-settings
+========================= */
 const inventorySettingsController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateInventorySettingsModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await inventorySettingsService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const inventorySettingsController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateInventorySettingsModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await inventorySettingsService.update(req.params.id, payload);
     res.json(result);

@@ -9,7 +9,7 @@ const shiftSchema = new mongoose.Schema(
       ref: "Brand",
       required: true,
       index: true,
-      description: "Reference to the Brand this shift belongs to",
+      
     },
 
     // Branch reference (for multi-branch systems)
@@ -18,7 +18,7 @@ const shiftSchema = new mongoose.Schema(
       ref: "Branch",
       required: true,
       index: true,
-      description: "Reference to the Branch this shift applies to",
+      
     },
 
     // Localized display name for the shift
@@ -41,7 +41,7 @@ const shiftSchema = new mongoose.Schema(
       uppercase: true,
       minlength: 2,
       maxlength: 20,
-      description: "Unique code for the shift (e.g., MORNING, AFTERNOON)",
+      
     },
 
     // Type of shift
@@ -49,8 +49,7 @@ const shiftSchema = new mongoose.Schema(
       type: String,
       enum: ["morning", "afternoon", "night", "custom", "flexible", "other"],
       required: true,
-      description:
-        "Categorization of the shift: morning, afternoon, night, or custom types",
+      
     },
 
     // Start time of shift in minutes from midnight (0-1439)
@@ -59,8 +58,7 @@ const shiftSchema = new mongoose.Schema(
       required: true,
       min: 0,
       max: 1439,
-      description:
-        "Shift start time expressed in minutes from midnight (0-1439)",
+      
     },
 
     // End time of shift in minutes from midnight (0-1439)
@@ -69,7 +67,7 @@ const shiftSchema = new mongoose.Schema(
       required: true,
       min: 0,
       max: 1439,
-      description: "Shift end time expressed in minutes from midnight (0-1439)",
+      
     },
 
     // Current operational status
@@ -78,8 +76,7 @@ const shiftSchema = new mongoose.Schema(
       enum: ["draft", "active", "inactive", "archived"],
       default: "draft",
       index: true,
-      description:
-        "Current status of the shift: draft, active, inactive, or archived",
+      
     },
 
     // Additional notes for the shift
@@ -87,7 +84,7 @@ const shiftSchema = new mongoose.Schema(
       type: String,
       trim: true,
       maxlength: 500,
-      description: "Optional notes or description about the shift",
+      
     },
 
     // Audit fields
@@ -95,28 +92,27 @@ const shiftSchema = new mongoose.Schema(
       type: ObjectId,
       ref: "UserAccount",
       required: true,
-      description: "Reference to the employee who created this shift",
+      
     },
 
     updatedBy: {
       type: ObjectId,
       ref: "UserAccount",
       default: null,
-      description: "Reference to the employee who last updated this shift",
+      
     },
 
     deletedBy: {
       type: ObjectId,
       ref: "UserAccount",
       default: null,
-      description:
-        "Reference to the employee who deleted this shift (soft delete)",
+      
     },
 
     deletedAt: {
       type: Date,
       default: null,
-      description: "Timestamp when the shift was soft deleted",
+      
     },
   },
   {

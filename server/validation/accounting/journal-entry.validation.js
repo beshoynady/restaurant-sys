@@ -1,36 +1,26 @@
 import Joi from "joi";
-import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
 import JournalEntryModel from "../../models/accounting/journal-entry.model.js";
 
 /* =========================
    Create Schema
 ========================= */
-export const createJournalEntrySchema = buildJoiSchema(JournalEntryModel.schema);
+export const createJournalEntrySchema = createSchema(JournalEntryModel.schema);
 
 /* =========================
-   Update Schema (all optional except _id & updatedBy)
+   Update Schema
 ========================= */
-export const updateJournalEntrySchema = (function() {
-  const schema = buildJoiSchema(JournalEntryModel.schema);
-  return schema.fork(Object.keys(JournalEntryModel.schema.paths), (field) => field.optional())
-               .keys({
-                 _id: objectId().required(),
-                 updatedBy: objectId().required()
-               });
-})();
+export const updateJournalEntrySchema = updateSchema(
+  JournalEntryModel.schema,
+  ["updatedBy"]
+);
 
 /* =========================
    Params Schema
 ========================= */
-export const journalEntryParamsSchema = Joi.object({
-  _id: objectId().required()
-});
+export const journalEntryParamsSchema = paramsSchema();
 
 /* =========================
    Query Schema
 ========================= */
-export const journalEntryQuerySchema = Joi.object({
-  limit: Joi.number().min(1).optional(),
-  skip: Joi.number().min(0).optional(),
-  search: Joi.string().optional()
-});
+export const journalEntryQuerySchema = querySchema();

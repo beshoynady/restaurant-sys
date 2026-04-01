@@ -1,36 +1,26 @@
 import Joi from "joi";
-import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
 import PreparationSectionModel from "../../models/kitchen/preparation-section.model.js";
 
 /* =========================
    Create Schema
 ========================= */
-export const createPreparationSectionSchema = buildJoiSchema(PreparationSectionModel.schema);
+export const createPreparationSectionSchema = createSchema(PreparationSectionModel.schema);
 
 /* =========================
-   Update Schema (all optional except _id & updatedBy)
+   Update Schema
 ========================= */
-export const updatePreparationSectionSchema = (function() {
-  const schema = buildJoiSchema(PreparationSectionModel.schema);
-  return schema.fork(Object.keys(PreparationSectionModel.schema.paths), (field) => field.optional())
-               .keys({
-                 _id: objectId().required(),
-                 updatedBy: objectId().required()
-               });
-})();
+export const updatePreparationSectionSchema = updateSchema(
+  PreparationSectionModel.schema,
+  ["updatedBy"]
+);
 
 /* =========================
    Params Schema
 ========================= */
-export const preparationSectionParamsSchema = Joi.object({
-  _id: objectId().required()
-});
+export const preparationSectionParamsSchema = paramsSchema();
 
 /* =========================
    Query Schema
 ========================= */
-export const preparationSectionQuerySchema = Joi.object({
-  limit: Joi.number().min(1).optional(),
-  skip: Joi.number().min(0).optional(),
-  search: Joi.string().optional()
-});
+export const preparationSectionQuerySchema = querySchema();

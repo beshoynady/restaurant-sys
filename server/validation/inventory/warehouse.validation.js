@@ -1,36 +1,26 @@
 import Joi from "joi";
-import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
 import WarehouseModel from "../../models/inventory/warehouse.model.js";
 
 /* =========================
    Create Schema
 ========================= */
-export const createWarehouseSchema = buildJoiSchema(WarehouseModel.schema);
+export const createWarehouseSchema = createSchema(WarehouseModel.schema);
 
 /* =========================
-   Update Schema (all optional except _id & updatedBy)
+   Update Schema
 ========================= */
-export const updateWarehouseSchema = (function() {
-  const schema = buildJoiSchema(WarehouseModel.schema);
-  return schema.fork(Object.keys(WarehouseModel.schema.paths), (field) => field.optional())
-               .keys({
-                 _id: objectId().required(),
-                 updatedBy: objectId().required()
-               });
-})();
+export const updateWarehouseSchema = updateSchema(
+  WarehouseModel.schema,
+  ["updatedBy"]
+);
 
 /* =========================
    Params Schema
 ========================= */
-export const warehouseParamsSchema = Joi.object({
-  _id: objectId().required()
-});
+export const warehouseParamsSchema = paramsSchema();
 
 /* =========================
    Query Schema
 ========================= */
-export const warehouseQuerySchema = Joi.object({
-  limit: Joi.number().min(1).optional(),
-  skip: Joi.number().min(0).optional(),
-  search: Joi.string().optional()
-});
+export const warehouseQuerySchema = querySchema();

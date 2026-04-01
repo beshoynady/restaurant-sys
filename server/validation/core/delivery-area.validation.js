@@ -1,36 +1,26 @@
 import Joi from "joi";
-import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
 import DeliveryAreaModel from "../../models/core/delivery-area.model.js";
 
 /* =========================
    Create Schema
 ========================= */
-export const createDeliveryAreaSchema = buildJoiSchema(DeliveryAreaModel.schema);
+export const createDeliveryAreaSchema = createSchema(DeliveryAreaModel.schema);
 
 /* =========================
-   Update Schema (all optional except _id & updatedBy)
+   Update Schema
 ========================= */
-export const updateDeliveryAreaSchema = (function() {
-  const schema = buildJoiSchema(DeliveryAreaModel.schema);
-  return schema.fork(Object.keys(DeliveryAreaModel.schema.paths), (field) => field.optional())
-               .keys({
-                 _id: objectId().required(),
-                 updatedBy: objectId().required()
-               });
-})();
+export const updateDeliveryAreaSchema = updateSchema(
+  DeliveryAreaModel.schema,
+  ["updatedBy"]
+);
 
 /* =========================
    Params Schema
 ========================= */
-export const deliveryAreaParamsSchema = Joi.object({
-  _id: objectId().required()
-});
+export const deliveryAreaParamsSchema = paramsSchema();
 
 /* =========================
    Query Schema
 ========================= */
-export const deliveryAreaQuerySchema = Joi.object({
-  limit: Joi.number().min(1).optional(),
-  skip: Joi.number().min(0).optional(),
-  search: Joi.string().optional()
-});
+export const deliveryAreaQuerySchema = querySchema();

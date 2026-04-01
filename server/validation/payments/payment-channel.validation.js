@@ -1,36 +1,26 @@
 import Joi from "joi";
-import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
 import PaymentChannelModel from "../../models/payments/payment-channel.model.js";
 
 /* =========================
    Create Schema
 ========================= */
-export const createPaymentChannelSchema = buildJoiSchema(PaymentChannelModel.schema);
+export const createPaymentChannelSchema = createSchema(PaymentChannelModel.schema);
 
 /* =========================
-   Update Schema (all optional except _id & updatedBy)
+   Update Schema
 ========================= */
-export const updatePaymentChannelSchema = (function() {
-  const schema = buildJoiSchema(PaymentChannelModel.schema);
-  return schema.fork(Object.keys(PaymentChannelModel.schema.paths), (field) => field.optional())
-               .keys({
-                 _id: objectId().required(),
-                 updatedBy: objectId().required()
-               });
-})();
+export const updatePaymentChannelSchema = updateSchema(
+  PaymentChannelModel.schema,
+  ["updatedBy"]
+);
 
 /* =========================
    Params Schema
 ========================= */
-export const paymentChannelParamsSchema = Joi.object({
-  _id: objectId().required()
-});
+export const paymentChannelParamsSchema = paramsSchema();
 
 /* =========================
    Query Schema
 ========================= */
-export const paymentChannelQuerySchema = Joi.object({
-  limit: Joi.number().min(1).optional(),
-  skip: Joi.number().min(0).optional(),
-  search: Joi.string().optional()
-});
+export const paymentChannelQuerySchema = querySchema();

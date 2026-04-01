@@ -11,13 +11,14 @@ const productionOrderSchema = new mongoose.Schema(
     branch: {
       type: ObjectId,
       ref: "Branch",
-      default: null,
+      required: [true, "Branch is required"],
     },
     orderNumber: {
-      type: Number,
+      type: String,
       required: [true, "Production number is required"],
     },
     productionType: {
+      type: String,
       enum: ["store", "directUse", "display"],
       default: "store",
     },
@@ -49,13 +50,16 @@ const productionOrderSchema = new mongoose.Schema(
     plannedStartDate: {
       type: Date,
       required: [true, "Planned start date is required"],
-
     },
     plannedEndDate: {
       type: Date,
       required: [true, "Planned end date is required"],
     },
-    priority: { enum: ["low", "normal", "high"] },
+    priority: {
+      type: String,
+      enum: ["low", "normal", "high"],
+      default: "normal", 
+    },
     orderStatus: {
       type: String,
       enum: ["Pending", "approved", "rejected", "canceled"],

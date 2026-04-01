@@ -13,7 +13,6 @@ const EmployeeAdvanceSchema = new mongoose.Schema(
       type: ObjectId,
       ref: "Branch",
       required: true,
-      ش,
     },
 
     // ================= Employee =================
@@ -33,7 +32,6 @@ const EmployeeAdvanceSchema = new mongoose.Schema(
     currency: {
       type: String,
       required: true,
-      enum: ["USD", "EUR", "GBP", "JPY", "AED", "SAR"], // extend as needed
       uppercase: true,
       trim: true,
       maxlength: 10,
@@ -48,7 +46,7 @@ const EmployeeAdvanceSchema = new mongoose.Schema(
     },
 
     repaymentDuration: {
-      type: Number, // number of installments
+      type: Number,
       required: true,
       min: 1,
     },
@@ -98,7 +96,7 @@ const EmployeeAdvanceSchema = new mongoose.Schema(
     },
     cancelledAt: Date,
 
-    // ================= Financial Transactions =================
+    // ================= Financial =================
     disbursementTransaction: {
       type: ObjectId,
       ref: "EmployeeFinancialTransaction",
@@ -147,10 +145,10 @@ const EmployeeAdvanceSchema = new mongoose.Schema(
   {
     timestamps: true,
     versionKey: false,
-  },
+  }
 );
 
-// ================= Indexes =================
+// Indexes
 EmployeeAdvanceSchema.index({ employee: 1, status: 1 });
 EmployeeAdvanceSchema.index({ branch: 1 });
 

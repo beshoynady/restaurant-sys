@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import assetMaintenanceService from "../../services/assets/asset-maintenance.service.js";
+import { validateAssetMaintenanceModel } from "../../validation/assets/asset-maintenance.validation.js";
 
-
-// CRUD Controller for asset-maintenance
+/* =========================
+   CRUD Controller for asset-maintenance
+========================= */
 const assetMaintenanceController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateAssetMaintenanceModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await assetMaintenanceService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const assetMaintenanceController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateAssetMaintenanceModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await assetMaintenanceService.update(req.params.id, payload);
     res.json(result);

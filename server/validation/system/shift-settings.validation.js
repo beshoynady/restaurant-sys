@@ -1,36 +1,26 @@
 import Joi from "joi";
-import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
 import ShiftSettingsModel from "../../models/system/shift-settings.model.js";
 
 /* =========================
    Create Schema
 ========================= */
-export const createShiftSettingsSchema = buildJoiSchema(ShiftSettingsModel.schema);
+export const createShiftSettingsSchema = createSchema(ShiftSettingsModel.schema);
 
 /* =========================
-   Update Schema (all optional except _id & updatedBy)
+   Update Schema
 ========================= */
-export const updateShiftSettingsSchema = (function() {
-  const schema = buildJoiSchema(ShiftSettingsModel.schema);
-  return schema.fork(Object.keys(ShiftSettingsModel.schema.paths), (field) => field.optional())
-               .keys({
-                 _id: objectId().required(),
-                 updatedBy: objectId().required()
-               });
-})();
+export const updateShiftSettingsSchema = updateSchema(
+  ShiftSettingsModel.schema,
+  ["updatedBy"]
+);
 
 /* =========================
    Params Schema
 ========================= */
-export const shiftSettingsParamsSchema = Joi.object({
-  _id: objectId().required()
-});
+export const shiftSettingsParamsSchema = paramsSchema();
 
 /* =========================
    Query Schema
 ========================= */
-export const shiftSettingsQuerySchema = Joi.object({
-  limit: Joi.number().min(1).optional(),
-  skip: Joi.number().min(0).optional(),
-  search: Joi.string().optional()
-});
+export const shiftSettingsQuerySchema = querySchema();

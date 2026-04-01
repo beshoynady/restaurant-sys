@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import preparationTicketService from "../../services/kitchen/preparation-ticket.service.js";
+import { validatePreparationTicketModel } from "../../validation/kitchen/preparation-ticket.validation.js";
 
-
-// CRUD Controller for preparation-ticket
+/* =========================
+   CRUD Controller for preparation-ticket
+========================= */
 const preparationTicketController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validatePreparationTicketModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await preparationTicketService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const preparationTicketController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validatePreparationTicketModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await preparationTicketService.update(req.params.id, payload);
     res.json(result);

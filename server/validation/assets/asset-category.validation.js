@@ -1,36 +1,26 @@
 import Joi from "joi";
-import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
 import AssetCategoryModel from "../../models/assets/asset-category.model.js";
 
 /* =========================
    Create Schema
 ========================= */
-export const createAssetCategorySchema = buildJoiSchema(AssetCategoryModel.schema);
+export const createAssetCategorySchema = createSchema(AssetCategoryModel.schema);
 
 /* =========================
-   Update Schema (all optional except _id & updatedBy)
+   Update Schema
 ========================= */
-export const updateAssetCategorySchema = (function() {
-  const schema = buildJoiSchema(AssetCategoryModel.schema);
-  return schema.fork(Object.keys(AssetCategoryModel.schema.paths), (field) => field.optional())
-               .keys({
-                 _id: objectId().required(),
-                 updatedBy: objectId().required()
-               });
-})();
+export const updateAssetCategorySchema = updateSchema(
+  AssetCategoryModel.schema,
+  ["updatedBy"]
+);
 
 /* =========================
    Params Schema
 ========================= */
-export const assetCategoryParamsSchema = Joi.object({
-  _id: objectId().required()
-});
+export const assetCategoryParamsSchema = paramsSchema();
 
 /* =========================
    Query Schema
 ========================= */
-export const assetCategoryQuerySchema = Joi.object({
-  limit: Joi.number().min(1).optional(),
-  skip: Joi.number().min(0).optional(),
-  search: Joi.string().optional()
-});
+export const assetCategoryQuerySchema = querySchema();

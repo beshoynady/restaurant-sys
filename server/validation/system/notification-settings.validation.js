@@ -1,36 +1,26 @@
 import Joi from "joi";
-import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
 import NotificationSettingsModel from "../../models/system/notification-settings.model.js";
 
 /* =========================
    Create Schema
 ========================= */
-export const createNotificationSettingsSchema = buildJoiSchema(NotificationSettingsModel.schema);
+export const createNotificationSettingsSchema = createSchema(NotificationSettingsModel.schema);
 
 /* =========================
-   Update Schema (all optional except _id & updatedBy)
+   Update Schema
 ========================= */
-export const updateNotificationSettingsSchema = (function() {
-  const schema = buildJoiSchema(NotificationSettingsModel.schema);
-  return schema.fork(Object.keys(NotificationSettingsModel.schema.paths), (field) => field.optional())
-               .keys({
-                 _id: objectId().required(),
-                 updatedBy: objectId().required()
-               });
-})();
+export const updateNotificationSettingsSchema = updateSchema(
+  NotificationSettingsModel.schema,
+  ["updatedBy"]
+);
 
 /* =========================
    Params Schema
 ========================= */
-export const notificationSettingsParamsSchema = Joi.object({
-  _id: objectId().required()
-});
+export const notificationSettingsParamsSchema = paramsSchema();
 
 /* =========================
    Query Schema
 ========================= */
-export const notificationSettingsQuerySchema = Joi.object({
-  limit: Joi.number().min(1).optional(),
-  skip: Joi.number().min(0).optional(),
-  search: Joi.string().optional()
-});
+export const notificationSettingsQuerySchema = querySchema();

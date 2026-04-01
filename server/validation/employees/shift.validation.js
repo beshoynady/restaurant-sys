@@ -1,36 +1,26 @@
 import Joi from "joi";
-import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
 import ShiftModel from "../../models/employees/shift.model.js";
 
 /* =========================
    Create Schema
 ========================= */
-export const createShiftSchema = buildJoiSchema(ShiftModel.schema);
+export const createShiftSchema = createSchema(ShiftModel.schema);
 
 /* =========================
-   Update Schema (all optional except _id & updatedBy)
+   Update Schema
 ========================= */
-export const updateShiftSchema = (function() {
-  const schema = buildJoiSchema(ShiftModel.schema);
-  return schema.fork(Object.keys(ShiftModel.schema.paths), (field) => field.optional())
-               .keys({
-                 _id: objectId().required(),
-                 updatedBy: objectId().required()
-               });
-})();
+export const updateShiftSchema = updateSchema(
+  ShiftModel.schema,
+  ["updatedBy"]
+);
 
 /* =========================
    Params Schema
 ========================= */
-export const shiftParamsSchema = Joi.object({
-  _id: objectId().required()
-});
+export const shiftParamsSchema = paramsSchema();
 
 /* =========================
    Query Schema
 ========================= */
-export const shiftQuerySchema = Joi.object({
-  limit: Joi.number().min(1).optional(),
-  skip: Joi.number().min(0).optional(),
-  search: Joi.string().optional()
-});
+export const shiftQuerySchema = querySchema();

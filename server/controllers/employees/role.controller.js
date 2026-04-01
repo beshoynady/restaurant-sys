@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import roleService from "../../services/employees/role.service.js";
+import { validateRoleModel } from "../../validation/employees/role.validation.js";
 
-
-// CRUD Controller for role
+/* =========================
+   CRUD Controller for role
+========================= */
 const roleController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateRoleModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await roleService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const roleController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateRoleModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await roleService.update(req.params.id, payload);
     res.json(result);

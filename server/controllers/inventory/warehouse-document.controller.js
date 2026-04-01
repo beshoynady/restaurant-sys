@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import warehouseDocumentService from "../../services/inventory/warehouse-document.service.js";
+import { validateWarehouseDocumentModel } from "../../validation/inventory/warehouse-document.validation.js";
 
-
-// CRUD Controller for warehouse-document
+/* =========================
+   CRUD Controller for warehouse-document
+========================= */
 const warehouseDocumentController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateWarehouseDocumentModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await warehouseDocumentService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const warehouseDocumentController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateWarehouseDocumentModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await warehouseDocumentService.update(req.params.id, payload);
     res.json(result);

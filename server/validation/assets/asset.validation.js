@@ -1,36 +1,26 @@
 import Joi from "joi";
-import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
 import AssetModel from "../../models/assets/asset.model.js";
 
 /* =========================
    Create Schema
 ========================= */
-export const createAssetSchema = buildJoiSchema(AssetModel.schema);
+export const createAssetSchema = createSchema(AssetModel.schema);
 
 /* =========================
-   Update Schema (all optional except _id & updatedBy)
+   Update Schema
 ========================= */
-export const updateAssetSchema = (function() {
-  const schema = buildJoiSchema(AssetModel.schema);
-  return schema.fork(Object.keys(AssetModel.schema.paths), (field) => field.optional())
-               .keys({
-                 _id: objectId().required(),
-                 updatedBy: objectId().required()
-               });
-})();
+export const updateAssetSchema = updateSchema(
+  AssetModel.schema,
+  ["updatedBy"]
+);
 
 /* =========================
    Params Schema
 ========================= */
-export const assetParamsSchema = Joi.object({
-  _id: objectId().required()
-});
+export const assetParamsSchema = paramsSchema();
 
 /* =========================
    Query Schema
 ========================= */
-export const assetQuerySchema = Joi.object({
-  limit: Joi.number().min(1).optional(),
-  skip: Joi.number().min(0).optional(),
-  search: Joi.string().optional()
-});
+export const assetQuerySchema = querySchema();

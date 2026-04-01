@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import onlineCustomerService from "../../services/customers/online-customer.service.js";
+import { validateOnlineCustomerModel } from "../../validation/customers/online-customer.validation.js";
 
-
-// CRUD Controller for online-customer
+/* =========================
+   CRUD Controller for online-customer
+========================= */
 const onlineCustomerController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateOnlineCustomerModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await onlineCustomerService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const onlineCustomerController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateOnlineCustomerModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await onlineCustomerService.update(req.params.id, payload);
     res.json(result);

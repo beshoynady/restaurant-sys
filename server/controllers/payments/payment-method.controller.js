@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import paymentMethodService from "../../services/payments/payment-method.service.js";
+import { validatePaymentMethodModel } from "../../validation/payments/payment-method.validation.js";
 
-
-// CRUD Controller for payment-method
+/* =========================
+   CRUD Controller for payment-method
+========================= */
 const paymentMethodController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validatePaymentMethodModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await paymentMethodService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const paymentMethodController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validatePaymentMethodModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await paymentMethodService.update(req.params.id, payload);
     res.json(result);

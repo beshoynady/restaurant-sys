@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import brandService from "../../services/core/brand.service.js";
+import { validateBrandModel } from "../../validation/core/brand.validation.js";
 
-
-// CRUD Controller for brand
+/* =========================
+   CRUD Controller for brand
+========================= */
 const brandController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateBrandModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await brandService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const brandController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateBrandModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await brandService.update(req.params.id, payload);
     res.json(result);

@@ -6,12 +6,14 @@ const categoryStockSchema = new mongoose.Schema(
     brand: {
       type: ObjectId,
       ref: "Brand",
+      required: [true, "Brand reference is required"],
     },
     branch: {
       type: ObjectId,
       ref: "Branch",
       default: null,
     },
+
     categoryName: {
       type: Map,
       of: {
@@ -29,7 +31,6 @@ const categoryStockSchema = new mongoose.Schema(
       uppercase: true,
       required: [true, "Category code is required"],
       match: /^[A-Z0-9]{1,10}$/,
-      index: true,
     },
 
     type: {
@@ -61,16 +62,18 @@ const categoryStockSchema = new mongoose.Schema(
     updatedBy: {
       type: ObjectId,
       ref: "UserAccount",
+      default: null,
     },
     notes: {
       type: String,
       trim: true,
+      maxlength: 300,
     },
   },
   { timestamps: true },
 );
 
-index({ brand: 1, categoryCode: 1 }, { unique: true });
+categoryStockSchema.index({ brand: 1, categoryCode: 1 }, { unique: true });
 
 const CategoryStockmodel = mongoose.model("StockCategory", categoryStockSchema);
 

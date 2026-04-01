@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import productionRecipeService from "../../services/production/production-recipe.service.js";
+import { validateProductionRecipeModel } from "../../validation/production/production-recipe.validation.js";
 
-
-// CRUD Controller for production-recipe
+/* =========================
+   CRUD Controller for production-recipe
+========================= */
 const productionRecipeController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateProductionRecipeModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await productionRecipeService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const productionRecipeController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateProductionRecipeModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await productionRecipeService.update(req.params.id, payload);
     res.json(result);

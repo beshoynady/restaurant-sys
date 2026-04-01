@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import purchaseInvoiceService from "../../services/purchasing/purchase-invoice.service.js";
+import { validatePurchaseInvoiceModel } from "../../validation/purchasing/purchase-invoice.validation.js";
 
-
-// CRUD Controller for purchase-invoice
+/* =========================
+   CRUD Controller for purchase-invoice
+========================= */
 const purchaseInvoiceController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validatePurchaseInvoiceModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await purchaseInvoiceService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const purchaseInvoiceController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validatePurchaseInvoiceModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await purchaseInvoiceService.update(req.params.id, payload);
     res.json(result);

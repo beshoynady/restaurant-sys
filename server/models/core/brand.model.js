@@ -25,7 +25,6 @@ const brandSchema = new mongoose.Schema(
       required: true,
       maxlength: 100,
       match: /^[a-z]+(?:-[a-z0-9]+)*$/, // allows lowercase letters and hyphens and numbers, but must start with a letter
-      description: "URL-friendly identifier for the brand (auto-generated)",
     },
     /**
      * Brand logo URL
@@ -35,7 +34,6 @@ const brandSchema = new mongoose.Schema(
       trim: true,
       maxlength: 300,
       default: null,
-      description: "Brand logo for invoices, menus, dashboard",
     },
 
     /**
@@ -46,7 +44,6 @@ const brandSchema = new mongoose.Schema(
       default: 1,
       min: 1,
       max: 50,
-      description: "Maximum number of branches this brand can create",
     },
 
     // ===============================
@@ -81,7 +78,6 @@ const brandSchema = new mongoose.Schema(
         "DKK",
       ],
       default: "EGP",
-      description: "Default currency for sales and purchases",
     },
     dashboardLanguages: {
       type: [String],
@@ -93,7 +89,6 @@ const brandSchema = new mongoose.Schema(
       type: String,
       default: "EN",
       required: true,
-      description: "Default language for brand communications and UI",
     },
     /**
      * Company registration number
@@ -102,7 +97,6 @@ const brandSchema = new mongoose.Schema(
       type: String,
       trim: true,
       maxlength: 100,
-      description: "Official company registration number",
     },
 
     /**
@@ -112,7 +106,6 @@ const brandSchema = new mongoose.Schema(
       type: String,
       trim: true,
       maxlength: 100,
-      description: "Tax ID for legal & accounting purposes",
     },
 
     // ===============================
@@ -125,7 +118,6 @@ const brandSchema = new mongoose.Schema(
       type: String,
       default: "Africa/Cairo",
       maxlength: 100,
-      description: "Timezone for branch operations and reports",
     },
 
     /**
@@ -138,7 +130,6 @@ const brandSchema = new mongoose.Schema(
       trim: true,
       minlength: 2,
       maxlength: 2,
-      description: "ISO country code for brand location",
     },
 
     /**
@@ -148,7 +139,6 @@ const brandSchema = new mongoose.Schema(
       type: String,
       enum: ["draft", "basic", "complete"],
       default: "draft",
-      description: "Setup progress of brand in the system",
     },
 
     // Brand status
@@ -156,7 +146,6 @@ const brandSchema = new mongoose.Schema(
       type: String,
       enum: ["active", "inactive", "suspended"],
       default: `active`,
-      description: "Operational status of the brand",
     },
     // ===============================
     // AUDIT & SOFT DELETE

@@ -1,36 +1,26 @@
 import Joi from "joi";
-import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
 import SupplierTransactionModel from "../../models/purchasing/supplier-transaction.model.js";
 
 /* =========================
    Create Schema
 ========================= */
-export const createSupplierTransactionSchema = buildJoiSchema(SupplierTransactionModel.schema);
+export const createSupplierTransactionSchema = createSchema(SupplierTransactionModel.schema);
 
 /* =========================
-   Update Schema (all optional except _id & updatedBy)
+   Update Schema
 ========================= */
-export const updateSupplierTransactionSchema = (function() {
-  const schema = buildJoiSchema(SupplierTransactionModel.schema);
-  return schema.fork(Object.keys(SupplierTransactionModel.schema.paths), (field) => field.optional())
-               .keys({
-                 _id: objectId().required(),
-                 updatedBy: objectId().required()
-               });
-})();
+export const updateSupplierTransactionSchema = updateSchema(
+  SupplierTransactionModel.schema,
+  ["updatedBy"]
+);
 
 /* =========================
    Params Schema
 ========================= */
-export const supplierTransactionParamsSchema = Joi.object({
-  _id: objectId().required()
-});
+export const supplierTransactionParamsSchema = paramsSchema();
 
 /* =========================
    Query Schema
 ========================= */
-export const supplierTransactionQuerySchema = Joi.object({
-  limit: Joi.number().min(1).optional(),
-  skip: Joi.number().min(0).optional(),
-  search: Joi.string().optional()
-});
+export const supplierTransactionQuerySchema = querySchema();

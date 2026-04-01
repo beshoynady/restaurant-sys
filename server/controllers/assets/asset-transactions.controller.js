@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import assetTransactionsService from "../../services/assets/asset-transactions.service.js";
+import { validateAssetTransactionsModel } from "../../validation/assets/asset-transactions.validation.js";
 
-
-// CRUD Controller for asset-transactions
+/* =========================
+   CRUD Controller for asset-transactions
+========================= */
 const assetTransactionsController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateAssetTransactionsModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await assetTransactionsService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const assetTransactionsController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateAssetTransactionsModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await assetTransactionsService.update(req.params.id, payload);
     res.json(result);

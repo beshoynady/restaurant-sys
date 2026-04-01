@@ -1,36 +1,26 @@
 import Joi from "joi";
-import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
 import CashierShiftModel from "../../models/employees/cashier-shift.model.js";
 
 /* =========================
    Create Schema
 ========================= */
-export const createCashierShiftSchema = buildJoiSchema(CashierShiftModel.schema);
+export const createCashierShiftSchema = createSchema(CashierShiftModel.schema);
 
 /* =========================
-   Update Schema (all optional except _id & updatedBy)
+   Update Schema
 ========================= */
-export const updateCashierShiftSchema = (function() {
-  const schema = buildJoiSchema(CashierShiftModel.schema);
-  return schema.fork(Object.keys(CashierShiftModel.schema.paths), (field) => field.optional())
-               .keys({
-                 _id: objectId().required(),
-                 updatedBy: objectId().required()
-               });
-})();
+export const updateCashierShiftSchema = updateSchema(
+  CashierShiftModel.schema,
+  ["updatedBy"]
+);
 
 /* =========================
    Params Schema
 ========================= */
-export const cashierShiftParamsSchema = Joi.object({
-  _id: objectId().required()
-});
+export const cashierShiftParamsSchema = paramsSchema();
 
 /* =========================
    Query Schema
 ========================= */
-export const cashierShiftQuerySchema = Joi.object({
-  limit: Joi.number().min(1).optional(),
-  skip: Joi.number().min(0).optional(),
-  search: Joi.string().optional()
-});
+export const cashierShiftQuerySchema = querySchema();

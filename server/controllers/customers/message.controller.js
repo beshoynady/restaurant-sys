@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import messageService from "../../services/customers/message.service.js";
+import { validateMessageModel } from "../../validation/customers/message.validation.js";
 
-
-// CRUD Controller for message
+/* =========================
+   CRUD Controller for message
+========================= */
 const messageController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateMessageModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await messageService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const messageController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateMessageModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await messageService.update(req.params.id, payload);
     res.json(result);

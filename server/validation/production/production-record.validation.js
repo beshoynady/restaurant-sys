@@ -1,36 +1,26 @@
 import Joi from "joi";
-import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
 import ProductionRecordModel from "../../models/production/production-record.model.js";
 
 /* =========================
    Create Schema
 ========================= */
-export const createProductionRecordSchema = buildJoiSchema(ProductionRecordModel.schema);
+export const createProductionRecordSchema = createSchema(ProductionRecordModel.schema);
 
 /* =========================
-   Update Schema (all optional except _id & updatedBy)
+   Update Schema
 ========================= */
-export const updateProductionRecordSchema = (function() {
-  const schema = buildJoiSchema(ProductionRecordModel.schema);
-  return schema.fork(Object.keys(ProductionRecordModel.schema.paths), (field) => field.optional())
-               .keys({
-                 _id: objectId().required(),
-                 updatedBy: objectId().required()
-               });
-})();
+export const updateProductionRecordSchema = updateSchema(
+  ProductionRecordModel.schema,
+  ["updatedBy"]
+);
 
 /* =========================
    Params Schema
 ========================= */
-export const productionRecordParamsSchema = Joi.object({
-  _id: objectId().required()
-});
+export const productionRecordParamsSchema = paramsSchema();
 
 /* =========================
    Query Schema
 ========================= */
-export const productionRecordQuerySchema = Joi.object({
-  limit: Joi.number().min(1).optional(),
-  skip: Joi.number().min(0).optional(),
-  search: Joi.string().optional()
-});
+export const productionRecordQuerySchema = querySchema();

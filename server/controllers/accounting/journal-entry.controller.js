@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import journalEntryService from "../../services/accounting/journal-entry.service.js";
+import { validateJournalEntryModel } from "../../validation/accounting/journal-entry.validation.js";
 
-
-// CRUD Controller for journal-entry
+/* =========================
+   CRUD Controller for journal-entry
+========================= */
 const journalEntryController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateJournalEntryModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await journalEntryService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const journalEntryController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateJournalEntryModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await journalEntryService.update(req.params.id, payload);
     res.json(result);

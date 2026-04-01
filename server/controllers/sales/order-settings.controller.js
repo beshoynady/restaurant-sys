@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import orderSettingsService from "../../services/sales/order-settings.service.js";
+import { validateOrderSettingsModel } from "../../validation/sales/order-settings.validation.js";
 
-
-// CRUD Controller for order-settings
+/* =========================
+   CRUD Controller for order-settings
+========================= */
 const orderSettingsController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateOrderSettingsModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await orderSettingsService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const orderSettingsController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateOrderSettingsModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await orderSettingsService.update(req.params.id, payload);
     res.json(result);

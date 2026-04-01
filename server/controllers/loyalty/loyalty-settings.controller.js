@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import loyaltySettingsService from "../../services/loyalty/loyalty-settings.service.js";
+import { validateLoyaltySettingsModel } from "../../validation/loyalty/loyalty-settings.validation.js";
 
-
-// CRUD Controller for loyalty-settings
+/* =========================
+   CRUD Controller for loyalty-settings
+========================= */
 const loyaltySettingsController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateLoyaltySettingsModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await loyaltySettingsService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const loyaltySettingsController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateLoyaltySettingsModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await loyaltySettingsService.update(req.params.id, payload);
     res.json(result);

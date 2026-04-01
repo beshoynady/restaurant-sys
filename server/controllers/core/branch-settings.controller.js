@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import branchSettingsService from "../../services/core/branch-settings.service.js";
+import { validateBranchSettingsModel } from "../../validation/core/branch-settings.validation.js";
 
-
-// CRUD Controller for branch-settings
+/* =========================
+   CRUD Controller for branch-settings
+========================= */
 const branchSettingsController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateBranchSettingsModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await branchSettingsService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const branchSettingsController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateBranchSettingsModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await branchSettingsService.update(req.params.id, payload);
     res.json(result);

@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import assetPurchaseInvoiceService from "../../services/assets/asset-purchase-invoice.service.js";
+import { validateAssetPurchaseInvoiceModel } from "../../validation/assets/asset-purchase-invoice.validation.js";
 
-
-// CRUD Controller for asset-purchase-invoice
+/* =========================
+   CRUD Controller for asset-purchase-invoice
+========================= */
 const assetPurchaseInvoiceController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateAssetPurchaseInvoiceModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await assetPurchaseInvoiceService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const assetPurchaseInvoiceController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateAssetPurchaseInvoiceModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await assetPurchaseInvoiceService.update(req.params.id, payload);
     res.json(result);

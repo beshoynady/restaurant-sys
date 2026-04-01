@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import employeeAdvanceService from "../../services/employees/employee-advance.service.js";
+import { validateEmployeeAdvanceModel } from "../../validation/employees/employee-advance.validation.js";
 
-
-// CRUD Controller for employee-advance
+/* =========================
+   CRUD Controller for employee-advance
+========================= */
 const employeeAdvanceController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateEmployeeAdvanceModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await employeeAdvanceService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const employeeAdvanceController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateEmployeeAdvanceModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await employeeAdvanceService.update(req.params.id, payload);
     res.json(result);

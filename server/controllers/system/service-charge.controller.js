@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import serviceChargeService from "../../services/system/service-charge.service.js";
+import { validateServiceChargeModel } from "../../validation/system/service-charge.validation.js";
 
-
-// CRUD Controller for service-charge
+/* =========================
+   CRUD Controller for service-charge
+========================= */
 const serviceChargeController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateServiceChargeModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await serviceChargeService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const serviceChargeController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateServiceChargeModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await serviceChargeService.update(req.params.id, payload);
     res.json(result);

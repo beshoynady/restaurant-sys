@@ -1,36 +1,26 @@
 import Joi from "joi";
-import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
 import ProductReviewModel from "../../models/sales/product-review.model.js";
 
 /* =========================
    Create Schema
 ========================= */
-export const createProductReviewSchema = buildJoiSchema(ProductReviewModel.schema);
+export const createProductReviewSchema = createSchema(ProductReviewModel.schema);
 
 /* =========================
-   Update Schema (all optional except _id & updatedBy)
+   Update Schema
 ========================= */
-export const updateProductReviewSchema = (function() {
-  const schema = buildJoiSchema(ProductReviewModel.schema);
-  return schema.fork(Object.keys(ProductReviewModel.schema.paths), (field) => field.optional())
-               .keys({
-                 _id: objectId().required(),
-                 updatedBy: objectId().required()
-               });
-})();
+export const updateProductReviewSchema = updateSchema(
+  ProductReviewModel.schema,
+  ["updatedBy"]
+);
 
 /* =========================
    Params Schema
 ========================= */
-export const productReviewParamsSchema = Joi.object({
-  _id: objectId().required()
-});
+export const productReviewParamsSchema = paramsSchema();
 
 /* =========================
    Query Schema
 ========================= */
-export const productReviewQuerySchema = Joi.object({
-  limit: Joi.number().min(1).optional(),
-  skip: Joi.number().min(0).optional(),
-  search: Joi.string().optional()
-});
+export const productReviewQuerySchema = querySchema();

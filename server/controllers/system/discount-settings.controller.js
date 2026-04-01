@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import discountSettingsService from "../../services/system/discount-settings.service.js";
+import { validateDiscountSettingsModel } from "../../validation/system/discount-settings.validation.js";
 
-
-// CRUD Controller for discount-settings
+/* =========================
+   CRUD Controller for discount-settings
+========================= */
 const discountSettingsController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateDiscountSettingsModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await discountSettingsService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const discountSettingsController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateDiscountSettingsModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await discountSettingsService.update(req.params.id, payload);
     res.json(result);

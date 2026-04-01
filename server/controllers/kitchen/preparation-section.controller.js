@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import preparationSectionService from "../../services/kitchen/preparation-section.service.js";
+import { validatePreparationSectionModel } from "../../validation/kitchen/preparation-section.validation.js";
 
-
-// CRUD Controller for preparation-section
+/* =========================
+   CRUD Controller for preparation-section
+========================= */
 const preparationSectionController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validatePreparationSectionModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await preparationSectionService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const preparationSectionController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validatePreparationSectionModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await preparationSectionService.update(req.params.id, payload);
     res.json(result);

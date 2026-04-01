@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import notificationSettingsService from "../../services/system/notification-settings.service.js";
+import { validateNotificationSettingsModel } from "../../validation/system/notification-settings.validation.js";
 
-
-// CRUD Controller for notification-settings
+/* =========================
+   CRUD Controller for notification-settings
+========================= */
 const notificationSettingsController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateNotificationSettingsModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await notificationSettingsService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const notificationSettingsController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateNotificationSettingsModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await notificationSettingsService.update(req.params.id, payload);
     res.json(result);

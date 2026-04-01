@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import productionOrderService from "../../services/production/production-order.service.js";
+import { validateProductionOrderModel } from "../../validation/production/production-order.validation.js";
 
-
-// CRUD Controller for production-order
+/* =========================
+   CRUD Controller for production-order
+========================= */
 const productionOrderController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateProductionOrderModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await productionOrderService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const productionOrderController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateProductionOrderModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await productionOrderService.update(req.params.id, payload);
     res.json(result);

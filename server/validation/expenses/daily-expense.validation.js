@@ -1,36 +1,26 @@
 import Joi from "joi";
-import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
 import DailyExpenseModel from "../../models/expenses/daily-expense.model.js";
 
 /* =========================
    Create Schema
 ========================= */
-export const createDailyExpenseSchema = buildJoiSchema(DailyExpenseModel.schema);
+export const createDailyExpenseSchema = createSchema(DailyExpenseModel.schema);
 
 /* =========================
-   Update Schema (all optional except _id & updatedBy)
+   Update Schema
 ========================= */
-export const updateDailyExpenseSchema = (function() {
-  const schema = buildJoiSchema(DailyExpenseModel.schema);
-  return schema.fork(Object.keys(DailyExpenseModel.schema.paths), (field) => field.optional())
-               .keys({
-                 _id: objectId().required(),
-                 updatedBy: objectId().required()
-               });
-})();
+export const updateDailyExpenseSchema = updateSchema(
+  DailyExpenseModel.schema,
+  ["updatedBy"]
+);
 
 /* =========================
    Params Schema
 ========================= */
-export const dailyExpenseParamsSchema = Joi.object({
-  _id: objectId().required()
-});
+export const dailyExpenseParamsSchema = paramsSchema();
 
 /* =========================
    Query Schema
 ========================= */
-export const dailyExpenseQuerySchema = Joi.object({
-  limit: Joi.number().min(1).optional(),
-  skip: Joi.number().min(0).optional(),
-  search: Joi.string().optional()
-});
+export const dailyExpenseQuerySchema = querySchema();

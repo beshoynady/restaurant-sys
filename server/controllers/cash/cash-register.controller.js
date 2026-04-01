@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import cashRegisterService from "../../services/cash/cash-register.service.js";
+import { validateCashRegisterModel } from "../../validation/cash/cash-register.validation.js";
 
-
-// CRUD Controller for cash-register
+/* =========================
+   CRUD Controller for cash-register
+========================= */
 const cashRegisterController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateCashRegisterModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await cashRegisterService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const cashRegisterController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateCashRegisterModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await cashRegisterService.update(req.params.id, payload);
     res.json(result);

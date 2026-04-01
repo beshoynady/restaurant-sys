@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import menuCategoryService from "../../services/menu/menu-category.service.js";
+import { validateMenuCategoryModel } from "../../validation/menu/menu-category.validation.js";
 
-
-// CRUD Controller for menu-category
+/* =========================
+   CRUD Controller for menu-category
+========================= */
 const menuCategoryController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateMenuCategoryModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await menuCategoryService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const menuCategoryController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateMenuCategoryModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await menuCategoryService.update(req.params.id, payload);
     res.json(result);

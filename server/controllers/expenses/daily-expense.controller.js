@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import dailyExpenseService from "../../services/expenses/daily-expense.service.js";
+import { validateDailyExpenseModel } from "../../validation/expenses/daily-expense.validation.js";
 
-
-// CRUD Controller for daily-expense
+/* =========================
+   CRUD Controller for daily-expense
+========================= */
 const dailyExpenseController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateDailyExpenseModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await dailyExpenseService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const dailyExpenseController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateDailyExpenseModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await dailyExpenseService.update(req.params.id, payload);
     res.json(result);

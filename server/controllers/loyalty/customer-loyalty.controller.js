@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import customerLoyaltyService from "../../services/loyalty/customer-loyalty.service.js";
+import { validateCustomerLoyaltyModel } from "../../validation/loyalty/customer-loyalty.validation.js";
 
-
-// CRUD Controller for customer-loyalty
+/* =========================
+   CRUD Controller for customer-loyalty
+========================= */
 const customerLoyaltyController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateCustomerLoyaltyModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await customerLoyaltyService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const customerLoyaltyController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateCustomerLoyaltyModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await customerLoyaltyService.update(req.params.id, payload);
     res.json(result);

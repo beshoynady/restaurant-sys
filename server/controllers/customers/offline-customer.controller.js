@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import offlineCustomerService from "../../services/customers/offline-customer.service.js";
+import { validateOfflineCustomerModel } from "../../validation/customers/offline-customer.validation.js";
 
-
-// CRUD Controller for offline-customer
+/* =========================
+   CRUD Controller for offline-customer
+========================= */
 const offlineCustomerController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateOfflineCustomerModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await offlineCustomerService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const offlineCustomerController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateOfflineCustomerModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await offlineCustomerService.update(req.params.id, payload);
     res.json(result);

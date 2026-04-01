@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import preparationReturnSettingsService from "../../services/kitchen/preparation-return-settings.service.js";
+import { validatePreparationReturnSettingsModel } from "../../validation/kitchen/preparation-return-settings.validation.js";
 
-
-// CRUD Controller for preparation-return-settings
+/* =========================
+   CRUD Controller for preparation-return-settings
+========================= */
 const preparationReturnSettingsController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validatePreparationReturnSettingsModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await preparationReturnSettingsService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const preparationReturnSettingsController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validatePreparationReturnSettingsModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await preparationReturnSettingsService.update(req.params.id, payload);
     res.json(result);

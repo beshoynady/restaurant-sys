@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import stockCategoryService from "../../services/inventory/stock-category.service.js";
+import { validateStockCategoryModel } from "../../validation/inventory/stock-category.validation.js";
 
-
-// CRUD Controller for stock-category
+/* =========================
+   CRUD Controller for stock-category
+========================= */
 const stockCategoryController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateStockCategoryModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await stockCategoryService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const stockCategoryController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateStockCategoryModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await stockCategoryService.update(req.params.id, payload);
     res.json(result);

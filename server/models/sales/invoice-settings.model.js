@@ -27,37 +27,37 @@ const invoiceSettingsSchema = new mongoose.Schema(
         uppercase: true, // convert to uppercase
         maxlength: 5,    // max 5 characters
         default: "INV",  // prefix for invoice number
-        description: "Prefix before invoice number",
+        
       },
       startNumber: {
         type: Number,
         default: 1,
-        description: "Starting number for the invoice sequence",
+        
       },
       padding: {
         type: Number,
         default: 5,
         min: 1,
         max: 10,
-        description: "Number of digits, e.g., 00001",
+        
       },
       includeDate: {
         type: String,
         enum: ["NONE", "DD", "MM", "YYYY", "YYYYMMDD"],
         default: "NONE",
-        description: "Include date in invoice number",
+        
       },
       separator: {
         type: String,
         default: "-",
         maxlength: 2,
-        description: "Character(s) separating prefix, date, and number",
+        
       },
       resetPolicy: {
         type: String,
         enum: ["NONE", "MONTHLY", "YEARLY"],
         default: "YEARLY",
-        description: "Reset invoice numbering policy",
+        
       },
     },
 
@@ -68,19 +68,19 @@ const invoiceSettingsSchema = new mongoose.Schema(
       type: String,
       maxlength: 300,
       default: "",
-      description: "URL for invoice logo",
+      
     },
     headerText: {
       type: Map,
       of: { type: String, maxlength: 200 },
       default: {},
-      description: "Multilingual header text",
+      
     },
     footerText: {
       type: Map,
       of: { type: String, maxlength: 200 },
       default: {},
-      description: "Multilingual footer text",
+      
     },
 
     // ================================
@@ -136,7 +136,7 @@ const invoiceSettingsSchema = new mongoose.Schema(
       type: String,
       enum: ["none", "nearest_0_05", "nearest_0_1"],
       default: "none",
-      description: "Rounding policy for total amount",
+      
     },
 
     // ================================

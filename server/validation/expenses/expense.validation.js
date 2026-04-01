@@ -1,36 +1,26 @@
 import Joi from "joi";
-import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
 import ExpenseModel from "../../models/expenses/expense.model.js";
 
 /* =========================
    Create Schema
 ========================= */
-export const createExpenseSchema = buildJoiSchema(ExpenseModel.schema);
+export const createExpenseSchema = createSchema(ExpenseModel.schema);
 
 /* =========================
-   Update Schema (all optional except _id & updatedBy)
+   Update Schema
 ========================= */
-export const updateExpenseSchema = (function() {
-  const schema = buildJoiSchema(ExpenseModel.schema);
-  return schema.fork(Object.keys(ExpenseModel.schema.paths), (field) => field.optional())
-               .keys({
-                 _id: objectId().required(),
-                 updatedBy: objectId().required()
-               });
-})();
+export const updateExpenseSchema = updateSchema(
+  ExpenseModel.schema,
+  ["updatedBy"]
+);
 
 /* =========================
    Params Schema
 ========================= */
-export const expenseParamsSchema = Joi.object({
-  _id: objectId().required()
-});
+export const expenseParamsSchema = paramsSchema();
 
 /* =========================
    Query Schema
 ========================= */
-export const expenseQuerySchema = Joi.object({
-  limit: Joi.number().min(1).optional(),
-  skip: Joi.number().min(0).optional(),
-  search: Joi.string().optional()
-});
+export const expenseQuerySchema = querySchema();

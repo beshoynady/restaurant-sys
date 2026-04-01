@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import reservationService from "../../services/seating/reservation.service.js";
+import { validateReservationModel } from "../../validation/seating/reservation.validation.js";
 
-
-// CRUD Controller for reservation
+/* =========================
+   CRUD Controller for reservation
+========================= */
 const reservationController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateReservationModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await reservationService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const reservationController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateReservationModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await reservationService.update(req.params.id, payload);
     res.json(result);

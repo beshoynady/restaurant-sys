@@ -1,36 +1,26 @@
 import Joi from "joi";
-import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
 import PromotionModel from "../../models/sales/promotion.model.js";
 
 /* =========================
    Create Schema
 ========================= */
-export const createPromotionSchema = buildJoiSchema(PromotionModel.schema);
+export const createPromotionSchema = createSchema(PromotionModel.schema);
 
 /* =========================
-   Update Schema (all optional except _id & updatedBy)
+   Update Schema
 ========================= */
-export const updatePromotionSchema = (function() {
-  const schema = buildJoiSchema(PromotionModel.schema);
-  return schema.fork(Object.keys(PromotionModel.schema.paths), (field) => field.optional())
-               .keys({
-                 _id: objectId().required(),
-                 updatedBy: objectId().required()
-               });
-})();
+export const updatePromotionSchema = updateSchema(
+  PromotionModel.schema,
+  ["updatedBy"]
+);
 
 /* =========================
    Params Schema
 ========================= */
-export const promotionParamsSchema = Joi.object({
-  _id: objectId().required()
-});
+export const promotionParamsSchema = paramsSchema();
 
 /* =========================
    Query Schema
 ========================= */
-export const promotionQuerySchema = Joi.object({
-  limit: Joi.number().min(1).optional(),
-  skip: Joi.number().min(0).optional(),
-  search: Joi.string().optional()
-});
+export const promotionQuerySchema = querySchema();

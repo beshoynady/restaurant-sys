@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import stockLedgerService from "../../services/inventory/stock-ledger.service.js";
+import { validateStockLedgerModel } from "../../validation/inventory/stock-ledger.validation.js";
 
-
-// CRUD Controller for stock-ledger
+/* =========================
+   CRUD Controller for stock-ledger
+========================= */
 const stockLedgerController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateStockLedgerModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await stockLedgerService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const stockLedgerController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateStockLedgerModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await stockLedgerService.update(req.params.id, payload);
     res.json(result);

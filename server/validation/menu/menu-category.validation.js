@@ -1,36 +1,26 @@
 import Joi from "joi";
-import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
 import MenuCategoryModel from "../../models/menu/menu-category.model.js";
 
 /* =========================
    Create Schema
 ========================= */
-export const createMenuCategorySchema = buildJoiSchema(MenuCategoryModel.schema);
+export const createMenuCategorySchema = createSchema(MenuCategoryModel.schema);
 
 /* =========================
-   Update Schema (all optional except _id & updatedBy)
+   Update Schema
 ========================= */
-export const updateMenuCategorySchema = (function() {
-  const schema = buildJoiSchema(MenuCategoryModel.schema);
-  return schema.fork(Object.keys(MenuCategoryModel.schema.paths), (field) => field.optional())
-               .keys({
-                 _id: objectId().required(),
-                 updatedBy: objectId().required()
-               });
-})();
+export const updateMenuCategorySchema = updateSchema(
+  MenuCategoryModel.schema,
+  ["updatedBy"]
+);
 
 /* =========================
    Params Schema
 ========================= */
-export const menuCategoryParamsSchema = Joi.object({
-  _id: objectId().required()
-});
+export const menuCategoryParamsSchema = paramsSchema();
 
 /* =========================
    Query Schema
 ========================= */
-export const menuCategoryQuerySchema = Joi.object({
-  limit: Joi.number().min(1).optional(),
-  skip: Joi.number().min(0).optional(),
-  search: Joi.string().optional()
-});
+export const menuCategoryQuerySchema = querySchema();

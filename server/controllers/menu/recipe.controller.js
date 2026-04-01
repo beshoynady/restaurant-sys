@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import recipeService from "../../services/menu/recipe.service.js";
+import { validateRecipeModel } from "../../validation/menu/recipe.validation.js";
 
-
-// CRUD Controller for recipe
+/* =========================
+   CRUD Controller for recipe
+========================= */
 const recipeController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateRecipeModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await recipeService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const recipeController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateRecipeModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await recipeService.update(req.params.id, payload);
     res.json(result);

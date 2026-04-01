@@ -1,36 +1,26 @@
 import Joi from "joi";
-import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
 import ProductModel from "../../models/menu/product.model.js";
 
 /* =========================
    Create Schema
 ========================= */
-export const createProductSchema = buildJoiSchema(ProductModel.schema);
+export const createProductSchema = createSchema(ProductModel.schema);
 
 /* =========================
-   Update Schema (all optional except _id & updatedBy)
+   Update Schema
 ========================= */
-export const updateProductSchema = (function() {
-  const schema = buildJoiSchema(ProductModel.schema);
-  return schema.fork(Object.keys(ProductModel.schema.paths), (field) => field.optional())
-               .keys({
-                 _id: objectId().required(),
-                 updatedBy: objectId().required()
-               });
-})();
+export const updateProductSchema = updateSchema(
+  ProductModel.schema,
+  ["updatedBy"]
+);
 
 /* =========================
    Params Schema
 ========================= */
-export const productParamsSchema = Joi.object({
-  _id: objectId().required()
-});
+export const productParamsSchema = paramsSchema();
 
 /* =========================
    Query Schema
 ========================= */
-export const productQuerySchema = Joi.object({
-  limit: Joi.number().min(1).optional(),
-  skip: Joi.number().min(0).optional(),
-  search: Joi.string().optional()
-});
+export const productQuerySchema = querySchema();

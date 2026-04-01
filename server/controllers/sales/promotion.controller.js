@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import promotionService from "../../services/sales/promotion.service.js";
+import { validatePromotionModel } from "../../validation/sales/promotion.validation.js";
 
-
-// CRUD Controller for promotion
+/* =========================
+   CRUD Controller for promotion
+========================= */
 const promotionController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validatePromotionModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await promotionService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const promotionController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validatePromotionModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await promotionService.update(req.params.id, payload);
     res.json(result);

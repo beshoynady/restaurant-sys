@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import attendanceRecordService from "../../services/employees/attendance-record.service.js";
+import { validateAttendanceRecordModel } from "../../validation/employees/attendance-record.validation.js";
 
-
-// CRUD Controller for attendance-record
+/* =========================
+   CRUD Controller for attendance-record
+========================= */
 const attendanceRecordController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateAttendanceRecordModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await attendanceRecordService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const attendanceRecordController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateAttendanceRecordModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await attendanceRecordService.update(req.params.id, payload);
     res.json(result);

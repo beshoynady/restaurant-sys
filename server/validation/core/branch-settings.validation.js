@@ -1,36 +1,26 @@
 import Joi from "joi";
-import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
 import BranchSettingsModel from "../../models/core/branch-settings.model.js";
 
 /* =========================
    Create Schema
 ========================= */
-export const createBranchSettingsSchema = buildJoiSchema(BranchSettingsModel.schema);
+export const createBranchSettingsSchema = createSchema(BranchSettingsModel.schema);
 
 /* =========================
-   Update Schema (all optional except _id & updatedBy)
+   Update Schema
 ========================= */
-export const updateBranchSettingsSchema = (function() {
-  const schema = buildJoiSchema(BranchSettingsModel.schema);
-  return schema.fork(Object.keys(BranchSettingsModel.schema.paths), (field) => field.optional())
-               .keys({
-                 _id: objectId().required(),
-                 updatedBy: objectId().required()
-               });
-})();
+export const updateBranchSettingsSchema = updateSchema(
+  BranchSettingsModel.schema,
+  ["updatedBy"]
+);
 
 /* =========================
    Params Schema
 ========================= */
-export const branchSettingsParamsSchema = Joi.object({
-  _id: objectId().required()
-});
+export const branchSettingsParamsSchema = paramsSchema();
 
 /* =========================
    Query Schema
 ========================= */
-export const branchSettingsQuerySchema = Joi.object({
-  limit: Joi.number().min(1).optional(),
-  skip: Joi.number().min(0).optional(),
-  search: Joi.string().optional()
-});
+export const branchSettingsQuerySchema = querySchema();

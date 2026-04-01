@@ -1,36 +1,26 @@
 import Joi from "joi";
-import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
 import AccountModel from "../../models/accounting/account.model.js";
 
 /* =========================
    Create Schema
 ========================= */
-export const createAccountSchema = buildJoiSchema(AccountModel.schema);
+export const createAccountSchema = createSchema(AccountModel.schema);
 
 /* =========================
-   Update Schema (all optional except _id & updatedBy)
+   Update Schema
 ========================= */
-export const updateAccountSchema = (function() {
-  const schema = buildJoiSchema(AccountModel.schema);
-  return schema.fork(Object.keys(AccountModel.schema.paths), (field) => field.optional())
-               .keys({
-                 _id: objectId().required(),
-                 updatedBy: objectId().required()
-               });
-})();
+export const updateAccountSchema = updateSchema(
+  AccountModel.schema,
+  ["updatedBy"]
+);
 
 /* =========================
    Params Schema
 ========================= */
-export const accountParamsSchema = Joi.object({
-  _id: objectId().required()
-});
+export const accountParamsSchema = paramsSchema();
 
 /* =========================
    Query Schema
 ========================= */
-export const accountQuerySchema = Joi.object({
-  limit: Joi.number().min(1).optional(),
-  skip: Joi.number().min(0).optional(),
-  search: Joi.string().optional()
-});
+export const accountQuerySchema = querySchema();

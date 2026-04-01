@@ -1,36 +1,26 @@
 import Joi from "joi";
-import { objectId, buildJoiSchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
 import OnlineCustomerModel from "../../models/customers/online-customer.model.js";
 
 /* =========================
    Create Schema
 ========================= */
-export const createOnlineCustomerSchema = buildJoiSchema(OnlineCustomerModel.schema);
+export const createOnlineCustomerSchema = createSchema(OnlineCustomerModel.schema);
 
 /* =========================
-   Update Schema (all optional except _id & updatedBy)
+   Update Schema
 ========================= */
-export const updateOnlineCustomerSchema = (function() {
-  const schema = buildJoiSchema(OnlineCustomerModel.schema);
-  return schema.fork(Object.keys(OnlineCustomerModel.schema.paths), (field) => field.optional())
-               .keys({
-                 _id: objectId().required(),
-                 updatedBy: objectId().required()
-               });
-})();
+export const updateOnlineCustomerSchema = updateSchema(
+  OnlineCustomerModel.schema,
+  ["updatedBy"]
+);
 
 /* =========================
    Params Schema
 ========================= */
-export const onlineCustomerParamsSchema = Joi.object({
-  _id: objectId().required()
-});
+export const onlineCustomerParamsSchema = paramsSchema();
 
 /* =========================
    Query Schema
 ========================= */
-export const onlineCustomerQuerySchema = Joi.object({
-  limit: Joi.number().min(1).optional(),
-  skip: Joi.number().min(0).optional(),
-  search: Joi.string().optional()
-});
+export const onlineCustomerQuerySchema = querySchema();

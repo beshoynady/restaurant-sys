@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import accountingPeriodService from "../../services/accounting/accounting-period.service.js";
+import { validateAccountingPeriodModel } from "../../validation/accounting/accounting-period.validation.js";
 
-
-// CRUD Controller for accounting-period
+/* =========================
+   CRUD Controller for accounting-period
+========================= */
 const accountingPeriodController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateAccountingPeriodModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await accountingPeriodService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const accountingPeriodController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateAccountingPeriodModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await accountingPeriodService.update(req.params.id, payload);
     res.json(result);

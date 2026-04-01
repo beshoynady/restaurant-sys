@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import stockTransferRequestService from "../../services/inventory/stock-transfer-request.service.js";
+import { validateStockTransferRequestModel } from "../../validation/inventory/stock-transfer-request.validation.js";
 
-
-// CRUD Controller for stock-transfer-request
+/* =========================
+   CRUD Controller for stock-transfer-request
+========================= */
 const stockTransferRequestController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateStockTransferRequestModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await stockTransferRequestService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const stockTransferRequestController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateStockTransferRequestModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await stockTransferRequestService.update(req.params.id, payload);
     res.json(result);

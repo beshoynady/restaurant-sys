@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import purchaseReturnService from "../../services/purchasing/purchase-return.service.js";
+import { validatePurchaseReturnModel } from "../../validation/purchasing/purchase-return.validation.js";
 
-
-// CRUD Controller for purchase-return
+/* =========================
+   CRUD Controller for purchase-return
+========================= */
 const purchaseReturnController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validatePurchaseReturnModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await purchaseReturnService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const purchaseReturnController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validatePurchaseReturnModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await purchaseReturnService.update(req.params.id, payload);
     res.json(result);

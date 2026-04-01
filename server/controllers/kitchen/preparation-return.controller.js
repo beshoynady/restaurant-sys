@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import preparationReturnService from "../../services/kitchen/preparation-return.service.js";
+import { validatePreparationReturnModel } from "../../validation/kitchen/preparation-return.validation.js";
 
-
-// CRUD Controller for preparation-return
+/* =========================
+   CRUD Controller for preparation-return
+========================= */
 const preparationReturnController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validatePreparationReturnModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await preparationReturnService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const preparationReturnController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validatePreparationReturnModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await preparationReturnService.update(req.params.id, payload);
     res.json(result);

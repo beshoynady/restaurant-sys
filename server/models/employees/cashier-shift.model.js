@@ -12,7 +12,7 @@ const cashierShiftSchema = new mongoose.Schema(
     num: {
       type: Number,
       required: true,
-      description: "Sequential number for the shift within the branch",
+      
     },
 
     // ===============================
@@ -48,7 +48,7 @@ const cashierShiftSchema = new mongoose.Schema(
     openingCash: {
       type: Number,
       required: true,
-      description: "Opening cash float handed to cashier",
+      
     },
 
     // ===============================
@@ -91,13 +91,13 @@ const cashierShiftSchema = new mongoose.Schema(
       type: ObjectId,
       ref: "Account",
       required: true,
-      description: "Cash account linked to this register",
+      
     },
 
     journalEntry: {
       type: ObjectId,
       ref: "JournalEntry",
-      description: "Journal entry created on shift close",
+      
     },
 
     // ===============================

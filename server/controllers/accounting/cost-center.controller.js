@@ -1,14 +1,16 @@
 import asyncHandler from "../../utils/asyncHandler.js";
 import costCenterService from "../../services/accounting/cost-center.service.js";
+import { validateCostCenterModel } from "../../validation/accounting/cost-center.validation.js";
 
-
-// CRUD Controller for cost-center
+/* =========================
+   CRUD Controller for cost-center
+========================= */
 const costCenterController = {
   create: asyncHandler(async (req, res) => {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateCostCenterModel(req.body);
     const payload = { ...req.body, brand: brandId, branch: branchId, createdBy: userId };
     const result = await costCenterService.create(payload);
     res.status(201).json(result);
@@ -30,7 +32,7 @@ const costCenterController = {
     const brandId = req.brand._id;
     const branchId = req.body.branch ?? req.branch._id;
     const userId = req.user._id;
-    
+    validateCostCenterModel(req.body, true);
     const payload = { ...req.body, brand: brandId, branch: branchId, updatedBy: userId };
     const result = await costCenterService.update(req.params.id, payload);
     res.json(result);
