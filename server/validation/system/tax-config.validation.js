@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
 import TaxConfigModel from "../../models/system/tax-config.model.js";
 
 /* =========================
@@ -18,9 +18,15 @@ export const updateTaxConfigSchema = updateSchema(
 /* =========================
    Params Schema
 ========================= */
-export const taxConfigParamsSchema = paramsSchema();
+export const paramsTaxConfigSchema = paramsSchema();
+
+/* =========================
+   Params Ids Schema
+========================= */
+export const paramsTaxConfigIdsSchema = paramsIdsSchema();
+
 
 /* =========================
    Query Schema
 ========================= */
-export const taxConfigQuerySchema = querySchema();
+export const queryTaxConfigSchema = querySchema();

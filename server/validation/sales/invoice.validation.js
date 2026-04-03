@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
 import InvoiceModel from "../../models/sales/invoice.model.js";
 
 /* =========================
@@ -18,9 +18,15 @@ export const updateInvoiceSchema = updateSchema(
 /* =========================
    Params Schema
 ========================= */
-export const invoiceParamsSchema = paramsSchema();
+export const paramsInvoiceSchema = paramsSchema();
+
+/* =========================
+   Params Ids Schema
+========================= */
+export const paramsInvoiceIdsSchema = paramsIdsSchema();
+
 
 /* =========================
    Query Schema
 ========================= */
-export const invoiceQuerySchema = querySchema();
+export const queryInvoiceSchema = querySchema();

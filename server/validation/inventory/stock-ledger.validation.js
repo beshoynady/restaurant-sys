@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
 import StockLedgerModel from "../../models/inventory/stock-ledger.model.js";
 
 /* =========================
@@ -18,9 +18,15 @@ export const updateStockLedgerSchema = updateSchema(
 /* =========================
    Params Schema
 ========================= */
-export const stockLedgerParamsSchema = paramsSchema();
+export const paramsStockLedgerSchema = paramsSchema();
+
+/* =========================
+   Params Ids Schema
+========================= */
+export const paramsStockLedgerIdsSchema = paramsIdsSchema();
+
 
 /* =========================
    Query Schema
 ========================= */
-export const stockLedgerQuerySchema = querySchema();
+export const queryStockLedgerSchema = querySchema();

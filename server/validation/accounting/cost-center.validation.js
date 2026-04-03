@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
 import CostCenterModel from "../../models/accounting/cost-center.model.js";
 
 /* =========================
@@ -18,9 +18,15 @@ export const updateCostCenterSchema = updateSchema(
 /* =========================
    Params Schema
 ========================= */
-export const costCenterParamsSchema = paramsSchema();
+export const paramsCostCenterSchema = paramsSchema();
+
+/* =========================
+   Params Ids Schema
+========================= */
+export const paramsCostCenterIdsSchema = paramsIdsSchema();
+
 
 /* =========================
    Query Schema
 ========================= */
-export const costCenterQuerySchema = querySchema();
+export const queryCostCenterSchema = querySchema();

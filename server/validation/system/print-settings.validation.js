@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
 import PrintSettingsModel from "../../models/system/print-settings.model.js";
 
 /* =========================
@@ -18,9 +18,15 @@ export const updatePrintSettingsSchema = updateSchema(
 /* =========================
    Params Schema
 ========================= */
-export const printSettingsParamsSchema = paramsSchema();
+export const paramsPrintSettingsSchema = paramsSchema();
+
+/* =========================
+   Params Ids Schema
+========================= */
+export const paramsPrintSettingsIdsSchema = paramsIdsSchema();
+
 
 /* =========================
    Query Schema
 ========================= */
-export const printSettingsQuerySchema = querySchema();
+export const queryPrintSettingsSchema = querySchema();

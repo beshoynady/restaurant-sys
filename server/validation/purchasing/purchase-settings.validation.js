@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
 import PurchaseSettingsModel from "../../models/purchasing/purchase-settings.model.js";
 
 /* =========================
@@ -18,9 +18,15 @@ export const updatePurchaseSettingsSchema = updateSchema(
 /* =========================
    Params Schema
 ========================= */
-export const purchaseSettingsParamsSchema = paramsSchema();
+export const paramsPurchaseSettingsSchema = paramsSchema();
+
+/* =========================
+   Params Ids Schema
+========================= */
+export const paramsPurchaseSettingsIdsSchema = paramsIdsSchema();
+
 
 /* =========================
    Query Schema
 ========================= */
-export const purchaseSettingsQuerySchema = querySchema();
+export const queryPurchaseSettingsSchema = querySchema();

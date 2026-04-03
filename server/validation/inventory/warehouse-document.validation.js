@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
 import WarehouseDocumentModel from "../../models/inventory/warehouse-document.model.js";
 
 /* =========================
@@ -18,9 +18,15 @@ export const updateWarehouseDocumentSchema = updateSchema(
 /* =========================
    Params Schema
 ========================= */
-export const warehouseDocumentParamsSchema = paramsSchema();
+export const paramsWarehouseDocumentSchema = paramsSchema();
+
+/* =========================
+   Params Ids Schema
+========================= */
+export const paramsWarehouseDocumentIdsSchema = paramsIdsSchema();
+
 
 /* =========================
    Query Schema
 ========================= */
-export const warehouseDocumentQuerySchema = querySchema();
+export const queryWarehouseDocumentSchema = querySchema();

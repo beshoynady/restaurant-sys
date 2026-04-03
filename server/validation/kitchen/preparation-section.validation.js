@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
 import PreparationSectionModel from "../../models/kitchen/preparation-section.model.js";
 
 /* =========================
@@ -18,9 +18,15 @@ export const updatePreparationSectionSchema = updateSchema(
 /* =========================
    Params Schema
 ========================= */
-export const preparationSectionParamsSchema = paramsSchema();
+export const paramsPreparationSectionSchema = paramsSchema();
+
+/* =========================
+   Params Ids Schema
+========================= */
+export const paramsPreparationSectionIdsSchema = paramsIdsSchema();
+
 
 /* =========================
    Query Schema
 ========================= */
-export const preparationSectionQuerySchema = querySchema();
+export const queryPreparationSectionSchema = querySchema();

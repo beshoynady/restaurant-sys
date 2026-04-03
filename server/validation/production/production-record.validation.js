@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
 import ProductionRecordModel from "../../models/production/production-record.model.js";
 
 /* =========================
@@ -18,9 +18,15 @@ export const updateProductionRecordSchema = updateSchema(
 /* =========================
    Params Schema
 ========================= */
-export const productionRecordParamsSchema = paramsSchema();
+export const paramsProductionRecordSchema = paramsSchema();
+
+/* =========================
+   Params Ids Schema
+========================= */
+export const paramsProductionRecordIdsSchema = paramsIdsSchema();
+
 
 /* =========================
    Query Schema
 ========================= */
-export const productionRecordQuerySchema = querySchema();
+export const queryProductionRecordSchema = querySchema();

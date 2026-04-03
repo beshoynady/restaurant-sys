@@ -2,26 +2,46 @@ import express from "express";
 import messageController from "../../controllers/customers/message.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 import validate from "../../middlewares/validate.js";
-import { createMessageSchema, updateMessageSchema, messageParamsSchema, messageQuerySchema } from "../../validation/customers/message.validation.js";
+import { 
+  createMessageSchema, 
+  updateMessageSchema, 
+  paramsMessageSchema, 
+  paramsMessageIdsSchema,
+  queryMessageSchema 
+} from "../../validation/customers/message.validation.js";
 
 const router = express.Router();
 
 // Create & GetAll
 router.route("/")
   .post(authenticateToken, validate(createMessageSchema), messageController.create)
-  .get(authenticateToken, validate(messageQuerySchema), messageController.getAll)
+  .get(authenticateToken, validate(queryMessageSchema), messageController.getAll)
 ;
 
-// GetOne, Update, SoftDelete
+// GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, validate(messageParamsSchema), messageController.getOne)
+  .get(authenticateToken, validate(paramsMessageSchema), messageController.getOne)
   .put(authenticateToken, validate(updateMessageSchema), messageController.update)
-  .delete(authenticateToken, validate(messageParamsSchema), messageController.delete) // soft delete
+  .delete(authenticateToken, validate(paramsMessageSchema), messageController.hardDelete) // soft delete
+;
+
+router.route("/soft-delete/:id")
+  .patch(authenticateToken, validate(paramsMessageSchema), messageController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
-  .patch(authenticateToken, validate(messageParamsSchema), messageController.restore)
+  .patch(authenticateToken, validate(paramsMessageSchema), messageController.restore)
 ;
+
+ // --- BULK HARD DELETE ---
+  router.route("/bulk-delete")
+    .delete(authenticateToken, validate(paramsMessageIdsSchema), messageController.bulkHardDelete);
+
+
+  // --- BULK SOFT DELETE ---
+  router.route("/bulk-soft-delete")
+    .patch(authenticateToken,validate(paramsMessageIdsSchema), messageController.bulkSoftDelete);
+
 
 export default router;

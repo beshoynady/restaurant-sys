@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
 import PreparationTicketModel from "../../models/kitchen/preparation-ticket.model.js";
 
 /* =========================
@@ -18,9 +18,15 @@ export const updatePreparationTicketSchema = updateSchema(
 /* =========================
    Params Schema
 ========================= */
-export const preparationTicketParamsSchema = paramsSchema();
+export const paramsPreparationTicketSchema = paramsSchema();
+
+/* =========================
+   Params Ids Schema
+========================= */
+export const paramsPreparationTicketIdsSchema = paramsIdsSchema();
+
 
 /* =========================
    Query Schema
 ========================= */
-export const preparationTicketQuerySchema = querySchema();
+export const queryPreparationTicketSchema = querySchema();

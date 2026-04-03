@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
 import MessageModel from "../../models/customers/message.model.js";
 
 /* =========================
@@ -18,9 +18,15 @@ export const updateMessageSchema = updateSchema(
 /* =========================
    Params Schema
 ========================= */
-export const messageParamsSchema = paramsSchema();
+export const paramsMessageSchema = paramsSchema();
+
+/* =========================
+   Params Ids Schema
+========================= */
+export const paramsMessageIdsSchema = paramsIdsSchema();
+
 
 /* =========================
    Query Schema
 ========================= */
-export const messageQuerySchema = querySchema();
+export const queryMessageSchema = querySchema();

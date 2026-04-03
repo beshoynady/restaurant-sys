@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
 import SalesReturnSettingsModel from "../../models/sales/sales-return-settings.model.js";
 
 /* =========================
@@ -18,9 +18,15 @@ export const updateSalesReturnSettingsSchema = updateSchema(
 /* =========================
    Params Schema
 ========================= */
-export const salesReturnSettingsParamsSchema = paramsSchema();
+export const paramsSalesReturnSettingsSchema = paramsSchema();
+
+/* =========================
+   Params Ids Schema
+========================= */
+export const paramsSalesReturnSettingsIdsSchema = paramsIdsSchema();
+
 
 /* =========================
    Query Schema
 ========================= */
-export const salesReturnSettingsQuerySchema = querySchema();
+export const querySalesReturnSettingsSchema = querySchema();

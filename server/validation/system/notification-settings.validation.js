@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
 import NotificationSettingsModel from "../../models/system/notification-settings.model.js";
 
 /* =========================
@@ -18,9 +18,15 @@ export const updateNotificationSettingsSchema = updateSchema(
 /* =========================
    Params Schema
 ========================= */
-export const notificationSettingsParamsSchema = paramsSchema();
+export const paramsNotificationSettingsSchema = paramsSchema();
+
+/* =========================
+   Params Ids Schema
+========================= */
+export const paramsNotificationSettingsIdsSchema = paramsIdsSchema();
+
 
 /* =========================
    Query Schema
 ========================= */
-export const notificationSettingsQuerySchema = querySchema();
+export const queryNotificationSettingsSchema = querySchema();

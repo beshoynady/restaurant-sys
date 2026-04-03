@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
 import OfflineCustomerModel from "../../models/customers/offline-customer.model.js";
 
 /* =========================
@@ -18,9 +18,15 @@ export const updateOfflineCustomerSchema = updateSchema(
 /* =========================
    Params Schema
 ========================= */
-export const offlineCustomerParamsSchema = paramsSchema();
+export const paramsOfflineCustomerSchema = paramsSchema();
+
+/* =========================
+   Params Ids Schema
+========================= */
+export const paramsOfflineCustomerIdsSchema = paramsIdsSchema();
+
 
 /* =========================
    Query Schema
 ========================= */
-export const offlineCustomerQuerySchema = querySchema();
+export const queryOfflineCustomerSchema = querySchema();

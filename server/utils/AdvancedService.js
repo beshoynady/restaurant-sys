@@ -1,14 +1,26 @@
+import mongoose from "mongoose";
 import throwError from "./throwError.js";
 
 /**
- * Advanced CRUD Service (Production Ready)
+ * BaseService - Generic Service Layer for all modules
+ * Features:
+ * - Multi-tenant (brand scoped)
+ * - Soft delete
+ * - Pagination & filtering
+ * - Search
+ * - Populate
+ * - Unique validation
+ * - Transactions
+ * - Clean architecture ready
  */
-class AdvancedService {
+class BaseService {
   constructor(model, options = {}) {
     this.model = model;
 
+    // 🔹 Config
     this.brandScoped = options.brandScoped ?? true;
-    this.softDelete = options.softDelete ?? true;
+    this.enableSoftDelete = options.softDelete ?? true;
+
     this.defaultPopulate = options.defaultPopulate ?? [];
     this.searchFields = options.searchFields ?? [];
     this.defaultSort = options.defaultSort ?? { createdAt: -1 };
@@ -23,7 +35,7 @@ class AdvancedService {
 
     if (this.brandScoped && brandId) query.brand = brandId;
 
-    if (this.softDelete) {
+    if (this.enableSoftDelete) {
       query.isDeleted = includeDeleted ? { $in: [true, false] } : false;
     }
 
@@ -47,20 +59,25 @@ class AdvancedService {
   }
 
   async _findOrFail(id, brandId, includeDeleted = false) {
-    const record = await this.model.findOne({
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw throwError("Invalid ID", 400);
+    }
+
+    const doc = await this.model.findOne({
       _id: id,
       ...this._baseQuery(brandId, includeDeleted),
     });
 
-    if (!record) throw throwError("Record not found", 404);
+    if (!doc) throw throwError("Record not found", 404);
 
-    return record;
+    return doc;
   }
 
   async _checkUnique(brandId, data, uniqueFields = [], excludeId = null) {
     if (!uniqueFields.length) return;
 
     const query = {};
+
     uniqueFields.forEach((field) => {
       if (data[field] !== undefined) query[field] = data[field];
     });
@@ -71,13 +88,14 @@ class AdvancedService {
     if (excludeId) query._id = { $ne: excludeId };
 
     const exists = await this.model.findOne(query);
+
     if (exists) throw throwError("Duplicate record", 409);
   }
 
-  _validateLangFields(data, fieldsWithLang = [], lang) {
-    if (!fieldsWithLang.length || !lang) return;
+  _validateLangFields(data, fields = [], lang) {
+    if (!fields.length || !lang) return;
 
-    fieldsWithLang.forEach((field) => {
+    fields.forEach((field) => {
       const val = data[field];
 
       if (!val || typeof val !== "object") {
@@ -97,7 +115,7 @@ class AdvancedService {
   async create({
     brandId,
     data,
-    createdBy = null,
+    createdBy,
     uniqueFields = [],
     fieldsWithLang = [],
     lang,
@@ -118,7 +136,7 @@ class AdvancedService {
   // 🔹 READ
   // =========================
 
-  async findAll({
+  async getAll({
     brandId,
     filter = {},
     page = 1,
@@ -160,7 +178,7 @@ class AdvancedService {
     };
   }
 
-  async findById(id, { brandId, populate = [], includeDeleted = false } = {}) {
+  async findById({ id, brandId, populate = [], includeDeleted = false }) {
     let query = this.model.findOne({
       _id: id,
       ...this._baseQuery(brandId, includeDeleted),
@@ -168,11 +186,11 @@ class AdvancedService {
 
     query = this._applyPopulate(query, populate);
 
-    const record = await query.lean();
+    const doc = await query.lean();
 
-    if (!record) throw throwError("Record not found", 404);
+    if (!doc) throw throwError("Record not found", 404);
 
-    return record;
+    return doc;
   }
 
   async findOne({
@@ -188,65 +206,78 @@ class AdvancedService {
 
     query = this._applyPopulate(query, populate);
 
-    const record = await query.lean();
+    const doc = await query.lean();
 
-    if (!record) throw throwError("Record not found", 404);
+    if (!doc) throw throwError("Record not found", 404);
 
-    return record;
+    return doc;
   }
 
   // =========================
   // 🔹 UPDATE
   // =========================
 
-  async update({
-    id,
-    brandId,
-    data,
-    updatedBy = null,
-    uniqueFields = [],
-  }) {
+  async update({ id, brandId, data, updatedBy, uniqueFields = [] }) {
     await this._checkUnique(brandId, data, uniqueFields, id);
 
-    const record = await this._findOrFail(id, brandId);
+    const updated = await this.model.findOneAndUpdate(
+      {
+        _id: id,
+        ...this._baseQuery(brandId),
+      },
+      {
+        $set: {
+          ...data,
+          ...(updatedBy && { updatedBy }),
+        },
+      },
+      {
+        new: true,
+        runValidators: true,
+      },
+    );
 
-    Object.assign(record, data);
+    if (!updated) throw throwError("Record not found", 404);
 
-    if (updatedBy) record.updatedBy = updatedBy;
-
-    await record.save();
-
-    return record;
+    return updated;
   }
 
-  async findOneAndUpdate({ brandId, filter, data }) {
-    const record = await this.model.findOneAndUpdate(
+  async findOneAndUpdate({ brandId, filter, data, updatedBy }) {
+    const updated = await this.model.findOneAndUpdate(
       {
         ...this._baseQuery(brandId),
         ...filter,
       },
-      data,
-      { new: true, runValidators: true }
+      {
+        $set: {
+          ...data,
+          ...(updatedBy && { updatedBy }),
+        },
+      },
+      {
+        new: true,
+        runValidators: true,
+      },
     );
 
-    if (!record) throw throwError("Record not found", 404);
+    if (!updated) throw throwError("Record not found", 404);
 
-    return record;
+    return updated;
   }
 
-  async toggleStatus(id, brandId, userId) {
-    const record = await this._findOrFail(id, brandId);
+  async toggleStatus({ id, brandId, userId }) {
+    const doc = await this._findOrFail(id, brandId);
 
-    if (!("isActive" in record.toObject())) {
+    if (!("isActive" in doc.toObject())) {
       throw throwError("Model does not support status toggle", 400);
     }
 
-    record.isActive = !record.isActive;
-    record.updatedBy = userId;
+    doc.isActive = !doc.isActive;
+    doc.updatedBy = userId;
 
-    await record.save();
+    await doc.save();
 
-    return record;
+    return doc;
   }
 
   // =========================
@@ -254,46 +285,46 @@ class AdvancedService {
   // =========================
 
   async softDelete(id, brandId, userId) {
-    if (!this.softDelete) {
+    if (!this.enableSoftDelete) {
       throw throwError("Soft delete disabled", 400);
     }
 
-    const record = await this._findOrFail(id, brandId);
+    const doc = await this._findOrFail(id, brandId);
 
-    record.isDeleted = true;
-    record.deletedAt = new Date();
-    record.deletedBy = userId;
+    doc.isDeleted = true;
+    doc.deletedAt = new Date();
+    doc.deletedBy = userId;
 
-    if ("isActive" in record) record.isActive = false;
+    if ("isActive" in doc) doc.isActive = false;
 
-    await record.save();
+    await doc.save();
 
-    return record;
+    return doc;
   }
 
   async restore(id, brandId, userId) {
-    const record = await this._findOrFail(id, brandId, true);
+    const doc = await this._findOrFail(id, brandId, true);
 
-    if (!record.isDeleted) {
+    if (!doc.isDeleted) {
       throw throwError("Record is not deleted", 400);
     }
 
-    record.isDeleted = false;
-    record.deletedAt = null;
-    record.deletedBy = null;
+    doc.isDeleted = false;
+    doc.deletedAt = null;
+    doc.deletedBy = null;
 
-    if ("isActive" in record) record.isActive = true;
+    if ("isActive" in doc) doc.isActive = true;
 
-    record.updatedBy = userId;
+    doc.updatedBy = userId;
 
-    await record.save();
+    await doc.save();
 
-    return record;
+    return doc;
   }
 
   async hardDelete(id, brandId) {
-    const record = await this._findOrFail(id, brandId, true);
-    await record.deleteOne();
+    const doc = await this._findOrFail(id, brandId, true);
+    await doc.deleteOne();
     return true;
   }
 
@@ -309,7 +340,7 @@ class AdvancedService {
         isDeleted: true,
         deletedAt: new Date(),
         deletedBy: userId,
-      }
+      },
     );
 
     return result.modifiedCount;
@@ -348,6 +379,27 @@ class AdvancedService {
 
     return !!doc;
   }
+
+  async aggregate(pipeline = [], brandId, includeDeleted = false) {
+    const baseMatch = this._baseQuery(brandId, includeDeleted);
+    return this.model.aggregate([{ $match: baseMatch }, ...pipeline]);
+  }
+
+  async transaction(fn) {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      const result = await fn(session);
+      await session.commitTransaction();
+      return result;
+    } catch (err) {
+      await session.abortTransaction();
+      throw err;
+    } finally {
+      session.endSession();
+    }
+  }
 }
 
-export default AdvancedService;
+export default BaseService;

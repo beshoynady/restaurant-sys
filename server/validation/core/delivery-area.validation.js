@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
 import DeliveryAreaModel from "../../models/core/delivery-area.model.js";
 
 /* =========================
@@ -18,9 +18,15 @@ export const updateDeliveryAreaSchema = updateSchema(
 /* =========================
    Params Schema
 ========================= */
-export const deliveryAreaParamsSchema = paramsSchema();
+export const paramsDeliveryAreaSchema = paramsSchema();
+
+/* =========================
+   Params Ids Schema
+========================= */
+export const paramsDeliveryAreaIdsSchema = paramsIdsSchema();
+
 
 /* =========================
    Query Schema
 ========================= */
-export const deliveryAreaQuerySchema = querySchema();
+export const queryDeliveryAreaSchema = querySchema();

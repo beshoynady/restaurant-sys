@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
 import TableModel from "../../models/seating/table.model.js";
 
 /* =========================
@@ -18,9 +18,15 @@ export const updateTableSchema = updateSchema(
 /* =========================
    Params Schema
 ========================= */
-export const tableParamsSchema = paramsSchema();
+export const paramsTableSchema = paramsSchema();
+
+/* =========================
+   Params Ids Schema
+========================= */
+export const paramsTableIdsSchema = paramsIdsSchema();
+
 
 /* =========================
    Query Schema
 ========================= */
-export const tableQuerySchema = querySchema();
+export const queryTableSchema = querySchema();

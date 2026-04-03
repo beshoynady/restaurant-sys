@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
 import LoyaltyRewardModel from "../../models/loyalty/loyalty-reward.model.js";
 
 /* =========================
@@ -18,9 +18,15 @@ export const updateLoyaltyRewardSchema = updateSchema(
 /* =========================
    Params Schema
 ========================= */
-export const loyaltyRewardParamsSchema = paramsSchema();
+export const paramsLoyaltyRewardSchema = paramsSchema();
+
+/* =========================
+   Params Ids Schema
+========================= */
+export const paramsLoyaltyRewardIdsSchema = paramsIdsSchema();
+
 
 /* =========================
    Query Schema
 ========================= */
-export const loyaltyRewardQuerySchema = querySchema();
+export const queryLoyaltyRewardSchema = querySchema();

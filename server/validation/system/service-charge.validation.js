@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
 import ServiceChargeModel from "../../models/system/service-charge.model.js";
 
 /* =========================
@@ -18,9 +18,15 @@ export const updateServiceChargeSchema = updateSchema(
 /* =========================
    Params Schema
 ========================= */
-export const serviceChargeParamsSchema = paramsSchema();
+export const paramsServiceChargeSchema = paramsSchema();
+
+/* =========================
+   Params Ids Schema
+========================= */
+export const paramsServiceChargeIdsSchema = paramsIdsSchema();
+
 
 /* =========================
    Query Schema
 ========================= */
-export const serviceChargeQuerySchema = querySchema();
+export const queryServiceChargeSchema = querySchema();

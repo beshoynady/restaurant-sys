@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
 import AssetMaintenanceModel from "../../models/assets/asset-maintenance.model.js";
 
 /* =========================
@@ -18,9 +18,15 @@ export const updateAssetMaintenanceSchema = updateSchema(
 /* =========================
    Params Schema
 ========================= */
-export const assetMaintenanceParamsSchema = paramsSchema();
+export const paramsAssetMaintenanceSchema = paramsSchema();
+
+/* =========================
+   Params Ids Schema
+========================= */
+export const paramsAssetMaintenanceIdsSchema = paramsIdsSchema();
+
 
 /* =========================
    Query Schema
 ========================= */
-export const assetMaintenanceQuerySchema = querySchema();
+export const queryAssetMaintenanceSchema = querySchema();

@@ -20,6 +20,9 @@ export const objectId = () =>
     return value;
   });
 
+export const ObjectIdArray = () => Joi.array().items(objectId()).min(1);
+
+
 /**
  * Multi-language validator (Map)
  * Supports dynamic value rules from mongoose schema
@@ -217,6 +220,11 @@ export const paramsSchema = () =>
     _id: objectId().required(),
   });
 
+  export const paramsIdsSchema = () =>
+  Joi.object({
+    _id: objectId().required(),
+  });
+  
 /**
  * Query Schema (generic)
  */
@@ -228,3 +236,4 @@ export const querySchema = () =>
     sortBy: Joi.string().optional(),
     order: Joi.string().valid("asc", "desc").optional(),
   });
+

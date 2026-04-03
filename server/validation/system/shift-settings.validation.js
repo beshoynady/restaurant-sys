@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
 import ShiftSettingsModel from "../../models/system/shift-settings.model.js";
 
 /* =========================
@@ -18,9 +18,15 @@ export const updateShiftSettingsSchema = updateSchema(
 /* =========================
    Params Schema
 ========================= */
-export const shiftSettingsParamsSchema = paramsSchema();
+export const paramsShiftSettingsSchema = paramsSchema();
+
+/* =========================
+   Params Ids Schema
+========================= */
+export const paramsShiftSettingsIdsSchema = paramsIdsSchema();
+
 
 /* =========================
    Query Schema
 ========================= */
-export const shiftSettingsQuerySchema = querySchema();
+export const queryShiftSettingsSchema = querySchema();

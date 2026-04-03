@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
 import BranchModel from "../../models/core/branch.model.js";
 
 /* =========================
@@ -18,9 +18,15 @@ export const updateBranchSchema = updateSchema(
 /* =========================
    Params Schema
 ========================= */
-export const branchParamsSchema = paramsSchema();
+export const paramsBranchSchema = paramsSchema();
+
+/* =========================
+   Params Ids Schema
+========================= */
+export const paramsBranchIdsSchema = paramsIdsSchema();
+
 
 /* =========================
    Query Schema
 ========================= */
-export const branchQuerySchema = querySchema();
+export const queryBranchSchema = querySchema();

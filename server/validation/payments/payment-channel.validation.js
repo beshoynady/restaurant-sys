@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, querySchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
 import PaymentChannelModel from "../../models/payments/payment-channel.model.js";
 
 /* =========================
@@ -18,9 +18,15 @@ export const updatePaymentChannelSchema = updateSchema(
 /* =========================
    Params Schema
 ========================= */
-export const paymentChannelParamsSchema = paramsSchema();
+export const paramsPaymentChannelSchema = paramsSchema();
+
+/* =========================
+   Params Ids Schema
+========================= */
+export const paramsPaymentChannelIdsSchema = paramsIdsSchema();
+
 
 /* =========================
    Query Schema
 ========================= */
-export const paymentChannelQuerySchema = querySchema();
+export const queryPaymentChannelSchema = querySchema();
