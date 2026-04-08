@@ -1,4 +1,4 @@
-import StoreModel from "../../models/inventory/inventory.model.js"; // Adjust the path as needed
+import  from "../../models/inventory/inventory.model.js"; // Adjust the path as needed
 
 // Create a new store
 const createStore = async (req, res, next) => {
