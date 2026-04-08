@@ -1,4 +1,4 @@
-import BaseController from "../BaseController.js";
+import BaseController from "../../utils/BaseController.js";
 import discountSettingsService from "../../services/system/discount-settings.service.js";
 
 class DiscountSettingsController extends BaseController {

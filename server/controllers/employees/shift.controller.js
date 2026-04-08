@@ -1,4 +1,4 @@
-import BaseController from "../BaseController.js";
+import BaseController from "../../utils/BaseController.js";
 import shiftService from "../../services/employees/shift.service.js";
 
 class ShiftController extends BaseController {

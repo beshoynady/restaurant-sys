@@ -1,4 +1,4 @@
-import BaseController from "../BaseController.js";
+import BaseController from "../../utils/BaseController.js";
 import recipeService from "../../services/menu/recipe.service.js";
 
 class RecipeController extends BaseController {

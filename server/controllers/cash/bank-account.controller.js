@@ -1,4 +1,4 @@
-import BaseController from "../BaseController.js";
+import BaseController from "../../utils/BaseController.js";
 import bankAccountService from "../../services/cash/bank-account.service.js";
 
 class BankAccountController extends BaseController {

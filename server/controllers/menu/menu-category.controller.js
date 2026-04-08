@@ -1,4 +1,4 @@
-import BaseController from "../BaseController.js";
+import BaseController from "../../utils/BaseController.js";
 import menuCategoryService from "../../services/menu/menu-category.service.js";
 
 class MenuCategoryController extends BaseController {

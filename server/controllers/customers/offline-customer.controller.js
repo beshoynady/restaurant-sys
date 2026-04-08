@@ -1,4 +1,4 @@
-import BaseController from "../BaseController.js";
+import BaseController from "../../utils/BaseController.js";
 import offlineCustomerService from "../../services/customers/offline-customer.service.js";
 
 class OfflineCustomerController extends BaseController {

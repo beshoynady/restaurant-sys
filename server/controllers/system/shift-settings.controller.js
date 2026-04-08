@@ -1,4 +1,4 @@
-import BaseController from "../BaseController.js";
+import BaseController from "../../utils/BaseController.js";
 import shiftSettingsService from "../../services/system/shift-settings.service.js";
 
 class ShiftSettingsController extends BaseController {

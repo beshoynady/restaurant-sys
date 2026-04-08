@@ -1,4 +1,4 @@
-import BaseController from "../BaseController.js";
+import BaseController from "../../utils/BaseController.js";
 import printSettingsService from "../../services/system/print-settings.service.js";
 
 class PrintSettingsController extends BaseController {

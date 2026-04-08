@@ -1,4 +1,4 @@
-import BaseController from "../BaseController.js";
+import BaseController from "../../utils/BaseController.js";
 import notificationSettingsService from "../../services/system/notification-settings.service.js";
 
 class NotificationSettingsController extends BaseController {

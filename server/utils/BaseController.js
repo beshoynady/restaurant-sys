@@ -1,4 +1,4 @@
-import asyncHandler from "../utils/asyncHandler.js";
+import asyncHandler from "./asyncHandler.js";
 
 class BaseController {
   constructor(service) {

@@ -1,4 +1,4 @@
-import BaseController from "../BaseController.js";
+import BaseController from "../../utils/BaseController.js";
 import assetPurchaseInvoiceService from "../../services/assets/asset-purchase-invoice.service.js";
 
 class AssetPurchaseInvoiceController extends BaseController {

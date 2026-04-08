@@ -1,4 +1,4 @@
-import BaseController from "../BaseController.js";
+import BaseController from "../../utils/BaseController.js";
 import loyaltyRewardService from "../../services/loyalty/loyalty-reward.service.js";
 
 class LoyaltyRewardController extends BaseController {

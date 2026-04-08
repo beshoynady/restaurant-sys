@@ -1,4 +1,4 @@
-import BaseController from "../BaseController.js";
+import BaseController from "../../utils/BaseController.js";
 import serviceChargeService from "../../services/system/service-charge.service.js";
 
 class ServiceChargeController extends BaseController {

@@ -1,4 +1,4 @@
-import BaseController from "../BaseController.js";
+import BaseController from "../../utils/BaseController.js";
 import stockCategoryService from "../../services/inventory/stock-category.service.js";
 
 class StockCategoryController extends BaseController {

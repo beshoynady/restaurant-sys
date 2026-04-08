@@ -1,4 +1,4 @@
-import BaseController from "../BaseController.js";
+import BaseController from "../../utils/BaseController.js";
 import salesReturnSettingsService from "../../services/sales/sales-return-settings.service.js";
 
 class SalesReturnSettingsController extends BaseController {

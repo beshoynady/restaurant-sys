@@ -1,4 +1,4 @@
-import BaseController from "../BaseController.js";
+import BaseController from "../../utils/BaseController.js";
 import branchSettingsService from "../../services/core/branch-settings.service.js";
 
 class BranchSettingsController extends BaseController {
