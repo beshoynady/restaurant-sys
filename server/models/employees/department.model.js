@@ -65,9 +65,10 @@ const departmentSchema = new mongoose.Schema(
         "delivery", // delivery
         "security", // security
       ],
-      required: [true, "Department classification is required"],
+      required: true,
       default: "service",
       trim: true,
+      lowercase: true,
       minlength: 2,
       maxlength: 50,
     },

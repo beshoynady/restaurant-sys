@@ -31,7 +31,7 @@ class InitialSetupUseCase {
       const brand = await this.brandService.create(
         {
           name: brandName,
-          dashboardLanguage: ["EN", "AR"],
+          dashboardLanguages: ["EN", "AR"],
           defaultDashboardLanguage: "EN",
           slug: this.generateSlug(brandName.EN),
           countryCode,
@@ -58,7 +58,7 @@ class InitialSetupUseCase {
       await systemSetupService.setupBrand({ brandId: brand._id, session });
 
         const ownerRole = await this.roleService.findOne(
-        { brand: brand._id, name: "Owner" },
+        { brand: brand._id, "name.EN": "Owner" },
         null,
         { session },
       );

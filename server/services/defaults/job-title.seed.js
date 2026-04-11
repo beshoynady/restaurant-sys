@@ -8,67 +8,67 @@ import DepartmentModel from "../../../models/employees/department.model.js";
 const DEFAULT_JOB_TITLES = [
   // ================= MANAGEMENT =================
   {
-    name: { en: "Restaurant Manager", ar: "مدير مطعم" },
-    description: { en: "Overall restaurant manager", ar: "إدارة المطعم بالكامل" },
-    responsibilities: { en: "Manage operations and staff", ar: "إدارة العمليات والموظفين" },
-    requirements: { en: "Management experience", ar: "خبرة إدارية" },
+    name: { EN: "Restaurant Manager", AR: "مدير مطعم" },
+    description: { EN: "Overall restaurant manager", AR: "إدارة المطعم بالكامل" },
+    responsibilities: { EN: "Manage operations and staff", AR: "إدارة العمليات والموظفين" },
+    requirements: { EN: "Management experience", AR: "خبرة إدارية" },
     departmentKey: "management",
   },
   {
-    name: { en: "Branch Manager", ar: "مدير فرع" },
-    description: { en: "Branch supervisor", ar: "مشرف الفرع" },
-    responsibilities: { en: "Oversee branch performance", ar: "متابعة أداء الفرع" },
-    requirements: { en: "Leadership skills", ar: "مهارات قيادية" },
+    name: { EN: "Branch Manager", AR: "مدير فرع" },
+    description: { EN: "Branch supervisor", AR: "مشرف الفرع" },
+    responsibilities: { EN: "Oversee branch performance", AR: "متابعة أداء الفرع" },
+    requirements: { EN: "Leadership skills", AR: "مهارات قيادية" },
     departmentKey: "management",
   },
 
   // ================= SERVICE =================
   {
-    name: { en: "Waiter", ar: "ويتر" },
-    description: { en: "Customer service staff", ar: "خدمة العملاء" },
-    responsibilities: { en: "Take orders and serve customers", ar: "أخذ الطلبات وخدمة العملاء" },
-    requirements: { en: "Good communication", ar: "مهارات تواصل" },
+    name: { EN: "Waiter", AR: "ويتر" },
+    description: { EN: "Customer service staff", AR: "خدمة العملاء" },
+    responsibilities: { EN: "Take orders and serve customers", AR: "أخذ الطلبات وخدمة العملاء" },
+    requirements: { EN: "Good communication", AR: "مهارات تواصل" },
     departmentKey: "service",
   },
   {
-    name: { en: "Cashier", ar: "كاشير" },
-    description: { en: "Handles payments", ar: "إدارة الدفع" },
-    responsibilities: { en: "Process payments and orders", ar: "تنفيذ المدفوعات والطلبات" },
-    requirements: { en: "Basic accounting", ar: "أساسيات محاسبة" },
+    name: { EN: "Cashier", AR: "كاشير" },
+    description: { EN: "Handles payments", AR: "إدارة الدفع" },
+    responsibilities: { EN: "Process payments and orders", AR: "تنفيذ المدفوعات والطلبات" },
+    requirements: { EN: "Basic accounting", AR: "أساسيات محاسبة" },
     departmentKey: "service",
   },
 
   // ================= PREPARATION (KITCHEN) =================
   {
-    name: { en: "Head Chef", ar: "شيف رئيسي" },
-    description: { en: "Kitchen supervisor", ar: "مشرف المطبخ" },
-    responsibilities: { en: "Manage kitchen operations", ar: "إدارة المطبخ" },
-    requirements: { en: "Cooking experience", ar: "خبرة طبخ" },
+    name: { EN: "Head Chef", AR: "شيف رئيسي" },
+    description: { EN: "Kitchen supervisor", AR: "مشرف المطبخ" },
+    responsibilities: { EN: "Manage kitchen operations", AR: "إدارة المطبخ" },
+    requirements: { EN: "Cooking experience", AR: "خبرة طبخ" },
     departmentKey: "preparation",
   },
   {
-    name: { en: "Cook", ar: "طباخ" },
-    description: { en: "Food preparation", ar: "تحضير الطعام" },
-    responsibilities: { en: "Prepare dishes", ar: "إعداد الأطعمة" },
-    requirements: { en: "Cooking skills", ar: "مهارات طبخ" },
+    name: { EN: "Cook", AR: "طباخ" },
+    description: { EN: "Food preparation", AR: "تحضير الطعام" },
+    responsibilities: { EN: "Prepare dishes", AR: "إعداد الأطعمة" },
+    requirements: { EN: "Cooking skills", AR: "مهارات طبخ" },
     departmentKey: "preparation",
   },
 
   // ================= DELIVERY =================
   {
-    name: { en: "Delivery Driver", ar: "مندوب توصيل" },
-    description: { en: "Delivery staff", ar: "موظف توصيل" },
-    responsibilities: { en: "Deliver orders", ar: "توصيل الطلبات" },
-    requirements: { en: "Driving license", ar: "رخصة قيادة" },
+    name: { EN: "Delivery Driver", AR: "مندوب توصيل" },
+    description: { EN: "Delivery staff", AR: "موظف توصيل" },
+    responsibilities: { EN: "Deliver orders", AR: "توصيل الطلبات" },
+    requirements: { EN: "Driving license", AR: "رخصة قيادة" },
     departmentKey: "delivery",
   },
 
   // ================= SUPPORT =================
   {
-    name: { en: "Cleaner", ar: "عامل نظافة" },
-    description: { en: "Cleaning staff", ar: "النظافة" },
-    responsibilities: { en: "Maintain cleanliness", ar: "الحفاظ على النظافة" },
-    requirements: { en: "Physical ability", ar: "قدرة بدنية" },
+    name: { EN: "Cleaner", AR: "عامل نظافة" },
+    description: { EN: "Cleaning staff", AR: "النظافة" },
+    responsibilities: { EN: "Maintain cleanliness", AR: "الحفاظ على النظافة" },
+    requirements: { EN: "Physical ability", AR: "قدرة بدنية" },
     departmentKey: "support",
   },
 ];

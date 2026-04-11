@@ -77,8 +77,7 @@ class DepartmentSeedService {
             slug: dept.slug,
             code: dept.code,
             classification: dept.classification,
-            isSystemRole: dept.isSystemRole || false,
-            createdBy: userId,
+            isSystemRole: true,
           },
         ],
         { session }
