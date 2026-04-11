@@ -35,7 +35,7 @@ const accountSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      upercase: true,
+      uppercase: true,
       trim: true,
       enum: ["Asset", "Liability", "Equity", "Revenue", "Expense"],
       required: true,
@@ -133,6 +133,7 @@ const accountSchema = new mongoose.Schema(
       maxlength: 300,
     },
 
+    isSystemRole: { type: Boolean, default: false }, //this account is created by the system
     createdBy: {
       type: ObjectId,
       ref: "UserAccount",

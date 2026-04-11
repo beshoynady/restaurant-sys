@@ -38,7 +38,7 @@ export const multiLang = (options = {}, required = false) => {
 
   let schema = Joi.object()
     .pattern(
-      Joi.string().valid("EN", "AR", "FR", "ES", "IT", "ZH", "JA", "RU"),
+      Joi.string().valid("EN", "AR"),
       valueValidator
     )
     .min(1);
@@ -126,7 +126,7 @@ export const buildJoiSchema = (mongooseSchema, options = {}) => {
         break;
 
       /* =========================
-         MAP (🔥 مهم جدًا)
+         MAP 
       ========================= */
       case "Map": {
         const mapOptions = field.$__schemaType?.options || {};

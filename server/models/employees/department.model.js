@@ -84,8 +84,10 @@ const departmentSchema = new mongoose.Schema(
       default: true,
     },
 
+    isSystemRole: { type: Boolean, default: false },// that created by the system and can update or delete
+
     // Audit fields
-    createdBy: { type: ObjectId, ref: "UserAccount", required: true },
+    createdBy: { type: ObjectId, ref: "UserAccount", default: null }, // default null to allow for system-created departments
     updatedBy: { type: ObjectId, ref: "UserAccount", default: null },
 
     isDeleted: { type: Boolean, default: false },

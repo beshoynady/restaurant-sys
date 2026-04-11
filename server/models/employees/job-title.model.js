@@ -70,7 +70,9 @@ const jobTitleSchema = new mongoose.Schema(
       enum: ["pending", "active", "inactive", "archived", "draft", "suspended"],
       default: "active",
     },
-    createdBy: { type: ObjectId, ref: "UserAccount", required: true },
+
+    isSystemRole: { type: Boolean, default: false }, // indicates if this job title is created by the system 
+    createdBy: { type: ObjectId, ref: "UserAccount", default: null },
     updatedBy: { type: ObjectId, ref: "UserAccount", default: null },
 
     isDeleted: { type: Boolean, default: false },

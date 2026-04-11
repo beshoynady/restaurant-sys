@@ -7,7 +7,7 @@ const router = express.Router();
  * --------------------------------------------------
  * Initial setup and configuration for new brands
  ****************************************************/
-import initialSetupRoutes from "./setup/initialSetup.router.js";
+import initialSetupRoutes from "./setup/initial-setup.router.js";
 
 /****************************************************
  * CORE ROUTES
@@ -171,7 +171,6 @@ import serviceChargeRoutes from "./system/service-charge.router.js";
 import shiftSettingsRoutes from "./system/shift-settings.router.js";
 import taxConfigRoutes from "./system/tax-config.router.js";
 import paymentMethodRoutes from "./payments/payment-method.router.js";
-
 
 
 // -------------------

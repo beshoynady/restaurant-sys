@@ -4,194 +4,168 @@ const { ObjectId } = Schema.Types;
 
 /**
  * Role Schema
- * Represents a role with role for each model in the restaurant system.
- * Can be assigned to a user or an employee.
+ * Defines permissions per resource (model-based access control)
+ * Used for employees & system users
  */
+
+
+const RESOURCE_ENUM = [
+  // ================= CORE BUSINESS =================
+  "Brands",
+  "Branches",
+  "BranchSettings",
+  "DeliveryAreas",
+
+  // ================= EMPLOYEES =================
+  "Employees",
+  "Departments",
+  "JobTitles",
+  "Shifts",
+  "AttendanceRecords",
+  "CashierShifts",
+  "LeaveRequests",
+  "Payrolls",
+  "PayrollItems",
+  "EmployeeFinancials",
+  "EmployeeTransactions",
+  "EmployeeAdvances",
+  "EmployeeSettings",
+
+  // ================= USERS & ROLES =================
+  "UserAccounts",
+  "Roles",
+
+  // ================= MENU & SALES =================
+  "MenuCategories",
+  "MenuSettings",
+  "Products",
+  "Recipes",
+  "Orders",
+  "Invoices",
+  "InvoiceSettings",
+  "OrderSettings",
+  "SalesReturns",
+  "Promotions",
+  "ProductReviews",
+
+  // ================= KITCHEN =================
+  "PreparationTickets",
+  "PreparationSections",
+  "PreparationReturns",
+  "PreparationTicketSettings",
+
+  // ================= INVENTORY =================
+  "StockItems",
+  "StockCategories",
+  "Inventory",
+  "InventoryCounts",
+  "StockLedgers",
+  "StockTransferRequests",
+  "Warehouses",
+  "WarehouseDocuments",
+  "Consumptions",
+
+  // ================= CASH =================
+  "CashRegisters",
+  "CashTransactions",
+  "CashTransfers",
+  "BankAccounts",
+
+  // ================= ACCOUNTING =================
+  "Accounts",
+  "JournalEntries",
+  "JournalLines",
+  "AccountingPeriods",
+  "AccountingSettings",
+  "CostCenters",
+
+  // ================= ASSETS =================
+  "Assets",
+  "AssetCategories",
+  "AssetTransactions",
+  "AssetDepreciations",
+  "AssetMaintenances",
+  "AssetPurchaseInvoices",
+
+  // ================= PURCHASE =================
+  "Suppliers",
+  "SupplierTransactions",
+  "PurchaseInvoices",
+  "PurchaseReturns",
+  "PurchaseSettings",
+
+  // ================= SYSTEM =================
+  "DiscountSettings",
+  "NotificationSettings",
+  "PrintSettings",
+  "ServiceCharges",
+  "ShiftSettings",
+  "TaxConfigs",
+
+  // ================= REPORTS =================
+  "SalesReports",
+  "InventoryReports",
+  "FinancialReports",
+  "EmployeeReports",
+  "OperationalReports",
+];
+
 const roleSchema = new Schema(
   {
     brand: { type: ObjectId, ref: "Brand", required: true },
 
-    // Name of the role (multi-language support)
     name: {
       type: Map,
-      of: {
-        type: String,
-        trim: true,
-        minlength: 2,
-        maxlength: 100,
-      },
+      of: String,
       required: true,
     },
 
     description: {
       type: Map,
-      of: {
-        type: String,
-        trim: true,
-        minlength: 2,
-        maxlength: 100,
-      },
+      of: String,
       required: true,
     },
 
+    allBranchesAccess: { type: Boolean, default: false },
+
     branchAccess: [{ type: ObjectId, ref: "Branch" }],
 
-    // Role per resource (model)
-    role: [
+    /**
+     * Permissions per resource
+     */
+    permissions: [
       {
-        branch: { type: ObjectId, ref: "Branch", default: null }, // Optional link to a specific branch (for branch-specific roles)
+        branch: { type: ObjectId, ref: "Branch", default: null },
+
         resource: {
           type: String,
-          enum: [
-            // Accounting
-            "Accounts",
-            "AccountBalances",
-            "AccountingPeriods",
-            "AccountingSettings",
-            "CostCenters",
-            "JournalEntries",
-            "JournalLines",
-
-            // Assets
-            "Assets",
-            "AssetCategories",
-            "AssetDepreciations",
-            "AssetMaintenances",
-            "AssetPurchaseInvoices",
-            "AssetTransactions",
-
-            // Cash
-            "CashRegisters",
-            "CashTransactions",
-            "CashTransfers",
-            "BankAccounts",
-
-            // Core
-            "Branches",
-            "BranchSettings",
-            "Brands",
-            "DeliveryAreas",
-
-            // Customers
-            "OfflineCustomers",
-            "OnlineCustomers",
-            "CustomerMessages",
-
-            // Employees
-            "Employees",
-            "JobTitles",
-            "AttendanceRecords",
-            "EmployeeFinancials",
-            "EmployeeTransactions",
-            "EmployeeAdvances",
-            "Payrolls",
-            "PayrollItems",
-            "Role",
-            "Shifts",
-            "UserAccounts",
-            "LeaveRequests",
-            "EmployeeSettings",
-            "CashierShifts",
-            "Departments",
-
-            // Expenses
-            "DailyExpenses",
-            "Expenses",
-
-            // Inventory
-            "StockItems",
-            "StockCategories",
-            "Inventory",
-            "InventoryCounts",
-            "StockLedgers",
-            "StockTransferRequests",
-            "Consumptions",
-            "WarehouseDocuments",
-            "Warehouses",
-
-            // Kitchen
-            "PreparationTickets",
-            "PreparationTicketSettings",
-            "PreparationSections",
-            "PreparationReturns",
-            "PreparationReturnSettings",
-
-            // Loyalty
-            "CustomerLoyalties",
-            "LoyaltyRewards",
-            "LoyaltySettings",
-            "LoyaltyTransactions",
-
-            // Menu
-            "MenuCategories",
-            "MenuSettings",
-            "Products",
-            "Recipes",
-
-            // PaymentProvider
-            "PaymentProviders",
-
-            // Payments
-            "PaymentChannels",
-            "PaymentMethods",
-
-            // Production
-            "ProductionOrders",
-            "ProductionRecipes",
-            "ProductionRecords",
-
-            // Purchasing
-            "PurchaseInvoices",
-            "PurchaseReturns",
-            "PurchaseSettings",
-            "Suppliers",
-            "SupplierTransactions",
-
-            // Sales
-            "Invoices",
-            "InvoiceSettings",
-            "Orders",
-            "OrderSettings",
-            "ProductReviews",
-            "Promotions",
-            "SalesReturns",
-            "SalesReturnSettings",
-
-            // Seating
-            "DiningAreas",
-            "Tables",
-            "Reservations",
-
-            // System
-            "DiscountSettings",
-            "NotificationSettings",
-            "PrintSettings",
-            "ServiceCharges",
-            "ShiftSettings",
-            "TaxConfigs",
-          ],
+          enum: RESOURCE_ENUM,
           required: true,
         },
+
         create: { type: Boolean, default: false },
         read: { type: Boolean, default: false },
         update: { type: Boolean, default: false },
         delete: { type: Boolean, default: false },
+
         viewReports: { type: Boolean, default: false },
         approve: { type: Boolean, default: false },
         reject: { type: Boolean, default: false },
       },
     ],
 
-    status: { type: String, enum: ["active", "inactive"], default: "active" },
+    status: {
+      type: String,
+      enum: ["active", "inactive"],
+      default: "active",
+    },
 
-    // System role is a built-in role
     isSystemRole: { type: Boolean, default: false },
 
-    createdBy: { type: ObjectId, ref: "UserAccount" },
+    createdBy: { type: ObjectId, ref: "UserAccount", default: null },
     updatedBy: { type: ObjectId, ref: "UserAccount" },
   },
   { timestamps: true },
 );
 
-const Role = mongoose.model("Role", roleSchema);
-export default Role;
+export default mongoose.model("Role", roleSchema);
