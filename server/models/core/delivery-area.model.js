@@ -28,15 +28,15 @@ const DeliveryAreaSchema = new mongoose.Schema(
     // ─────────── Identity ───────────
     // Multilingual name support: { EN: "Downtown", AR: "وسط المدينة" }
     name: {
-  type: Map,
-  of: {
-    type: String,
-    trim: true,
-    minlength: 2,
-    maxlength: 100,
-  },
-  required: true,
-},
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      required: true,
+    },
 
     code: {
       type: String,
@@ -109,7 +109,7 @@ const DeliveryAreaSchema = new mongoose.Schema(
     createdBy: {
       type: ObjectId,
       ref: "UserAccount",
-      default: null,
+      required: true,
     },
 
     updatedBy: {

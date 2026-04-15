@@ -1,47 +1,121 @@
+// routes/core/branch-settings.routes.js
+
 import express from "express";
 import branchSettingsController from "../../controllers/core/branch-settings.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 import validate from "../../middlewares/validate.js";
-import { 
-  createBranchSettingsSchema, 
-  updateBranchSettingsSchema, 
-  paramsBranchSettingsSchema, 
+
+import {
+  createBranchSettingsSchema,
+  updateBranchSettingsSchema,
+  paramsBranchSettingsSchema,
   paramsBranchSettingsIdsSchema,
-  queryBranchSettingsSchema 
+  queryBranchSettingsSchema,
 } from "../../validation/core/branch-settings.validation.js";
 
 const router = express.Router();
 
-// Create & GetAll
+/**
+ * 🔹 Inject config
+ */
+const branchSettingsConfig = (req, res, next) => {
+  req.populate = ["brand", "branch", "createdBy", "updatedBy"];
+  next();
+};
+
+// =========================
+// CRUD
+// =========================
+
 router.route("/")
-  .post(authenticateToken, validate(createBranchSettingsSchema), branchSettingsController.create)
-  .get(authenticateToken, validate(queryBranchSettingsSchema), branchSettingsController.getAll)
-;
+  .post(
+    authenticateToken,
+    branchSettingsConfig,
+    validate(createBranchSettingsSchema),
+    branchSettingsController.create
+  )
+  .get(
+    authenticateToken,
+    branchSettingsConfig,
+    validate(queryBranchSettingsSchema),
+    branchSettingsController.getAll
+  );
 
-// GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, validate(paramsBranchSettingsSchema), branchSettingsController.getOne)
-  .put(authenticateToken, validate(updateBranchSettingsSchema), branchSettingsController.update)
-  .delete(authenticateToken, validate(paramsBranchSettingsSchema), branchSettingsController.hardDelete) // soft delete
-;
+  .get(
+    authenticateToken,
+    branchSettingsConfig,
+    validate(paramsBranchSettingsSchema),
+    branchSettingsController.getOne
+  )
+  .put(
+    authenticateToken,
+    branchSettingsConfig,
+    validate(updateBranchSettingsSchema),
+    branchSettingsController.update
+  )
+  .delete(
+    authenticateToken,
+    validate(paramsBranchSettingsSchema),
+    branchSettingsController.hardDelete
+  );
 
-router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsBranchSettingsSchema), branchSettingsController.softDelete) // soft delete
-;
+// =========================
+// Soft Delete
+// =========================
 
-// Restore soft-deleted item
-router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsBranchSettingsSchema), branchSettingsController.restore)
-;
+router.patch(
+  "/soft-delete/:id",
+  authenticateToken,
+  validate(paramsBranchSettingsSchema),
+  branchSettingsController.softDelete
+);
 
- // --- BULK HARD DELETE ---
-  router.route("/bulk-delete")
-    .delete(authenticateToken, validate(paramsBranchSettingsIdsSchema), branchSettingsController.bulkHardDelete);
+router.patch(
+  "/restore/:id",
+  authenticateToken,
+  validate(paramsBranchSettingsSchema),
+  branchSettingsController.restore
+);
 
+// =========================
+// Bulk
+// =========================
 
-  // --- BULK SOFT DELETE ---
-  router.route("/bulk-soft-delete")
-    .patch(authenticateToken,validate(paramsBranchSettingsIdsSchema), branchSettingsController.bulkSoftDelete);
+router.delete(
+  "/bulk-delete",
+  authenticateToken,
+  validate(paramsBranchSettingsIdsSchema),
+  branchSettingsController.bulkHardDelete
+);
 
+router.patch(
+  "/bulk-soft-delete",
+  authenticateToken,
+  validate(paramsBranchSettingsIdsSchema),
+  branchSettingsController.bulkSoftDelete
+);
+
+// =========================
+// Business Logic 🔥
+// =========================
+
+router.get(
+  "/branch/:branchId/is-open",
+  authenticateToken,
+  branchSettingsController.isBranchOpen
+);
+
+router.get(
+  "/branch/:branchId/service/:serviceType",
+  authenticateToken,
+  branchSettingsController.isServiceAvailable
+);
+
+router.get(
+  "/branch/:branchId/current-period",
+  authenticateToken,
+  branchSettingsController.getCurrentPeriod
+);
 
 export default router;

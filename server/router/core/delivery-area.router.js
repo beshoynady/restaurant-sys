@@ -1,47 +1,117 @@
+// routes/core/delivery-area.routes.js
+
 import express from "express";
 import deliveryAreaController from "../../controllers/core/delivery-area.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 import validate from "../../middlewares/validate.js";
-import { 
-  createDeliveryAreaSchema, 
-  updateDeliveryAreaSchema, 
-  paramsDeliveryAreaSchema, 
+
+import {
+  createDeliveryAreaSchema,
+  updateDeliveryAreaSchema,
+  paramsDeliveryAreaSchema,
   paramsDeliveryAreaIdsSchema,
-  queryDeliveryAreaSchema 
+  queryDeliveryAreaSchema,
 } from "../../validation/core/delivery-area.validation.js";
 
 const router = express.Router();
 
-// Create & GetAll
-router.route("/")
-  .post(authenticateToken, validate(createDeliveryAreaSchema), deliveryAreaController.create)
-  .get(authenticateToken, validate(queryDeliveryAreaSchema), deliveryAreaController.getAll)
-;
+/**
+ * 🔹 Inject config
+ */
+const deliveryAreaConfig = (req, res, next) => {
+  req.populate = ["brand", "branch", "createdBy", "updatedBy"];
+  req.uniqueFields = ["code"];
+  req.fieldsWithLang = ["name"];
+  next();
+};
 
-// GetOne, Update, hardDelete
-router.route("/:id")
-  .get(authenticateToken, validate(paramsDeliveryAreaSchema), deliveryAreaController.getOne)
-  .put(authenticateToken, validate(updateDeliveryAreaSchema), deliveryAreaController.update)
-  .delete(authenticateToken, validate(paramsDeliveryAreaSchema), deliveryAreaController.hardDelete) // soft delete
-;
+// =====================================================
+// 🌐 PUBLIC (Customer / Checkout)
+// =====================================================
 
-router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsDeliveryAreaSchema), deliveryAreaController.softDelete) // soft delete
-;
+// Active areas by branch
+router.get(
+  "/branch/:branchId/active",
+  deliveryAreaController.getActiveAreasByBranch,
+);
 
-// Restore soft-deleted item
-router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsDeliveryAreaSchema), deliveryAreaController.restore)
-;
+// Delivery summary
+router.get("/:areaId/summary", deliveryAreaController.getDeliverySummary);
 
- // --- BULK HARD DELETE ---
-  router.route("/bulk-delete")
-    .delete(authenticateToken, validate(paramsDeliveryAreaIdsSchema), deliveryAreaController.bulkHardDelete);
+// Calculate fee
+router.get("/:areaId/calculate", deliveryAreaController.calculateDeliveryFee);
 
+// Validate order
+router.post("/:areaId/validate", deliveryAreaController.validateOrder);
 
-  // --- BULK SOFT DELETE ---
-  router.route("/bulk-soft-delete")
-    .patch(authenticateToken,validate(paramsDeliveryAreaIdsSchema), deliveryAreaController.bulkSoftDelete);
+// =====================================================
+// 🔐 ADMIN
+// =====================================================
 
+router
+  .route("/")
+  .post(
+    authenticateToken,
+    deliveryAreaConfig,
+    validate(createDeliveryAreaSchema),
+    deliveryAreaController.create,
+  )
+  .get(
+    authenticateToken,
+    deliveryAreaConfig,
+    validate(queryDeliveryAreaSchema),
+    deliveryAreaController.getAll,
+  );
+
+router
+  .route("/:id")
+  .get(
+    authenticateToken,
+    deliveryAreaConfig,
+    validate(paramsDeliveryAreaSchema),
+    deliveryAreaController.getOne,
+  )
+  .put(
+    authenticateToken,
+    deliveryAreaConfig,
+    validate(updateDeliveryAreaSchema),
+    deliveryAreaController.update,
+  )
+  .delete(
+    authenticateToken,
+    validate(paramsDeliveryAreaSchema),
+    deliveryAreaController.hardDelete,
+  );
+
+// Soft delete
+router.patch(
+  "/soft-delete/:id",
+  authenticateToken,
+  validate(paramsDeliveryAreaSchema),
+  deliveryAreaController.softDelete,
+);
+
+// Restore
+router.patch(
+  "/restore/:id",
+  authenticateToken,
+  validate(paramsDeliveryAreaSchema),
+  deliveryAreaController.restore,
+);
+
+// Bulk
+router.delete(
+  "/bulk-delete",
+  authenticateToken,
+  validate(paramsDeliveryAreaIdsSchema),
+  deliveryAreaController.bulkHardDelete,
+);
+
+router.patch(
+  "/bulk-soft-delete",
+  authenticateToken,
+  validate(paramsDeliveryAreaIdsSchema),
+  deliveryAreaController.bulkSoftDelete,
+);
 
 export default router;

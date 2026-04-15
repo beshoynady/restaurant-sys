@@ -1,47 +1,34 @@
+// utils/generateUniqueSlug.js
+
 import slugify from "slugify";
 
 /**
  * Generate UNIQUE slug for ANY model
- *
- * @param {Object} options
- * @param {Object} options.name - multilingual name object { EN, AR, ... }
- * @param {mongoose.Model} options.model - mongoose model
- * @param {String} options.brandId - brand scope
- * @param {String} options.field - slug field name (default: "slug")
  */
 export const generateUniqueSlug = async ({
   name = {},
   model,
   brandId,
   field = "slug",
+  excludeId = null,
+  includeDeleted = false,
 }) => {
   // -----------------------------
   // 1. Choose best language
   // -----------------------------
-
   let source = null;
 
-  // 1️⃣ EN first
   if (name.EN) {
     source = name.EN;
   } else {
-    // 2️⃣ any NON-Arabic
-    const nonArabic = Object.entries(name).find(([key, value]) => {
-      return key !== "AR" && value;
-    });
+    const nonArabic = Object.entries(name).find(
+      ([key, value]) => key !== "AR" && value
+    );
 
-    if (nonArabic) {
-      source = nonArabic[1];
-    } else {
-      // 3️⃣ fallback Arabic
-      source = name.AR;
-    }
+    source = nonArabic?.[1] || name.AR;
   }
 
-  // fallback safety
-  if (!source) {
-    source = "item";
-  }
+  if (!source) source = "item";
 
   // -----------------------------
   // 2. Generate base slug
@@ -57,25 +44,43 @@ export const generateUniqueSlug = async ({
   }
 
   // -----------------------------
-  // 3. Ensure uniqueness
+  // 3. Prepare query
   // -----------------------------
-  let slug = baseSlug;
+  const baseQuery = {
+    ...(brandId && { brand: brandId }),
+    ...(excludeId && { _id: { $ne: excludeId } }),
+  };
+
+  if (!includeDeleted) {
+    baseQuery.isDeleted = false;
+  }
+
+  // -----------------------------
+  // 4. Find all similar slugs ONCE
+  // -----------------------------
+  const existingSlugs = await model
+    .find({
+      ...baseQuery,
+      [field]: { $regex: `^${baseSlug}` },
+    })
+    .select(field)
+    .lean();
+
+  if (!existingSlugs.length) return baseSlug;
+
+  const slugSet = new Set(existingSlugs.map((doc) => doc[field]));
+
   let counter = 1;
+  let slug = baseSlug;
 
-  while (true) {
-    const query = {
-      [field]: slug,
-    };
-
-    if (brandId) {
-      query.brand = brandId;
-    }
-
-    const exists = await model.exists(query);
-
-    if (!exists) break;
-
+  while (slugSet.has(slug)) {
     slug = `${baseSlug}-${counter++}`;
+
+    // safety limit
+    if (counter > 1000) {
+      slug = `${baseSlug}-${Date.now()}`;
+      break;
+    }
   }
 
   return slug;

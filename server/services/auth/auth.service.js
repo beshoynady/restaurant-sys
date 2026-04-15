@@ -29,7 +29,7 @@ class AuthService {
       .populate("employee");
 
     if (!user) throw throwError("Invalid credentials", 401);
-    if (!user.isActive) throw throwError("User inactive", 403);
+    if (!user.isActive) throw throwError("User is inactive", 403);
 
     const match = await bcrypt.compare(password, user.password);
     if (!match) throw throwError("Invalid credentials", 401);
@@ -112,7 +112,7 @@ class AuthService {
         id: user._id,
         brand: user.brand.toString(),
         branch: user.branch ? user.branch.toString() : null,
-        role: user.role,
+        role: user.role.toString(),
       },
       process.env.JWT_SECRET,
       { expiresIn: ACCESS_EXPIRE }
@@ -122,6 +122,7 @@ class AuthService {
   generateRefreshToken(user) {
     return jwt.sign(
       {
+        brand: user.brand.toString(),
         id: user._id,
       },
       process.env.JWT_SECRET,
