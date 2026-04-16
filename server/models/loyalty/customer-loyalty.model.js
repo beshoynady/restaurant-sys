@@ -2,11 +2,8 @@ import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
 /**
- * Customer Loyalty Schema
- * -----------------------
- * Stores loyalty information for a customer
+ * Customer Loyalty Wallet
  */
-
 const customerLoyaltySchema = new mongoose.Schema(
   {
     brand: {
@@ -31,38 +28,26 @@ const customerLoyaltySchema = new mongoose.Schema(
 
     tier: {
       type: String,
-      enum: ["regular", "silver", "gold", "vip"],
       default: "regular",
     },
 
-    tierUpdatedAt: {
-      type: Date,
-    },
+    tierUpdatedAt: Date,
 
-    totalEarned: {
-      type: Number,
-      default: 0,
-    },
-
-    totalRedeemed: {
-      type: Number,
-      default: 0,
-    },
+    totalEarned: { type: Number, default: 0 },
+    totalRedeemed: { type: Number, default: 0 },
 
     createdBy: {
       type: ObjectId,
       ref: "UserAccount",
       required: true,
     },
+
     updatedBy: {
       type: ObjectId,
       ref: "UserAccount",
     },
-
   },
-  {
-    timestamps: true,
-  },
+  { timestamps: true },
 );
 
 customerLoyaltySchema.index({ brand: 1, phone: 1 }, { unique: true });

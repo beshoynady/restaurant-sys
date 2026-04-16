@@ -1,47 +1,121 @@
+// routes/customers/online-customer.routes.js
+
 import express from "express";
 import onlineCustomerController from "../../controllers/customers/online-customer.controller.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 import validate from "../../middlewares/validate.js";
-import { 
-  createOnlineCustomerSchema, 
-  updateOnlineCustomerSchema, 
-  paramsOnlineCustomerSchema, 
+
+import {
+  createOnlineCustomerSchema,
+  updateOnlineCustomerSchema,
+  paramsOnlineCustomerSchema,
   paramsOnlineCustomerIdsSchema,
-  queryOnlineCustomerSchema 
+  queryOnlineCustomerSchema,
 } from "../../validation/customers/online-customer.validation.js";
 
 const router = express.Router();
 
-// Create & GetAll
+/**
+ * 🔹 Inject config
+ */
+const customerConfig = (req, res, next) => {
+  req.populate = ["brand", "verifiedBy", "favorites"];
+  next();
+};
+
+// =====================================================
+// CRUD
+// =====================================================
+
 router.route("/")
-  .post(authenticateToken, validate(createOnlineCustomerSchema), onlineCustomerController.create)
-  .get(authenticateToken, validate(queryOnlineCustomerSchema), onlineCustomerController.getAll)
-;
+  .post(
+    authenticateToken,
+    customerConfig,
+    validate(createOnlineCustomerSchema),
+    onlineCustomerController.create
+  )
+  .get(
+    authenticateToken,
+    customerConfig,
+    validate(queryOnlineCustomerSchema),
+    onlineCustomerController.getAll
+  );
 
-// GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, validate(paramsOnlineCustomerSchema), onlineCustomerController.getOne)
-  .put(authenticateToken, validate(updateOnlineCustomerSchema), onlineCustomerController.update)
-  .delete(authenticateToken, validate(paramsOnlineCustomerSchema), onlineCustomerController.hardDelete) // soft delete
-;
+  .get(
+    authenticateToken,
+    customerConfig,
+    validate(paramsOnlineCustomerSchema),
+    onlineCustomerController.getOne
+  )
+  .put(
+    authenticateToken,
+    customerConfig,
+    validate(updateOnlineCustomerSchema),
+    onlineCustomerController.update
+  )
+  .delete(
+    authenticateToken,
+    validate(paramsOnlineCustomerSchema),
+    onlineCustomerController.hardDelete
+  );
 
-router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsOnlineCustomerSchema), onlineCustomerController.softDelete) // soft delete
-;
+// =====================================================
+// Soft Delete
+// =====================================================
 
-// Restore soft-deleted item
-router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsOnlineCustomerSchema), onlineCustomerController.restore)
-;
+router.patch(
+  "/soft-delete/:id",
+  authenticateToken,
+  validate(paramsOnlineCustomerSchema),
+  onlineCustomerController.softDelete
+);
 
- // --- BULK HARD DELETE ---
-  router.route("/bulk-delete")
-    .delete(authenticateToken, validate(paramsOnlineCustomerIdsSchema), onlineCustomerController.bulkHardDelete);
+router.patch(
+  "/restore/:id",
+  authenticateToken,
+  validate(paramsOnlineCustomerSchema),
+  onlineCustomerController.restore
+);
 
+// =====================================================
+// Bulk
+// =====================================================
 
-  // --- BULK SOFT DELETE ---
-  router.route("/bulk-soft-delete")
-    .patch(authenticateToken,validate(paramsOnlineCustomerIdsSchema), onlineCustomerController.bulkSoftDelete);
+router.delete(
+  "/bulk-delete",
+  authenticateToken,
+  validate(paramsOnlineCustomerIdsSchema),
+  onlineCustomerController.bulkHardDelete
+);
 
+router.patch(
+  "/bulk-soft-delete",
+  authenticateToken,
+  validate(paramsOnlineCustomerIdsSchema),
+  onlineCustomerController.bulkSoftDelete
+);
+
+// =====================================================
+// Business Logic
+// =====================================================
+
+router.patch(
+  "/:id/add-points",
+  authenticateToken,
+  onlineCustomerController.addPoints
+);
+
+router.patch(
+  "/:id/recalc-tier",
+  authenticateToken,
+  onlineCustomerController.recalcTier
+);
+
+router.patch(
+  "/:id/set-default-address",
+  authenticateToken,
+  onlineCustomerController.setDefaultAddress
+);
 
 export default router;

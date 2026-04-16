@@ -1,18 +1,20 @@
-import OnlineCustomerModel from "../../models/customers/online-customer.model.js";
+// services/customers/online-customer.service.js
+
 import AdvancedService from "../../utils/AdvancedService.js";
+import OnlineCustomerModel from "../../models/customers/online-customer.model.js";
 import bcrypt from "bcryptjs";
+import throwError from "../../utils/throwError.js";
 
 /**
- * =====================================================
- * Online Customer Service
- * -----------------------------------------------------
+ * OnlineCustomerService
+ * -------------------------------------------------------
  * Handles:
- * - CRUD (via AdvancedService)
+ * - CRUD via AdvancedService
  * - Authentication logic
- * - Security (lock/login attempts)
+ * - Password security
+ * - Login attempts / locking
  * - Address management
  * - Loyalty system
- * =====================================================
  */
 class OnlineCustomerService extends AdvancedService {
   constructor() {
@@ -25,67 +27,77 @@ class OnlineCustomerService extends AdvancedService {
     });
   }
 
-  /* =====================================================
-     🔐 CREATE CUSTOMER (secure password hashing)
-  ===================================================== */
+  // =====================================================
+  // 🔐 CREATE CUSTOMER (HASH PASSWORD)
+  // =====================================================
   async createCustomer(data) {
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
     return this.create({
-      ...data,
-      password: hashedPassword,
+      data: {
+        ...data,
+        password: hashedPassword,
+      },
     });
   }
 
-  /* =====================================================
-     🔐 LOGIN FAILURE HANDLER
-  ===================================================== */
+  // =====================================================
+  // 🔐 HANDLE FAILED LOGIN
+  // =====================================================
   async handleFailedLogin(customerId) {
-    const customer = await this.findById(customerId);
+    const customer = await this.findById({ id: customerId });
 
     customer.loginAttempts += 1;
 
     if (customer.loginAttempts >= 5) {
-      customer.lockUntil = new Date(Date.now() + 30 * 60 * 1000); // 30 min lock
+      customer.lockUntil = new Date(Date.now() + 30 * 60 * 1000); // 30 min
     }
 
     return customer.save();
   }
 
-  /* =====================================================
-     🔓 RESET LOGIN STATE (on success login)
-  ===================================================== */
+  // =====================================================
+  // 🔓 RESET LOGIN STATE
+  // =====================================================
   async resetLoginState(customerId) {
-    return this.updateById(customerId, {
-      loginAttempts: 0,
-      lockUntil: null,
+    return this.update({
+      id: customerId,
+      data: {
+        loginAttempts: 0,
+        lockUntil: null,
+      },
     });
   }
 
-  /* =====================================================
-     📍 SET DEFAULT ADDRESS
-  ===================================================== */
+  // =====================================================
+  // 📍 SET DEFAULT ADDRESS
+  // =====================================================
   async setDefaultAddress(customerId, addressId) {
-    const customer = await this.findById(customerId);
+    const customer = await this.findById({ id: customerId });
 
-    customer.addresses.forEach(addr => {
+    customer.addresses.forEach((addr) => {
       addr.isDefault = addr._id.toString() === addressId;
     });
 
     return customer.save();
   }
 
-  /* =====================================================
-     ⭐ LOYALTY SYSTEM
-  ===================================================== */
+  // =====================================================
+  // ⭐ LOYALTY: ADD POINTS
+  // =====================================================
   async addPoints(customerId, points) {
-    return this.updateById(customerId, {
-      $inc: { "loyalty.points": points },
-    });
+    return this.model.findByIdAndUpdate(
+      customerId,
+      { $inc: { "loyalty.points": points } },
+      { new: true }
+    );
   }
 
+  // =====================================================
+  // ⭐ RECALCULATE TIER
+  // =====================================================
   async recalculateTier(customerId) {
-    const customer = await this.findById(customerId);
+    const customer = await this.findById({ id: customerId });
 
     let tier = "regular";
 
@@ -93,17 +105,30 @@ class OnlineCustomerService extends AdvancedService {
     else if (customer.loyalty.points >= 2000) tier = "gold";
     else if (customer.loyalty.points >= 500) tier = "silver";
 
-    return this.updateById(customerId, {
-      "loyalty.tier": tier,
+    return this.update({
+      id: customerId,
+      data: {
+        "loyalty.tier": tier,
+      },
     });
   }
 
-  /* =====================================================
-     🔍 SECURITY CHECK
-  ===================================================== */
+  // =====================================================
+  // 🔒 CHECK IF LOCKED
+  // =====================================================
   isLocked(customer) {
-    if (!customer.lockUntil) return false;
-    return customer.lockUntil > new Date();
+    return customer.lockUntil && customer.lockUntil > new Date();
+  }
+
+  // =====================================================
+  // 🔍 GET BY PHONE (LOGIN HELP)
+  // =====================================================
+  async getByPhone(phone, brandId) {
+    return this.model.findOne({
+      phone,
+      brand: brandId,
+      isDeleted: false,
+    });
   }
 }
 

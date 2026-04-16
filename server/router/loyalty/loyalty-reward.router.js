@@ -1,47 +1,102 @@
 import express from "express";
-import loyaltyRewardController from "../../controllers/loyalty/loyalty-reward.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
+import LoyaltyRewardController from "../../controllers/loyalty/loyalty-reward.controller.js";
+
+import authenticateToken from "../../middlewares/authenticate.js";
+import { authenticateCustomerToken } from "../../middlewares/authenticate-customer.js";
+import authorize from "../../middlewares/authorize.js";
 import validate from "../../middlewares/validate.js";
-import { 
-  createLoyaltyRewardSchema, 
-  updateLoyaltyRewardSchema, 
-  paramsLoyaltyRewardSchema, 
+
+import {
+  createLoyaltyRewardSchema,
+  updateLoyaltyRewardSchema,
+  paramsLoyaltyRewardSchema,
   paramsLoyaltyRewardIdsSchema,
-  queryLoyaltyRewardSchema 
+  queryLoyaltyRewardSchema,
 } from "../../validation/loyalty/loyalty-reward.validation.js";
 
 const router = express.Router();
 
-// Create & GetAll
-router.route("/")
-  .post(authenticateToken, validate(createLoyaltyRewardSchema), loyaltyRewardController.create)
-  .get(authenticateToken, validate(queryLoyaltyRewardSchema), loyaltyRewardController.getAll)
-;
+/* =====================================================
+   🔹 ADMIN ROUTES
+===================================================== */
+router.use("/admin", authenticateToken);
 
-// GetOne, Update, hardDelete
-router.route("/:id")
-  .get(authenticateToken, validate(paramsLoyaltyRewardSchema), loyaltyRewardController.getOne)
-  .put(authenticateToken, validate(updateLoyaltyRewardSchema), loyaltyRewardController.update)
-  .delete(authenticateToken, validate(paramsLoyaltyRewardSchema), loyaltyRewardController.hardDelete) // soft delete
-;
+router
+  .route("/admin")
+  .post(
+    authorize("loyalty.create"),
+    validate(createLoyaltyRewardSchema),
+    LoyaltyRewardController.create
+  )
+  .get(
+    authorize("loyalty.view"),
+    validate(queryLoyaltyRewardSchema),
+    LoyaltyRewardController.getAll
+  );
 
-router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsLoyaltyRewardSchema), loyaltyRewardController.softDelete) // soft delete
-;
+router
+  .route("/admin/:id")
+  .get(
+    authorize("loyalty.view"),
+    validate(paramsLoyaltyRewardSchema),
+    LoyaltyRewardController.getOne
+  )
+  .put(
+    authorize("loyalty.update"),
+    validate(updateLoyaltyRewardSchema),
+    LoyaltyRewardController.update
+  )
+  .delete(
+    authorize("loyalty.delete"),
+    validate(paramsLoyaltyRewardSchema),
+    LoyaltyRewardController.hardDelete
+  );
 
-// Restore soft-deleted item
-router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsLoyaltyRewardSchema), loyaltyRewardController.restore)
-;
+router.patch(
+  "/admin/soft-delete/:id",
+  authorize("loyalty.delete"),
+  validate(paramsLoyaltyRewardSchema),
+  LoyaltyRewardController.softDelete
+);
 
- // --- BULK HARD DELETE ---
-  router.route("/bulk-delete")
-    .delete(authenticateToken, validate(paramsLoyaltyRewardIdsSchema), loyaltyRewardController.bulkHardDelete);
+router.patch(
+  "/admin/restore/:id",
+  authorize("loyalty.update"),
+  validate(paramsLoyaltyRewardSchema),
+  LoyaltyRewardController.restore
+);
 
+router.delete(
+  "/admin/bulk-delete",
+  authorize("loyalty.delete"),
+  validate(paramsLoyaltyRewardIdsSchema),
+  LoyaltyRewardController.bulkHardDelete
+);
 
-  // --- BULK SOFT DELETE ---
-  router.route("/bulk-soft-delete")
-    .patch(authenticateToken,validate(paramsLoyaltyRewardIdsSchema), loyaltyRewardController.bulkSoftDelete);
+router.patch(
+  "/admin/bulk-soft-delete",
+  authorize("loyalty.delete"),
+  validate(paramsLoyaltyRewardIdsSchema),
+  LoyaltyRewardController.bulkSoftDelete
+);
 
+/* =====================================================
+   🔹 CUSTOMER ROUTES
+===================================================== */
+router.get(
+  "/active",
+  authenticateCustomerToken,
+  LoyaltyRewardController.getActive
+);
+
+/* =====================================================
+   🔹 SYSTEM ROUTES
+===================================================== */
+router.post(
+  "/redeem",
+  authenticateToken,
+  authorize("order.create"),
+  LoyaltyRewardController.redeem
+);
 
 export default router;

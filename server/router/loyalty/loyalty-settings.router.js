@@ -1,47 +1,85 @@
 import express from "express";
-import loyaltySettingsController from "../../controllers/loyalty/loyalty-settings.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
-import { 
-  createLoyaltySettingsSchema, 
-  updateLoyaltySettingsSchema, 
-  paramsLoyaltySettingsSchema, 
-  paramsLoyaltySettingsIdsSchema,
-  queryLoyaltySettingsSchema 
-} from "../../validation/loyalty/loyalty-settings.validation.js";
+import LoyaltySettingsController from "../../controllers/loyalty/loyalty-settings.controller.js";
+
+import authenticateToken from "../../middlewares/authenticate.js";
+import { authenticateCustomerToken } from "../../middlewares/authenticate-customer.js";
+import authorize from "../../middlewares/authorize.js";
 
 const router = express.Router();
 
-// Create & GetAll
-router.route("/")
-  .post(authenticateToken, validate(createLoyaltySettingsSchema), loyaltySettingsController.create)
-  .get(authenticateToken, validate(queryLoyaltySettingsSchema), loyaltySettingsController.getAll)
-;
+/* =====================================================
+   🔹 ADMIN ROUTES
+===================================================== */
+router.use("/admin", authenticateToken);
 
-// GetOne, Update, hardDelete
-router.route("/:id")
-  .get(authenticateToken, validate(paramsLoyaltySettingsSchema), loyaltySettingsController.getOne)
-  .put(authenticateToken, validate(updateLoyaltySettingsSchema), loyaltySettingsController.update)
-  .delete(authenticateToken, validate(paramsLoyaltySettingsSchema), loyaltySettingsController.hardDelete) // soft delete
-;
+router.post(
+  "/admin",
+  authorize("loyalty.create"),
+  LoyaltySettingsController.create,
+);
 
-router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsLoyaltySettingsSchema), loyaltySettingsController.softDelete) // soft delete
-;
+router.get(
+  "/admin",
+  authorize("loyalty.view"),
+  LoyaltySettingsController.getAll,
+);
 
-// Restore soft-deleted item
-router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsLoyaltySettingsSchema), loyaltySettingsController.restore)
-;
+router.get(
+  "/admin/:id",
+  authorize("loyalty.view"),
+  LoyaltySettingsController.getOne,
+);
 
- // --- BULK HARD DELETE ---
-  router.route("/bulk-delete")
-    .delete(authenticateToken, validate(paramsLoyaltySettingsIdsSchema), loyaltySettingsController.bulkHardDelete);
+router.put(
+  "/admin/:id",
+  authorize("loyalty.update"),
+  LoyaltySettingsController.update,
+);
 
+router.delete(
+  "/admin/:id",
+  authorize("loyalty.delete"),
+  LoyaltySettingsController.hardDelete,
+);
 
-  // --- BULK SOFT DELETE ---
-  router.route("/bulk-soft-delete")
-    .patch(authenticateToken,validate(paramsLoyaltySettingsIdsSchema), loyaltySettingsController.bulkSoftDelete);
+/* =====================================================
+   🔹 SYSTEM ROUTES (Frontend / POS / Internal)
+===================================================== */
 
+// 🔥 IMPORTANT: Use req.brandId if available
+router.get(
+  "/active",
+  authenticateToken,
+  LoyaltySettingsController.getActiveSettings,
+);
+
+router.post(
+  "/calculate-points",
+  authenticateToken,
+  authorize("order.create"),
+  LoyaltySettingsController.calculatePoints,
+);
+
+router.post(
+  "/calculate-tier",
+  authenticateToken,
+  authorize("order.create"),
+  LoyaltySettingsController.calculateTier,
+);
+
+router.post(
+  "/calculate-redeem",
+  authenticateToken,
+  authorize("order.create"),
+  LoyaltySettingsController.calculateRedeem,
+);
+
+/* =====================================================
+   🔹 CUSTOMER ROUTES
+===================================================== */
+router.use("/customer", authenticateCustomerToken);
+
+// Customers can only view active settings relevant to them (e.g., based on their tier) or the brand they are associated with. The controller should handle this logic.
+router.get("/customer/settings", LoyaltySettingsController.getActiveSettings);
 
 export default router;

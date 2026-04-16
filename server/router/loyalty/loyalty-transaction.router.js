@@ -1,47 +1,54 @@
 import express from "express";
-import loyaltyTransactionController from "../../controllers/loyalty/loyalty-transaction.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
-import { 
-  createLoyaltyTransactionSchema, 
-  updateLoyaltyTransactionSchema, 
-  paramsLoyaltyTransactionSchema, 
-  paramsLoyaltyTransactionIdsSchema,
-  queryLoyaltyTransactionSchema 
-} from "../../validation/loyalty/loyalty-transaction.validation.js";
+import LoyaltyTransactionController from "../../controllers/loyalty/loyalty-transaction.controller.js";
+
+import authenticateToken from "../../middlewares/authenticate.js";
+import { authenticateCustomerToken } from "../../middlewares/authenticate-customer.js";
+import authorize from "../../middlewares/authorize.js";
 
 const router = express.Router();
 
-// Create & GetAll
-router.route("/")
-  .post(authenticateToken, validate(createLoyaltyTransactionSchema), loyaltyTransactionController.create)
-  .get(authenticateToken, validate(queryLoyaltyTransactionSchema), loyaltyTransactionController.getAll)
-;
+/* =====================================================
+   🔹 ADMIN ROUTES
+===================================================== */
+router.use("/admin", authenticateToken);
 
-// GetOne, Update, hardDelete
-router.route("/:id")
-  .get(authenticateToken, validate(paramsLoyaltyTransactionSchema), loyaltyTransactionController.getOne)
-  .put(authenticateToken, validate(updateLoyaltyTransactionSchema), loyaltyTransactionController.update)
-  .delete(authenticateToken, validate(paramsLoyaltyTransactionSchema), loyaltyTransactionController.hardDelete) // soft delete
-;
+router.get(
+  "/admin",
+  authorize("loyalty.view"),
+  LoyaltyTransactionController.getAll
+);
 
-router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsLoyaltyTransactionSchema), loyaltyTransactionController.softDelete) // soft delete
-;
+router.get(
+  "/admin/:id",
+  authorize("loyalty.view"),
+  LoyaltyTransactionController.getOne
+);
 
-// Restore soft-deleted item
-router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsLoyaltyTransactionSchema), loyaltyTransactionController.restore)
-;
+/* =====================================================
+   🔹 CUSTOMER ROUTES
+===================================================== */
+router.use("/customer", authenticateCustomerToken);
 
- // --- BULK HARD DELETE ---
-  router.route("/bulk-delete")
-    .delete(authenticateToken, validate(paramsLoyaltyTransactionIdsSchema), loyaltyTransactionController.bulkHardDelete);
+router.get(
+  "/customer/history",
+  LoyaltyTransactionController.getMyHistory
+);
 
+/* =====================================================
+   🔹 SYSTEM ROUTES
+===================================================== */
+router.post(
+  "/earn",
+  authenticateToken,
+  authorize("order.create"),
+  LoyaltyTransactionController.earn
+);
 
-  // --- BULK SOFT DELETE ---
-  router.route("/bulk-soft-delete")
-    .patch(authenticateToken,validate(paramsLoyaltyTransactionIdsSchema), loyaltyTransactionController.bulkSoftDelete);
-
+router.post(
+  "/redeem",
+  authenticateToken,
+  authorize("order.create"),
+  LoyaltyTransactionController.redeem
+);
 
 export default router;

@@ -233,6 +233,11 @@ const onlineCustomerSchema = new mongoose.Schema(
 
     verifiedAt: Date,
 
+    refreshToken: {
+      type: String,
+      select: false,
+    },
+
     isActive: {
       type: Boolean,
       default: true,
@@ -248,8 +253,7 @@ const onlineCustomerSchema = new mongoose.Schema(
     },
 
     deletedAt: Date,
-    deletedBy: { type: ObjectId, ref: "UserAccount",
-    },
+    deletedBy: { type: ObjectId, ref: "UserAccount" },
 
     changePasswordToken: String,
     changePasswordExpires: Date,

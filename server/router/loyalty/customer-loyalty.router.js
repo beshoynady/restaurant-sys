@@ -1,47 +1,57 @@
 import express from "express";
-import customerLoyaltyController from "../../controllers/loyalty/customer-loyalty.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
-import { 
-  createCustomerLoyaltySchema, 
-  updateCustomerLoyaltySchema, 
-  paramsCustomerLoyaltySchema, 
-  paramsCustomerLoyaltyIdsSchema,
-  queryCustomerLoyaltySchema 
-} from "../../validation/loyalty/customer-loyalty.validation.js";
+import CustomerLoyaltyController from "../../controllers/loyalty/customer-loyalty.controller.js";
+
+import authenticateToken from "../../middlewares/authenticate.js";
+import { authenticateCustomerToken } from "../../middlewares/authenticate-customer.js";
+import authorize from "../../middlewares/authorize.js";
 
 const router = express.Router();
 
-// Create & GetAll
-router.route("/")
-  .post(authenticateToken, validate(createCustomerLoyaltySchema), customerLoyaltyController.create)
-  .get(authenticateToken, validate(queryCustomerLoyaltySchema), customerLoyaltyController.getAll)
-;
+/* =====================================================
+   🔹 ADMIN ROUTES
+===================================================== */
+router.use("/admin", authenticateToken);
 
-// GetOne, Update, hardDelete
-router.route("/:id")
-  .get(authenticateToken, validate(paramsCustomerLoyaltySchema), customerLoyaltyController.getOne)
-  .put(authenticateToken, validate(updateCustomerLoyaltySchema), customerLoyaltyController.update)
-  .delete(authenticateToken, validate(paramsCustomerLoyaltySchema), customerLoyaltyController.hardDelete) // soft delete
-;
+router.get(
+  "/admin",
+  authorize("loyalty.view"),
+  CustomerLoyaltyController.getAll,
+);
 
-router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsCustomerLoyaltySchema), customerLoyaltyController.softDelete) // soft delete
-;
+router.get(
+  "/admin/:id",
+  authorize("loyalty.view"),
+  CustomerLoyaltyController.getOne,
+);
 
-// Restore soft-deleted item
-router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsCustomerLoyaltySchema), customerLoyaltyController.restore)
-;
+router.post(
+  "/admin/adjust",
+  authorize("loyalty.adjust"),
+  CustomerLoyaltyController.adjust,
+);
 
- // --- BULK HARD DELETE ---
-  router.route("/bulk-delete")
-    .delete(authenticateToken, validate(paramsCustomerLoyaltyIdsSchema), customerLoyaltyController.bulkHardDelete);
+/* =====================================================
+   🔹 CUSTOMER ROUTES
+===================================================== */
+router.use("/customer", authenticateCustomerToken);
 
+router.get("/customer/wallet", CustomerLoyaltyController.getMyWallet);
 
-  // --- BULK SOFT DELETE ---
-  router.route("/bulk-soft-delete")
-    .patch(authenticateToken,validate(paramsCustomerLoyaltyIdsSchema), customerLoyaltyController.bulkSoftDelete);
+/* =====================================================
+   🔹 SYSTEM ROUTES (Orders / POS)
+===================================================== */
+router.post(
+  "/earn",
+  authenticateToken,
+  authorize("order.create"),
+  CustomerLoyaltyController.earn,
+);
 
+router.post(
+  "/redeem",
+  authenticateToken,
+  authorize("order.create"),
+  CustomerLoyaltyController.redeem,
+);
 
 export default router;

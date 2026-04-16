@@ -1,3 +1,4 @@
+/server/middlewares/authenticate.js
 import jwt from "jsonwebtoken";
 import User from "../models/employees/user-account.model.js";
 import throwError from "../utils/throwError.js";

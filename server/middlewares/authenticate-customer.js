@@ -1,83 +1,58 @@
+/server/middlewares/authenticate-customer.js
+
 import OnlineCustomerModel from "../models/customers/online-customer.model.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import throwError from "../utils/throwError.js";
+
 dotenv.config();
 
 const secretKey = process.env.JWT_SECRET_KEY;
 const refreshSecretKey = process.env.JWT_REFRESH_SECRET;
 
 /**
- * Middleware: Authenticate access token
+ * ============================================
+ * 🔐 Authenticate Customer Access Token
+ * ============================================
  */
-const authenticateCustomerToken = async (req, res, next) => {
+export const authenticateCustomerToken = async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization || req.headers.Authorization;
+    const authHeader =
+      req.headers.authorization || req.headers.Authorization;
+
     if (!authHeader) {
-      return res.status(401).json({ message: "Unauthorized: Token not provided" });
+      throw throwError("Unauthorized: Token not provided", 401);
     }
 
     const token = authHeader.split(" ")[1];
+
     if (!token) {
-      return res.status(401).json({ message: "Unauthorized: Token missing" });
+      throw throwError("Unauthorized: Token missing", 401);
     }
 
-    // Verify token
     let payload;
     try {
       payload = jwt.verify(token, secretKey);
     } catch (err) {
-      return res.status(403).json({ message: "Forbidden: Invalid or expired token" });
+      throw throwError("Token expired or invalid", 403);
     }
 
-    // Fetch customer from DB
-    const customer = await OnlineCustomerModel.findById(payload.id);
+    const customer = await OnlineCustomerModel.findById(payload.id)
+      .select("-password");
+
     if (!customer) {
-      return res.status(404).json({ message: "Customer not found" });
+      throw throwError("Customer not found", 404);
     }
 
-    // Check role
-    if (!customer.isActive) {
-      return res.status(403).json({ message: "Forbidden: Customer is not active" });
+    if (!customer.isActive || customer.isDeleted) {
+      throw throwError("Customer is inactive", 403);
     }
 
     req.customer = customer;
+    req.brandId = customer.brand;
+
     next();
   } catch (err) {
-    console.error("Authentication error:", err);
-    return res.status(500).json({ message: "Server error during authentication" });
+    next(err);
   }
-};
-
-/**
- * Generate a new Access Token using HttpOnly refresh token cookie
- */
-const generateNewCustomerAccessToken = async (req, res) => {
-  try {
-    const token = req.cookies.refreshToken;
-    if (!token) return res.status(401).json({ message: "No refresh token" });
-
-    const payload = jwt.verify(token, refreshSecretKey);
-
-    const customer = await OnlineCustomerModel.findById(payload.id);
-    if (!customer || customer.refreshToken !== token) {
-      return res.status(403).json({ message: "Invalid refresh token" });
-    }
-
-    const newAccessToken = jwt.sign(
-      { brand: customer.brand,
-        id: customer._id 
-      },
-      secretKey,
-      { expiresIn: "15m" }
-    );
-    res.json({ accessToken: newAccessToken });
-  } catch (err) {
-    console.error("Generate access token error:", err);
-    res.status(403).json({ message: "Invalid refresh token" });
-  }
-};
-
-export  {
-  authenticateCustomerToken,
-  generateNewCustomerAccessToken,
 };
