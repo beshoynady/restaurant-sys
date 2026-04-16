@@ -4,54 +4,68 @@ import CustomerLoyaltyController from "../../controllers/loyalty/customer-loyalt
 import authenticateToken from "../../middlewares/authenticate.js";
 import { authenticateCustomerToken } from "../../middlewares/authenticate-customer.js";
 import authorize from "../../middlewares/authorize.js";
+import validate from "../../middlewares/validate.js";
+
+import {
+  paramsCustomerLoyaltySchema,
+  queryCustomerLoyaltySchema,
+  adjustPointsSchema,
+} from "../../validation/loyalty/customer-loyalty.validation.js";
 
 const router = express.Router();
 
-/* =====================================================
-   🔹 ADMIN ROUTES
-===================================================== */
-router.use("/admin", authenticateToken);
+/* 🔹 Config */
+const config = (req, res, next) => {
+  req.populate = ["brand", "createdBy", "updatedBy"];
+  next();
+};
+
+/* ================= ADMIN ================= */
+router.use("/admin", authenticateToken, config);
 
 router.get(
   "/admin",
   authorize("loyalty.view"),
-  CustomerLoyaltyController.getAll,
+  validate(queryCustomerLoyaltySchema),
+  CustomerLoyaltyController.getAll
 );
 
 router.get(
   "/admin/:id",
   authorize("loyalty.view"),
-  CustomerLoyaltyController.getOne,
+  validate(paramsCustomerLoyaltySchema),
+  CustomerLoyaltyController.getOne
 );
 
 router.post(
   "/admin/adjust",
   authorize("loyalty.adjust"),
-  CustomerLoyaltyController.adjust,
+  validate(adjustPointsSchema),
+  CustomerLoyaltyController.adjust
 );
 
-/* =====================================================
-   🔹 CUSTOMER ROUTES
-===================================================== */
+/* ================= CUSTOMER ================= */
 router.use("/customer", authenticateCustomerToken);
 
-router.get("/customer/wallet", CustomerLoyaltyController.getMyWallet);
+router.get(
+  "/customer/wallet",
+  CustomerLoyaltyController.getMyWallet
+);
 
-/* =====================================================
-   🔹 SYSTEM ROUTES (Orders / POS)
-===================================================== */
+/* ================= SYSTEM ================= */
+
 router.post(
   "/earn",
   authenticateToken,
   authorize("order.create"),
-  CustomerLoyaltyController.earn,
+  CustomerLoyaltyController.earn
 );
 
 router.post(
   "/redeem",
   authenticateToken,
   authorize("order.create"),
-  CustomerLoyaltyController.redeem,
+  CustomerLoyaltyController.redeem
 );
 
 export default router;

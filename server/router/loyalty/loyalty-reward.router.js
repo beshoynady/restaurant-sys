@@ -16,13 +16,16 @@ import {
 
 const router = express.Router();
 
-/* =====================================================
-   🔹 ADMIN ROUTES
-===================================================== */
-router.use("/admin", authenticateToken);
+/* 🔹 Config */
+const config = (req, res, next) => {
+  req.populate = ["brand", "branch", "product", "createdBy", "updatedBy"];
+  next();
+};
 
-router
-  .route("/admin")
+/* ================= ADMIN ================= */
+router.use("/admin", authenticateToken, config);
+
+router.route("/admin")
   .post(
     authorize("loyalty.create"),
     validate(createLoyaltyRewardSchema),
@@ -34,8 +37,7 @@ router
     LoyaltyRewardController.getAll
   );
 
-router
-  .route("/admin/:id")
+router.route("/admin/:id")
   .get(
     authorize("loyalty.view"),
     validate(paramsLoyaltyRewardSchema),
@@ -80,18 +82,16 @@ router.patch(
   LoyaltyRewardController.bulkSoftDelete
 );
 
-/* =====================================================
-   🔹 CUSTOMER ROUTES
-===================================================== */
+/* ================= CUSTOMER ================= */
+
 router.get(
   "/active",
   authenticateCustomerToken,
   LoyaltyRewardController.getActive
 );
 
-/* =====================================================
-   🔹 SYSTEM ROUTES
-===================================================== */
+/* ================= SYSTEM ================= */
+
 router.post(
   "/redeem",
   authenticateToken,

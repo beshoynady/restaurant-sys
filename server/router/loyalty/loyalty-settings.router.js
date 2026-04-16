@@ -4,82 +4,98 @@ import LoyaltySettingsController from "../../controllers/loyalty/loyalty-setting
 import authenticateToken from "../../middlewares/authenticate.js";
 import { authenticateCustomerToken } from "../../middlewares/authenticate-customer.js";
 import authorize from "../../middlewares/authorize.js";
+import validate from "../../middlewares/validate.js";
+
+import {
+  createLoyaltySettingsSchema,
+  updateLoyaltySettingsSchema,
+  paramsLoyaltySettingsSchema,
+  paramsLoyaltySettingsIdsSchema,
+  queryLoyaltySettingsSchema,
+  calculatePointsSchema,
+  calculateTierSchema,
+  calculateRedeemSchema,
+} from "../../validation/loyalty/loyalty-settings.validation.js";
 
 const router = express.Router();
 
-/* =====================================================
-   🔹 ADMIN ROUTES
-===================================================== */
-router.use("/admin", authenticateToken);
+/* 🔹 Inject config */
+const config = (req, res, next) => {
+  req.populate = ["brand", "createdBy", "updatedBy"];
+  next();
+};
 
-router.post(
-  "/admin",
-  authorize("loyalty.create"),
-  LoyaltySettingsController.create,
-);
+/* ================= ADMIN ================= */
+router.use("/admin", authenticateToken, config);
 
-router.get(
-  "/admin",
-  authorize("loyalty.view"),
-  LoyaltySettingsController.getAll,
-);
+router.route("/admin")
+  .post(
+    authorize("loyalty.create"),
+    validate(createLoyaltySettingsSchema),
+    LoyaltySettingsController.create
+  )
+  .get(
+    authorize("loyalty.view"),
+    validate(queryLoyaltySettingsSchema),
+    LoyaltySettingsController.getAll
+  );
 
-router.get(
-  "/admin/:id",
-  authorize("loyalty.view"),
-  LoyaltySettingsController.getOne,
-);
+router.route("/admin/:id")
+  .get(
+    authorize("loyalty.view"),
+    validate(paramsLoyaltySettingsSchema),
+    LoyaltySettingsController.getOne
+  )
+  .put(
+    authorize("loyalty.update"),
+    validate(updateLoyaltySettingsSchema),
+    LoyaltySettingsController.update
+  )
+  .delete(
+    authorize("loyalty.delete"),
+    validate(paramsLoyaltySettingsSchema),
+    LoyaltySettingsController.hardDelete
+  );
 
-router.put(
-  "/admin/:id",
-  authorize("loyalty.update"),
-  LoyaltySettingsController.update,
-);
+/* ================= SYSTEM ================= */
 
-router.delete(
-  "/admin/:id",
-  authorize("loyalty.delete"),
-  LoyaltySettingsController.hardDelete,
-);
-
-/* =====================================================
-   🔹 SYSTEM ROUTES (Frontend / POS / Internal)
-===================================================== */
-
-// 🔥 IMPORTANT: Use req.brandId if available
 router.get(
   "/active",
   authenticateToken,
-  LoyaltySettingsController.getActiveSettings,
+  LoyaltySettingsController.getActiveSettings
 );
 
 router.post(
   "/calculate-points",
   authenticateToken,
   authorize("order.create"),
-  LoyaltySettingsController.calculatePoints,
+  validate(calculatePointsSchema),
+  LoyaltySettingsController.calculatePoints
 );
 
 router.post(
   "/calculate-tier",
   authenticateToken,
   authorize("order.create"),
-  LoyaltySettingsController.calculateTier,
+  validate(calculateTierSchema),
+  LoyaltySettingsController.calculateTier
 );
 
 router.post(
   "/calculate-redeem",
   authenticateToken,
   authorize("order.create"),
-  LoyaltySettingsController.calculateRedeem,
+  validate(calculateRedeemSchema),
+  LoyaltySettingsController.calculateRedeem
 );
 
-/* =====================================================
-   🔹 CUSTOMER ROUTES
-===================================================== */
+/* ================= CUSTOMER ================= */
+
 router.use("/customer", authenticateCustomerToken);
 
-// Customers can only view active settings relevant to them (e.g., based on their tier) or the brand they are associated with. The controller should handle this logic.
-router.get("/customer/settings", LoyaltySettingsController.getActiveSettings);
+router.get(
+  "/customer/settings",
+  LoyaltySettingsController.getActiveSettings
+);
 
 export default router;
