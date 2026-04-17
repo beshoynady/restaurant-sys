@@ -1,32 +1,25 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
-import LoyaltyTransactionModel from "../../models/loyalty/loyalty-transaction.model.js";
+import {
+  objectId,
+  paramsSchema,
+  paramsIdsSchema,
+  querySchema,
+} from "../../utils/joiFactory.js";
 
 /* =========================
-   Create Schema
+   🔹 Params
 ========================= */
-export const createLoyaltyTransactionSchema = createSchema(LoyaltyTransactionModel.schema);
+export const paramsLoyaltyTransactionSchema = {
+  params: paramsSchema(),
+};
+
+export const paramsLoyaltyTransactionIdsSchema = {
+  body: paramsIdsSchema(),
+};
 
 /* =========================
-   Update Schema
+   🔹 Query
 ========================= */
-export const updateLoyaltyTransactionSchema = updateSchema(
-  LoyaltyTransactionModel.schema,
-  ["updatedBy"]
-);
-
-/* =========================
-   Params Schema
-========================= */
-export const paramsLoyaltyTransactionSchema = paramsSchema();
-
-/* =========================
-   Params Ids Schema
-========================= */
-export const paramsLoyaltyTransactionIdsSchema = paramsIdsSchema();
-
-
-/* =========================
-   Query Schema
-========================= */
-export const queryLoyaltyTransactionSchema = querySchema();
+export const queryLoyaltyTransactionSchema = {
+  query: querySchema(),
+};

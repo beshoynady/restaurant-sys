@@ -1,32 +1,49 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
+import {
+  objectId,
+  paramsSchema,
+  paramsIdsSchema,
+  querySchema,
+} from "../../utils/joiFactory.js";
+
 import CustomerLoyaltyModel from "../../models/loyalty/customer-loyalty.model.js";
 
 /* =========================
-   Create Schema
+   🔹 SAFE CREATE
+   Only allow system fields
 ========================= */
-export const createCustomerLoyaltySchema = createSchema(CustomerLoyaltyModel.schema);
+export const createCustomerLoyaltySchema = {
+  body: Joi.object({
+    brand: objectId().required(),
+    phone: Joi.string().trim().max(30).required(),
+    createdBy: objectId().required(),
+  }),
+};
 
 /* =========================
-   Update Schema
+   🔹 SAFE UPDATE
+   Prevent wallet manipulation
 ========================= */
-export const updateCustomerLoyaltySchema = updateSchema(
-  CustomerLoyaltyModel.schema,
-  ["updatedBy"]
-);
+export const updateCustomerLoyaltySchema = {
+  body: Joi.object({
+    updatedBy: objectId().required(),
+  }),
+};
 
 /* =========================
-   Params Schema
+   🔹 Params
 ========================= */
-export const paramsCustomerLoyaltySchema = paramsSchema();
+export const paramsCustomerLoyaltySchema = {
+  params: paramsSchema(),
+};
+
+export const paramsCustomerLoyaltyIdsSchema = {
+  body: paramsIdsSchema(),
+};
 
 /* =========================
-   Params Ids Schema
+   🔹 Query
 ========================= */
-export const paramsCustomerLoyaltyIdsSchema = paramsIdsSchema();
-
-
-/* =========================
-   Query Schema
-========================= */
-export const queryCustomerLoyaltySchema = querySchema();
+export const queryCustomerLoyaltySchema = {
+  query: querySchema(),
+};

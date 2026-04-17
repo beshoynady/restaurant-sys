@@ -1,32 +1,56 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
+import {
+  createSchema,
+  updateSchema,
+  paramsSchema,
+  paramsIdsSchema,
+  querySchema,
+} from "../../utils/joiFactory.js";
+
 import LoyaltySettingsModel from "../../models/loyalty/loyalty-settings.model.js";
 
 /* =========================
-   Create Schema
+   CRUD
 ========================= */
-export const createLoyaltySettingsSchema = createSchema(LoyaltySettingsModel.schema);
+
+export const createLoyaltySettingsSchema = {
+  body: createSchema(LoyaltySettingsModel.schema),
+};
+
+export const updateLoyaltySettingsSchema = {
+  body: updateSchema(LoyaltySettingsModel.schema, ["updatedBy"]),
+};
+
+export const paramsLoyaltySettingsSchema = {
+  params: paramsSchema(),
+};
+
+export const paramsLoyaltySettingsIdsSchema = {
+  body: paramsIdsSchema(),
+};
+
+export const queryLoyaltySettingsSchema = {
+  query: querySchema(),
+};
 
 /* =========================
-   Update Schema
+   Business Logic
 ========================= */
-export const updateLoyaltySettingsSchema = updateSchema(
-  LoyaltySettingsModel.schema,
-  ["updatedBy"]
-);
 
-/* =========================
-   Params Schema
-========================= */
-export const paramsLoyaltySettingsSchema = paramsSchema();
+export const calculatePointsSchema = {
+  body: Joi.object({
+    orderAmount: Joi.number().min(1).required(),
+  }),
+};
 
-/* =========================
-   Params Ids Schema
-========================= */
-export const paramsLoyaltySettingsIdsSchema = paramsIdsSchema();
+export const calculateTierSchema = {
+  body: Joi.object({
+    points: Joi.number().min(0).required(),
+  }),
+};
 
-
-/* =========================
-   Query Schema
-========================= */
-export const queryLoyaltySettingsSchema = querySchema();
+export const calculateRedeemSchema = {
+  body: Joi.object({
+    points: Joi.number().min(1).required(),
+  }),
+};

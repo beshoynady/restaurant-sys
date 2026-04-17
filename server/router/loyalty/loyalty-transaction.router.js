@@ -1,60 +1,64 @@
+// routes/loyalty/loyalty-transaction.routes.js
+
 import express from "express";
 import LoyaltyTransactionController from "../../controllers/loyalty/loyalty-transaction.controller.js";
 
 import authenticateToken from "../../middlewares/authenticate.js";
-import { authenticateCustomerToken } from "../../middlewares/authenticate-customer.js";
 import authorize from "../../middlewares/authorize.js";
 import validate from "../../middlewares/validate.js";
 
 import {
-  paramsLoyaltyTransactionSchema,
+  earnPointsSchema,
+  redeemPointsSchema,
+  adjustPointsSchema,
   queryLoyaltyTransactionSchema,
+  paramsLoyaltyTransactionSchema,
 } from "../../validation/loyalty/loyalty-transaction.validation.js";
 
 const router = express.Router();
 
-/* 🔹 Config */
-const config = (req, res, next) => {
-  req.populate = ["brand", "branch", "customerLoyalty", "reward", "order"];
-  next();
-};
-
 /* ================= ADMIN ================= */
-router.use("/admin", authenticateToken, config);
+
+router.use("/admin", authenticateToken);
+
+// Earn
+router.post(
+  "/admin/earn",
+  authorize("loyalty_transaction_create"),
+  validate(earnPointsSchema),
+  LoyaltyTransactionController.earn
+);
+
+// Redeem
+router.post(
+  "/admin/redeem",
+  authorize("loyalty_transaction_create"),
+  validate(redeemPointsSchema),
+  LoyaltyTransactionController.redeem
+);
+
+// Adjust
+router.post(
+  "/admin/adjust",
+  authorize("loyalty_transaction_create"),
+  validate(adjustPointsSchema),
+  LoyaltyTransactionController.adjust
+);
+
+/* ================= VIEW ================= */
 
 router.get(
   "/admin",
-  authorize("loyalty.view"),
+  authorize("loyalty_transaction_view"),
   validate(queryLoyaltyTransactionSchema),
-  LoyaltyTransactionController.getAll,
+  LoyaltyTransactionController.getAll
 );
 
 router.get(
   "/admin/:id",
-  authorize("loyalty.view"),
+  authorize("loyalty_transaction_view"),
   validate(paramsLoyaltyTransactionSchema),
-  LoyaltyTransactionController.getOne,
-);
-
-/* ================= CUSTOMER ================= */
-router.use("/customer", authenticateCustomerToken);
-
-router.get("/customer/history", LoyaltyTransactionController.getMyHistory);
-
-/* ================= SYSTEM ================= */
-
-router.post(
-  "/earn",
-  authenticateToken,
-  authorize("order.create"),
-  LoyaltyTransactionController.earn,
-);
-
-router.post(
-  "/redeem",
-  authenticateToken,
-  authorize("order.create"),
-  LoyaltyTransactionController.redeem,
+  LoyaltyTransactionController.getOne
 );
 
 export default router;

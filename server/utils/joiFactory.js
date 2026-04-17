@@ -1,4 +1,4 @@
-// ./utils/joiFactory.js
+// utils/joiFactory.js
 
 import Joi from "joi";
 import mongoose from "mongoose";
@@ -9,24 +9,24 @@ const { ObjectId } = mongoose.Types;
    Helpers
 ========================= */
 
-/**
- * Validate MongoDB ObjectId
- */
-export const objectId = () =>
-  Joi.string().custom((value, helpers) => {
+export const objectId = (allowNull = false) => {
+  let schema = Joi.string().custom((value, helpers) => {
     if (!ObjectId.isValid(value)) {
       return helpers.message("Invalid ObjectId format");
     }
     return value;
   });
 
-export const ObjectIdArray = () => Joi.array().items(objectId()).min(1);
+  return allowNull ? schema.allow(null) : schema;
+};
 
+export const objectIdArray = () =>
+  Joi.array().items(objectId()).min(1);
 
-/**
- * Multi-language validator (Map)
- * Supports dynamic value rules from mongoose schema
- */
+/* =========================
+   MultiLang (Improved)
+========================= */
+
 export const multiLang = (options = {}, required = false) => {
   let valueValidator = Joi.string().trim();
 
@@ -38,7 +38,7 @@ export const multiLang = (options = {}, required = false) => {
 
   let schema = Joi.object()
     .pattern(
-      Joi.string().valid("EN", "AR"),
+      Joi.string().length(2).uppercase(), // dynamic languages
       valueValidator
     )
     .min(1);
@@ -50,9 +50,6 @@ export const multiLang = (options = {}, required = false) => {
    Core Builder
 ========================= */
 
-/**
- * Build Joi schema dynamically from Mongoose schema
- */
 export const buildJoiSchema = (mongooseSchema, options = {}) => {
   const joiSchema = {};
   const paths = mongooseSchema.paths;
@@ -70,10 +67,6 @@ export const buildJoiSchema = (mongooseSchema, options = {}) => {
 
     const field = paths[key];
     let validator;
-
-    /* =========================
-       SWITCH BY TYPE
-    ========================= */
 
     switch (field.instance) {
       case "String":
@@ -121,22 +114,16 @@ export const buildJoiSchema = (mongooseSchema, options = {}) => {
         break;
 
       case "ObjectId":
-        validator = objectId();
+        validator = objectId(field.options.default === null);
         if (field.options.required) validator = validator.required();
         break;
 
-      /* =========================
-         MAP 
-      ========================= */
       case "Map": {
         const mapOptions = field.$__schemaType?.options || {};
         validator = multiLang(mapOptions, field.options.required);
         break;
       }
 
-      /* =========================
-         ARRAY
-      ========================= */
       case "Array":
         if (field.caster?.instance === "ObjectId") {
           validator = Joi.array().items(objectId());
@@ -151,9 +138,6 @@ export const buildJoiSchema = (mongooseSchema, options = {}) => {
         if (field.options.required) validator = validator.required();
         break;
 
-      /* =========================
-         SUB DOCUMENT
-      ========================= */
       case "Embedded":
       case "Subdocument":
         validator = Joi.object(
@@ -162,9 +146,6 @@ export const buildJoiSchema = (mongooseSchema, options = {}) => {
         if (field.options.required) validator = validator.required();
         break;
 
-      /* =========================
-         DEFAULT
-      ========================= */
       default:
         validator = Joi.any();
         if (field.options.required) validator = validator.required();
@@ -173,23 +154,17 @@ export const buildJoiSchema = (mongooseSchema, options = {}) => {
     joiSchema[key] = validator;
   });
 
-  return Joi.object(joiSchema);
+  return Joi.object(joiSchema).unknown(false);
 };
 
 /* =========================
    Schema Generators
 ========================= */
 
-/**
- * Create Schema (strict)
- */
 export const createSchema = (mongooseSchema) => {
   return buildJoiSchema(mongooseSchema);
 };
 
-/**
- * Update Schema (all optional + required meta)
- */
 export const updateSchema = (mongooseSchema, extraRequired = []) => {
   const schema = buildJoiSchema(mongooseSchema);
 
@@ -199,41 +174,36 @@ export const updateSchema = (mongooseSchema, extraRequired = []) => {
       !key.includes(".")
   );
 
-  let updated = schema.fork(allowedFields, (field) => field.optional());
+  let updated = schema.fork(allowedFields, (field) =>
+    field.optional()
+  );
 
   const requiredFields = {
-    _id: objectId().required(),
+    id: objectId().required(),
   };
 
   extraRequired.forEach((field) => {
     requiredFields[field] = objectId().required();
   });
 
-  return updated.keys(requiredFields);
+  return updated.min(1).keys(requiredFields);
 };
 
-/**
- * Params Schema
- */
 export const paramsSchema = () =>
   Joi.object({
-    _id: objectId().required(),
+    id: objectId().required(),
   });
 
-  export const paramsIdsSchema = () =>
+export const paramsIdsSchema = () =>
   Joi.object({
-    _id: objectId().required(),
+    ids: Joi.array().items(objectId()).min(1).required(),
   });
-  
-/**
- * Query Schema (generic)
- */
+
 export const querySchema = () =>
   Joi.object({
-    limit: Joi.number().min(1).max(100).optional(),
-    skip: Joi.number().min(0).optional(),
-    search: Joi.string().optional(),
+    limit: Joi.number().min(1).max(100).default(10),
+    skip: Joi.number().min(0).default(0),
+    search: Joi.string().trim().min(1).max(100).optional(),
     sortBy: Joi.string().optional(),
     order: Joi.string().valid("asc", "desc").optional(),
   });
-

@@ -1,3 +1,5 @@
+// routes/loyalty/customer-loyalty.routes.js
+
 import express from "express";
 import CustomerLoyaltyController from "../../controllers/loyalty/customer-loyalty.controller.js";
 
@@ -7,65 +9,78 @@ import authorize from "../../middlewares/authorize.js";
 import validate from "../../middlewares/validate.js";
 
 import {
+  createCustomerLoyaltySchema,
   paramsCustomerLoyaltySchema,
   queryCustomerLoyaltySchema,
+  addPointsSchema,
+  redeemPointsSchema,
   adjustPointsSchema,
 } from "../../validation/loyalty/customer-loyalty.validation.js";
 
 const router = express.Router();
 
-/* 🔹 Config */
-const config = (req, res, next) => {
-  req.populate = ["brand", "createdBy", "updatedBy"];
-  next();
-};
-
 /* ================= ADMIN ================= */
-router.use("/admin", authenticateToken, config);
 
+router.use("/admin", authenticateToken);
+
+// Create wallet
+router.post(
+  "/admin",
+  authorize("loyalty_wallet_create"),
+  validate(createCustomerLoyaltySchema),
+  CustomerLoyaltyController.create
+);
+
+// Get wallets
 router.get(
   "/admin",
-  authorize("loyalty.view"),
+  authorize("loyalty_wallet_view"),
   validate(queryCustomerLoyaltySchema),
   CustomerLoyaltyController.getAll
 );
 
+// Get one
 router.get(
   "/admin/:id",
-  authorize("loyalty.view"),
+  authorize("loyalty_wallet_view"),
   validate(paramsCustomerLoyaltySchema),
   CustomerLoyaltyController.getOne
 );
 
+/* ================= BUSINESS ================= */
+
+// Add points
+router.post(
+  "/admin/add-points",
+  authorize("loyalty_wallet_update"),
+  validate(addPointsSchema),
+  CustomerLoyaltyController.addPoints
+);
+
+// Redeem
+router.post(
+  "/admin/redeem",
+  authorize("loyalty_wallet_update"),
+  validate(redeemPointsSchema),
+  CustomerLoyaltyController.redeemPoints
+);
+
+// Adjust
 router.post(
   "/admin/adjust",
-  authorize("loyalty.adjust"),
+  authorize("loyalty_wallet_update"),
   validate(adjustPointsSchema),
-  CustomerLoyaltyController.adjust
+  CustomerLoyaltyController.adjustPoints
 );
 
 /* ================= CUSTOMER ================= */
+
 router.use("/customer", authenticateCustomerToken);
 
+// Get my wallet
 router.get(
-  "/customer/wallet",
+  "/customer/me",
   CustomerLoyaltyController.getMyWallet
-);
-
-/* ================= SYSTEM ================= */
-
-router.post(
-  "/earn",
-  authenticateToken,
-  authorize("order.create"),
-  CustomerLoyaltyController.earn
-);
-
-router.post(
-  "/redeem",
-  authenticateToken,
-  authorize("order.create"),
-  CustomerLoyaltyController.redeem
 );
 
 export default router;

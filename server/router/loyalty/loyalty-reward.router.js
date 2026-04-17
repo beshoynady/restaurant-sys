@@ -1,3 +1,5 @@
+// routes/loyalty/loyalty-reward.routes.js
+
 import express from "express";
 import LoyaltyRewardController from "../../controllers/loyalty/loyalty-reward.controller.js";
 
@@ -16,87 +18,47 @@ import {
 
 const router = express.Router();
 
-/* 🔹 Config */
-const config = (req, res, next) => {
-  req.populate = ["brand", "branch", "product", "createdBy", "updatedBy"];
-  next();
-};
-
 /* ================= ADMIN ================= */
-router.use("/admin", authenticateToken, config);
+
+router.use("/admin", authenticateToken);
 
 router.route("/admin")
   .post(
-    authorize("loyalty.create"),
+    authorize("loyalty_reward_create"),
     validate(createLoyaltyRewardSchema),
     LoyaltyRewardController.create
   )
   .get(
-    authorize("loyalty.view"),
+    authorize("loyalty_reward_view"),
     validate(queryLoyaltyRewardSchema),
     LoyaltyRewardController.getAll
   );
 
 router.route("/admin/:id")
   .get(
-    authorize("loyalty.view"),
+    authorize("loyalty_reward_view"),
     validate(paramsLoyaltyRewardSchema),
     LoyaltyRewardController.getOne
   )
   .put(
-    authorize("loyalty.update"),
+    authorize("loyalty_reward_update"),
     validate(updateLoyaltyRewardSchema),
     LoyaltyRewardController.update
   )
   .delete(
-    authorize("loyalty.delete"),
+    authorize("loyalty_reward_delete"),
     validate(paramsLoyaltyRewardSchema),
     LoyaltyRewardController.hardDelete
   );
 
-router.patch(
-  "/admin/soft-delete/:id",
-  authorize("loyalty.delete"),
-  validate(paramsLoyaltyRewardSchema),
-  LoyaltyRewardController.softDelete
-);
-
-router.patch(
-  "/admin/restore/:id",
-  authorize("loyalty.update"),
-  validate(paramsLoyaltyRewardSchema),
-  LoyaltyRewardController.restore
-);
-
-router.delete(
-  "/admin/bulk-delete",
-  authorize("loyalty.delete"),
-  validate(paramsLoyaltyRewardIdsSchema),
-  LoyaltyRewardController.bulkHardDelete
-);
-
-router.patch(
-  "/admin/bulk-soft-delete",
-  authorize("loyalty.delete"),
-  validate(paramsLoyaltyRewardIdsSchema),
-  LoyaltyRewardController.bulkSoftDelete
-);
-
 /* ================= CUSTOMER ================= */
 
+router.use("/customer", authenticateCustomerToken);
+
+// Active rewards
 router.get(
-  "/active",
-  authenticateCustomerToken,
-  LoyaltyRewardController.getActive
-);
-
-/* ================= SYSTEM ================= */
-
-router.post(
-  "/redeem",
-  authenticateToken,
-  authorize("order.create"),
-  LoyaltyRewardController.redeem
+  "/customer",
+  LoyaltyRewardController.getAll
 );
 
 export default router;
