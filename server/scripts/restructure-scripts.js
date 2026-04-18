@@ -1,117 +1,156 @@
+// server/scripts/restructure.js
+
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
 
-// fix __dirname in ES Modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// ===== CONFIG =====
+const ROOT = path.resolve("server");
 
-// paths
-const modelsDir = path.join(__dirname, "../models");
-const servicesDir = path.join(__dirname, "../services");
-const validationsDir = path.join(__dirname, "../validations");
+const SOURCE_FOLDERS = {
+  controllers: "controllers",
+  services: "services",
+  models: "models",
+  router: "router",
+};
 
-// main function
-function generateStructure(dir, base = "") {
-  const files = fs.readdirSync(dir);
+const TARGET = path.join(ROOT, "modules");
 
-  files.forEach((file) => {
-    const fullPath = path.join(dir, file);
-    const stat = fs.statSync(fullPath);
+// Map folder → module
+const DOMAIN_MAP = {
+  accounting: "accounting",
+  assets: "accounting",
+  cash: "finance",
+  core: "core",
+  customers: "customers",
+  employees: "hr",
+  expenses: "finance",
+  inventory: "inventory",
+  kitchen: "kitchen",
+  loyalty: "loyalty",
+  menu: "sales",
+  "payment-provider": "payments",
+  payments: "payments",
+  production: "production",
+  purchasing: "purchasing",
+  sales: "sales",
+  seating: "seating",
+  system: "settings/system",
+  auth: "auth",
+  setup: "setup",
+};
 
-    if (stat.isDirectory()) {
-      generateStructure(fullPath, path.join(base, file));
-    }
+// ===== HELPERS =====
 
-    // only model files
-    else if (file.endsWith(".model.js")) {
-      const modelName = file.replace(".model.js", "");
-      const className = capitalize(modelName);
-
-      // ----------- PATHS -----------
-      const serviceFolder = path.join(servicesDir, base);
-      const validationFolder = path.join(validationsDir, base);
-
-      const serviceFile = path.join(serviceFolder, `${modelName}.service.js`);
-      const validationFile = path.join(
-        validationFolder,
-        `${modelName}.validation.js`,
-      );
-
-      // fix model import path
-      const modelPath = base
-        ? `../../models/${base}/${modelName}.model.js`
-        : `../../models/${modelName}.model.js`;
-
-      // ----------- CREATE FOLDERS -----------
-      if (!fs.existsSync(serviceFolder)) {
-        fs.mkdirSync(serviceFolder, { recursive: true });
-      }
-
-      if (!fs.existsSync(validationFolder)) {
-        fs.mkdirSync(validationFolder, { recursive: true });
-      }
-
-      // ----------- SERVICE TEMPLATE -----------
-      const serviceTemplate = `
-import ${modelName}Model from "${modelPath}";
-
-class ${className}Service {
-
-  async create(data) {
-    return await ${modelName}Model.create(data);
+function ensureDir(dirPath) {
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
   }
-
-  async findAll(filter = {}) {
-    return await ${modelName}Model.find(filter);
-  }
-
-  async findById(id) {
-    return await ${modelName}Model.findById(id);
-  }
-
-  async update(id, data) {
-    return await ${modelName}Model.findByIdAndUpdate(id, data, { new: true });
-  }
-
-  async delete(id) {
-    return await ${modelName}Model.findByIdAndDelete(id);
-  }
-
 }
 
-export default new ${className}Service();
-`;
+function moveFile(src, dest) {
+  ensureDir(path.dirname(dest));
+  fs.renameSync(src, dest);
+  console.log(`✅ Moved: ${src} → ${dest}`);
+}
 
-      // ----------- VALIDATION TEMPLATE (Joi) -----------
-      const validationTemplate = `
-import Joi from "joi";
+function getFeatureName(fileName) {
+  return fileName.replace(/\.(controller|service|model|router)\.js$/, "");
+}
 
-export const create${className}Schema = Joi.object({
-  // TODO: define fields based on model
-});
+// ===== CORE LOGIC =====
 
-export const update${className}Schema = Joi.object({
-  // TODO: define update fields
-});
-`;
+function processFolder(type, folderPath) {
+  const fullPath = path.join(ROOT, folderPath);
 
-      // ----------- WRITE FILES -----------
-      fs.writeFileSync(serviceFile, serviceTemplate.trim());
-      fs.writeFileSync(validationFile, validationTemplate.trim());
+  if (!fs.existsSync(fullPath)) return;
 
-      console.log("✅ Created:");
-      console.log("Service:", serviceFile);
-      console.log("Validation:", validationFile);
-      console.log("----------------------------------");
+  const domains = fs.readdirSync(fullPath);
+
+  domains.forEach((domain) => {
+    const domainPath = path.join(fullPath, domain);
+    if (!fs.lstatSync(domainPath).isDirectory()) return;
+
+    const mappedDomain = DOMAIN_MAP[domain];
+    if (!mappedDomain) {
+      console.warn(`⚠️ No mapping for domain: ${domain}`);
+      return;
     }
+
+    const files = fs.readdirSync(domainPath);
+
+    files.forEach((file) => {
+      const src = path.join(domainPath, file);
+
+      if (!fs.lstatSync(src).isFile()) return;
+
+      const feature = getFeatureName(file);
+
+      const targetPath = path.join(
+        TARGET,
+        mappedDomain,
+        feature,
+        `${feature}.${type}.js`
+      );
+
+      moveFile(src, targetPath);
+    });
   });
 }
 
-// helper
-function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
+// ===== SETTINGS STRUCTURE =====
+
+function createSettingsStructure() {
+  const settingsBase = path.join(TARGET, "settings");
+
+  const structure = {
+    core: ["brand-settings", "branch-settings"],
+    inventory: ["inventory-settings"],
+    sales: ["order-settings", "invoice-settings", "promotion-settings"],
+    hr: ["attendance-settings", "payroll-settings"],
+    kitchen: ["kitchen-settings"],
+    loyalty: ["loyalty-settings"],
+    payments: ["payment-settings"],
+    system: [
+      "tax-settings",
+      "discount-settings",
+      "service-charge-settings",
+      "notification-settings",
+    ],
+  };
+
+  Object.entries(structure).forEach(([domain, features]) => {
+    features.forEach((feature) => {
+      const dir = path.join(settingsBase, domain, feature);
+      ensureDir(dir);
+
+      // create empty placeholder files
+      ["model", "service", "controller", "router"].forEach((type) => {
+        const file = path.join(dir, `${feature}.${type}.js`);
+        if (!fs.existsSync(file)) {
+          fs.writeFileSync(
+            file,
+            `// ${feature} ${type} - placeholder\n`
+          );
+        }
+      });
+    });
+  });
+
+  console.log("⚙️ Settings structure created");
 }
 
-// run
-generateStructure(modelsDir);
+// ===== RUN =====
+
+function run() {
+  console.log("🚀 Starting restructuring...\n");
+
+  Object.entries(SOURCE_FOLDERS).forEach(([type, folder]) => {
+    processFolder(type, folder);
+  });
+
+  createSettingsStructure();
+
+  console.log("\n🎉 Done restructuring!");
+}
+
+run();

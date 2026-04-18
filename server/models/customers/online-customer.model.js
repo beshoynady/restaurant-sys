@@ -233,6 +233,7 @@ const onlineCustomerSchema = new mongoose.Schema(
 
     verifiedAt: Date,
 
+    // For account recovery and session management
     refreshToken: {
       type: String,
       select: false,
@@ -243,18 +244,7 @@ const onlineCustomerSchema = new mongoose.Schema(
       default: true,
     },
 
-    /* =====================================================
-       🔹 Soft Delete
-    ===================================================== */
-    isDeleted: {
-      type: Boolean,
-      default: false,
-      index: true,
-    },
-
-    deletedAt: Date,
-    deletedBy: { type: ObjectId, ref: "UserAccount" },
-
+    // For password reset functionality
     changePasswordToken: String,
     changePasswordExpires: Date,
 
@@ -266,6 +256,17 @@ const onlineCustomerSchema = new mongoose.Schema(
     },
 
     lockUntil: Date,
+    /* =====================================================
+       🔹 Soft Delete
+    ===================================================== */
+    isDeleted: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+
+    deletedAt: Date,
+    deletedBy: { type: ObjectId, ref: "UserAccount" },
   },
   {
     timestamps: true,

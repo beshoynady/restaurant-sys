@@ -2,8 +2,10 @@
 
 import express from "express";
 import onlineCustomerController from "../../controllers/customers/online-customer.controller.js";
+import authenticateCustomer from "../../middlewares/authenticate-customer.js";
 import { authenticateToken } from "../../middlewares/authenticate.js";
 import validate from "../../middlewares/validate.js";
+import authorize from "../../middlewares/authorize.js";
 
 import {
   createOnlineCustomerSchema,
@@ -41,8 +43,16 @@ router.route("/")
     onlineCustomerController.getAll
   );
 
-router.route("/:id")
+router.route("customer/:id")
   .get(
+    authenticateCustomer,
+    customerConfig,
+    validate(paramsOnlineCustomerSchema),
+    onlineCustomerController.getOne
+  )
+  router.route("admin/:id")
+
+.get(
     authenticateToken,
     customerConfig,
     validate(paramsOnlineCustomerSchema),

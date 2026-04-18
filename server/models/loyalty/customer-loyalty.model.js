@@ -36,10 +36,15 @@ const customerLoyaltySchema = new mongoose.Schema(
     totalEarned: { type: Number, default: 0 },
     totalRedeemed: { type: Number, default: 0 },
 
+    isSystemRole: {
+      type: Boolean,
+      default: false,
+    },
+
     createdBy: {
       type: ObjectId,
       ref: "UserAccount",
-      required: true,
+      default: null,
     },
 
     updatedBy: {
