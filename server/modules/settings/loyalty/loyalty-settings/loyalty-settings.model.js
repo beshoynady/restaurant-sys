@@ -1,0 +1,1 @@
+// loyalty-settings model - placeholder

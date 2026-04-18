@@ -1,0 +1,1 @@
+// inventory-settings router - placeholder

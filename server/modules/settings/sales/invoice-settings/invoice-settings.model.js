@@ -1,0 +1,1 @@
+// invoice-settings model - placeholder

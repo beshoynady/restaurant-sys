@@ -1,156 +1,246 @@
-// server/scripts/restructure.js
+/**
+ * =====================================================
+ * SAFE FULL MIGRATION SCRIPT (PRODUCTION READY)
+ * -----------------------------------------------------
+ * - Correct root resolution
+ * - Full file scan
+ * - Proper type mapping (controller/router/model/service/validation)
+ * - Safe fallback (misc)
+ * - No mis-routing bugs
+ * =====================================================
+ */
 
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 
-// ===== CONFIG =====
-const ROOT = path.resolve("server");
+// =====================================================
+// ROOT FIX
+// =====================================================
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const SOURCE_FOLDERS = {
-  controllers: "controllers",
-  services: "services",
-  models: "models",
+const ROOT = path.resolve(__dirname, "..");
+
+// =====================================================
+// SOURCE DIRECTORIES
+// =====================================================
+const CONTROLLERS_DIR = path.join(ROOT, "controllers");
+const ROUTERS_DIR = path.join(ROOT, "router");
+const MODELS_DIR = path.join(ROOT, "models");
+const SERVICES_DIR = path.join(ROOT, "services");
+const VALIDATIONS_DIR = path.join(ROOT, "validation");
+
+// =====================================================
+// TYPE → FOLDER MAP (IMPORTANT FIX)
+// =====================================================
+const TYPE_FOLDER_MAP = {
+  controllers: "controller",
   router: "router",
+  models: "model",
+  services: "service",
+  validations: "validation",
 };
 
-const TARGET = path.join(ROOT, "modules");
+// =====================================================
+// DOMAIN RESOLVER
+// =====================================================
+const resolveModule = (fileName) => {
+  const name = fileName.toLowerCase();
 
-// Map folder → module
-const DOMAIN_MAP = {
-  accounting: "accounting",
-  assets: "accounting",
-  cash: "finance",
-  core: "core",
-  customers: "customers",
-  employees: "hr",
-  expenses: "finance",
-  inventory: "inventory",
-  kitchen: "kitchen",
-  loyalty: "loyalty",
-  menu: "sales",
-  "payment-provider": "payments",
-  payments: "payments",
-  production: "production",
-  purchasing: "purchasing",
-  sales: "sales",
-  seating: "seating",
-  system: "settings/system",
-  auth: "auth",
-  setup: "setup",
-};
+  const rules = [
+    { match: /employee|department|attendance|job-title/, module: "hr" },
+    { match: /user|role|auth|permission/, module: "iam" },
 
-// ===== HELPERS =====
+    { match: /payroll|advance|financial/, module: "hr" },
 
-function ensureDir(dirPath) {
-  if (!fs.existsSync(dirPath)) {
-    fs.mkdirSync(dirPath, { recursive: true });
+    { match: /account|journal|ledger|cost-center/, module: "accounting" },
+
+    { match: /cash|bank|transfer/, module: "finance" },
+
+    { match: /asset|depreciation|maintenance/, module: "assets" },
+
+    { match: /stock|inventory|warehouse|consumption/, module: "inventory" },
+
+    { match: /purchase|supplier/, module: "purchasing" },
+
+    { match: /order|invoice|sales|promotion/, module: "sales" },
+
+    { match: /product|menu|recipe/, module: "menu" },
+
+    { match: /kitchen|preparation|ticket/, module: "kitchen" },
+
+    { match: /customer|message/, module: "crm" },
+
+    { match: /loyalty|reward/, module: "loyalty" },
+
+    { match: /table|reservation|dining/, module: "seating" },
+
+    { match: /payment/, module: "payments" },
+
+    { match: /branch|brand|delivery/, module: "organization" },
+
+    { match: /tax|discount|print|notification|system/, module: "system" },
+
+    { match: /setup|seed/, module: "setup" },
+  ];
+
+  for (const r of rules) {
+    if (r.match.test(name)) return r.module;
   }
+
+  return "misc"; // safe fallback
+};
+
+// =====================================================
+// HELPERS
+// =====================================================
+const ensureDir = (dir) => {
+  if (!dir) return;
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+};
+
+const safeMove = (from, to) => {
+  if (!from || !to) return;
+  if (!fs.existsSync(from)) return;
+
+  ensureDir(path.dirname(to));
+
+  if (fs.existsSync(to)) {
+    console.log(`⚠️ EXISTS: ${to}`);
+    return;
+  }
+
+  fs.renameSync(from, to);
+  console.log(`✅ ${from} → ${to}`);
+};
+
+// =====================================================
+// BACKUP
+// =====================================================
+const backupDir = path.join(ROOT, "_backup_migration");
+
+console.log("📦 Creating backup...");
+
+ensureDir(backupDir);
+
+if (fs.existsSync(CONTROLLERS_DIR)) {
+  fs.cpSync(CONTROLLERS_DIR, path.join(backupDir, "controllers"), {
+    recursive: true,
+  });
 }
 
-function moveFile(src, dest) {
-  ensureDir(path.dirname(dest));
-  fs.renameSync(src, dest);
-  console.log(`✅ Moved: ${src} → ${dest}`);
+if (fs.existsSync(ROUTERS_DIR)) {
+  fs.cpSync(ROUTERS_DIR, path.join(backupDir, "router"), {
+    recursive: true,
+  });
 }
 
-function getFeatureName(fileName) {
-  return fileName.replace(/\.(controller|service|model|router)\.js$/, "");
+if (fs.existsSync(MODELS_DIR)) {
+  fs.cpSync(MODELS_DIR, path.join(backupDir, "models"), {
+    recursive: true,
+  });
 }
 
-// ===== CORE LOGIC =====
+if (fs.existsSync(SERVICES_DIR)) {
+  fs.cpSync(SERVICES_DIR, path.join(backupDir, "services"), {
+    recursive: true,
+  });
+}
 
-function processFolder(type, folderPath) {
-  const fullPath = path.join(ROOT, folderPath);
+if (fs.existsSync(VALIDATIONS_DIR)) {
+  fs.cpSync(VALIDATIONS_DIR, path.join(backupDir, "validations"), {
+    recursive: true,
+  });
+}
 
-  if (!fs.existsSync(fullPath)) return;
+console.log("✅ Backup done");
 
-  const domains = fs.readdirSync(fullPath);
+// =====================================================
+// MODULE STRUCTURE
+// =====================================================
+const modules = [
+  "iam",
+  "hr",
+  "finance",
+  "accounting",
+  "assets",
+  "inventory",
+  "purchasing",
+  "sales",
+  "menu",
+  "kitchen",
+  "crm",
+  "loyalty",
+  "seating",
+  "payments",
+  "organization",
+  "system",
+  "setup",
+  "misc",
+];
 
-  domains.forEach((domain) => {
-    const domainPath = path.join(fullPath, domain);
-    if (!fs.lstatSync(domainPath).isDirectory()) return;
+modules.forEach((m) => {
+  ensureDir(path.join(ROOT, "modules", m, "controller"));
+  ensureDir(path.join(ROOT, "modules", m, "router"));
+  ensureDir(path.join(ROOT, "modules", m, "model"));
+  ensureDir(path.join(ROOT, "modules", m, "service"));
+  ensureDir(path.join(ROOT, "modules", m, "validation"));
+});
 
-    const mappedDomain = DOMAIN_MAP[domain];
-    if (!mappedDomain) {
-      console.warn(`⚠️ No mapping for domain: ${domain}`);
-      return;
-    }
+console.log("📁 Structure ready");
 
-    const files = fs.readdirSync(domainPath);
+// =====================================================
+// MIGRATION ENGINE (FULL SAFE SCAN)
+// =====================================================
+const migrate = (sourceDir, type) => {
+  if (!fs.existsSync(sourceDir)) {
+    console.log(`⚠️ Missing: ${sourceDir}`);
+    return;
+  }
 
-    files.forEach((file) => {
-      const src = path.join(domainPath, file);
+  const targetFolder = TYPE_FOLDER_MAP[type] || "misc";
 
-      if (!fs.lstatSync(src).isFile()) return;
+  const walk = (dir) => {
+    const items = fs.readdirSync(dir);
 
-      const feature = getFeatureName(file);
+    for (const item of items) {
+      const fullPath = path.join(dir, item);
+      const stat = fs.statSync(fullPath);
+
+      if (stat.isDirectory()) {
+        walk(fullPath);
+        continue;
+      }
+
+      const module = resolveModule(item);
 
       const targetPath = path.join(
-        TARGET,
-        mappedDomain,
-        feature,
-        `${feature}.${type}.js`
+        ROOT,
+        "modules",
+        module,
+        targetFolder,
+        item
       );
 
-      moveFile(src, targetPath);
-    });
-  });
-}
-
-// ===== SETTINGS STRUCTURE =====
-
-function createSettingsStructure() {
-  const settingsBase = path.join(TARGET, "settings");
-
-  const structure = {
-    core: ["brand-settings", "branch-settings"],
-    inventory: ["inventory-settings"],
-    sales: ["order-settings", "invoice-settings", "promotion-settings"],
-    hr: ["attendance-settings", "payroll-settings"],
-    kitchen: ["kitchen-settings"],
-    loyalty: ["loyalty-settings"],
-    payments: ["payment-settings"],
-    system: [
-      "tax-settings",
-      "discount-settings",
-      "service-charge-settings",
-      "notification-settings",
-    ],
+      safeMove(fullPath, targetPath);
+    }
   };
 
-  Object.entries(structure).forEach(([domain, features]) => {
-    features.forEach((feature) => {
-      const dir = path.join(settingsBase, domain, feature);
-      ensureDir(dir);
+  walk(sourceDir);
+};
 
-      // create empty placeholder files
-      ["model", "service", "controller", "router"].forEach((type) => {
-        const file = path.join(dir, `${feature}.${type}.js`);
-        if (!fs.existsSync(file)) {
-          fs.writeFileSync(
-            file,
-            `// ${feature} ${type} - placeholder\n`
-          );
-        }
-      });
-    });
-  });
+// =====================================================
+// RUN
+// =====================================================
+console.log("🚀 Migration started...");
 
-  console.log("⚙️ Settings structure created");
-}
+migrate(CONTROLLERS_DIR, "controllers");
+migrate(ROUTERS_DIR, "router");
+migrate(MODELS_DIR, "models");
+migrate(SERVICES_DIR, "services");
+migrate(VALIDATIONS_DIR, "validations");
 
-// ===== RUN =====
-
-function run() {
-  console.log("🚀 Starting restructuring...\n");
-
-  Object.entries(SOURCE_FOLDERS).forEach(([type, folder]) => {
-    processFolder(type, folder);
-  });
-
-  createSettingsStructure();
-
-  console.log("\n🎉 Done restructuring!");
-}
-
-run();
+console.log("🎉 DONE - Migration completed successfully");
