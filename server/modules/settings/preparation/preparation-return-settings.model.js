@@ -10,7 +10,7 @@ const PreparationReturnSettingsSchema = new Schema(
     preparationSection: {
       type: ObjectId,
       ref: "PreparationSection",
-      default: null, // null = default لكل الأقسام
+      default: null, // 
     },
 
     /** Allowed decisions */

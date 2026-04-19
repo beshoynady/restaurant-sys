@@ -1,1 +1,0 @@
-// kitchen-settings model - placeholder
