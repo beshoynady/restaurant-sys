@@ -1,14 +1,14 @@
 import express from "express";
 import cashTransferController from "./cash-transfer.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createCashTransferSchema, 
   updateCashTransferSchema, 
   paramsCashTransferSchema, 
   paramsCashTransferIdsSchema,
   queryCashTransferSchema 
-} from "../../validation/cash/cash-transfer.validation.js";
+} from "./cash-transfer.validation.js";
 
 const router = express.Router();
 

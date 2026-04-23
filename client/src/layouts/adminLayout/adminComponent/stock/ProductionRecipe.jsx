@@ -8,7 +8,7 @@ import React, {
 import axios from "axios";
 import { AppContext } from "../../../../context/appContext";
 import { toast } from "react-toastify";
-import "../orders/Orders.css";
+import "./orders/Orders.css";
 
 const ProductionRecipe = () => {
   const {

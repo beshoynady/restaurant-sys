@@ -1,5 +1,5 @@
-import AssetTransactionsModel from "../../models/assets/asset-transactions.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import AssetTransactionsModel from "./asset-transactions.model.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for asset-transactions model
 const assetTransactionsService = new AdvancedService(AssetTransactionsModel, {

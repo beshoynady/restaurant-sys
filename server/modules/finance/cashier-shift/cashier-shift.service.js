@@ -1,5 +1,5 @@
 import CashierShiftModel from "./cashier-shift.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for cashier-shift model
 const cashierShiftService = new AdvancedService(CashierShiftModel, {

@@ -1,9 +1,9 @@
 // services/customers/online-customer.service.js
 
-import AdvancedService from "../../utils/AdvancedService.js";
-import OnlineCustomerModel from "../../models/customers/online-customer.model.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
+import OnlineCustomerModel from "./online-customer.model.js";
 import bcrypt from "bcryptjs";
-import throwError from "../../utils/throwError.js";
+import throwError from "../../../utils/throwError.js";
 
 /**
  * OnlineCustomerService

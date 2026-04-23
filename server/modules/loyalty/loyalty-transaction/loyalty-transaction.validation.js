@@ -4,7 +4,7 @@ import {
   paramsSchema,
   paramsIdsSchema,
   querySchema,
-} from "../../utils/joiFactory.js";
+} from "../../../utils/joiFactory.js";
 
 /* =========================
    🔹 Params

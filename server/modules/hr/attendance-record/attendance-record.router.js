@@ -1,14 +1,14 @@
 import express from "express";
 import attendanceRecordController from "./attendance-record.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createAttendanceRecordSchema, 
   updateAttendanceRecordSchema, 
   paramsAttendanceRecordSchema, 
   paramsAttendanceRecordIdsSchema,
   queryAttendanceRecordSchema 
-} from "../../validation/employees/attendance-record.validation.js";
+} from "./attendance-record.validation.js";
 
 const router = express.Router();
 

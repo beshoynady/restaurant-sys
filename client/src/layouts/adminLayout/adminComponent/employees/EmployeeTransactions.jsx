@@ -4,7 +4,7 @@ import { AppContext } from "../../../../context/appContext";
 import { toast } from "react-toastify";
 import * as XLSX from "xlsx";
 import { useReactToPrint } from "react-to-print";
-import "../orders/Orders.css";
+import "./orders/Orders.css";
 
 const EmployeeTransactions = () => {
   const {

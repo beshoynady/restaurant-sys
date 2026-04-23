@@ -1,14 +1,14 @@
 import express from "express";
 import accountBalanceController from "./account-balance.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createAccountBalanceSchema, 
   updateAccountBalanceSchema, 
   paramsAccountBalanceSchema, 
   paramsAccountBalanceIdsSchema,
   queryAccountBalanceSchema 
-} from "../../validation/accounting/account-balance.validation.js";
+} from "./account-balance.validation.js";
 
 const router = express.Router();
 

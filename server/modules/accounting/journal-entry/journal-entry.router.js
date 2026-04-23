@@ -1,14 +1,14 @@
 import express from "express";
 import journalEntryController from "./journal-entry.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createJournalEntrySchema, 
   updateJournalEntrySchema, 
   paramsJournalEntrySchema, 
   paramsJournalEntryIdsSchema,
   queryJournalEntrySchema 
-} from "../../validation/accounting/journal-entry.validation.js";
+} from "./journal-entry.validation.js";
 
 const router = express.Router();
 

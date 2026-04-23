@@ -1,4 +1,4 @@
-import BaseController from "../../utils/BaseController.js";
+import BaseController from "../../../utils/BaseController.js";
 import roleService from "./role.service.js";
 
 class RoleController extends BaseController {

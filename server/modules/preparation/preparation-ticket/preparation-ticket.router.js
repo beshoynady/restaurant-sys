@@ -1,14 +1,14 @@
 import express from "express";
 import preparationTicketController from "./kitchen/preparation-ticket.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createPreparationTicketSchema, 
   updatePreparationTicketSchema, 
   paramsPreparationTicketSchema, 
   paramsPreparationTicketIdsSchema,
   queryPreparationTicketSchema 
-} from "../../validation/kitchen/preparation-ticket.validation.js";
+} from "./preparation-ticket.validation.js";
 
 const router = express.Router();
 

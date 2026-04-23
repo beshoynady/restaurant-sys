@@ -1,5 +1,5 @@
-import BaseController from "../../utils/BaseController.js";
-import assetCategoryService from "../../services/assets/asset-category.service.js";
+import BaseController from "../../../utils/BaseController.js";
+import assetCategoryService from "./asset-category.service.js";
 
 class AssetCategoryController extends BaseController {
   constructor() {

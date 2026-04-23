@@ -1,4 +1,4 @@
-import PaymentProviderModel from "../../models/payment-provider/payment-provider.model.js";
+import PaymentProviderModel from "./payment-provider.model.js";
 
 class PaymentProviderService {
 

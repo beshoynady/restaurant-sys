@@ -1,14 +1,14 @@
 import express from "express";
 import messageController from "./message.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createMessageSchema, 
   updateMessageSchema, 
   paramsMessageSchema, 
   paramsMessageIdsSchema,
   queryMessageSchema 
-} from "../../validation/customers/message.validation.js";
+} from "./message.validation.js";
 
 const router = express.Router();
 

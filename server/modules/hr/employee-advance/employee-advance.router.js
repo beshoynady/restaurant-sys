@@ -1,14 +1,14 @@
 import express from "express";
 import employeeAdvanceController from "./employee-advance.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createEmployeeAdvanceSchema, 
   updateEmployeeAdvanceSchema, 
   paramsEmployeeAdvanceSchema, 
   paramsEmployeeAdvanceIdsSchema,
   queryEmployeeAdvanceSchema 
-} from "../../validation/employees/employee-advance.validation.js";
+} from "./employee-advance.validation.js";
 
 const router = express.Router();
 

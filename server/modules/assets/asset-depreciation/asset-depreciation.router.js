@@ -1,14 +1,14 @@
 import express from "express";
 import assetDepreciationController from "./asset-depreciation.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createAssetDepreciationSchema, 
   updateAssetDepreciationSchema, 
   paramsAssetDepreciationSchema, 
   paramsAssetDepreciationIdsSchema,
   queryAssetDepreciationSchema 
-} from "../../validation/assets/asset-depreciation.validation.js";
+} from "./asset-depreciation.validation.js";
 
 const router = express.Router();
 

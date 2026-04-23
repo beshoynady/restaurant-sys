@@ -1,5 +1,5 @@
 import MenuCategoryModel from "./menu-category.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for menu-category model
 const menuCategoryService = new AdvancedService(MenuCategoryModel, {

@@ -1,5 +1,5 @@
 import JournalEntryModel from "./journal-entry.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for journal-entry model
 const journalEntryService = new AdvancedService(JournalEntryModel, {

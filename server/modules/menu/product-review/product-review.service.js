@@ -1,5 +1,5 @@
 import ProductReviewModel from "./product-review.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for product-review model
 const productReviewService = new AdvancedService(ProductReviewModel, {

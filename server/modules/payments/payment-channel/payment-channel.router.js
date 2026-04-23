@@ -1,14 +1,14 @@
 import express from "express";
 import paymentChannelController from "./payments/payment-channel.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createPaymentChannelSchema, 
   updatePaymentChannelSchema, 
   paramsPaymentChannelSchema, 
   paramsPaymentChannelIdsSchema,
   queryPaymentChannelSchema 
-} from "../../validation/payments/payment-channel.validation.js";
+} from "./payment-channel.validation.js";
 
 const router = express.Router();
 

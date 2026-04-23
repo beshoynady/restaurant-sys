@@ -3,9 +3,9 @@
 import express from "express";
 import LoyaltyTransactionController from "./loyalty/loyalty-transaction.controller.js";
 
-import authenticateToken from "../../middlewares/authenticate.js";
-import authorize from "../../middlewares/authorize.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import authorize from "../../../middlewares/authorize.js";
+import validate from "../../../middlewares/validate.js";
 
 import {
   earnPointsSchema,
@@ -13,7 +13,7 @@ import {
   adjustPointsSchema,
   queryLoyaltyTransactionSchema,
   paramsLoyaltyTransactionSchema,
-} from "../../validation/loyalty/loyalty-transaction.validation.js";
+} from "./loyalty-transaction.validation.js";
 
 const router = express.Router();
 

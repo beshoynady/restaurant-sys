@@ -1,5 +1,5 @@
 import StockTransferRequestModel from "./stock-transfer-request.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for stock-transfer-request model
 const stockTransferRequestService = new AdvancedService(StockTransferRequestModel, {

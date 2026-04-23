@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import throwError from "../../utils/throwError.js";
-import User from "./user-account.model.js";
+import throwError from "../../../utils/throwError.js";
+import onlineCustomerModel from "../online-customer/online-customer.model.js";
 
 const ACCESS_EXPIRE = "15m";
 const REFRESH_EXPIRE = "7d";
@@ -15,7 +15,7 @@ class AuthService {
       throw throwError("Identifier and password are required", 400);
     }
 
-    const user = await User.findOne({
+    const onlineCustomer = await onlineCustomerModel.findOne({
       brand: brandId,
       isDeleted: false,
       $or: [
@@ -28,20 +28,20 @@ class AuthService {
       .populate("role")
       .populate("employee");
 
-    if (!user) throw throwError("Invalid credentials", 401);
-    if (!user.isActive) throw throwError("User is inactive", 403);
+    if (!onlineCustomer) throw throwError("Invalid credentials", 401);
+    if (!onlineCustomer.isActive) throw throwError("User is inactive", 403);
 
-    const match = await bcrypt.compare(password, user.password);
+    const match = await bcrypt.compare(password, onlineCustomer.password);
     if (!match) throw throwError("Invalid credentials", 401);
 
-    user.lastLogin = new Date();
-    await user.save();
+    onlineCustomer.lastLogin = new Date();
+    await onlineCustomer.save();
 
-    const accessToken = this.generateAccessToken(user);
-    const refreshToken = this.generateRefreshToken(user);
+    const accessToken = this.generateAccessToken(onlineCustomer);
+    const refreshToken = this.generateRefreshToken(onlineCustomer);
 
     return {
-      user: this.sanitize(user),
+      user: this.sanitize(onlineCustomer),
       accessToken,
       refreshToken,
     };
@@ -57,7 +57,7 @@ class AuthService {
       throw throwError("Username & password required", 400);
     }
 
-    const exists = await User.findOne({
+    const exists = await onlineCustomerModel.findOne({
       brand: brandId,
       $or: [
         { username },
@@ -70,14 +70,14 @@ class AuthService {
 
     const hashed = await bcrypt.hash(password, 10);
 
-    const user = await User.create({
+    const onlineCustomer = await onlineCustomerModel.create({
       ...data,
       brand: brandId,
       password: hashed,
       createdBy,
     });
 
-    return this.sanitize(user);
+    return this.sanitize(onlineCustomer);
   }
 
   // =========================
@@ -92,38 +92,38 @@ class AuthService {
       throw throwError("Invalid refresh token", 403);
     }
 
-    const user = await User.findById(payload.id);
+    const onlineCustomer = await onlineCustomerModel.findById(payload.id);
 
-    if (!user || user.isDeleted) {
+    if (!onlineCustomer || onlineCustomer.isDeleted) {
       throw throwError("User not found", 404);
     }
 
     return {
-      accessToken: this.generateAccessToken(user),
+      accessToken: this.generateAccessToken(onlineCustomer),
     };
   }
 
   // =========================
   // 🔑 TOKENS
   // =========================
-  generateAccessToken(user) {
+  generateAccessToken(onlineCustomer) {
     return jwt.sign(
       {
-        id: user._id,
-        brand: user.brand.toString(),
-        branch: user.branch ? user.branch.toString() : null,
-        role: user.role.toString(),
+        id: onlineCustomer._id,
+        brand: onlineCustomer.brand.toString(),
+        branch: onlineCustomer.branch ? onlineCustomer.branch.toString() : null,
+        role: onlineCustomer.role.toString(),
       },
       process.env.JWT_SECRET,
       { expiresIn: ACCESS_EXPIRE }
     );
   }
 
-  generateRefreshToken(user) {
+  generateRefreshToken(onlineCustomer) {
     return jwt.sign(
       {
-        brand: user.brand.toString(),
-        id: user._id,
+        brand: onlineCustomer.brand.toString(),
+        id: onlineCustomer._id,
       },
       process.env.JWT_SECRET,
       { expiresIn: REFRESH_EXPIRE }
@@ -133,8 +133,8 @@ class AuthService {
   // =========================
   // 🧼 SANITIZE
   // =========================
-  sanitize(user) {
-    const obj = user.toObject();
+  sanitize(onlineCustomer) {
+    const obj = onlineCustomer.toObject();
     delete obj.password;
     delete obj.twoFactorSecret;
     return obj;

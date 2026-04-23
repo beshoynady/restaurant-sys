@@ -1,5 +1,5 @@
-import PreparationReturnModel from "../../models/kitchen/preparation-return.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import PreparationReturnModel from "./preparation-return.model.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for preparation-return model
 const preparationReturnService = new AdvancedService(PreparationReturnModel, {

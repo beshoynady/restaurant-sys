@@ -77,7 +77,7 @@ Key Features:
 ## 5. Example: Recording a Sale
 
 ```javascript
-const AccountingSettings = require("../../models/settings/accounting-settings.model");
+const AccountingSettings = require("./settings/accounting-settings.model");
 const JournalEntry = require("./journal-entry.model");
 
 async function recordSale(saleData, employeeId, branchId, brandId) {

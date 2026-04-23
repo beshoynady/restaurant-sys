@@ -1,5 +1,5 @@
-import BaseController from "../../utils/BaseController.js";
-import service from "../../services/loyalty/loyalty-transaction.service.js";
+import BaseController from "../../../utils/BaseController.js";
+import service from "./loyalty-transaction.service.js";
 
 class LoyaltyTransactionController extends BaseController {
   constructor() {

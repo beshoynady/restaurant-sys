@@ -1,6 +1,6 @@
-import CustomerLoyaltyModel from "../../models/loyalty/customer-loyalty.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
-import loyaltySettingsService from "./loyalty-settings.service.js";
+import CustomerLoyaltyModel from "./customer-loyalty.model.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
+import loyaltySettingsService from "../loyalty-settings/loyalty-settings.service.js";
 
 class CustomerLoyaltyService extends AdvancedService {
   constructor() {

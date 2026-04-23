@@ -1,5 +1,5 @@
 import OrderModel from "./order.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for order model
 const orderService = new AdvancedService(OrderModel, {

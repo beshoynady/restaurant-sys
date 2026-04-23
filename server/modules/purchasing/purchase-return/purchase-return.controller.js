@@ -1,4 +1,4 @@
-import BaseController from "../../utils/BaseController.js";
+import BaseController from "../../../utils/BaseController.js";
 import purchaseReturnService from "./purchase-return.service.js";
 
 class PurchaseReturnController extends BaseController {

@@ -1,4 +1,4 @@
-import BaseController from "../../utils/BaseController.js";
+import BaseController from "../../../utils/BaseController.js";
 import leaveRequestService from "./leave-request.service.js";
 
 class LeaveRequestController extends BaseController {

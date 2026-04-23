@@ -2,10 +2,10 @@
 
 import express from "express";
 import onlineCustomerController from "./online-customer.controller.js";
-import authenticateCustomer from "../../middlewares/authenticate-customer.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
-import authorize from "../../middlewares/authorize.js";
+import authenticateCustomer from "../../../middlewares/authenticate-customer.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
+import authorize from "../../../middlewares/authorize.js";
 
 import {
   createOnlineCustomerSchema,
@@ -13,7 +13,7 @@ import {
   paramsOnlineCustomerSchema,
   paramsOnlineCustomerIdsSchema,
   queryOnlineCustomerSchema,
-} from "../../validation/customers/online-customer.validation.js";
+} from "./online-customer.validation.js";
 
 const router = express.Router();
 

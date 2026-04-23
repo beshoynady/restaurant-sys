@@ -1,14 +1,14 @@
 import express from "express";
 import payrollController from "./payroll.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createPayrollSchema, 
   updatePayrollSchema, 
   paramsPayrollSchema, 
   paramsPayrollIdsSchema,
   queryPayrollSchema 
-} from "../../validation/employees/payroll.validation.js";
+} from "./payroll.validation.js";
 
 const router = express.Router();
 

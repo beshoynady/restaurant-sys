@@ -1,14 +1,14 @@
 import express from "express";
 import journalLineController from "./journal-line.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createJournalLineSchema, 
   updateJournalLineSchema, 
   paramsJournalLineSchema, 
   paramsJournalLineIdsSchema,
   queryJournalLineSchema 
-} from "../../validation/accounting/journal-line.validation.js";
+} from "./journal-line.validation.js";
 
 const router = express.Router();
 

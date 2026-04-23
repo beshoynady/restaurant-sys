@@ -1,14 +1,14 @@
 import express from "express";
 import costCenterController from "./cost-center.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createCostCenterSchema, 
   updateCostCenterSchema, 
   paramsCostCenterSchema, 
   paramsCostCenterIdsSchema,
   queryCostCenterSchema 
-} from "../../validation/accounting/cost-center.validation.js";
+} from "./cost-center.validation.js";
 
 const router = express.Router();
 

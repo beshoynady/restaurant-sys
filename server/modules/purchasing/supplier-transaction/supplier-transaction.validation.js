@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../../utils/joiFactory.js";
 import SupplierTransactionModel from "./supplier-transaction.model.js";
 
 /* =========================

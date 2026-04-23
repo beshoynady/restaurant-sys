@@ -1,14 +1,14 @@
 import express from "express";
 import cashRegisterController from "./cash-register.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createCashRegisterSchema, 
   updateCashRegisterSchema, 
   paramsCashRegisterSchema, 
   paramsCashRegisterIdsSchema,
   queryCashRegisterSchema 
-} from "../../validation/cash/cash-register.validation.js";
+} from "./cash-register.validation.js";
 
 const router = express.Router();
 

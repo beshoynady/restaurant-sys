@@ -7,7 +7,7 @@ import {
   
 } from "./production-recipe.controller.js";
 
-import { authenticateToken } from "../../middlewares/authenticate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
 
 
 

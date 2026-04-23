@@ -1,21 +1,18 @@
 // routes/loyalty/customer-loyalty.routes.js
 
 import express from "express";
-import CustomerLoyaltyController from "./loyalty/customer-loyalty.controller.js";
+import CustomerLoyaltyController from "./customer-loyalty.controller.js";
 
-import authenticateToken from "../../middlewares/authenticate.js";
-import { authenticateCustomerToken } from "../../middlewares/authenticate-customer.js";
-import authorize from "../../middlewares/authorize.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import authenticateCustomerToken from "../../../middlewares/authenticate-customer.js";
+import authorize from "../../../middlewares/authorize.js";
+import validate from "../../../middlewares/validate.js";
 
 import {
   createCustomerLoyaltySchema,
   paramsCustomerLoyaltySchema,
   queryCustomerLoyaltySchema,
-  addPointsSchema,
-  redeemPointsSchema,
-  adjustPointsSchema,
-} from "../../validation/loyalty/customer-loyalty.validation.js";
+} from "./customer-loyalty.validation.js";
 
 const router = express.Router();
 
@@ -50,28 +47,28 @@ router.get(
 /* ================= BUSINESS ================= */
 
 // Add points
-router.post(
-  "/admin/add-points",
-  authorize("loyalty_wallet_update"),
-  validate(addPointsSchema),
-  CustomerLoyaltyController.addPoints
-);
+// router.post(
+//   "/admin/add-points",
+//   authorize("loyalty_wallet_update"),
+//   validate(addPointsSchema),
+//   CustomerLoyaltyController.addPoints
+// );
 
-// Redeem
-router.post(
-  "/admin/redeem",
-  authorize("loyalty_wallet_update"),
-  validate(redeemPointsSchema),
-  CustomerLoyaltyController.redeemPoints
-);
+// // Redeem
+// router.post(
+//   "/admin/redeem",
+//   authorize("loyalty_wallet_update"),
+//   validate(redeemPointsSchema),
+//   CustomerLoyaltyController.redeemPoints
+// );
 
-// Adjust
-router.post(
-  "/admin/adjust",
-  authorize("loyalty_wallet_update"),
-  validate(adjustPointsSchema),
-  CustomerLoyaltyController.adjustPoints
-);
+// // Adjust
+// router.post(
+//   "/admin/adjust",
+//   authorize("loyalty_wallet_update"),
+//   validate(adjustPointsSchema),
+//   CustomerLoyaltyController.adjustPoints
+// );
 
 /* ================= CUSTOMER ================= */
 

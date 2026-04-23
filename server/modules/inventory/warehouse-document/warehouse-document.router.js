@@ -1,7 +1,7 @@
 import express from "express";
 import warehouseDocumentController from "./warehouse-document.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createWarehouseDocumentSchema, 
   updateWarehouseDocumentSchema, 

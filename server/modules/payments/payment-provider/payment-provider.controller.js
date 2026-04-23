@@ -1,5 +1,5 @@
-import BaseController from "../../utils/BaseController.js";
-import paymentProviderService from "../../services/paymentProvider/payment-provider.service.js";
+import BaseController from "../../../utils/BaseController.js";
+import paymentProviderService from "./payment-provider.service.js";
 
 class PaymentProviderController extends BaseController {
   constructor() {

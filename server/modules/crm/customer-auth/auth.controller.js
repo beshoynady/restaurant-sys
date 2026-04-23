@@ -1,4 +1,4 @@
-import asyncHandler from "../../middlewares/asyncHandler.js";
+import asyncHandler from "../../../utils/asyncHandler.js";
 import authService from "./auth.service.js";
 
 class AuthController {

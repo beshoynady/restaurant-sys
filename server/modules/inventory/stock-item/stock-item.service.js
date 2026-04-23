@@ -1,5 +1,5 @@
 import StockItemModel from "./stock-item.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for stock-item model
 const stockItemService = new AdvancedService(StockItemModel, {

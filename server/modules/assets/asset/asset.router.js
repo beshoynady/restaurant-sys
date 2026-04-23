@@ -1,14 +1,14 @@
 import express from "express";
 import assetController from "./asset.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createAssetSchema, 
   updateAssetSchema, 
   paramsAssetSchema, 
   paramsAssetIdsSchema,
   queryAssetSchema 
-} from "../../validation/assets/asset.validation.js";
+} from "./asset.validation.js";
 
 const router = express.Router();
 

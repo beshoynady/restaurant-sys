@@ -1,5 +1,5 @@
 import InvoiceModel from "./invoice.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for invoice model
 const invoiceService = new AdvancedService(InvoiceModel, {

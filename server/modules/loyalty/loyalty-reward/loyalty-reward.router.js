@@ -3,10 +3,10 @@
 import express from "express";
 import LoyaltyRewardController from "./loyalty/loyalty-reward.controller.js";
 
-import authenticateToken from "../../middlewares/authenticate.js";
-import { authenticateCustomerToken } from "../../middlewares/authenticate-customer.js";
-import authorize from "../../middlewares/authorize.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import { authenticateCustomerToken } from "../../../middlewares/authenticate-customer.js";
+import authorize from "../../../middlewares/authorize.js";
+import validate from "../../../middlewares/validate.js";
 
 import {
   createLoyaltyRewardSchema,
@@ -14,7 +14,7 @@ import {
   paramsLoyaltyRewardSchema,
   paramsLoyaltyRewardIdsSchema,
   queryLoyaltyRewardSchema,
-} from "../../validation/loyalty/loyalty-reward.validation.js";
+} from "./loyalty-reward.validation.js";
 
 const router = express.Router();
 

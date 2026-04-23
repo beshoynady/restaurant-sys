@@ -1,7 +1,7 @@
 import express from "express";
 import supplierTransactionController from "./supplier-transaction.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createSupplierTransactionSchema, 
   updateSupplierTransactionSchema, 

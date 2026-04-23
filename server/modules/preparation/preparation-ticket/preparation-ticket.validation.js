@@ -1,6 +1,6 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
-import PreparationTicketModel from "../../models/kitchen/preparation-ticket.model.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../../utils/joiFactory.js";
+import PreparationTicketModel from "./preparation-ticket.model.js";
 
 /* =========================
    Create Schema

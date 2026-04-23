@@ -1,5 +1,5 @@
 import JobTitleModel from "./job-title.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for job-title model
 const jobTitleService = new AdvancedService(JobTitleModel, {

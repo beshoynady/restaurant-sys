@@ -1,8 +1,8 @@
 // controllers/core/delivery-area.controller.js
 
-import BaseController from "../../utils/BaseController.js";
+import BaseController from "../../../utils/BaseController.js";
 import deliveryAreaService from "./delivery-area.service.js";
-import asyncHandler from "../../utils/asyncHandler.js";
+import asyncHandler from "../../../utils/asyncHandler.js";
 
 /**
  * DeliveryAreaController

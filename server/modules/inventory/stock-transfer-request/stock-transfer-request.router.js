@@ -1,7 +1,7 @@
 import express from "express";
 import stockTransferRequestController from "./stock-transfer-request.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createStockTransferRequestSchema, 
   updateStockTransferRequestSchema, 

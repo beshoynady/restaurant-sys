@@ -1,14 +1,14 @@
 import express from "express";
 import assetPurchaseInvoiceController from "./asset-purchase-invoice.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createAssetPurchaseInvoiceSchema, 
   updateAssetPurchaseInvoiceSchema, 
   paramsAssetPurchaseInvoiceSchema, 
   paramsAssetPurchaseInvoiceIdsSchema,
   queryAssetPurchaseInvoiceSchema 
-} from "../../validation/assets/asset-purchase-invoice.validation.js";
+} from "./asset-purchase-invoice.validation.js";
 
 const router = express.Router();
 

@@ -1,14 +1,14 @@
 import express from "express";
 import jobTitleController from "./job-title.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createJobTitleSchema, 
   updateJobTitleSchema, 
   paramsJobTitleSchema, 
   paramsJobTitleIdsSchema,
   queryJobTitleSchema 
-} from "../../validation/employees/job-title.validation.js";
+} from "./job-title.validation.js";
 
 const router = express.Router();
 

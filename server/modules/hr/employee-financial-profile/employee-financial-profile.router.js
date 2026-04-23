@@ -1,14 +1,14 @@
 import express from "express";
 import employeeFinancialController from "./employee-financial.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createEmployeeFinancialSchema, 
   updateEmployeeFinancialSchema, 
   paramsEmployeeFinancialSchema, 
   paramsEmployeeFinancialIdsSchema,
   queryEmployeeFinancialSchema 
-} from "../../validation/employees/employee-financial.validation.js";
+} from "./employee-financial.validation.js";
 
 const router = express.Router();
 

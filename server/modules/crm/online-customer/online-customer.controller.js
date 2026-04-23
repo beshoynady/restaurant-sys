@@ -1,8 +1,8 @@
 // controllers/customers/online-customer.controller.js
 
-import BaseController from "../../utils/BaseController.js";
-import onlineCustomerService from "../../services/customers/online-customer.service.js";
-import asyncHandler from "../../utils/asyncHandler.js";
+import BaseController from "../../../utils/BaseController.js";
+import onlineCustomerService from "./online-customer.service.js";
+import asyncHandler from "../../../utils/asyncHandler.js";
 
 /**
  * OnlineCustomerController

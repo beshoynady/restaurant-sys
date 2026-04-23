@@ -1,5 +1,5 @@
 import PurchaseReturnModel from "./purchase-return.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for purchase-return model
 const purchaseReturnService = new AdvancedService(PurchaseReturnModel, {

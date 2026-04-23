@@ -1,9 +1,9 @@
 // services/core/branch.service.js
 
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 import BranchModel from "./branch.model.js";
-import throwError from "../../utils/throwError.js";
-import { generateUniqueSlug } from "../../utils/generateUniqueSlug.js";
+import throwError from "../../../utils/throwError.js";
+import { generateUniqueSlug } from "../../../utils/generateUniqueSlug.js";
 
 /**
  * BranchService

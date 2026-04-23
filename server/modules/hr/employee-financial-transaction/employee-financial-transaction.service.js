@@ -1,5 +1,5 @@
 import EmployeeFinancialTransactionModel from "./employee-financial-transaction.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for employee-financial-transaction model
 const employeeFinancialTransactionService = new AdvancedService(EmployeeFinancialTransactionModel, {

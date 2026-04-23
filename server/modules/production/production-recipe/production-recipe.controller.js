@@ -1,4 +1,4 @@
-import BaseController from "../../utils/BaseController.js";
+import BaseController from "../../../utils/BaseController.js";
 import productionRecipeService from "./production-recipe.service.js";
 
 class ProductionRecipeController extends BaseController {

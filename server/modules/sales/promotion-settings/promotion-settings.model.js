@@ -1,0 +1,1 @@
+// promotion-settings model - placeholder

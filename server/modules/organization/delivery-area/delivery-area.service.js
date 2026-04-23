@@ -1,8 +1,8 @@
 // services/core/delivery-area.service.js
 
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 import DeliveryAreaModel from "./delivery-area.model.js";
-import throwError from "../../utils/throwError.js";
+import throwError from "../../../utils/throwError.js";
 
 /**
  * DeliveryAreaService

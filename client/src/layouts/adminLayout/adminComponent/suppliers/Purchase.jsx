@@ -3,7 +3,7 @@ import axios from "axios";
 import { useReactToPrint } from "react-to-print";
 import { AppContext } from "../../../../context/appContext";
 import { toast } from "react-toastify";
-import "../orders/Orders.css";
+import "./orders/Orders.css";
 
 const Purchase = () => {
   const {

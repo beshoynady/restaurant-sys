@@ -1,14 +1,14 @@
 import express from "express";
 import departmentController from "./department.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createDepartmentSchema, 
   updateDepartmentSchema, 
   paramsDepartmentSchema, 
   paramsDepartmentIdsSchema,
   queryDepartmentSchema 
-} from "../../validation/employees/department.validation.js";
+} from "./department.validation.js";
 
 const router = express.Router();
 

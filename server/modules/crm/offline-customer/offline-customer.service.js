@@ -1,5 +1,5 @@
-import OfflineCustomerModel from "../../models/customers/offline-customer.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import OfflineCustomerModel from "./offline-customer.model.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for offline-customer model
 const offlineCustomerService = new AdvancedService(OfflineCustomerModel, {

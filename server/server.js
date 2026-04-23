@@ -10,16 +10,16 @@ import { initSocket } from "./socket/socket.js";
 import notFound from "./middlewares/notFound.js";
 import errorHandler from "./middlewares/errorHandler.js";
 
-import router from "./router/index.js";
+import routerV1 from "./router/v1/index.router.js";
 // Import database connection
-import connectdb from "./database/connectdb.js";
+import connectDB from "./database/connect-db.js";
 
 
 // Load environment variables
 dotenv.config();
 
 // Connect to MongoDB
-connectdb();
+connectDB();
 
 const app = express();
 const frontEnd = process.env.FRONT_END_URL;
@@ -80,12 +80,12 @@ const limiter = rateLimit({
   legacyHeaders: false,
   trustProxy: false,
 });
-app.use("/api", limiter);
+app.use("/api/v1", limiter);
 
 // -------------------
 // ROUTES
 // -------------------
-app.use("/api", router);
+app.use("/api/v1", routerV1);
 
 // -------------------
 // ERROR HANDLING

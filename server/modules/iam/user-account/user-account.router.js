@@ -1,14 +1,14 @@
 import express from "express";
 import userAccountController from "./user-account.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createUserAccountSchema, 
   updateUserAccountSchema, 
   paramsUserAccountSchema, 
   paramsUserAccountIdsSchema,
   queryUserAccountSchema 
-} from "../../validation/employees/user-account.validation.js";
+} from "./user-account.validation.js";
 
 const router = express.Router();
 

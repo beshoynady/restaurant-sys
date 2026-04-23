@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from "react";
 import axios from "axios";
 import { AppContext } from "../../../../context/appContext";
 import { toast, ToastContainer } from "react-toastify";
-import "../orders/Orders.css";
+import "./orders/Orders.css";
 
 const SectionConsumption = () => {
   const {

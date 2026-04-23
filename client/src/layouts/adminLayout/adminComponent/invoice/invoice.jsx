@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef } from "react";
 import { AppContext } from "../../../../context/appContext";
 import { useReactToPrint } from "react-to-print";
 
-import "../orders/Orders.css";
+import "./orders/Orders.css";
 
 const InvoiceComponent = ({ ModalId, orderData, showModal, setShowModal }) => {
   const {

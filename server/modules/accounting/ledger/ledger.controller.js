@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import JournalEntry from "./journal-entry.model.js";
-import Account from "./account.model.js";
-import asyncHandler from "../../utils/asyncHandler.js";
+import JournalEntry from "../journal-entry/journal-entry.model.js";
+import Account from "../account/account.model.js";
+import asyncHandler from "../../../utils/asyncHandler.js";
 
 /**
  * Get ledger for a specific account

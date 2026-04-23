@@ -1,5 +1,5 @@
 import WarehouseModel from "./warehouse.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for warehouse model
 const warehouseService = new AdvancedService(WarehouseModel, {

@@ -1,5 +1,5 @@
 import BrandModel from "./brand.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for brand model
 const brandService = new AdvancedService(BrandModel, {

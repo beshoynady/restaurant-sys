@@ -1,14 +1,14 @@
 import express from "express";
 import accountingSettingController from "./accounting-setting.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createAccountingSettingSchema, 
   updateAccountingSettingSchema, 
   paramsAccountingSettingSchema, 
   paramsAccountingSettingIdsSchema,
   queryAccountingSettingSchema 
-} from "../../validation/accounting/accounting-setting.validation.js";
+} from "./accounting-setting.validation.js";
 
 const router = express.Router();
 

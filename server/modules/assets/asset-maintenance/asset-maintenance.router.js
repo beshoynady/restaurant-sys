@@ -1,14 +1,14 @@
 import express from "express";
 import assetMaintenanceController from "./asset-maintenance.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createAssetMaintenanceSchema, 
   updateAssetMaintenanceSchema, 
   paramsAssetMaintenanceSchema, 
   paramsAssetMaintenanceIdsSchema,
   queryAssetMaintenanceSchema 
-} from "../../validation/assets/asset-maintenance.validation.js";
+} from "./asset-maintenance.validation.js";
 
 const router = express.Router();
 

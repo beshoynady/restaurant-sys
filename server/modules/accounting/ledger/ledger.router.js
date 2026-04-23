@@ -1,14 +1,14 @@
 import express from "express";
 import ledgerController from "./ledger.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 // import { 
 //   createLedgerSchema, 
 //   updateLedgerSchema, 
 //   paramsLedgerSchema, 
 //   paramsLedgerIdsSchema,
 //   queryLedgerSchema 
-// } from "../../validation/accounting/ledger.validation.js";
+// } from "./ledger.validation.js";
 
 const router = express.Router();
 

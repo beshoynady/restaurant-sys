@@ -1,14 +1,14 @@
 import express from "express";
 import assetCategoryController from "./asset-category.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createAssetCategorySchema, 
   updateAssetCategorySchema, 
   paramsAssetCategorySchema, 
   paramsAssetCategoryIdsSchema,
   queryAssetCategorySchema 
-} from "../../validation/assets/asset-category.validation.js";
+} from "./asset-category.validation.js";
 
 const router = express.Router();
 

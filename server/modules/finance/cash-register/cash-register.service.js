@@ -1,5 +1,5 @@
-import CashRegisterModel from "../../models/cash/cash-register.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import CashRegisterModel from "./cash-register.model.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for cash-register model
 const cashRegisterService = new AdvancedService(CashRegisterModel, {

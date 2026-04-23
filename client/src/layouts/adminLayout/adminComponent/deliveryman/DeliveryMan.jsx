@@ -3,7 +3,7 @@ import { AppContext } from "../../../../context/appContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useReactToPrint } from "react-to-print";
-import InvoiceComponent from "../invoice/invoice";
+import InvoiceComponent from "./invoice/invoice";
 
 const DeliveryMan = () => {
   const {

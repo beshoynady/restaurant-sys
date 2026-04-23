@@ -1,5 +1,5 @@
-import BaseController from "../../utils/BaseController.js";
-import messageService from "../../services/customers/message.service.js";
+import BaseController from "../../../utils/BaseController.js";
+import messageService from "./message.service.js";
 
 class MessageController extends BaseController {
   constructor() {

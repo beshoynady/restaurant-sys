@@ -1,6 +1,6 @@
-/server/middlewares/authenticate.js
+//server/middlewares/authenticate.js
 import jwt from "jsonwebtoken";
-import User from "../models/employees/user-account.model.js";
+import User from "../modules/iam/user-account/user-account.model.js";
 import throwError from "../utils/throwError.js";
 
 const authenticateToken = async (req, res, next) => {

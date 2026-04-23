@@ -1,14 +1,14 @@
 import express from "express";
 import offlineCustomerController from "./offline-customer.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createOfflineCustomerSchema, 
   updateOfflineCustomerSchema, 
   paramsOfflineCustomerSchema, 
   paramsOfflineCustomerIdsSchema,
   queryOfflineCustomerSchema 
-} from "../../validation/customers/offline-customer.validation.js";
+} from "./offline-customer.validation.js";
 
 const router = express.Router();
 

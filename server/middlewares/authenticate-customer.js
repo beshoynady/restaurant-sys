@@ -1,6 +1,6 @@
-/server/middlewares/authenticate-customer.js
+//server/middlewares/authenticate-customer.js
 
-import OnlineCustomerModel from "../models/customers/online-customer.model.js";
+import OnlineCustomerModel from "../modules/crm/online-customer/online-customer.model.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import throwError from "../utils/throwError.js";
@@ -15,7 +15,7 @@ const refreshSecretKey = process.env.JWT_REFRESH_SECRET;
  * 🔐 Authenticate Customer Access Token
  * ============================================
  */
-export const authenticateCustomerToken = async (req, res, next) => {
+const authenticateCustomerToken = async (req, res, next) => {
   try {
     const authHeader =
       req.headers.authorization || req.headers.Authorization;
@@ -56,3 +56,5 @@ export const authenticateCustomerToken = async (req, res, next) => {
     next(err);
   }
 };
+
+export default authenticateCustomerToken;

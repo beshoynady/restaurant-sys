@@ -1,5 +1,5 @@
 import SupplierTransactionModel from "./supplier-transaction.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for supplier-transaction model
 const supplierTransactionService = new AdvancedService(SupplierTransactionModel, {

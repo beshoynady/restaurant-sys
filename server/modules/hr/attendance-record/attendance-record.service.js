@@ -1,5 +1,5 @@
 import AttendanceRecordModel from "./attendance-record.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for attendance-record model
 const attendanceRecordService = new AdvancedService(AttendanceRecordModel, {

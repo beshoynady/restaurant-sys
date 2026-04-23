@@ -1,7 +1,7 @@
 import express from "express";
 import invoiceController from "./invoice.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createInvoiceSchema, 
   updateInvoiceSchema, 

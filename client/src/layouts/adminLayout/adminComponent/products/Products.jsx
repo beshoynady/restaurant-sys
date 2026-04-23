@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { AppContext } from "../../../../context/appContext";
-import "../orders/Orders.css";
+import "./orders/Orders.css";
 
 const Products = () => {
   const {

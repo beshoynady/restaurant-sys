@@ -1,7 +1,7 @@
 import express from "express";
 import orderController from "./order.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createOrderSchema, 
   updateOrderSchema, 

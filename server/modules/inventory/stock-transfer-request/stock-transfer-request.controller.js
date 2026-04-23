@@ -1,4 +1,4 @@
-import BaseController from "../../utils/BaseController.js";
+import BaseController from "../../../utils/BaseController.js";
 import stockTransferRequestService from "./stock-transfer-request.service.js";
 
 class StockTransferRequestController extends BaseController {

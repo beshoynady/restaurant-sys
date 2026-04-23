@@ -1,5 +1,5 @@
 import AccountingPeriodModel from "./accounting-period.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for accounting-period model
 const accountingPeriodService = new AdvancedService(AccountingPeriodModel, {

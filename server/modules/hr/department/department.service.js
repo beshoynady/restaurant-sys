@@ -1,5 +1,5 @@
 import DepartmentModel from "./department.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for department model
 const departmentService = new AdvancedService(DepartmentModel, {

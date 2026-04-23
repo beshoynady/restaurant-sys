@@ -6,7 +6,7 @@ import axios from "axios";
 
 import "./POS.css";
 import POSCard from "./POS-Card";
-import InvoiceComponent from "../invoice/invoice";
+import InvoiceComponent from "./invoice/invoice";
 
 const POS = () => {
   const {

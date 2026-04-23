@@ -1,14 +1,14 @@
 import express from "express";
 import leaveRequestController from "./leave-request.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createLeaveRequestSchema, 
   updateLeaveRequestSchema, 
   paramsLeaveRequestSchema, 
   paramsLeaveRequestIdsSchema,
   queryLeaveRequestSchema 
-} from "../../validation/employees/leave-request.validation.js";
+} from "./leave-request.validation.js";
 
 const router = express.Router();
 

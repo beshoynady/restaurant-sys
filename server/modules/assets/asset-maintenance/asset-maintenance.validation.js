@@ -1,6 +1,6 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../utils/joiFactory.js";
-import AssetMaintenanceModel from "../../models/assets/asset-maintenance.model.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../../utils/joiFactory.js";
+import AssetMaintenanceModel from "./asset-maintenance.model.js";
 
 /* =========================
    Create Schema

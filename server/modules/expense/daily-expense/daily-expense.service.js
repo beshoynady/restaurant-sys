@@ -1,5 +1,5 @@
-import DailyExpenseModel from "../../models/expenses/daily-expense.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import DailyExpenseModel from "./daily-expense.model.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for daily-expense model
 const dailyExpenseService = new AdvancedService(DailyExpenseModel, {

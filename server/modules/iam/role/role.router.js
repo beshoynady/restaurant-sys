@@ -1,14 +1,14 @@
 import express from "express";
 import roleController from "./role.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createRoleSchema, 
   updateRoleSchema, 
   paramsRoleSchema, 
   paramsRoleIdsSchema,
   queryRoleSchema 
-} from "../../validation/employees/role.validation.js";
+} from "./role.validation.js";
 
 const router = express.Router();
 

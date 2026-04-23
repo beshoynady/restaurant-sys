@@ -1,14 +1,14 @@
 import express from "express";
 import accountingPeriodController from "./accounting-period.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createAccountingPeriodSchema, 
   updateAccountingPeriodSchema, 
   paramsAccountingPeriodSchema, 
   paramsAccountingPeriodIdsSchema,
   queryAccountingPeriodSchema 
-} from "../../validation/accounting/accounting-period.validation.js";
+} from "./accounting-period.validation.js";
 
 const router = express.Router();
 

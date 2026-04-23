@@ -1,14 +1,14 @@
 import express from "express";
 import preparationSectionController from "./kitchen/preparation-section.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createPreparationSectionSchema, 
   updatePreparationSectionSchema, 
   paramsPreparationSectionSchema, 
   paramsPreparationSectionIdsSchema,
   queryPreparationSectionSchema 
-} from "../../validation/kitchen/preparation-section.validation.js";
+} from "./preparation-section.validation.js";
 
 const router = express.Router();
 

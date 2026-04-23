@@ -1,5 +1,5 @@
 import RoleModel from "./role.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for role model
 const roleService = new AdvancedService(RoleModel, {

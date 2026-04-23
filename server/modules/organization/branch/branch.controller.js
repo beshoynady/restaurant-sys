@@ -1,8 +1,8 @@
 // controllers/core/branch.controller.js
 
-import BaseController from "../../utils/BaseController.js";
+import BaseController from "../../../utils/BaseController.js";
 import branchService from "./branch.service.js";
-import asyncHandler from "../../utils/asyncHandler.js";
+import asyncHandler from "../../../utils/asyncHandler.js";
 
 /**
  * BranchController

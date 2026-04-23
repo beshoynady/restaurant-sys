@@ -1,5 +1,5 @@
 import EmployeeModel from "./employee.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for employee model
 const employeeService = new AdvancedService(EmployeeModel, {

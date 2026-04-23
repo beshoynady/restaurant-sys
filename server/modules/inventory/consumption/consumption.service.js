@@ -1,5 +1,5 @@
 import ConsumptionModel from "./consumption.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for consumption model
 const consumptionService = new AdvancedService(ConsumptionModel, {

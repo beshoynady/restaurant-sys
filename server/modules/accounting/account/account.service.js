@@ -1,5 +1,5 @@
 import AccountModel from "./account.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for account model
 const accountService = new AdvancedService(AccountModel, {

@@ -1,14 +1,14 @@
 import express from "express";
 import shiftController from "./shift.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createShiftSchema, 
   updateShiftSchema, 
   paramsShiftSchema, 
   paramsShiftIdsSchema,
   queryShiftSchema 
-} from "../../validation/employees/shift.validation.js";
+} from "./shift.validation.js";
 
 const router = express.Router();
 

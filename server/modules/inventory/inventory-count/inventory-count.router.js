@@ -1,7 +1,7 @@
 import express from "express";
 import inventoryCountController from "./inventory-count.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createInventoryCountSchema, 
   updateInventoryCountSchema, 

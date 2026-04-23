@@ -1,4 +1,4 @@
-import BaseController from "../../utils/BaseController.js";
+import BaseController from "../../../utils/BaseController.js";
 import jobTitleService from "./job-title.service.js";
 
 class JobTitleController extends BaseController {

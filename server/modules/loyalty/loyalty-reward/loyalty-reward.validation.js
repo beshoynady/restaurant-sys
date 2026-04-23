@@ -4,9 +4,9 @@ import {
   paramsSchema,
   paramsIdsSchema,
   querySchema,
-} from "../../utils/joiFactory.js";
+} from "../../../utils/joiFactory.js";
 
-import LoyaltyRewardModel from "../../models/loyalty/loyalty-reward.model.js";
+import LoyaltyRewardModel from "./loyalty-reward.model.js";
 
 /* =========================
    🔹 Create Schema

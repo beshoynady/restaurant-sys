@@ -1,5 +1,5 @@
 import ProductModel from "./product.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for product model
 const productService = new AdvancedService(ProductModel, {

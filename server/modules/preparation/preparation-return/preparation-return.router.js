@@ -1,14 +1,14 @@
 import express from "express";
 import preparationReturnController from "./kitchen/preparation-return.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createPreparationReturnSchema, 
   updatePreparationReturnSchema, 
   paramsPreparationReturnSchema, 
   paramsPreparationReturnIdsSchema,
   queryPreparationReturnSchema 
-} from "../../validation/kitchen/preparation-return.validation.js";
+} from "./preparation-return.validation.js";
 
 const router = express.Router();
 

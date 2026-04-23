@@ -1,14 +1,14 @@
 import express from "express";
 import dailyExpenseController from "./expenses/daily-expense.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createDailyExpenseSchema, 
   updateDailyExpenseSchema, 
   paramsDailyExpenseSchema, 
   paramsDailyExpenseIdsSchema,
   queryDailyExpenseSchema 
-} from "../../validation/expenses/daily-expense.validation.js";
+} from "./daily-expense.validation.js";
 
 const router = express.Router();
 

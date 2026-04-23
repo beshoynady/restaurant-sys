@@ -1,4 +1,4 @@
-/server/middlewares/authorize.js
+//server/middlewares/authorize.js
 
 import throwError from "../utils/throwError.js";
 

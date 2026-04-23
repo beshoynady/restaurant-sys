@@ -4,7 +4,7 @@ import axios from "axios";
 import io from "socket.io-client";
 import { toast } from "react-toastify";
 import { useReactToPrint } from "react-to-print";
-import InvoiceComponent from "../invoice/invoice";
+import InvoiceComponent from "./invoice/invoice";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCalendarCheck,

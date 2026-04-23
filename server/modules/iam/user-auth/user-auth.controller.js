@@ -1,5 +1,5 @@
-import userAccountModel from "./user-account.model.js";
-import asyncHandler from "../../utils/asyncHandler.js";
+import userAccountModel from "../user-account/user-account.model.js";
+import asyncHandler from "../../../utils/asyncHandler.js";
 import jwt from "jsonwebtoken";
 import joi from "joi";
 import dotenv from "dotenv";

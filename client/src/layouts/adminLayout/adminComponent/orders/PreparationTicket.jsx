@@ -4,7 +4,7 @@ import { AppContext } from "../../../../context/appContext";
 import { useReactToPrint } from "react-to-print";
 import { toast } from "react-toastify";
 import "./Orders.css";
-import InvoiceComponent from "../invoice/invoice";
+import InvoiceComponent from "./invoice/invoice";
 import department from "../products/department";
 
 const PreparationTicket = () => {

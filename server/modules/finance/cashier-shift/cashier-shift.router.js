@@ -1,14 +1,14 @@
 import express from "express";
 import cashierShiftController from "./cashier-shift.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createCashierShiftSchema, 
   updateCashierShiftSchema, 
   paramsCashierShiftSchema, 
   paramsCashierShiftIdsSchema,
   queryCashierShiftSchema 
-} from "../../validation/employees/cashier-shift.validation.js";
+} from "./cashier-shift.validation.js";
 
 const router = express.Router();
 

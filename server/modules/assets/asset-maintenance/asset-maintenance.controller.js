@@ -1,5 +1,5 @@
-import BaseController from "../../utils/BaseController.js";
-import assetMaintenanceService from "../../services/assets/asset-maintenance.service.js";
+import BaseController from "../../../utils/BaseController.js";
+import assetMaintenanceService from "./asset-maintenance.service.js";
 
 class AssetMaintenanceController extends BaseController {
   constructor() {

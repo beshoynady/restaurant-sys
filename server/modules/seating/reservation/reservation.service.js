@@ -1,5 +1,5 @@
 import ReservationModel from "./reservation.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for reservation model
 const reservationService = new AdvancedService(ReservationModel, {

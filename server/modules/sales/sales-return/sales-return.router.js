@@ -1,7 +1,7 @@
 import express from "express";
 import salesReturnController from "./sales-return.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createSalesReturnSchema, 
   updateSalesReturnSchema, 

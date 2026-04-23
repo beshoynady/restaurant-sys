@@ -1,14 +1,14 @@
 import express from "express";
 import expenseController from "./expenses/expense.controller.js";
-import { authenticateToken } from "../../middlewares/authenticate.js";
-import validate from "../../middlewares/validate.js";
+import authenticateToken from "../../../middlewares/authenticate.js";
+import validate from "../../../middlewares/validate.js";
 import { 
   createExpenseSchema, 
   updateExpenseSchema, 
   paramsExpenseSchema, 
   paramsExpenseIdsSchema,
   queryExpenseSchema 
-} from "../../validation/expenses/expense.validation.js";
+} from "./expense.validation.js";
 
 const router = express.Router();
 

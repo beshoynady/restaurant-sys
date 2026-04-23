@@ -1,5 +1,5 @@
 import DiningAreaModel from "./dining-area.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for dining-area model
 const diningAreaService = new AdvancedService(DiningAreaModel, {

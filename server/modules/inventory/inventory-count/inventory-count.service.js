@@ -1,5 +1,5 @@
 import InventoryCountModel from "./inventory-count.model.js";
-import AdvancedService from "../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/AdvancedService.js";
 
 // Initialize service for inventory-count model
 const inventoryCountService = new AdvancedService(InventoryCountModel, {
