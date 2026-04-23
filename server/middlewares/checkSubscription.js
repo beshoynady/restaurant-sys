@@ -1,5 +1,5 @@
-// import RestaurantModel from "../../models/core/brand.model.js";
-// import EmployeeModel from "../../models/employees/employee.model.js";
+// import RestaurantModel from "./brand.model.js";
+// import EmployeeModel from "./employee.model.js";
 
 // const checkSubscription = async (req, res, next) => {
 //   try {

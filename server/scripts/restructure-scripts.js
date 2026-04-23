@@ -1,246 +1,137 @@
-/**
- * =====================================================
- * SAFE FULL MIGRATION SCRIPT (PRODUCTION READY)
- * -----------------------------------------------------
- * - Correct root resolution
- * - Full file scan
- * - Proper type mapping (controller/router/model/service/validation)
- * - Safe fallback (misc)
- * - No mis-routing bugs
- * =====================================================
- */
-
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
 
-// =====================================================
-// ROOT FIX
-// =====================================================
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const ROOT = process.cwd();
 
-const ROOT = path.resolve(__dirname, "..");
+/**
+ * ================================
+ * CONFIG (عدل هنا لو حبيت)
+ * ================================
+ */
+const SOURCE_CANDIDATES = [
+  path.join(ROOT, "server/modules"),
+  path.join(ROOT, "server"),
+  path.join(ROOT, "server/_backup_migration"),
+];
 
-// =====================================================
-// SOURCE DIRECTORIES
-// =====================================================
-const CONTROLLERS_DIR = path.join(ROOT, "controllers");
-const ROUTERS_DIR = path.join(ROOT, "router");
-const MODELS_DIR = path.join(ROOT, "models");
-const SERVICES_DIR = path.join(ROOT, "services");
-const VALIDATIONS_DIR = path.join(ROOT, "validation");
+const TARGET_PATH = path.join(ROOT, "server/new-modules");
 
-// =====================================================
-// TYPE → FOLDER MAP (IMPORTANT FIX)
-// =====================================================
-const TYPE_FOLDER_MAP = {
-  controllers: "controller",
-  router: "router",
-  models: "model",
-  services: "service",
-  validations: "validation",
-};
+const LAYERS = ["controller", "service", "model", "router", "validation"];
 
-// =====================================================
-// DOMAIN RESOLVER
-// =====================================================
-const resolveModule = (fileName) => {
-  const name = fileName.toLowerCase();
+/**
+ * ================================
+ * HELPERS
+ * ================================
+ */
 
-  const rules = [
-    { match: /employee|department|attendance|job-title/, module: "hr" },
-    { match: /user|role|auth|permission/, module: "iam" },
-
-    { match: /payroll|advance|financial/, module: "hr" },
-
-    { match: /account|journal|ledger|cost-center/, module: "accounting" },
-
-    { match: /cash|bank|transfer/, module: "finance" },
-
-    { match: /asset|depreciation|maintenance/, module: "assets" },
-
-    { match: /stock|inventory|warehouse|consumption/, module: "inventory" },
-
-    { match: /purchase|supplier/, module: "purchasing" },
-
-    { match: /order|invoice|sales|promotion/, module: "sales" },
-
-    { match: /product|menu|recipe/, module: "menu" },
-
-    { match: /kitchen|preparation|ticket/, module: "kitchen" },
-
-    { match: /customer|message/, module: "crm" },
-
-    { match: /loyalty|reward/, module: "loyalty" },
-
-    { match: /table|reservation|dining/, module: "seating" },
-
-    { match: /payment/, module: "payments" },
-
-    { match: /branch|brand|delivery/, module: "organization" },
-
-    { match: /tax|discount|print|notification|system/, module: "system" },
-
-    { match: /setup|seed/, module: "setup" },
-  ];
-
-  for (const r of rules) {
-    if (r.match.test(name)) return r.module;
+const resolveSourcePath = () => {
+  for (const p of SOURCE_CANDIDATES) {
+    if (fs.existsSync(p)) {
+      console.log("📂 Using source:", p);
+      return p;
+    }
   }
-
-  return "misc"; // safe fallback
+  throw new Error("❌ No valid source path found");
 };
 
-// =====================================================
-// HELPERS
-// =====================================================
 const ensureDir = (dir) => {
-  if (!dir) return;
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 };
 
-const safeMove = (from, to) => {
-  if (!from || !to) return;
-  if (!fs.existsSync(from)) return;
-
-  ensureDir(path.dirname(to));
-
-  if (fs.existsSync(to)) {
-    console.log(`⚠️ EXISTS: ${to}`);
-    return;
-  }
-
-  fs.renameSync(from, to);
-  console.log(`✅ ${from} → ${to}`);
+const detectType = (file) => {
+  if (file.includes(".controller")) return "controller";
+  if (file.includes(".service")) return "service";
+  if (file.includes(".model")) return "model";
+  if (file.includes(".router")) return "router";
+  if (file.includes(".validation")) return "validation";
+  return null;
 };
 
-// =====================================================
-// BACKUP
-// =====================================================
-const backupDir = path.join(ROOT, "_backup_migration");
+const getEntity = (file) => {
+  return file.split(".")[0]; // account.service.js → account
+};
 
-console.log("📦 Creating backup...");
+const moveFile = (src, dest) => {
+  ensureDir(path.dirname(dest));
 
-ensureDir(backupDir);
-
-if (fs.existsSync(CONTROLLERS_DIR)) {
-  fs.cpSync(CONTROLLERS_DIR, path.join(backupDir, "controllers"), {
-    recursive: true,
-  });
-}
-
-if (fs.existsSync(ROUTERS_DIR)) {
-  fs.cpSync(ROUTERS_DIR, path.join(backupDir, "router"), {
-    recursive: true,
-  });
-}
-
-if (fs.existsSync(MODELS_DIR)) {
-  fs.cpSync(MODELS_DIR, path.join(backupDir, "models"), {
-    recursive: true,
-  });
-}
-
-if (fs.existsSync(SERVICES_DIR)) {
-  fs.cpSync(SERVICES_DIR, path.join(backupDir, "services"), {
-    recursive: true,
-  });
-}
-
-if (fs.existsSync(VALIDATIONS_DIR)) {
-  fs.cpSync(VALIDATIONS_DIR, path.join(backupDir, "validations"), {
-    recursive: true,
-  });
-}
-
-console.log("✅ Backup done");
-
-// =====================================================
-// MODULE STRUCTURE
-// =====================================================
-const modules = [
-  "iam",
-  "hr",
-  "finance",
-  "accounting",
-  "assets",
-  "inventory",
-  "purchasing",
-  "sales",
-  "menu",
-  "kitchen",
-  "crm",
-  "loyalty",
-  "seating",
-  "payments",
-  "organization",
-  "system",
-  "setup",
-  "misc",
-];
-
-modules.forEach((m) => {
-  ensureDir(path.join(ROOT, "modules", m, "controller"));
-  ensureDir(path.join(ROOT, "modules", m, "router"));
-  ensureDir(path.join(ROOT, "modules", m, "model"));
-  ensureDir(path.join(ROOT, "modules", m, "service"));
-  ensureDir(path.join(ROOT, "modules", m, "validation"));
-});
-
-console.log("📁 Structure ready");
-
-// =====================================================
-// MIGRATION ENGINE (FULL SAFE SCAN)
-// =====================================================
-const migrate = (sourceDir, type) => {
-  if (!fs.existsSync(sourceDir)) {
-    console.log(`⚠️ Missing: ${sourceDir}`);
+  if (fs.existsSync(dest)) {
+    console.log("⏭️ Skipped (exists):", dest);
     return;
   }
 
-  const targetFolder = TYPE_FOLDER_MAP[type] || "misc";
+  fs.renameSync(src, dest);
+  console.log("✅ Moved:", src, "→", dest);
+};
 
-  const walk = (dir) => {
-    const items = fs.readdirSync(dir);
+/**
+ * ================================
+ * CORE LOGIC
+ * ================================
+ */
 
-    for (const item of items) {
-      const fullPath = path.join(dir, item);
-      const stat = fs.statSync(fullPath);
+const processModule = (modulePath, moduleName) => {
+  console.log(`\n📦 Module: ${moduleName}`);
 
-      if (stat.isDirectory()) {
-        walk(fullPath);
-        continue;
-      }
+  LAYERS.forEach((layer) => {
+    const layerPath = path.join(modulePath, layer);
 
-      const module = resolveModule(item);
+    if (!fs.existsSync(layerPath)) return;
 
-      const targetPath = path.join(
-        ROOT,
-        "modules",
-        module,
-        targetFolder,
-        item
+    const files = fs.readdirSync(layerPath);
+
+    files.forEach((file) => {
+      const type = detectType(file);
+      if (!type) return;
+
+      const entity = getEntity(file);
+
+      const src = path.join(layerPath, file);
+
+      const dest = path.join(
+        TARGET_PATH,
+        moduleName,
+        entity,
+        file
       );
 
-      safeMove(fullPath, targetPath);
-    }
-  };
-
-  walk(sourceDir);
+      moveFile(src, dest);
+    });
+  });
 };
 
-// =====================================================
-// RUN
-// =====================================================
-console.log("🚀 Migration started...");
+/**
+ * ================================
+ * RUN
+ * ================================
+ */
 
-migrate(CONTROLLERS_DIR, "controllers");
-migrate(ROUTERS_DIR, "router");
-migrate(MODELS_DIR, "models");
-migrate(SERVICES_DIR, "services");
-migrate(VALIDATIONS_DIR, "validations");
+const run = () => {
+  console.log("🚀 Starting Module Restructure...\n");
 
-console.log("🎉 DONE - Migration completed successfully");
+  const SOURCE_PATH = resolveSourcePath();
+
+  ensureDir(TARGET_PATH);
+
+  const modules = fs
+    .readdirSync(SOURCE_PATH)
+    .filter((dir) =>
+      fs.statSync(path.join(SOURCE_PATH, dir)).isDirectory()
+    );
+
+  if (modules.length === 0) {
+    console.log("⚠️ No modules found!");
+    return;
+  }
+
+  modules.forEach((moduleName) => {
+    const modulePath = path.join(SOURCE_PATH, moduleName);
+
+    processModule(modulePath, moduleName);
+  });
+
+  console.log("\n🎉 Restructure Completed Successfully");
+};
+
+run();

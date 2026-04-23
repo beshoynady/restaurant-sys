@@ -1,1 +1,0 @@
-// attendance-settings model - placeholder
