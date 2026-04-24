@@ -1,8 +1,7 @@
-// routes/core/branch.routes.js
-
 import express from "express";
 import branchController from "./branch.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
+import authorize from "../../../middlewares/authorize.js";
 import validate from "../../../middlewares/validate.js";
 
 import {
@@ -15,126 +14,93 @@ import {
 
 const router = express.Router();
 
-/**
- * 🔹 Inject dynamic config into request
- * This makes BaseController & Service more flexible
- */
-const branchConfig = (req, res, next) => {
-  req.uniqueFields = ["slug"];
-  req.fieldsWithLang = ["name"];
-  req.populate = ["brand", "createdBy", "updatedBy"];
-  next();
-};
-
-// =====================================================
-// 🔹 CRUD ROUTES
-// =====================================================
-
-router
-  .route("/")
-  /**
-   * Create Branch
-   */
+/* =========================
+   CREATE + LIST
+========================= */
+router.route("/")
   .post(
     authenticateToken,
-    branchConfig,
+    authorize("branch.create"),
     validate(createBranchSchema),
-    branchController.create,
+    branchController.create
   )
-
-  /**
-   * Get All Branches
-   * Supports:
-   * - pagination
-   * - search
-   * - sorting
-   */
   .get(
     authenticateToken,
-    branchConfig,
-    validate(queryBranchSchema),
-    branchController.getAll,
+    authorize("branch.read"),
+    validate(queryBranchSchema, "query"),
+    branchController.getAllBranches
   );
 
-router
-  .route("/:id")
-  /**
-   * Get Single Branch
-   */
+/* =========================
+   SINGLE
+========================= */
+router.route("/:id")
   .get(
     authenticateToken,
-    branchConfig,
-    validate(paramsBranchSchema),
-    branchController.getOne,
+    authorize("branch.read"),
+    validate(paramsBranchSchema, "params"),
+    branchController.getOne
   )
-
-  /**
-   * Update Branch
-   */
   .put(
     authenticateToken,
-    branchConfig,
+    authorize("branch.update"),
     validate(updateBranchSchema),
-    branchController.update,
+    branchController.update
   )
-
-  /**
-   * Hard Delete Branch
-   */
   .delete(
     authenticateToken,
-    validate(paramsBranchSchema),
-    branchController.hardDelete,
+    authorize("branch.delete"),
+    validate(paramsBranchSchema, "params"),
+    branchController.hardDelete
   );
 
-// =====================================================
-// 🔹 SOFT DELETE
-// =====================================================
-
+/* =========================
+   SOFT DELETE
+========================= */
 router.patch(
   "/soft-delete/:id",
   authenticateToken,
-  validate(paramsBranchSchema),
-  branchController.softDelete,
+  authorize("branch.delete"),
+  validate(paramsBranchSchema, "params"),
+  branchController.softDelete
 );
 
 router.patch(
   "/restore/:id",
   authenticateToken,
-  validate(paramsBranchSchema),
-  branchController.restore,
+  authorize("branch.restore"),
+  validate(paramsBranchSchema, "params"),
+  branchController.restore
 );
 
-// =====================================================
-// 🔹 BULK OPERATIONS
-// =====================================================
-
+/* =========================
+   BULK
+========================= */
 router.delete(
   "/bulk-delete",
   authenticateToken,
+  authorize("branch.delete"),
   validate(paramsBranchIdsSchema),
-  branchController.bulkHardDelete,
+  branchController.bulkHardDelete
 );
 
 router.patch(
   "/bulk-soft-delete",
   authenticateToken,
+  authorize("branch.delete"),
   validate(paramsBranchIdsSchema),
-  branchController.bulkSoftDelete,
+  branchController.bulkSoftDelete
 );
 
-// =====================================================
-// 🔹 CUSTOM ROUTES
-// =====================================================
-
-/**
- * Set Main Branch
- */
+/* =========================
+   CUSTOM
+========================= */
 router.patch(
   "/set-main/:id",
   authenticateToken,
-  validate(paramsBranchSchema),
-  branchController.setMainBranch,
+  authorize("branch.update"),
+  validate(paramsBranchSchema, "params"),
+  branchController.setMainBranch
 );
 
 export default router;

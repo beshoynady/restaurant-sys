@@ -13,7 +13,7 @@ class BranchSettingsController extends BaseController {
   }
 
   // =====================================================
-  // 🔹 CHECK IF BRANCH IS OPEN
+  // 🌍 PUBLIC: CHECK IF BRANCH IS OPEN
   // =====================================================
   isBranchOpen = asyncHandler(async (req, res) => {
     const { branchId } = req.params;
@@ -22,12 +22,15 @@ class BranchSettingsController extends BaseController {
 
     res.json({
       success: true,
-      isOpen,
+      data: {
+        branchId,
+        isOpen,
+      },
     });
   });
 
   // =====================================================
-  // 🔹 CHECK SERVICE AVAILABILITY
+  // 🌍 PUBLIC: CHECK SERVICE AVAILABILITY
   // =====================================================
   isServiceAvailable = asyncHandler(async (req, res) => {
     const { branchId, serviceType } = req.params;
@@ -39,13 +42,16 @@ class BranchSettingsController extends BaseController {
 
     res.json({
       success: true,
-      service: serviceType,
-      available,
+      data: {
+        branchId,
+        service: serviceType,
+        available,
+      },
     });
   });
 
   // =====================================================
-  // 🔹 GET CURRENT PERIOD
+  // 🌍 PUBLIC: GET CURRENT PERIOD
   // =====================================================
   getCurrentPeriod = asyncHandler(async (req, res) => {
     const { branchId } = req.params;
@@ -55,6 +61,20 @@ class BranchSettingsController extends BaseController {
     res.json({
       success: true,
       data: period,
+    });
+  });
+
+  // =====================================================
+  // 🌍 PUBLIC: GET FULL SETTINGS FOR MENU
+  // =====================================================
+  getPublicSettings = asyncHandler(async (req, res) => {
+    const { branchId } = req.params;
+
+    const settings = await this.service.getByBranch(branchId);
+
+    res.json({
+      success: true,
+      data: settings,
     });
   });
 }

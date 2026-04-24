@@ -3,6 +3,7 @@
 import express from "express";
 import branchSettingsController from "../../controllers/core/branch-settings.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
+import authorize from "../../../middlewares/authorize.js";
 import validate from "../../../middlewares/validate.js";
 
 import {
@@ -23,19 +24,45 @@ const branchSettingsConfig = (req, res, next) => {
   next();
 };
 
-// =========================
-// CRUD
-// =========================
+// =====================================================
+// 🌍 PUBLIC ROUTES (NO AUTH)
+// =====================================================
+
+router.get(
+  "/public/branch/:branchId",
+  branchSettingsController.getPublicSettings
+);
+
+router.get(
+  "/public/branch/:branchId/is-open",
+  branchSettingsController.isBranchOpen
+);
+
+router.get(
+  "/public/branch/:branchId/service/:serviceType",
+  branchSettingsController.isServiceAvailable
+);
+
+router.get(
+  "/public/branch/:branchId/current-period",
+  branchSettingsController.getCurrentPeriod
+);
+
+// =====================================================
+// 🔒 PROTECTED ROUTES (ADMIN / DASHBOARD)
+// =====================================================
 
 router.route("/")
   .post(
     authenticateToken,
+    authorize("branch_settings.create"),
     branchSettingsConfig,
     validate(createBranchSettingsSchema),
     branchSettingsController.create
   )
   .get(
     authenticateToken,
+    authorize("branch_settings.view"),
     branchSettingsConfig,
     validate(queryBranchSettingsSchema),
     branchSettingsController.getAll
@@ -44,29 +71,33 @@ router.route("/")
 router.route("/:id")
   .get(
     authenticateToken,
+    authorize("branch_settings.view"),
     branchSettingsConfig,
     validate(paramsBranchSettingsSchema),
     branchSettingsController.getOne
   )
   .put(
     authenticateToken,
+    authorize("branch_settings.update"),
     branchSettingsConfig,
     validate(updateBranchSettingsSchema),
     branchSettingsController.update
   )
   .delete(
     authenticateToken,
+    authorize("branch_settings.delete"),
     validate(paramsBranchSettingsSchema),
     branchSettingsController.hardDelete
   );
 
-// =========================
-// Soft Delete
-// =========================
+// =====================================================
+// 🔒 SOFT DELETE
+// =====================================================
 
 router.patch(
   "/soft-delete/:id",
   authenticateToken,
+  authorize("branch_settings.delete"),
   validate(paramsBranchSettingsSchema),
   branchSettingsController.softDelete
 );
@@ -74,17 +105,19 @@ router.patch(
 router.patch(
   "/restore/:id",
   authenticateToken,
+  authorize("branch_settings.update"),
   validate(paramsBranchSettingsSchema),
   branchSettingsController.restore
 );
 
-// =========================
-// Bulk
-// =========================
+// =====================================================
+// 🔒 BULK OPERATIONS
+// =====================================================
 
 router.delete(
   "/bulk-delete",
   authenticateToken,
+  authorize("branch_settings.delete"),
   validate(paramsBranchSettingsIdsSchema),
   branchSettingsController.bulkHardDelete
 );
@@ -92,30 +125,9 @@ router.delete(
 router.patch(
   "/bulk-soft-delete",
   authenticateToken,
+  authorize("branch_settings.delete"),
   validate(paramsBranchSettingsIdsSchema),
   branchSettingsController.bulkSoftDelete
-);
-
-// =========================
-// Business Logic 🔥
-// =========================
-
-router.get(
-  "/branch/:branchId/is-open",
-  authenticateToken,
-  branchSettingsController.isBranchOpen
-);
-
-router.get(
-  "/branch/:branchId/service/:serviceType",
-  authenticateToken,
-  branchSettingsController.isServiceAvailable
-);
-
-router.get(
-  "/branch/:branchId/current-period",
-  authenticateToken,
-  branchSettingsController.getCurrentPeriod
 );
 
 export default router;

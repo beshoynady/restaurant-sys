@@ -56,6 +56,8 @@ const userAccountSchema = new Schema(
       default: null,
     },
 
+    refreshToken: { type: String, default: null },
+
     // Account status
     isActive: { type: Boolean, default: true },
     lastLogin: { type: Date, default: null },
@@ -63,6 +65,17 @@ const userAccountSchema = new Schema(
     // Two Factor Auth
     twoFactorEnabled: { type: Boolean, default: false },
     twoFactorSecret: { type: String, default: "" },
+
+    // Password reset
+    resetPasswordToken: { type: String, default: null },
+    resetPasswordExpires: { type: Date, default: null },
+
+    // Password security
+    passwordChangedAt: { type: Date, default: null },
+
+    // Login security
+    loginAttempts: { type: Number, default: 0 },
+    lockUntil: { type: Date, default: null },
 
     // Audit fields
     createdBy: { type: ObjectId, ref: "UserAccount", default: null },
@@ -73,9 +86,8 @@ const userAccountSchema = new Schema(
     deletedAt: { type: Date, default: null },
     deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
-  { timestamps: true, versionKey: false }
+  { timestamps: true, versionKey: false },
 );
-
 
 // 🔥 Indexes (VERY IMPORTANT)
 userAccountSchema.index({ brand: 1, username: 1 }, { unique: true });

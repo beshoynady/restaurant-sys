@@ -1,17 +1,34 @@
-//server/middlewares/authorize.js
-
 import throwError from "../utils/throwError.js";
 
-const authorize = (...permissions) => {
+/**
+ * RBAC Middleware (Resource + Action based)
+ * Example:
+ * authorize("UserAccounts", "create")
+ */
+const authorize = (resource, action) => {
   return (req, res, next) => {
-    const userPermissions = req.user.role?.permissions || [];
+    const role = req.user?.role;
 
-    const allowed = permissions.some((p) =>
-      userPermissions.includes(p)
-    );
+    if (!role || !role.permissions) {
+      return next(throwError("Forbidden", 403));
+    }
 
-    if (!allowed) {
-      throw throwError("Forbidden", 403);
+    const permissions = role.permissions;
+
+    const hasPermission = permissions.some((perm) => {
+      const resourceMatch = perm.resource === resource;
+      const actionAllowed = perm[action] === true;
+
+      // optional branch restriction support
+      const branchMatch =
+        !perm.branch ||
+        perm.branch.toString() === req.user.branch?.toString();
+
+      return resourceMatch && actionAllowed && branchMatch;
+    });
+
+    if (!hasPermission) {
+      return next(throwError("Forbidden", 403));
     }
 
     next();

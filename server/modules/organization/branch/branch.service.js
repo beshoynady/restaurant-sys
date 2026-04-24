@@ -1,66 +1,29 @@
-// services/core/branch.service.js
-
-import AdvancedService from "../../../utils/AdvancedService.js";
+import BaseService from "../../../utils/BaseService.js";
 import BranchModel from "./branch.model.js";
 import throwError from "../../../utils/throwError.js";
 import { generateUniqueSlug } from "../../../utils/generateUniqueSlug.js";
 
-/**
- * BranchService
- * -------------------------------------------------------
- * Business logic layer for Branch module
- *
- * Extends AdvancedService to reuse:
- * - CRUD operations
- * - Brand scoping
- * - Soft delete
- * - Pagination & filtering
- *
- * Adds:
- * - Unique slug generation
- * - Main branch constraint
- * - Custom actions
- */
-class BranchService extends AdvancedService {
+class BranchService extends BaseService {
   constructor() {
     super(BranchModel, {
       brandScoped: true,
       softDelete: true,
-
-      // 🔹 Populate relations by default
-      defaultPopulate: ["brand", "createdBy", "updatedBy", "deletedBy"],
-
-      // 🔹 Enable search
+      defaultPopulate: ["brand", "createdBy", "updatedBy"],
       searchFields: ["name.EN", "name.AR", "slug"],
-
-      // 🔹 Default sorting
       defaultSort: { createdAt: -1 },
     });
   }
 
-  // =====================================================
-  // 🔹 CREATE BRANCH
-  // =====================================================
-  /**
-   * Create a new branch
-   *
-   * Business Rules:
-   * - Generate unique slug automatically
-   * - Only one main branch per brand
-   */
-  async create({ brandId, data, createdBy, lang }) {
-    // -----------------------------
-    // 🔹 Generate unique slug
-    // -----------------------------
+  /* =========================
+     CREATE
+  ========================= */
+  async create({ brandId, data, createdBy }) {
     data.slug = await generateUniqueSlug({
       name: data.name,
       model: this.model,
       brandId,
     });
 
-    // -----------------------------
-    // 🔹 Ensure single main branch
-    // -----------------------------
     if (data.isMainBranch) {
       const exists = await this.model.findOne({
         brand: brandId,
@@ -68,41 +31,20 @@ class BranchService extends AdvancedService {
         isDeleted: false,
       });
 
-      if (exists) {
-        throw throwError(
-          "Main branch already exists for this brand",
-          400
-        );
-      }
+      if (exists) throw throwError("Main branch exists", 400);
     }
 
-    // -----------------------------
-    // 🔹 Call base create
-    // -----------------------------
-    return super.create({
-      brandId,
-      data,
+    return this.model.create({
+      ...data,
+      brand: brandId,
       createdBy,
-      uniqueFields: ["slug"],
-      fieldsWithLang: ["name"],
-      lang,
     });
   }
 
-  // =====================================================
-  // 🔹 UPDATE BRANCH
-  // =====================================================
-  /**
-   * Update branch
-   *
-   * Business Rules:
-   * - Regenerate slug if name changes
-   * - Prevent multiple main branches
-   */
+  /* =========================
+     UPDATE
+  ========================= */
   async update({ id, brandId, data, updatedBy }) {
-    // -----------------------------
-    // 🔹 Regenerate slug if name updated
-    // -----------------------------
     if (data.name) {
       data.slug = await generateUniqueSlug({
         name: data.name,
@@ -112,9 +54,6 @@ class BranchService extends AdvancedService {
       });
     }
 
-    // -----------------------------
-    // 🔹 Prevent multiple main branches
-    // -----------------------------
     if (data.isMainBranch) {
       const exists = await this.model.findOne({
         brand: brandId,
@@ -123,69 +62,119 @@ class BranchService extends AdvancedService {
         isDeleted: false,
       });
 
-      if (exists) {
-        throw throwError(
-          "Another main branch already exists",
-          400
-        );
-      }
+      if (exists) throw throwError("Another main branch exists", 400);
     }
 
-    return super.update({
-      id,
-      brandId,
-      data,
-      updatedBy,
-      uniqueFields: ["slug"],
-    });
+    return this.model.findOneAndUpdate(
+      { _id: id, brand: brandId },
+      { $set: { ...data, updatedBy } },
+      { new: true }
+    );
   }
 
-  // =====================================================
-  // 🔹 SET MAIN BRANCH (CUSTOM ACTION)
-  // =====================================================
-  /**
-   * Set a branch as the main branch
-   *
-   * - Ensures only one main branch per brand
-   * - Uses transaction for consistency
-   */
+  /* =========================
+     GET ALL (FULL FILTERING)
+  ========================= */
+  async getAllBranches({ brandId, query }) {
+    const {
+      page,
+      limit,
+      search,
+      status,
+      isMainBranch,
+      city,
+      country,
+      lat,
+      lng,
+      maxDistance,
+      sortBy,
+      sortOrder,
+    } = query;
+
+    const filter = {
+      brand: brandId,
+      isDeleted: false,
+    };
+
+    if (status) filter.status = status;
+    if (typeof isMainBranch !== "undefined")
+      filter.isMainBranch = isMainBranch;
+
+    if (city) filter["address.*.city"] = city;
+    if (country) filter["address.*.country"] = country;
+
+    /* 🔥 GEO FILTER */
+    if (lat && lng) {
+      filter.location = {
+        $near: {
+          $geometry: {
+            type: "Point",
+            coordinates: [lng, lat],
+          },
+          $maxDistance: maxDistance || 5000,
+        },
+      };
+    }
+
+    if (search) {
+      filter.$or = [
+        { slug: { $regex: search, $options: "i" } },
+        { "name.EN": { $regex: search, $options: "i" } },
+        { "name.AR": { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const skip = (page - 1) * limit;
+
+    const sort = {
+      [sortBy]: sortOrder === "asc" ? 1 : -1,
+    };
+
+    const [data, total] = await Promise.all([
+      this.model
+        .find(filter)
+        .populate("brand createdBy updatedBy")
+        .sort(sort)
+        .skip(skip)
+        .limit(limit),
+
+      this.model.countDocuments(filter),
+    ]);
+
+    return {
+      success: true,
+      data,
+      pagination: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  /* =========================
+     SET MAIN BRANCH
+  ========================= */
   async setMainBranch({ id, brandId, userId }) {
     return this.transaction(async (session) => {
-      // -----------------------------
-      // 🔹 Reset all branches
-      // -----------------------------
       await this.model.updateMany(
         { brand: brandId },
         { isMainBranch: false },
         { session }
       );
 
-      // -----------------------------
-      // 🔹 Set selected branch
-      // -----------------------------
       const branch = await this.model.findOneAndUpdate(
-        {
-          _id: id,
-          brand: brandId,
-        },
-        {
-          isMainBranch: true,
-          updatedBy: userId,
-        },
-        {
-          new: true,
-          session,
-        }
+        { _id: id, brand: brandId },
+        { isMainBranch: true, updatedBy: userId },
+        { new: true, session }
       );
 
-      if (!branch) {
-        throw throwError("Branch not found", 404);
-      }
+      if (!branch) throw throwError("Branch not found", 404);
 
       return branch;
     });
   }
 }
 
-// Export singleton instance
 export default new BranchService();

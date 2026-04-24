@@ -129,6 +129,9 @@ const branchSettingsSchema = new mongoose.Schema(
     offersCurbsidePickup: { type: Boolean, default: false },  // Curbside pickup option
     offersOnlinePayment: { type: Boolean, default: false },   // Online payment available
     offersCashOnDelivery: { type: Boolean, default: false },  // Cash on delivery option
+    hasLoyaltyProgram: { type: Boolean, default: false },     // Loyalty program available
+    supportsGiftCards: { type: Boolean, default: false },     // Gift cards available
+    supportsReferrals: { type: Boolean, default: false },     // Referral program available
 
     isActive: { type: Boolean, default: true }, // General active flag
 

@@ -1,47 +1,152 @@
 import express from "express";
+
 import brandController from "./brand.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
+import authorize from "../../../middlewares/authorize.js";
 import validate from "../../../middlewares/validate.js";
-import { 
-  createBrandSchema, 
-  updateBrandSchema, 
-  paramsBrandSchema, 
-  paramsBrandIdsSchema,
-  queryBrandSchema 
+
+import {
+  createBrandSchema,
+  updateBrandSchema,
+  paramsBrandSchema,
+  queryBrandSchema,
+  changeStatusSchema,
+  updateLogoSchema,
+  updateBrandSettingsSchema,
+  setupProgressSchema,
 } from "./brand.validation.js";
 
 const router = express.Router();
 
-// Create & GetAll
-router.route("/")
-  .post(authenticateToken, validate(createBrandSchema), brandController.create)
-  .get(authenticateToken, validate(queryBrandSchema), brandController.getAll)
-;
+/* =========================
+   CREATE + LIST
+========================= */
+router
+  .route("/")
+  .post(
+    authenticateToken,
+    authorize("brand:create"),
+    validate(createBrandSchema),
+    brandController.create
+  )
+  .get(
+    authenticateToken,
+    authorize("brand:read"),
+    validate(queryBrandSchema, "query"),
+    brandController.getAll
+  );
 
-// GetOne, Update, hardDelete
-router.route("/:id")
-  .get(authenticateToken, validate(paramsBrandSchema), brandController.getOne)
-  .put(authenticateToken, validate(updateBrandSchema), brandController.update)
-  .delete(authenticateToken, validate(paramsBrandSchema), brandController.hardDelete) // soft delete
-;
+/* =========================
+   SINGLE BRAND OPS
+========================= */
+router
+  .route("/:id")
+  .get(
+    authenticateToken,
+    authorize("brand:read"),
+    validate(paramsBrandSchema, "params"),
+    brandController.getOne
+  )
+  .put(
+    authenticateToken,
+    authorize("brand:update"),
+    validate(updateBrandSchema),
+    brandController.update
+  )
+  .delete(
+    authenticateToken,
+    authorize("brand:delete"),
+    validate(paramsBrandSchema, "params"),
+    brandController.hardDelete
+  );
 
-router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsBrandSchema), brandController.softDelete) // soft delete
-;
+/* =========================
+   SOFT DELETE / RESTORE
+========================= */
+router.patch(
+  "/soft-delete/:id",
+  authenticateToken,
+  authorize("brand:delete"),
+  validate(paramsBrandSchema, "params"),
+  brandController.softDelete
+);
 
-// Restore soft-deleted item
-router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsBrandSchema), brandController.restore)
-;
+router.patch(
+  "/restore/:id",
+  authenticateToken,
+  authorize("brand:restore"),
+  validate(paramsBrandSchema, "params"),
+  brandController.restore
+);
 
- // --- BULK HARD DELETE ---
-  router.route("/bulk-delete")
-    .delete(authenticateToken, validate(paramsBrandIdsSchema), brandController.bulkHardDelete);
+/* =========================
+   STATUS CONTROL
+========================= */
+router.patch(
+  "/:id/status",
+  authenticateToken,
+  authorize("brand:update"),
+  validate(paramsBrandSchema, "params"),
+  validate(changeStatusSchema),
+  brandController.changeStatus
+);
 
+/* =========================
+   LOGO UPDATE
+========================= */
+router.patch(
+  "/:id/logo",
+  authenticateToken,
+  authorize("brand:update"),
+  validate(paramsBrandSchema, "params"),
+  validate(updateLogoSchema),
+  brandController.updateLogo
+);
 
-  // --- BULK SOFT DELETE ---
-  router.route("/bulk-soft-delete")
-    .patch(authenticateToken,validate(paramsBrandIdsSchema), brandController.bulkSoftDelete);
+/* =========================
+   SETTINGS UPDATE
+========================= */
+router.patch(
+  "/:id/settings",
+  authenticateToken,
+  authorize("brand:update"),
+  validate(paramsBrandSchema, "params"),
+  validate(updateBrandSettingsSchema),
+  brandController.updateSettings
+);
 
+/* =========================
+   SETUP FLOW
+========================= */
+router.patch(
+  "/:id/setup",
+  authenticateToken,
+  authorize("brand:update"),
+  validate(paramsBrandSchema, "params"),
+  validate(setupProgressSchema),
+  brandController.updateSetup
+);
+
+/* =========================
+   SUMMARY (DASHBOARD)
+========================= */
+router.get(
+  "/:id/summary",
+  authenticateToken,
+  authorize("brand:read"),
+  validate(paramsBrandSchema, "params"),
+  brandController.getSummary
+);
+
+/* =========================
+   SEARCH
+========================= */
+router.get(
+  "/search",
+  authenticateToken,
+  authorize("brand:read"),
+  validate(queryBrandSchema, "query"),
+  brandController.search
+);
 
 export default router;

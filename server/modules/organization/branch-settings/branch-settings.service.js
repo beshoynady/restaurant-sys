@@ -1,49 +1,77 @@
-// services/core/branch-settings.service.js
-
-import AdvancedService from "../../../utils/AdvancedService.js";
+import BaseService from "../../../utils/BaseService.js";
 import BranchSettingsModel from "../../models/core/branch-settings.model.js";
 import throwError from "../../../utils/throwError.js";
 
-/**
- * BranchSettingsService
- * -------------------------------------------------------
- * Handles:
- * - CRUD (via AdvancedService)
- * - Branch availability logic
- * - Service availability
- * - Time-based calculations
- */
-class BranchSettingsService extends AdvancedService {
+class BranchSettingsService extends BaseService {
   constructor() {
     super(BranchSettingsModel, {
       brandScoped: true,
       softDelete: true,
-      defaultPopulate: ["brand", "branch", "createdBy", "updatedBy", "deletedBy"],
-      searchFields: [],
+      defaultPopulate: ["brand", "branch", "createdBy", "updatedBy"],
       defaultSort: { createdAt: -1 },
     });
   }
 
   // =====================================================
-  // 🔹 GET SETTINGS BY BRANCH
+  // 🔹 CREATE (Prevent duplicate per branch)
   // =====================================================
-  async getByBranch(branchId) {
-    const settings = await this.findOne({
-      filter: { branch: branchId },
+  async create({ brandId, data, createdBy }) {
+    const exists = await this.model.findOne({
+      branch: data.branch,
+      isDeleted: false,
     });
 
-    if (!settings) {
-      throw throwError("Branch settings not found", 404);
+    if (exists) {
+      throw throwError("Settings already exist for this branch", 400);
     }
 
-    return settings;
+    return super.create({
+      brandId,
+      data,
+      createdBy,
+    });
   }
 
   // =====================================================
-  // 🔹 CHECK IF BRANCH IS OPEN
+  // 🔹 GET BY BRANCH (IMPORTANT FOR FRONT)
   // =====================================================
-  async isBranchOpen(branchId) {
-    const settings = await this.getByBranch(branchId);
+  async getByBranch({ branchId, brandId }) {
+    return this.findOne({
+      brandId,
+      filter: { branch: branchId },
+    });
+  }
+
+  // =====================================================
+  // 🔹 UPSERT (🔥 مهم جداً للفرونت)
+  // =====================================================
+  async upsert({ brandId, branchId, data, userId }) {
+    const existing = await this.model.findOne({
+      brand: brandId,
+      branch: branchId,
+    });
+
+    if (existing) {
+      return this.update({
+        id: existing._id,
+        brandId,
+        data,
+        updatedBy: userId,
+      });
+    }
+
+    return this.create({
+      brandId,
+      data: { ...data, branch: branchId },
+      createdBy: userId,
+    });
+  }
+
+  // =====================================================
+  // 🔹 IS BRANCH OPEN
+  // =====================================================
+  async isBranchOpen({ branchId, brandId }) {
+    const settings = await this.getByBranch({ branchId, brandId });
 
     const now = new Date();
     const dayName = now.toLocaleDateString("en-US", { weekday: "long" });
@@ -54,10 +82,9 @@ class BranchSettingsService extends AdvancedService {
     if (!today || today.status !== "open") return false;
 
     for (const period of today.periods) {
-      if (this.#isWithinTime(currentTime, period.openTime, period.closeTime)) {
-
+      if (this._isWithinTime(currentTime, period.openTime, period.closeTime)) {
         const inPause = period.pauses?.some(p =>
-          this.#isWithinTime(currentTime, p.from, p.to)
+          this._isWithinTime(currentTime, p.from, p.to)
         );
 
         if (!inPause) return true;
@@ -68,16 +95,16 @@ class BranchSettingsService extends AdvancedService {
   }
 
   // =====================================================
-  // 🔹 CHECK SERVICE AVAILABILITY
+  // 🔹 SERVICE AVAILABILITY
   // =====================================================
-  async isServiceAvailable(branchId, serviceType) {
+  async isServiceAvailable({ branchId, brandId, serviceType }) {
     const allowed = ["dineIn", "takeaway", "delivery"];
 
     if (!allowed.includes(serviceType)) {
       throw throwError("Invalid service type", 400);
     }
 
-    const settings = await this.getByBranch(branchId);
+    const settings = await this.getByBranch({ branchId, brandId });
 
     const now = new Date();
     const dayName = now.toLocaleDateString("en-US", { weekday: "long" });
@@ -94,9 +121,9 @@ class BranchSettingsService extends AdvancedService {
       const open = service.openTime || period.openTime;
       const close = service.closeTime || period.closeTime;
 
-      if (this.#isWithinTime(currentTime, open, close)) {
+      if (this._isWithinTime(currentTime, open, close)) {
         const inPause = period.pauses?.some(p =>
-          this.#isWithinTime(currentTime, p.from, p.to)
+          this._isWithinTime(currentTime, p.from, p.to)
         );
 
         if (!inPause) return true;
@@ -107,10 +134,10 @@ class BranchSettingsService extends AdvancedService {
   }
 
   // =====================================================
-  // 🔹 GET CURRENT ACTIVE PERIOD
+  // 🔹 CURRENT PERIOD
   // =====================================================
-  async getCurrentPeriod(branchId) {
-    const settings = await this.getByBranch(branchId);
+  async getCurrentPeriod({ branchId, brandId }) {
+    const settings = await this.getByBranch({ branchId, brandId });
 
     const now = new Date();
     const dayName = now.toLocaleDateString("en-US", { weekday: "long" });
@@ -121,23 +148,50 @@ class BranchSettingsService extends AdvancedService {
 
     return (
       today.periods.find(p =>
-        this.#isWithinTime(currentTime, p.openTime, p.closeTime)
+        this._isWithinTime(currentTime, p.openTime, p.closeTime)
       ) || null
     );
   }
 
   // =====================================================
-  // 🔒 PRIVATE: TIME CHECK (SUPPORTS MIDNIGHT)
+  // 🔹 NEXT OPEN TIME (🔥 للفرونت)
   // =====================================================
-  #isWithinTime(current, start, end) {
+  async getNextOpenTime({ branchId, brandId }) {
+    const settings = await this.getByBranch({ branchId, brandId });
+
+    const now = new Date();
+
+    for (let i = 0; i < 7; i++) {
+      const date = new Date();
+      date.setDate(now.getDate() + i);
+
+      const dayName = date.toLocaleDateString("en-US", { weekday: "long" });
+
+      const day = settings.operatingHours.find(d => d.day === dayName);
+
+      if (!day || day.status !== "open") continue;
+
+      if (day.periods.length) {
+        return {
+          day: dayName,
+          time: day.periods[0].openTime,
+        };
+      }
+    }
+
+    return null;
+  }
+
+  // =====================================================
+  // 🔒 PRIVATE TIME CHECK
+  // =====================================================
+  _isWithinTime(current, start, end) {
     if (!start || !end) return false;
 
-    // normal case
     if (start <= end) {
       return current >= start && current <= end;
     }
 
-    // overnight case (e.g. 18:00 → 02:00)
     return current >= start || current <= end;
   }
 }

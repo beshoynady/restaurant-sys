@@ -6,7 +6,7 @@ import express from "express";
 import accountRouter from "../../modules/accounting/account/account.router.js";
 import accountBalanceRouter from "../../modules/accounting/account-balance/account-balance.router.js";
 import accountingPeriodRouter from "../../modules/accounting/accounting-period/accounting-period.router.js";
-import accountingSettingRouter from "../../modules/accounting/accounting-setting/accounting-setting.router.js";
+import accountingSettingRouter from "../../modules/accounting/accounting-settings/accounting-setting.router.js";
 import costCenterRouter from "../../modules/accounting/cost-center/cost-center.router.js";
 import journalEntryRouter from "../../modules/accounting/journal-entry/journal-entry.router.js";
 import journalLineRouter from "../../modules/accounting/journal-line/journal-line.router.js";

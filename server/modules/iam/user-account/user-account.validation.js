@@ -1,32 +1,90 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../../utils/joiFactory.js";
-import UserAccountModel from "./user-account.model.js";
+import {
+  objectId,
+  paramsSchema,
+  paramsIdsSchema,
+  querySchema,
+} from "../../../utils/joiFactory.js";
 
 /* =========================
-   Create Schema
+   CREATE USER ACCOUNT
 ========================= */
-export const createUserAccountSchema = createSchema(UserAccountModel.schema);
+export const createUserAccountSchema = {
+  body: Joi.object({
+    brand: objectId().required(),
+
+    branch: objectId().allow(null),
+
+    username: Joi.string().min(3).max(30).required(),
+
+    email: Joi.string().email().allow(null, ""),
+
+    phone: Joi.string().allow(null, ""),
+
+    password: Joi.string().min(6).required(),
+
+    confirmPassword: Joi.string()
+      .valid(Joi.ref("password"))
+      .required()
+      .messages({
+        "any.only": "Passwords do not match",
+      }),
+
+    employee: objectId().allow(null),
+
+    role: objectId().required(),
+
+    isActive: Joi.boolean(),
+
+    twoFactorEnabled: Joi.boolean(),
+
+    createdBy: objectId().allow(null),
+  }).custom((value, helpers) => {
+    // At least one contact method (email or phone) is required
+    if (!value.email && !value.phone) {
+      return helpers.error("any.custom", {
+        message: "Either email or phone is required",
+      });
+    }
+
+    return value;
+  }),
+};
 
 /* =========================
-   Update Schema
+   UPDATE USER ACCOUNT
 ========================= */
-export const updateUserAccountSchema = updateSchema(
-  UserAccountModel.schema,
-  ["updatedBy"]
-);
+export const updateUserAccountSchema = {
+  body: Joi.object({
+    username: Joi.string().min(3).max(30),
+
+    email: Joi.string().email().allow(null, ""),
+
+    phone: Joi.string().allow(null, ""),
+
+    password: Joi.string().min(6),
+
+    employee: objectId().allow(null),
+
+    role: objectId(),
+
+    isActive: Joi.boolean(),
+
+    branch: objectId().allow(null),
+
+    updatedBy: objectId(),
+  }),
+};
 
 /* =========================
-   Params Schema
+   PARAMS
 ========================= */
 export const paramsUserAccountSchema = paramsSchema();
 
-/* =========================
-   Params Ids Schema
-========================= */
+/* bulk ids */
 export const paramsUserAccountIdsSchema = paramsIdsSchema();
 
-
 /* =========================
-   Query Schema
+   QUERY
 ========================= */
 export const queryUserAccountSchema = querySchema();

@@ -53,32 +53,30 @@ const brandSchema = new mongoose.Schema(
      * Default currency for the brand
      */
     currency: {
-      type: String,
-      enum: [
-        "USD",
-        "SAR",
-        "AED",
-        "EGP",
-        "EUR",
-        "GBP",
-        "KWD",
-        "QAR",
-        "OMR",
-        "BHD",
-        "JPY",
-        "CNY",
-        "INR",
-        "TRY",
-        "RUB",
-        "AUD",
-        "CAD",
-        "CHF",
-        "SEK",
-        "NOK",
-        "DKK",
-      ],
-      default: "EGP",
+      code: {
+        type: String,
+        enum: ["USD", "EUR", "GBP", "EGP", "SAR", "AED", "JPY", "CNY"],
+        trim: true,
+        maxlength: 3,
+        default: "EGP",
+      },
+      symbol: {
+        type: String,
+        trim: true,
+        maxlength: 2,
+        default: "£",
+      },
+      decimalPlaces: {
+        type: Number,
+        min: 0,
+        max: 4,
+        default: 2,
+      },
     },
+
+    // ===============================
+    // LANGUAGE & DASHBOARD SETTINGS
+    // ===============================
     dashboardLanguages: {
       type: [String],
       enum: ["EN", "AR", "FR", "ES", "IT", "ZH", "JA", "RU"],
@@ -88,6 +86,17 @@ const brandSchema = new mongoose.Schema(
     defaultDashboardLanguage: {
       type: String,
       default: "EN",
+      required: true,
+    },
+
+
+    // ===============================
+    // LEGAL & REGULATORY
+    // ===============================
+    legalName: {
+      type: String,
+      trim: true,
+      maxlength: 150,
       required: true,
     },
     /**
