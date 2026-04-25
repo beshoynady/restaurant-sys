@@ -9,7 +9,7 @@ const { ObjectId } = Schema.Types;
  */
 
 
-const RESOURCE_ENUM = [
+export const RESOURCE_ENUM = [
   // ================= CORE BUSINESS =================
   "Brands",
   "Branches",
@@ -26,7 +26,7 @@ const RESOURCE_ENUM = [
   "LeaveRequests",
   "Payrolls",
   "PayrollItems",
-  "EmployeeFinancials",
+  "EmployeeFinancial",
   "EmployeeTransactions",
   "EmployeeAdvances",
   "EmployeeSettings",

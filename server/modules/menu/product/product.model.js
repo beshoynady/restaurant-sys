@@ -90,8 +90,8 @@ const ProductSchema = new mongoose.Schema(
         minlength: 2,
         maxlength: 100,
       },
-      required: true,
     },
+    
     sizeOrder: { type: Number, default: 0 }, // Display order of sizes
     sizes: [{ type: ObjectId, ref: "Product" }], // List of size products if this is a size group
 

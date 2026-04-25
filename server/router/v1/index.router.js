@@ -1,4 +1,9 @@
 import express from "express";
+const router = express.Router();
+
+
+import setupRouter from "../../modules/system-setup/setup.router.js";
+
 
 // ========================
 // ACCOUNTING
@@ -87,7 +92,6 @@ import reservationRouter from "../../modules/seating/reservation/reservation.rou
 // ========================
 import loyaltyRouter from "../../modules/loyalty/customer-loyalty/customer-loyalty.router.js";
 
-const router = express.Router();
 
 // ========================
 // HEALTH CHECK
@@ -99,9 +103,15 @@ router.get("/health", (req, res) => {
   });
 });
 
+
+
+
 // ========================
 // REGISTER MODULE ROUTES
 // ========================
+
+// System Setup (must be first to prevent conflicts)
+router.use("/setup", setupRouter);
 
 // Accounting
 router.use("/accounting/accounts", accountRouter);

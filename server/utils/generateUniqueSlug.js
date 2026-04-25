@@ -5,7 +5,7 @@ import slugify from "slugify";
 /**
  * Generate UNIQUE slug for ANY model
  */
-export const generateUniqueSlug = async ({
+const generateUniqueSlug = async ({
   name = {},
   model,
   brandId,
@@ -85,3 +85,5 @@ export const generateUniqueSlug = async ({
 
   return slug;
 };
+
+export default generateUniqueSlug;

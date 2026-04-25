@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { BrowserRouter } from "react-router-dom";
 
 
-import "react-toastify/dist/ReactToastify.css";
+import "react-toastify/dist/Reacttoasty.css";
 
 import AppContextProvider from "./context/appContext";
 import {AdminContextProvider} from "./context/adminContext";
