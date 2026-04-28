@@ -43,7 +43,7 @@ app.use(cookieParser()); // Parse cookies
 // -------------------
 // CORS CONFIG
 // -------------------
-const allowedOrigins = ["http://localhost:3000", frontEnd];
+const allowedOrigins = ["http://localhost:5173", frontEnd];
 app.use(
   cors({
     origin: (origin, callback) => {

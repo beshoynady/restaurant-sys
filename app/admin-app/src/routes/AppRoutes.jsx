@@ -9,7 +9,8 @@ import { lazy, Suspense } from "react";
 // =========================
 // Pages (Lazy Loaded)
 // =========================
-const SetupPage = lazy(() => import("../features/setup/pages/SetupPage"));
+const SetupPage = lazy(() => import("../features/setup/pages/SetupWizard.jsx"));
+
 
 // Placeholder (future)
 const Dashboard = () => <div>Dashboard</div>;

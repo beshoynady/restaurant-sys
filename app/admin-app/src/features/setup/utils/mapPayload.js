@@ -1,27 +1,14 @@
-
-/* =====================================
-   📁 features/setup/utils/mapPayload.js
-===================================== */
+// features/setup/utils/mapPayload.js
 
 export const mapPayload = (form) => {
   return {
     brand: {
-      name: form.brand.name,
-      legalName: form.brand.legalName,
+      ...form.brand,
       currency: {
-        code: form.brand.currency || "EGP",
+        code: form.brand.currency,
       },
     },
-
-    owner: {
-      username: form.owner.username,
-      password: form.owner.password,
-      email: form.owner.email,
-      phone: form.owner.phone,
-    },
-
-    branch: {
-      name: form.branch.name,
-    },
+    owner: form.owner,
+    branch: form.branch,
   };
 };

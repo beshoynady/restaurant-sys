@@ -8,8 +8,6 @@ import UserAccount from "../../modules/iam/user-account/user-account.model.js";
 
 import generateUniqueSlug from "../../utils/generateUniqueSlug.js";
 
-
-
 /**
  * 🔥 Build Owner Role with Full Permissions
  */
@@ -34,7 +32,7 @@ const buildOwnerRole = (brandId) => {
     },
     allBranchesAccess: true,
     permissions,
-    isSystemRole: true, // system-created role
+    isSystemRole: true,
   };
 };
 
@@ -46,7 +44,7 @@ class SetupService {
       // =============================
       // 🚫 Prevent duplicate setup
       // =============================
-      const existingBrand = await Brand.findOne();
+      const existingBrand = await Brand.findOne().lean();
       if (existingBrand) {
         throw new Error("System already initialized");
       }
@@ -54,84 +52,81 @@ class SetupService {
       session.startTransaction();
 
       // =============================
-      // 1. CREATE BRAND
+      // 1. PREPARE DATA (🔥 CLEAN)
       // =============================
-      const brandSlug = await generateSlug(data.brand.name.EN);
+      const brandData = {
+        ...data.brand,
+        slug: await generateUniqueSlug(data.brand.name.EN),
+        setupStatus: "basic",
+      };
 
-      const [brand] = await Brand.create(
-        [
-          {
-            ...data.brand,
-            slug: brandSlug,
-            setupStatus: "basic",
-          },
-        ],
-        { session }
-      );
-
-      // =============================
-      // 2. CREATE MAIN BRANCH
-      // =============================
-      const branchSlug = await generateSlug(data.branch.name.EN);
-
-      const [branch] = await Branch.create(
-        [
-          {
-            brand: brand._id,
-            name: data.branch.name,
-            slug: branchSlug,
-            address: data.branch.address,
-            location: data.branch.location,
-            postalCode: data.branch.postalCode,
-            taxIdentificationNumber: data.branch.taxIdentificationNumber,
-            isMainBranch: true,
-          },
-        ],
-        { session }
-      );
+      const branchData = {
+        ...data.branch,
+        brand: null, // will be set after brand creation
+        slug: await generateUniqueSlug(data.branch.name.EN),
+        isMainBranch: true,
+      };
 
       // =============================
-      // 3. CREATE OWNER ROLE
+      // 2. CREATE BRAND
+      // =============================
+      const [brand] = await Brand.create([brandData], { session });
+
+      // attach brand to branch
+      branchData.brand = brand._id;
+
+      // =============================
+      // 3. CREATE BRANCH
+      // =============================
+      const [branch] = await Branch.create([branchData], { session });
+
+      // =============================
+      // 4. CREATE OWNER ROLE
       // =============================
       const ownerRoleData = buildOwnerRole(brand._id);
 
-      const [ownerRole] = await Role.create(
-        [ownerRoleData],
-        { session }
-      );
+      const [ownerRole] = await Role.create([ownerRoleData], {
+        session,
+      });
 
       // =============================
-      // 4. CREATE OWNER USER
+      // 5. CREATE OWNER USER
       // =============================
       const hashedPassword = await bcrypt.hash(
         data.owner.password,
         10
       );
 
-      const [user] = await UserAccount.create(
-        [
-          {
-            brand: brand._id,
-            branch: branch._id,
-            username: data.owner.username,
-            email: data.owner.email,
-            phone: data.owner.phone,
-            password: hashedPassword,
-            role: ownerRole._id,
-          },
-        ],
-        { session }
-      );
+      const userData = {
+        ...data.owner,
+        brand: brand._id,
+        branch: branch._id,
+        password: hashedPassword,
+        role: ownerRole._id,
+      };
+
+      const [user] = await UserAccount.create([userData], {
+        session,
+      });
 
       // =============================
-      // ✅ COMMIT TRANSACTION
+      // ✅ FINALIZE SETUP
+      // =============================
+      brand.setupStatus = "complete";
+      await brand.save({ session });
+
+      // =============================
+      // ✅ COMMIT
       // =============================
       await session.commitTransaction();
 
       return {
+        brand,
+        branch,
         user,
       };
     } catch (error) {
+      console.error("SETUP ERROR:", error);
       await session.abortTransaction();
       throw error;
     } finally {

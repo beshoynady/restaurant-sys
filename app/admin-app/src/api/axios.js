@@ -3,10 +3,11 @@ import axios from "axios";
 // =====================================
 // Create Axios Instance
 // Centralized API handler for the app
+export const baseURL = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
 // =====================================
 const api = axios.create({
   // Base URL for all API requests
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
+  baseURL,
 
   // Allow cookies (important for refresh token & session auth)
   withCredentials: true,
@@ -23,12 +24,10 @@ const api = axios.create({
 // =====================================
 api.interceptors.request.use(
   (config) => {
-    // Future use: attach JWT token automatically
-    // Example:
-    // const token = localStorage.getItem("token");
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
 
     return config;
   },
@@ -51,9 +50,8 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        // Future implementation:
         // Call refresh token endpoint to get new access token
-        // await api.post("/auth/refresh");
+        await api.post("/auth/refresh");
 
         // Retry original request after refresh
         return api(originalRequest);
