@@ -45,32 +45,50 @@ export default function SetupWizard() {
 
   const steps = [
     <WelcomeStep onNext={next} lang={lang} />,
-    <BrandStep data={form} update={update} onNext={next} onBack={back} lang={lang} />,
-    <OwnerStep data={form} update={update} onNext={next} onBack={back} lang={lang} />,
-    <BranchStep data={form} update={update} onSubmit={handleSubmit} onBack={back} loading={loading} lang={lang} />,
+    <BrandStep
+      data={form}
+      update={update}
+      onNext={next}
+      onBack={back}
+      lang={lang}
+    />,
+    <OwnerStep
+      data={form}
+      update={update}
+      onNext={next}
+      onBack={back}
+      lang={lang}
+    />,
+    <BranchStep
+      data={form}
+      update={update}
+      onSubmit={handleSubmit}
+      onBack={back}
+      loading={loading}
+      lang={lang}
+    />,
     <FinishStep lang={lang} />,
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 flex flex-col transition">
+    <div
+      className={`min-h-screen w-100 bg-gradient-to-br from-slate-50 via-white to-emerald-50
+     dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 flex flex-col transition 
+     ${lang === "ar" ? "text-right" : "text-left"} ${theme === "dark" ? "dark" : "light"}`}>
+     <TopBar theme={theme} setTheme={setTheme} lang={lang} setLang={setLang} />
 
-      <TopBar
-        theme={theme}
-        setTheme={setTheme}
-        lang={lang}
-        setLang={setLang}
-      />
+      <h1 className="font-semibold text-gray-800 dark:text-white text-center text-3xl mt-8">
+        🍽 Smart Menu
+      </h1>
 
       {/* Stepper */}
       <div className="flex justify-center mt-6">
         <div className="flex gap-2">
-          {[0,1,2,3,4].map((i) => (
+          {[0, 1, 2, 3, 4].map((i) => (
             <div
               key={i}
               className={`h-2 w-10 rounded-full transition ${
-                step >= i
-                  ? "bg-emerald-500"
-                  : "bg-gray-200 dark:bg-gray-700"
+                step >= i ? "bg-emerald-500" : "bg-gray-200 dark:bg-gray-700"
               }`}
             />
           ))}

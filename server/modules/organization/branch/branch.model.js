@@ -33,12 +33,10 @@ const branchSchema = new mongoose.Schema(
     address: {
       type: Map,
       of: {
-        type: new Schema({
           country: String,
           city: String,
           area: String,
           street: String,
-        }),
       },
     },
 

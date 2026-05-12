@@ -14,10 +14,7 @@ export const initializeSetup = async (data) => {
       console.log("🚀 Setup Payload:", data);
     }
 
-    const res = await axios.post(
-      `${baseURL}/setup/initialize`,
-      data
-    );
+    const res = await axios.post(`${baseURL}/setup/initialize`, data);
 
     return res.data;
   } catch (error) {

@@ -38,7 +38,10 @@ const buildOwnerRole = (brandId) => {
 
 class SetupService {
   async initialize(data) {
-    const session = await mongoose.startSession();
+console.log(
+  JSON.stringify(data || {}, null, 2)
+);
+    // const session = await mongoose.startSession();
 
     try {
       // =============================
@@ -49,28 +52,36 @@ class SetupService {
         throw new Error("System already initialized");
       }
 
-      session.startTransaction();
+      // session.startTransaction();
 
       // =============================
       // 1. PREPARE DATA (🔥 CLEAN)
       // =============================
       const brandData = {
         ...data.brand,
-        slug: await generateUniqueSlug(data.brand.name.EN),
+        slug: await generateUniqueSlug({
+          name: data.brand.name,
+          model: Brand,
+        }),
         setupStatus: "basic",
       };
 
       const branchData = {
         ...data.branch,
-        brand: null, // will be set after brand creation
-        slug: await generateUniqueSlug(data.branch.name.EN),
+        brand: null,
+        slug: await generateUniqueSlug({
+          name: data.branch.name,
+          model: Branch,
+        }),
         isMainBranch: true,
       };
 
       // =============================
       // 2. CREATE BRAND
       // =============================
-      const [brand] = await Brand.create([brandData], { session });
+      // const [brand] = await Brand.create([brandData], { session });
+      
+      const brand= await Brand.create(brandData);
 
       // attach brand to branch
       branchData.brand = brand._id;
@@ -78,24 +89,23 @@ class SetupService {
       // =============================
       // 3. CREATE BRANCH
       // =============================
-      const [branch] = await Branch.create([branchData], { session });
+      // const [branch] = await Branch.create([branchData], { session });
+      const branch = await Branch.create(branchData);
 
       // =============================
       // 4. CREATE OWNER ROLE
       // =============================
       const ownerRoleData = buildOwnerRole(brand._id);
 
-      const [ownerRole] = await Role.create([ownerRoleData], {
-        session,
-      });
+      // const [ownerRole] = await Role.create([ownerRoleData], {
+      //   session,
+      // });
+      const ownerRole = await Role.create(ownerRoleData);
 
       // =============================
       // 5. CREATE OWNER USER
       // =============================
-      const hashedPassword = await bcrypt.hash(
-        data.owner.password,
-        10
-      );
+      const hashedPassword = await bcrypt.hash(data.owner.password, 10);
 
       const userData = {
         ...data.owner,
@@ -105,20 +115,22 @@ class SetupService {
         role: ownerRole._id,
       };
 
-      const [user] = await UserAccount.create([userData], {
-        session,
-      });
+      // const [user] = await UserAccount.create([userData], {
+      //   session,
+      // });
+      const user = await UserAccount.create(userData);
 
       // =============================
       // ✅ FINALIZE SETUP
       // =============================
       brand.setupStatus = "complete";
-      await brand.save({ session });
+      // await brand.save({ session });
+      await brand.save();
 
       // =============================
       // ✅ COMMIT
       // =============================
-      await session.commitTransaction();
+      // await session.commitTransaction();
 
       return {
         brand,
@@ -127,10 +139,10 @@ class SetupService {
       };
     } catch (error) {
       console.error("SETUP ERROR:", error);
-      await session.abortTransaction();
+      // await session.abortTransaction();
       throw error;
     } finally {
-      session.endSession();
+      // session.endSession();
     }
   }
 }

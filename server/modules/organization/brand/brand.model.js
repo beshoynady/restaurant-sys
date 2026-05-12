@@ -63,7 +63,7 @@ const brandSchema = new mongoose.Schema(
       symbol: {
         type: String,
         trim: true,
-        maxlength: 2,
+        maxlength: 5,
         default: "£",
       },
       decimalPlaces: {
@@ -154,7 +154,7 @@ const brandSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ["active", "inactive", "suspended"],
-      default: `active`,
+      default: "active",
     },
     // ===============================
     // AUDIT & SOFT DELETE

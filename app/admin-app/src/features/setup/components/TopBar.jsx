@@ -4,13 +4,11 @@ export default function TopBar({ theme, setTheme, lang, setLang }) {
   const isDark = theme === "dark";
 
   return (
-    <div className="flex justify-between items-center px-8 py-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur border-b border-gray-100 dark:border-gray-800 transition">
+    <div className="flex justify-between items-center w-100 px-8 py-4 bg-white/80 dark:bg-gray-900/80 
+    backdrop-blur border-b border-gray-100 dark:border-gray-800 transition" style={{ height: "64px", zIndex: 100 }}>
 
-      <h1 className="font-semibold text-gray-800 dark:text-white">
-        🍽 Smart Menu
-      </h1>
-
-      <div className="flex gap-3">
+      <div className={`flex gap-3 items-center text-gray-800 dark:text-white font-medium text-lg 
+      transition ${lang === "ar" ? "flex-row-reverse flex" : ""}`}>
 
         {/* Theme toggle */}
         <button
@@ -30,6 +28,7 @@ export default function TopBar({ theme, setTheme, lang, setLang }) {
         </button>
 
       </div>
+
     </div>
   );
 }
