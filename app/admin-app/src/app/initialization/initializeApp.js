@@ -1,15 +1,22 @@
-import api from "@/shared/services/api";
+import api from "../../api/axios";
 
 export const initializeApp = async () => {
-   try {
-      const response = await api.get("/setup/status");
+  try {
+    const response = await api.get("/setup/status");
 
-      return response.data;
-   } catch (error) {
-      console.error(error);
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error) {
+    console.error("App initialization failed:", error);
 
-      return {
-         isSetupCompleted: false,
-      };
-   }
+    return {
+      success: false,
+      data: {
+        isSetupCompleted: false,
+      },
+      error,
+    };
+  }
 };

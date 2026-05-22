@@ -1,5 +1,5 @@
 import { useState } from "react";
-import FormField from "../../../components/ui/FormField";
+import FormField from "../../../shared/ui/FormField.jsx";
 
 export default function BrandStep({ data, update, onNext, onBack, lang }) {
   const isArabic = lang === "ar";
