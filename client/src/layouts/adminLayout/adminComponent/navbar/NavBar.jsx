@@ -8,38 +8,6 @@ import { toast } from "react-toastify";
 
 import notificationSound from "../../../../audio/sound.mp3";
 
-// const socket = io(process.env.REACT_APP_API_URL, {
-//   reconnection: true,
-// });
-
-// const cashierSocket = io(`${process.env.REACT_APP_API_URL}/cashier`, {
-//   reconnection: true,
-//   reconnectionAttempts: Infinity,
-//   reconnectionDelay: 1000,
-// });
-
-// const kitchenSocket = io(`${process.env.REACT_APP_API_URL}/kitchen`, {
-//   reconnection: true,
-//   reconnectionAttempts: Infinity,
-//   reconnectionDelay: 1000,
-// });
-// const BarSocket = io(`${process.env.REACT_APP_API_URL}/bar`, {
-//   reconnection: true,
-//   reconnectionAttempts: Infinity,
-//   reconnectionDelay: 1000,
-// });
-// const GrillSocket = io(`${process.env.REACT_APP_API_URL}/grill`, {
-//   reconnection: true,
-//   reconnectionAttempts: Infinity,
-//   reconnectionDelay: 1000,
-// });
-
-// const waiterSocket = io(`${process.env.REACT_APP_API_URL}/waiter`, {
-//   reconnection: true,
-//   reconnectionAttempts: Infinity,
-//   reconnectionDelay: 1000,
-// });
-
 const NavBar = () => {
   const {
     permissionsList,

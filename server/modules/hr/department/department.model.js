@@ -34,7 +34,7 @@ const departmentSchema = new mongoose.Schema(
       lowercase: true,
       maxlength: 100,
       required: true,
-      match: /^[a-z]+(?:-[a-z0-9]+)*$/, // allows lowercase letters and hyphens and numbers, but must start with a letter
+      match: /^[a-z0-9]+(?:-[a-z0-9]+)*$/, // allows lowercase letters and hyphens and numbers, but must start with a letter
     },
     // Unique Dine-in code (for integrations or reporting)
     code: {

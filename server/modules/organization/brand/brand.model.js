@@ -24,7 +24,7 @@ const brandSchema = new mongoose.Schema(
       unique: true,
       required: true,
       maxlength: 100,
-      match: /^[a-z]+(?:-[a-z0-9]+)*$/, // allows lowercase letters and hyphens and numbers, but must start with a letter
+      match: /^[a-z0-9]+(?:-[a-z0-9]+)*$/, // allows lowercase letters and hyphens and numbers, but must start with a letter
     },
     /**
      * Brand logo URL

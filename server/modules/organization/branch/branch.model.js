@@ -27,7 +27,7 @@ const branchSchema = new mongoose.Schema(
       lowercase: true,
       maxlength: 100,
       required: true,
-      match: /^[a-z]+(?:-[a-z0-9]+)*$/,
+      match: /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
     },
 
     address: {
