@@ -33,6 +33,7 @@ api.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
+    console.error("Request error:", error);
   }
 );
 

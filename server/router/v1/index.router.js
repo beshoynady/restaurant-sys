@@ -4,6 +4,17 @@ const router = express.Router();
 
 import setupRouter from "../../modules/system-setup/setup.router.js";
 
+// ========================
+// ORGANIZATION
+// ========================
+import brandRouter from "../../modules/organization/brand/brand.router.js";
+import branchRouter from "../../modules/organization/branch/branch.router.js";
+// import brandSettingsRouter from "../../modules/organization/brand-settings/brand-settings.router.js";
+import branchSettingsRouter from "../../modules/organization/branch-settings/branch-settings.router.js";
+import deliveryAreaRouter from "../../modules/organization/delivery-area/delivery-area.router.js";
+
+
+
 
 // ========================
 // ACCOUNTING
@@ -33,7 +44,7 @@ import assetTransactionsRouter from "../../modules/assets/asset-transactions/ass
 import messageRouter from "../../modules/crm/message/message.router.js";
 import offlineCustomerRouter from "../../modules/crm/offline-customer/offline-customer.router.js";
 import onlineCustomerRouter from "../../modules/crm/online-customer/online-customer.router.js";
-import customerAuthRouter from "../../modules/crm/customer-auth/auth.router.js";
+// import customerAuthRouter from "../../modules/crm/customer-auth/auth.router.js";
 
 // ========================
 // FINANCE
@@ -113,6 +124,13 @@ router.get("/health", (req, res) => {
 // System Setup (must be first to prevent conflicts)
 router.use("/setup", setupRouter);
 
+// Organization
+router.use("/organization/brand", brandRouter);
+router.use("/organization/branches", branchRouter);
+// router.use("/organization/brand-settings", brandSettingsRouter);
+router.use("/organization/branch-settings", branchSettingsRouter);
+router.use("/organization/delivery-areas", deliveryAreaRouter);
+
 // Accounting
 router.use("/accounting/accounts", accountRouter);
 router.use("/accounting/balances", accountBalanceRouter);
@@ -136,7 +154,7 @@ router.use("/assets/transactions", assetTransactionsRouter);
 router.use("/crm/messages", messageRouter);
 router.use("/crm/offline-customers", offlineCustomerRouter);
 router.use("/crm/online-customers", onlineCustomerRouter);
-router.use("/crm/auth", customerAuthRouter);
+// router.use("/crm/auth", customerAuthRouter);
 // Finance
 router.use("/finance/banks", bankAccountRouter);
 router.use("/finance/cash-registers", cashRegisterRouter);

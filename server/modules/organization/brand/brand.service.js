@@ -1,9 +1,11 @@
 import BrandModel from "./brand.model.js";
-import AdvancedService from "../../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/BaseService.js";
 
 class BrandService extends AdvancedService {
   constructor() {
-    super(BrandModel, {
+    super(
+      BrandModel, 
+      {
       brandScoped: true,
       softDelete: true,
       defaultPopulate: ["createdBy", "updatedBy", "deletedBy"],
@@ -105,6 +107,23 @@ class BrandService extends AdvancedService {
     const brand = await this.findOne(id);
     return currentBranchesCount < brand.maxBranches;
   }
+
+
+    // =========================
+  // 🟢 GLOBAL SETUP STATUS
+  // =========================
+  async getSetupStatus() {
+    const brand = await this.model.findOne({
+      isDeleted: false,
+    });
+
+    return {
+      isSetupComplete: !!brand,
+      setupStatus: brand?.setupStatus || "not_started",
+      brandId: brand?._id || null,
+    };
+  }
+
 }
 
 export default new BrandService();

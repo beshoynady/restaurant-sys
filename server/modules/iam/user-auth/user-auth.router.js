@@ -7,8 +7,12 @@ const router = express.Router();
 /* =========================
    AUTH ONLY
 ========================= */
+
 router.post("/login", authController.login);
 router.post("/refresh", authController.refresh);
 router.post("/logout", authenticateToken, authController.logout);
+// router.get("/login", (req, res) => {
+//   res.json({ ok: true });
+// });
 
 export default router;

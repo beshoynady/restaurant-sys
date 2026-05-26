@@ -1,5 +1,5 @@
 import BaseService from "../../../utils/BaseService.js";
-import BranchSettingsModel from "../../models/core/branch-settings.model.js";
+import BranchSettingsModel from "./branch-settings.model.js";
 import throwError from "../../../utils/throwError.js";
 
 class BranchSettingsService extends BaseService {

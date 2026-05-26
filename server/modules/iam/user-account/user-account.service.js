@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import UserAccountModel from "./user-account.model.js";
-import AdvancedService from "../../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/BaseService.js";
 import throwError from "../../../utils/throwError.js";
 
 class UserAccountService extends AdvancedService {

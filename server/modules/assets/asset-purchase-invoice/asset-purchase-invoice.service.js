@@ -1,5 +1,5 @@
 import AssetPurchaseInvoiceModel from "./asset-purchase-invoice.model.js";
-import AdvancedService from "../../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/BaseService.js";
 
 // Initialize service for asset-purchase-invoice model
 const assetPurchaseInvoiceService = new AdvancedService(AssetPurchaseInvoiceModel, {

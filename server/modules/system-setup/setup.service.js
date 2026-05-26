@@ -8,6 +8,12 @@ import UserAccount from "../../modules/iam/user-account/user-account.model.js";
 
 import generateUniqueSlug from "../../utils/generateUniqueSlug.js";
 
+// 🔐 JWT utilities (Access + Refresh Tokens)
+import {
+  signAccessToken,
+  signRefreshToken,
+} from "../../utils/jwt.utils.js";
+
 /**
  * 🔥 Build Owner Role with Full Permissions
  */
@@ -37,25 +43,26 @@ const buildOwnerRole = (brandId) => {
 };
 
 class SetupService {
+  /**
+   * ==========================================
+   * 🚀 INITIAL SYSTEM SETUP (FIRST INSTALL ONLY)
+   * ==========================================
+   */
   async initialize(data) {
-console.log(
-  JSON.stringify(data || {}, null, 2)
-);
-    // const session = await mongoose.startSession();
+    console.log("SETUP DATA:", JSON.stringify(data || {}, null, 2));
 
     try {
       // =============================
       // 🚫 Prevent duplicate setup
       // =============================
       const existingBrand = await Brand.findOne().lean();
+
       if (existingBrand) {
         throw new Error("System already initialized");
       }
 
-      // session.startTransaction();
-
       // =============================
-      // 1. PREPARE DATA (🔥 CLEAN)
+      // 1. BRAND PREPARATION
       // =============================
       const brandData = {
         ...data.brand,
@@ -66,6 +73,9 @@ console.log(
         setupStatus: "basic",
       };
 
+      // =============================
+      // 2. BRANCH PREPARATION
+      // =============================
       const branchData = {
         ...data.branch,
         brand: null,
@@ -77,33 +87,26 @@ console.log(
       };
 
       // =============================
-      // 2. CREATE BRAND
+      // 3. CREATE BRAND
       // =============================
-      // const [brand] = await Brand.create([brandData], { session });
-      
-      const brand= await Brand.create(brandData);
+      const brand = await Brand.create(brandData);
 
-      // attach brand to branch
+      // Attach brand to branch
       branchData.brand = brand._id;
 
       // =============================
-      // 3. CREATE BRANCH
+      // 4. CREATE BRANCH
       // =============================
-      // const [branch] = await Branch.create([branchData], { session });
       const branch = await Branch.create(branchData);
 
       // =============================
-      // 4. CREATE OWNER ROLE
+      // 5. CREATE OWNER ROLE
       // =============================
       const ownerRoleData = buildOwnerRole(brand._id);
-
-      // const [ownerRole] = await Role.create([ownerRoleData], {
-      //   session,
-      // });
       const ownerRole = await Role.create(ownerRoleData);
 
       // =============================
-      // 5. CREATE OWNER USER
+      // 6. CREATE OWNER USER
       // =============================
       const hashedPassword = await bcrypt.hash(data.owner.password, 10);
 
@@ -115,34 +118,35 @@ console.log(
         role: ownerRole._id,
       };
 
-      // const [user] = await UserAccount.create([userData], {
-      //   session,
-      // });
       const user = await UserAccount.create(userData);
+
+      // =============================
+      // 🔐 GENERATE INITIAL TOKENS
+      // =============================
+      const accessToken = signAccessToken(user);
+      const refreshToken = signRefreshToken(user);
 
       // =============================
       // ✅ FINALIZE SETUP
       // =============================
       brand.setupStatus = "complete";
-      // await brand.save({ session });
       await brand.save();
 
       // =============================
-      // ✅ COMMIT
+      // 🚀 RESPONSE
       // =============================
-      // await session.commitTransaction();
-
       return {
         brand,
         branch,
         user,
+        tokens: {
+          accessToken,
+          refreshToken,
+        },
       };
     } catch (error) {
       console.error("SETUP ERROR:", error);
-      // await session.abortTransaction();
       throw error;
-    } finally {
-      // session.endSession();
     }
   }
 }

@@ -24,8 +24,12 @@ const SetupPage = lazy(() =>
   import("../../modules/setup/pages/SetupWizard")
 );
 
+// const Login = lazy(() =>
+//   import("../../features/login/pages/LoginPage")
+// );
+
 const Login = lazy(() =>
-  import("../../features/login/pages/LoginPage")
+  import("../../features/auth/pages/LoginPage")
 );
 
 // Pages
@@ -34,12 +38,14 @@ const NotFound = () => <div>404</div>;
 
 export default function AppRoutes() {
   const [loading, setLoading] = useState(true);
-  const [isSetupCompleted, setIsSetupCompleted] = useState(false);
+  const [isSetupCompleted, setIsSetupCompleted] = useState(true);
 
+  
   useEffect(() => {
     const init = async () => {
       try {
         const data = await initializeApp();
+        console.log("Initialization Result:", data);
         setIsSetupCompleted(data?.isSetupCompleted);
       } finally {
         setLoading(false);
@@ -58,15 +64,15 @@ export default function AppRoutes() {
       <Routes>
 
         {/* ================= SETUP ================= */}
-        {!isSetupCompleted && (
+        {/* {!isSetupCompleted && ( */}
           <>
             <Route path="/setup" element={<SetupPage />} />
             <Route path="*" element={<Navigate to="/setup" replace />} />
           </>
-        )}
+        {/* )} */}
 
         {/* ================= APP ================= */}
-        {isSetupCompleted && (
+        {/* {isSetupCompleted && ( */}
           <>
             {/* LOGIN */}
             <Route path="/login" element={<Login />} />
@@ -109,7 +115,7 @@ export default function AppRoutes() {
             {/* 404 */}
             <Route path="*" element={<NotFound />} />
           </>
-        )}
+        {/* )} */}
       </Routes>
     </Suspense>
   );

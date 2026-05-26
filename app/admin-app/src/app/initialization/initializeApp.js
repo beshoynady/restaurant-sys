@@ -1,22 +1,16 @@
-import api from "../../api/axios";
+import axios from "axios";
+import { baseURL } from "../../api/axios.js";
 
 export const initializeApp = async () => {
   try {
-    const response = await api.get("/setup/status");
+    const response = await axios.get(`${baseURL}/organization/brand/setup/status`);
 
-    return {
-      success: true,
-      data: response.data,
-    };
+    return response.data;
   } catch (error) {
-    console.error("App initialization failed:", error);
+    console.error(error);
 
     return {
-      success: false,
-      data: {
-        isSetupCompleted: false,
-      },
-      error,
+      isSetupCompleted: false,
     };
   }
 };

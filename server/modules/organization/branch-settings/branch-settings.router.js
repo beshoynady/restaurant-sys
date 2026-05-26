@@ -1,7 +1,7 @@
 // routes/core/branch-settings.routes.js
 
 import express from "express";
-import branchSettingsController from "../../controllers/core/branch-settings.controller.js";
+import branchSettingsController from "./branch-settings.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
 import authorize from "../../../middlewares/authorize.js";
 import validate from "../../../middlewares/validate.js";
@@ -12,7 +12,7 @@ import {
   paramsBranchSettingsSchema,
   paramsBranchSettingsIdsSchema,
   queryBranchSettingsSchema,
-} from "../../validation/core/branch-settings.validation.js";
+} from "./branch-settings.validation.js";
 
 const router = express.Router();
 

@@ -8,7 +8,7 @@ import {
   objectId,
 } from "../../../utils/joiFactory.js";
 
-import BranchSettingsModel from "../../models/core/branch-settings.model.js";
+import BranchSettingsModel from "./branch-settings.model.js";
 
 /* =========================
    Custom Validation

@@ -1,5 +1,5 @@
 import AssetModel from "./asset.model.js";
-import AdvancedService from "../../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/BaseService.js";
 
 // Initialize service for asset model
 const assetService = new AdvancedService(AssetModel, {

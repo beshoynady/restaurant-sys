@@ -1,7 +1,7 @@
 // controllers/core/branch-settings.controller.js
 
 import BaseController from "../../../utils/BaseController.js";
-import branchSettingsService from "../../services/core/branch-settings.service.js";
+import branchSettingsService from "./branch-settings.service.js";
 import asyncHandler from "../../../utils/asyncHandler.js";
 
 /**

@@ -16,7 +16,7 @@ class AuthService {
     }
 
     const user = await User.findOne({
-      brand: brandId,
+      // brand: brandId,
       isDeleted: false,
       isActive: true,
       $or: [
@@ -30,7 +30,7 @@ class AuthService {
 
     const match = await bcrypt.compare(password, user.password);
     if (!match) throwError("Invalid credentials", 401);
-
+    console.log("User authenticated successfully:", user.username);
     // update last login
     user.lastLogin = new Date();
     await user.save();

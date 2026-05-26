@@ -27,13 +27,13 @@ router
     authenticateToken,
     authorize("brand:create"),
     validate(createBrandSchema),
-    brandController.create
+    brandController.create,
   )
   .get(
     authenticateToken,
     authorize("brand:read"),
     validate(queryBrandSchema, "query"),
-    brandController.getAll
+    brandController.getAll,
   );
 
 /* =========================
@@ -45,19 +45,19 @@ router
     authenticateToken,
     authorize("brand:read"),
     validate(paramsBrandSchema, "params"),
-    brandController.getOne
+    brandController.getOne,
   )
   .put(
     authenticateToken,
     authorize("brand:update"),
     validate(updateBrandSchema),
-    brandController.update
+    brandController.update,
   )
   .delete(
     authenticateToken,
     authorize("brand:delete"),
     validate(paramsBrandSchema, "params"),
-    brandController.hardDelete
+    brandController.hardDelete,
   );
 
 /* =========================
@@ -68,7 +68,7 @@ router.patch(
   authenticateToken,
   authorize("brand:delete"),
   validate(paramsBrandSchema, "params"),
-  brandController.softDelete
+  brandController.softDelete,
 );
 
 router.patch(
@@ -76,7 +76,7 @@ router.patch(
   authenticateToken,
   authorize("brand:restore"),
   validate(paramsBrandSchema, "params"),
-  brandController.restore
+  brandController.restore,
 );
 
 /* =========================
@@ -88,7 +88,7 @@ router.patch(
   authorize("brand:update"),
   validate(paramsBrandSchema, "params"),
   validate(changeStatusSchema),
-  brandController.changeStatus
+  brandController.changeStatus,
 );
 
 /* =========================
@@ -100,7 +100,7 @@ router.patch(
   authorize("brand:update"),
   validate(paramsBrandSchema, "params"),
   validate(updateLogoSchema),
-  brandController.updateLogo
+  brandController.updateLogo,
 );
 
 /* =========================
@@ -112,7 +112,7 @@ router.patch(
   authorize("brand:update"),
   validate(paramsBrandSchema, "params"),
   validate(updateBrandSettingsSchema),
-  brandController.updateSettings
+  brandController.updateSettings,
 );
 
 /* =========================
@@ -124,7 +124,7 @@ router.patch(
   authorize("brand:update"),
   validate(paramsBrandSchema, "params"),
   validate(setupProgressSchema),
-  brandController.updateSetup
+  brandController.updateSetup,
 );
 
 /* =========================
@@ -135,7 +135,7 @@ router.get(
   authenticateToken,
   authorize("brand:read"),
   validate(paramsBrandSchema, "params"),
-  brandController.getSummary
+  brandController.getSummary,
 );
 
 /* =========================
@@ -146,7 +146,9 @@ router.get(
   authenticateToken,
   authorize("brand:read"),
   validate(queryBrandSchema, "query"),
-  brandController.search
+  brandController.search,
 );
+
+router.get("/setup/status", brandController.getSetupStatus);
 
 export default router;

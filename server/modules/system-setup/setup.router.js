@@ -1,5 +1,5 @@
 import express from "express";
-import { initializeSystem } from "./setup.controller.js";
+import setupController from "./setup.controller.js";
 
 const router = express.Router();
 
@@ -13,6 +13,6 @@ const router = express.Router();
  * - Owner Role
  * - Owner User
  */
-router.post("/initialize", initializeSystem);
+router.post("/initialize", setupController.initialize);
 
 export default router;

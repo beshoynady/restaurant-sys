@@ -13,7 +13,7 @@ class BrandController extends BaseController {
     const result = await this.service.changeStatus(
       req.params.id,
       req.body.status,
-      req.user.id
+      req.user.id,
     );
     res.json(result);
   };
@@ -25,7 +25,7 @@ class BrandController extends BaseController {
     const result = await this.service.updateLogo(
       req.params.id,
       req.body.logo,
-      req.user.id
+      req.user.id,
     );
     res.json(result);
   };
@@ -37,7 +37,7 @@ class BrandController extends BaseController {
     const result = await this.service.updateSettings(
       req.params.id,
       req.body,
-      req.user.id
+      req.user.id,
     );
     res.json(result);
   };
@@ -49,7 +49,7 @@ class BrandController extends BaseController {
     const result = await this.service.updateSetupStatus(
       req.params.id,
       req.body.step,
-      req.user.id
+      req.user.id,
     );
     res.json(result);
   };
@@ -66,10 +66,16 @@ class BrandController extends BaseController {
   // SEARCH
   // =========================
   search = async (req, res) => {
-    const result = await this.service.searchBrands(
-      req.query.q,
-      req.user.id
-    );
+    const result = await this.service.searchBrands(req.query.q, req.user.id);
+    res.json(result);
+  };
+
+  // =========================
+  // SETUP STATUS
+  // =========================
+  getSetupStatus = async (req, res) => {
+    const result = await this.service.getSetupStatus();
+
     res.json(result);
   };
 }

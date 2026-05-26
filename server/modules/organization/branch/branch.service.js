@@ -1,7 +1,7 @@
 import BaseService from "../../../utils/BaseService.js";
 import BranchModel from "./branch.model.js";
 import throwError from "../../../utils/throwError.js";
-import { generateUniqueSlug } from "../../../utils/generateUniqueSlug.js";
+import generateUniqueSlug  from "../../../utils/generateUniqueSlug.js";
 
 class BranchService extends BaseService {
   constructor() {

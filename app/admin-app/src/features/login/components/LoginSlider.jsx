@@ -1,6 +1,6 @@
-import restaurant from "@/assets/images/restaurant.jpg";
-import menu from "@/assets/images/emenu.jpg";
-import pos from "@/assets/images/pos.jpg";
+import restaurant from "../../../assets/images/smart-restaurant.jpg";
+import menu from "../../../assets/images/e-menu.jpg";
+import pos from "../../../assets/images/pos.jpg";
 
 const slides = [
   {
