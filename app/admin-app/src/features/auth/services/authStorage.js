@@ -1,36 +1,42 @@
 // features/auth/services/authStorage.js
+import { jwtDecode } from "jwt-decode";
 
 const TOKEN_KEY = "accessToken";
-const USER_KEY = "authUser";
 
 /**
  * Save authentication data
  */
-export const saveAuthData = ({ token, user }) => {
-  localStorage.setItem(TOKEN_KEY, token);
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
+export const saveAuthData = (accessToken) => {
+  localStorage.setItem(TOKEN_KEY, accessToken);
 };
 
 /**
- * Get access token
+ * Get token
  */
 export const getToken = () => {
   return localStorage.getItem(TOKEN_KEY);
 };
 
 /**
- * Get authenticated user
+ * Get decoded user from token
  */
 export const getUser = () => {
-  const user = localStorage.getItem(USER_KEY);
+  const token = getToken();
 
-  return user ? JSON.parse(user) : null;
+  if (!token) return null;
+
+  try {
+    const decoded = jwtDecode(token);
+    return decoded; // contains id, brand, role, branch
+  } catch (err) {
+    console.error("Invalid token:", err);
+    return null;
+  }
 };
 
 /**
- * Clear authentication data
+ * Clear auth data
  */
 export const clearAuthData = () => {
   localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(USER_KEY);
 };

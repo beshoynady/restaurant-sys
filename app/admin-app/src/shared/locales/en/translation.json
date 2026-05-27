@@ -1,0 +1,16 @@
+{
+  "welcome": "Welcome 👋",
+  "setupDescription": "Let's set up your restaurant system in a few steps",
+  "startSetup": "Start Setup",
+  "brandInformation": "Brand Information",
+  "brandDescription": "Enter your restaurant basic information",
+  "ownerAccount": "Owner Account",
+  "ownerDescription": "Create main admin account",
+  "mainBranch": "Main Branch",
+  "back": "Back",
+  "next": "Next",
+  "finish": "Finish",
+  "dashboard": "Go to Dashboard",
+  "completed": "Setup Completed 🎉",
+  "completedDescription": "Your account and restaurant have been created successfully."
+}

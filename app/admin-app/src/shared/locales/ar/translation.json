@@ -1,0 +1,16 @@
+{
+  "welcome": "مرحبا 👋",
+  "setupDescription": "لنقم بإعداد نظام المطعم في خطوات بسيطة",
+  "startSetup": "ابدأ الإعداد",
+  "brandInformation": "بيانات العلامة التجارية",
+  "brandDescription": "أدخل بيانات المطعم الأساسية",
+  "ownerAccount": "حساب المالك",
+  "ownerDescription": "إنشاء حساب المدير الرئيسي",
+  "mainBranch": "الفرع الرئيسي",
+  "back": "رجوع",
+  "next": "التالي",
+  "finish": "إنهاء",
+  "dashboard": "الذهاب إلى لوحة التحكم",
+  "completed": "تم الإعداد بنجاح 🎉",
+  "completedDescription": "تم إنشاء الحساب والمطعم بنجاح."
+}

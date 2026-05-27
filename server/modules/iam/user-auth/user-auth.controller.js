@@ -9,14 +9,6 @@ class AuthController {
     const { user, accessToken, refreshToken } =
       await authService.login(req.body);
 
-    // 🍪 ACCESS TOKEN COOKIE
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 15 * 60 * 1000, // 15 min
-    });
-
     // 🍪 REFRESH TOKEN COOKIE
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
@@ -27,6 +19,7 @@ class AuthController {
 
     res.status(200).json({
       user,
+      accessToken,
       message: "Login successful",
     });
   });

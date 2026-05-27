@@ -3,53 +3,44 @@ import jwt from "jsonwebtoken";
 /**
  * ==========================================
  * 🔐 JWT UTILITY SERVICE
- * Handles Access & Refresh Token logic
  * ==========================================
  */
 
-// =========================
-// CONFIG
-// =========================
-const ACCESS_EXPIRES_IN = "15m";
-const REFRESH_EXPIRES_IN = "7d";
+const ACCESS_EXPIRES_IN = process.env.ACCESS_TOKEN_EXPIRES || "15m";
+
+const REFRESH_EXPIRES_IN = process.env.REFRESH_TOKEN_EXPIRES || "7d";
 
 /**
  * ==========================================
  * 🔑 Generate Access Token
- * Short-lived token for API authentication
  * ==========================================
  */
 export const signAccessToken = (user) => {
   return jwt.sign(
     {
-      id: user._id,
-      brand: user.brand,
-      role: user.role,
-      branch: user.branch,
+      id: user._id.toString(),
+      brand: user.brand?.toString(),
+      role: user.role?.toString(),
+      branch: user.branch?.toString(),
     },
     process.env.JWT_SECRET,
-    {
-      expiresIn: ACCESS_EXPIRES_IN,
-    }
+    { expiresIn: ACCESS_EXPIRE },
   );
 };
 
 /**
  * ==========================================
  * 🔄 Generate Refresh Token
- * Long-lived token for renewing access token
  * ==========================================
  */
 export const signRefreshToken = (user) => {
   return jwt.sign(
     {
-      id: user._id,
-      brand: user.brand,
+      id: user._id.toString(),
+      brand: user.brand?.toString(),
     },
     process.env.JWT_SECRET,
-    {
-      expiresIn: REFRESH_EXPIRES_IN,
-    }
+    { expiresIn: REFRESH_EXPIRE },
   );
 };
 
@@ -59,7 +50,7 @@ export const signRefreshToken = (user) => {
  * ==========================================
  */
 export const verifyAccessToken = (token) => {
-  return jwt.verify(token, process.env.JWT_SECRET);
+  return jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 };
 
 /**
@@ -68,5 +59,5 @@ export const verifyAccessToken = (token) => {
  * ==========================================
  */
 export const verifyRefreshToken = (token) => {
-  return jwt.verify(token, process.env.JWT_SECRET);
+  return jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
 };

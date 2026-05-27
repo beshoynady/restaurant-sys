@@ -41,9 +41,7 @@ export const setupSchema = Joi.object({
       .items(Joi.string().valid("EN", "AR"))
       .default(["EN", "AR"]),
 
-    defaultDashboardLanguage: Joi.string()
-      .valid("EN", "AR")
-      .default("EN"),
+    defaultDashboardLanguage: Joi.string().valid("EN", "AR").default("EN"),
 
     timezone: Joi.string().default("Africa/Cairo"),
 
@@ -76,14 +74,22 @@ export const setupSchema = Joi.object({
         area: Joi.string().min(2).required(),
         street: Joi.string().min(2).required(),
       }).required(),
-    }).required(), // ✅ بالكامل required
+    }).required(), // required
 
     location: Joi.object({
-      type: Joi.string().valid("Point").default("Point"),
-      coordinates: Joi.array()
-        .items(Joi.number())
-        .length(2), // [lng, lat]
-    }).allow(null),
+      type: Joi.string().valid("Point"),
+
+      coordinates: Joi.array().items(Joi.number()).length(2),
+    })
+      .custom((value, helpers) => {
+        // if one exists, both required
+        if (value?.type && !value?.coordinates) {
+          return helpers.error("any.invalid");
+        }
+
+        return value;
+      })
+      .optional(),
 
     postalCode: Joi.string().allow(null, ""),
 

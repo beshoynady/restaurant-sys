@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
 import { CheckCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
-export default function FinishStep({ lang }) {
-  const isArabic = lang === "ar";
+export default function FinishStep() {
+  const { t } = useTranslation();
 
   return (
     <motion.div
@@ -10,7 +11,6 @@ export default function FinishStep({ lang }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
     >
-      {/* Icon */}
       <div className="flex justify-center">
         <div className="p-4 rounded-full bg-emerald-100 dark:bg-emerald-900/30">
           <CheckCircle
@@ -20,27 +20,22 @@ export default function FinishStep({ lang }) {
         </div>
       </div>
 
-      {/* Title */}
-      <h2 className="text-2xl font-bold">
-        {isArabic ? "تم الإعداد بنجاح 🎉" : "Setup Completed 🎉"}
+      <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
+        {t("completed")}
       </h2>
 
-      {/* Description */}
-      <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
-        {isArabic
-          ? "تم إنشاء الحساب والمطعم بنجاح. يمكنك الآن البدء في إدارة نظامك بكل سهولة."
-          : "Your account and restaurant have been created successfully. You can now start managing your system."}
+      <p className="text-gray-500 dark:text-gray-400">
+        {t("completedDescription")}
       </p>
 
-      {/* CTA Button */}
       <button
-        className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 transition text-white rounded-xl"
-        onClick={() => {
-          // 🔥 هنا هتعمل redirect للدashboard
-          window.location.href = "/dashboard";
-        }}
+        className="
+        px-6 py-3 rounded-xl
+        bg-emerald-600 hover:bg-emerald-700
+        text-white transition
+      "
       >
-        {isArabic ? "الذهاب إلى لوحة التحكم" : "Go to Dashboard"}
+        {t("dashboard")}
       </button>
     </motion.div>
   );

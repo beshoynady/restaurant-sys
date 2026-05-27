@@ -24,16 +24,14 @@ const SetupPage = lazy(() =>
   import("../../modules/setup/pages/SetupWizard")
 );
 
-// const Login = lazy(() =>
-//   import("../../features/login/pages/LoginPage")
-// );
-
 const Login = lazy(() =>
   import("../../features/auth/pages/LoginPage")
 );
 
 // Pages
-const DashboardHome = () => <div>Dashboard Home</div>;
+const DashboardHome = lazy(() =>
+  import("../../layouts/dashboard/DashboardLayout.jsx")
+);
 const NotFound = () => <div>404</div>;
 
 export default function AppRoutes() {
@@ -78,16 +76,16 @@ export default function AppRoutes() {
             <Route path="/login" element={<Login />} />
 
             {/* DASHBOARD */}
-            {/* <Route
-              path="/"
+            <Route
+              path="/admin"
               element={
-                <ProtectedRoute>
-                  <DashboardLayout />
-                </ProtectedRoute>
+                // <ProtectedRoute>
+                  <DashboardHome />
+                // </ProtectedRoute>
               }
             >
               <Route index element={<DashboardHome />} />
-            </Route> */}
+            </Route>
 
             {/* POS */}
             {/* <Route

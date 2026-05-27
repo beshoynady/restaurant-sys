@@ -10,13 +10,13 @@ class AuthService {
   // =========================
   // 🔐 LOGIN
   // =========================
-  async login({ identifier, password, brandId }) {
+  async login({ identifier, password }) {
+
     if (!identifier || !password) {
       throwError("Identifier and password are required", 400);
     }
 
     const user = await User.findOne({
-      // brand: brandId,
       isDeleted: false,
       isActive: true,
       $or: [
@@ -25,7 +25,7 @@ class AuthService {
         { phone: identifier },
       ],
     }).select("+password");
-
+    console.log(user);
     if (!user) throwError("Invalid credentials", 401);
 
     const match = await bcrypt.compare(password, user.password);
@@ -74,32 +74,32 @@ class AuthService {
   // =========================
   // 🔑 ACCESS TOKEN
   // =========================
-  generateAccessToken(user) {
-    return jwt.sign(
-      {
-        id: user._id,
-        brand: user.brand,
-        role: user.role,
-        branch: user.branch,
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: ACCESS_EXPIRE }
-    );
-  }
+generateAccessToken(user) {
+  return jwt.sign(
+    {
+      id: user._id.toString(),
+      brand: user.brand?.toString(),
+      role: user.role?.toString(),
+      branch: user.branch?.toString(),
+    },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: ACCESS_EXPIRE }
+  );
+};
 
   // =========================
   // 🔑 REFRESH TOKEN
   // =========================
-  generateRefreshToken(user) {
-    return jwt.sign(
-      {
-        id: user._id,
-        brand: user.brand,
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: REFRESH_EXPIRE }
-    );
-  }
+generateRefreshToken(user) {
+  return jwt.sign(
+    {
+      id: user._id.toString(),
+      brand: user.brand?.toString(),
+    },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: REFRESH_EXPIRE }
+  );
+}
 
   // =========================
   // 🧼 SANITIZE USER
