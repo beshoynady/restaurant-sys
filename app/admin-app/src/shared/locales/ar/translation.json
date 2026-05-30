@@ -1,16 +1,83 @@
 {
-  "welcome": "مرحبا 👋",
-  "setupDescription": "لنقم بإعداد نظام المطعم في خطوات بسيطة",
-  "startSetup": "ابدأ الإعداد",
-  "brandInformation": "بيانات العلامة التجارية",
-  "brandDescription": "أدخل بيانات المطعم الأساسية",
-  "ownerAccount": "حساب المالك",
-  "ownerDescription": "إنشاء حساب المدير الرئيسي",
-  "mainBranch": "الفرع الرئيسي",
-  "back": "رجوع",
-  "next": "التالي",
-  "finish": "إنهاء",
-  "dashboard": "الذهاب إلى لوحة التحكم",
-  "completed": "تم الإعداد بنجاح 🎉",
-  "completedDescription": "تم إنشاء الحساب والمطعم بنجاح."
+  "common": {
+    "search": "بحث..."
+  },
+
+  "auth": {
+    "welcome": "مرحبا 👋",
+    "loginDescription": "سجل الدخول للمتابعة"
+  },
+
+  "setup": {
+    "title": "نقطة البيع",
+    "description": "لنقم بإعداد نظام المطعم في خطوات بسيطة",
+    "start": "ابدأ الإعداد",
+
+    "brand": {
+      "title": "بيانات العلامة التجارية",
+      "description": "أدخل بيانات المطعم الأساسية",
+      "nameEN": "اسم العلامة (EN)",
+      "nameAR": "اسم العلامة (AR)",
+      "legalName": "الاسم القانوني",
+      "logo": "رابط الشعار"
+    },
+
+    "branch": {
+      "main": "الفرع الرئيسي",
+      "nameEN": "اسم الفرع (EN)",
+      "nameAR": "اسم الفرع (AR)",
+      "addressEN": "العنوان (EN)",
+      "addressAR": "العنوان (AR)"
+    },
+
+    "location": {
+      "country": "الدولة",
+      "city": "المدينة",
+      "area": "المنطقة",
+      "street": "الشارع",
+      "postalCode": "الرمز البريدي",
+      "taxId": "الرقم الضريبي"
+    },
+
+    "account": {
+      "username": "اسم المستخدم",
+      "password": "كلمة المرور",
+      "email": "البريد الإلكتروني",
+      "phone": "رقم الهاتف"
+    },
+
+    "actions": {
+      "back": "رجوع",
+      "next": "التالي",
+      "finish": "إنهاء"
+    },
+
+    "completed": {
+      "title": "تم الإعداد بنجاح 🎉",
+      "description": "تم إنشاء الحساب والمطعم بنجاح.",
+      "dashboard": "الذهاب إلى لوحة التحكم"
+    }
+  },
+
+  "login": {
+    "username": "اسم المستخدم",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الهاتف",
+    "password": "كلمة المرور",
+    "loginButton": "تسجيل الدخول",
+    "rememberMe": "تذكرني",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "noAccount": "ليس لديك حساب؟",
+    "register": "سجل الآن",
+    "errors": {
+      "invalidCredentials": "بيانات اعتماد غير صحيحة",
+      "requiredField": "هذا الحقل مطلوب"
+    },
+    "placeholders": {
+      "username": "أدخل اسم المستخدم",
+      "password": "أدخل كلمة المرور"
+    },
+    "heroTitle": "نظام إدارة المطاعم",
+    "heroDescription": "إدارة الطلبات، المخزون، المطبخ، الموظفين، الحسابات والتحليلات من منصة واحدة متكاملة"
+  }
 }

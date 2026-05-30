@@ -1,11 +1,10 @@
+// modules/organization/brand/brand.service.js
 import BrandModel from "./brand.model.js";
 import AdvancedService from "../../../utils/BaseService.js";
 
 class BrandService extends AdvancedService {
   constructor() {
-    super(
-      BrandModel, 
-      {
+    super(BrandModel, {
       brandScoped: true,
       softDelete: true,
       defaultPopulate: ["createdBy", "updatedBy", "deletedBy"],
@@ -108,8 +107,7 @@ class BrandService extends AdvancedService {
     return currentBranchesCount < brand.maxBranches;
   }
 
-
-    // =========================
+  // =========================
   // 🟢 GLOBAL SETUP STATUS
   // =========================
   async getSetupStatus() {
@@ -118,12 +116,11 @@ class BrandService extends AdvancedService {
     });
 
     return {
-      isSetupComplete: !!brand,
+      isSetupCompleted: !!brand,
       setupStatus: brand?.setupStatus || "not_started",
       brandId: brand?._id || null,
     };
   }
-
 }
 
 export default new BrandService();

@@ -1,15 +1,15 @@
 // features/auth/components/LoginHeader.jsx
 
-const LoginHeader = () => {
-  return (
-    <div className="mb-8 text-center">
-      <h1 className="text-4xl font-bold text-white mb-3">
-        Welcome Back
-      </h1>
+import { useTranslation } from "react-i18next";
 
-      <p className="text-gray-300 text-sm">
-        Login to continue to your dashboard
-      </p>
+const LoginHeader = () => {
+  const { t } = useTranslation();
+
+  return (
+    <div className="text-center space-y-2">
+      <h1 className="text-4xl font-bold text-white">{t("auth.welcome")}</h1>
+
+      <p className="text-gray-300 text-sm">{t("auth.loginDescription")}</p>
     </div>
   );
 };

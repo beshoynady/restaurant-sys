@@ -1,33 +1,42 @@
-import { createContext, useState } from "react";
+// app/providers/LanguageProvider.jsx
+
+import { createContext, useEffect, useState } from "react";
 import i18n from "../../shared/locales/i18n";
 
 export const LanguageContext = createContext();
 
-const LanguageProvider = ({ children }) => {
-  const [lang, setLang] = useState(
-    localStorage.getItem("lang") || "ar"
-  );
+export const LanguageProvider = ({ children }) => {
+  const [lang, setLangState] = useState(i18n.language || "en");
 
-  const changeLanguage = (newLang) => {
-    setLang(newLang);
+  // 🔥 Sync state with i18n
+  useEffect(() => {
+    const handleChange = (lng) => {
+      setLangState(lng);
+      localStorage.setItem("lang", lng);
+    };
 
-    i18n.changeLanguage(newLang);
+    i18n.on("languageChanged", handleChange);
 
-    localStorage.setItem("lang", newLang);
+    return () => {
+      i18n.off("languageChanged", handleChange);
+    };
+  }, []);
 
-    document.documentElement.dir =
-      newLang === "ar" ? "rtl" : "ltr";
+  // 🔥 Change language
+  const setLanguage = (lng) => {
+    i18n.changeLanguage(lng);
   };
 
   const toggleLanguage = () => {
-    changeLanguage(lang === "ar" ? "en" : "ar");
+    const next = lang === "ar" ? "en" : "ar";
+    setLanguage(next);
   };
 
   return (
     <LanguageContext.Provider
       value={{
         lang,
-        changeLanguage,
+        setLanguage,
         toggleLanguage,
       }}
     >
@@ -35,5 +44,3 @@ const LanguageProvider = ({ children }) => {
     </LanguageContext.Provider>
   );
 };
-
-export default LanguageProvider;

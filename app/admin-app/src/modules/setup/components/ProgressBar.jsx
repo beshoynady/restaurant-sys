@@ -1,3 +1,5 @@
+//  src/modules/setup/components/ProgressBar.jsx
+
 // =====================================
 // 📁 ProgressBar.jsx
 // =====================================

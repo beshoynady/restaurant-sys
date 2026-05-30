@@ -1,51 +1,51 @@
-//server/middlewares/authenticate-customer.js
+// server/middlewares/authenticate-customer.js
 
-import OnlineCustomerModel from "../modules/crm/online-customer/online-customer.model.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+
+import OnlineCustomerModel from "../modules/crm/online-customer/online-customer.model.js";
 import throwError from "../utils/throwError.js";
 
 dotenv.config();
 
-const secretKey = process.env.JWT_SECRET_KEY;
-const refreshSecretKey = process.env.JWT_REFRESH_SECRET;
-
 /**
- * ============================================
- * 🔐 Authenticate Customer Access Token
- * ============================================
+ * ==========================================
+ * 🔐 Customer Auth Middleware
+ * ==========================================
+ * Uses ACCESS_TOKEN_SECRET only
  */
 const authenticateCustomerToken = async (req, res, next) => {
   try {
-    const authHeader =
-      req.headers.authorization || req.headers.Authorization;
+    const authHeader = req.headers.authorization;
 
-    if (!authHeader) {
-      throw throwError("Unauthorized: Token not provided", 401);
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return next(throwError("Unauthorized: Token not provided", 401));
     }
 
     const token = authHeader.split(" ")[1];
 
     if (!token) {
-      throw throwError("Unauthorized: Token missing", 401);
+      return next(throwError("Unauthorized: Token missing", 401));
     }
 
     let payload;
+
     try {
-      payload = jwt.verify(token, secretKey);
+      payload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     } catch (err) {
-      throw throwError("Token expired or invalid", 403);
+      return next(throwError("Token expired or invalid", 403));
     }
 
-    const customer = await OnlineCustomerModel.findById(payload.id)
-      .select("-password");
+    const customer = await OnlineCustomerModel.findById(payload.id).select(
+      "-password -twoFactorSecret",
+    );
 
     if (!customer) {
-      throw throwError("Customer not found", 404);
+      return next(throwError("Customer not found", 404));
     }
 
-    if (!customer.isActive || customer.isDeleted) {
-      throw throwError("Customer is inactive", 403);
+    if (customer.isDeleted || !customer.isActive) {
+      return next(throwError("Customer is inactive", 403));
     }
 
     req.customer = customer;

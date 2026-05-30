@@ -1,16 +1,80 @@
 {
-  "welcome": "Welcome 👋",
-  "setupDescription": "Let's set up your restaurant system in a few steps",
-  "startSetup": "Start Setup",
-  "brandInformation": "Brand Information",
-  "brandDescription": "Enter your restaurant basic information",
-  "ownerAccount": "Owner Account",
-  "ownerDescription": "Create main admin account",
-  "mainBranch": "Main Branch",
-  "back": "Back",
-  "next": "Next",
-  "finish": "Finish",
-  "dashboard": "Go to Dashboard",
-  "completed": "Setup Completed 🎉",
-  "completedDescription": "Your account and restaurant have been created successfully."
+  "common": {
+    "search": "Search..."
+  },
+
+  "auth": {
+    "welcome": "Welcome 👋",
+    "loginDescription": "Login to continue"
+  },
+
+  "setup": {
+    "title": "Point Of Sale",
+    "description": "Let's set up your restaurant system in a few steps",
+    "start": "Start Setup",
+
+    "brand": {
+      "title": "Brand Information",
+      "description": "Enter your restaurant basic information",
+      "nameEN": "Brand Name (EN)",
+      "nameAR": "Brand Name (AR)",
+      "legalName": "Legal Name",
+      "logo": "Logo URL"
+    },
+
+    "branch": {
+      "main": "Main Branch",
+      "nameEN": "Branch Name (EN)",
+      "nameAR": "Branch Name (AR)",
+      "addressEN": "Address (EN)",
+      "addressAR": "Address (AR)"
+    },
+
+    "location": {
+      "country": "Country",
+      "city": "City",
+      "area": "Area",
+      "street": "Street",
+      "postalCode": "Postal Code",
+      "taxId": "Tax ID"
+    },
+
+    "account": {
+      "username": "Username",
+      "password": "Password",
+      "email": "Email",
+      "phone": "Phone"
+    },
+
+    "actions": {
+      "back": "Back",
+      "next": "Next",
+      "finish": "Finish"
+    },
+
+    "completed": {
+      "title": "Setup Completed 🎉",
+      "description": "Your account and restaurant have been created successfully.",
+      "dashboard": "Go to Dashboard"
+    }
+  },
+  "login": {
+    "username": "Username",
+    "password": "Password",
+    "loginButton": "Login",
+    "rememberMe": "Remember Me",
+    "forgotPassword": "Forgot Password?",
+    "noAccount": "Don't have an account?",
+    "register": "Register Now",
+    "errors": {
+      "invalidCredentials": "Invalid credentials",
+      "requiredField": "This field is required"
+    },
+    "placeholders": {
+      "username": "Enter username",
+      "password": "Enter password"
+    },
+    "heroTitle": "Restaurant Management System",
+    "heroDescription": "Manage orders, inventory, kitchen, staff, accounts and analytics from one integrated platform"
+  }
 }

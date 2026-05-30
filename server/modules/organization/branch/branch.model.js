@@ -33,10 +33,10 @@ const branchSchema = new mongoose.Schema(
     address: {
       type: Map,
       of: {
-          country: String,
-          city: String,
-          area: String,
-          street: String,
+        country: String,
+        city: String,
+        area: String,
+        street: String,
       },
     },
 
@@ -45,11 +45,10 @@ const branchSchema = new mongoose.Schema(
       type: {
         type: String,
         enum: ["Point"],
-        default: "Point",
       },
+
       coordinates: {
-        type: [Number], // [lng, lat]
-        default: undefined,
+        type: [Number],
       },
     },
 
@@ -75,7 +74,7 @@ const branchSchema = new mongoose.Schema(
     isDeleted: { type: Boolean, default: false },
     deletedAt: Date,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // 🔥 GEO INDEX (IMPORTANT)

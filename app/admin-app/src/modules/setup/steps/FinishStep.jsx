@@ -1,9 +1,13 @@
+// src/modules/setup/steps/FinishStep.jsx
 import { motion } from "framer-motion";
 import { CheckCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 export default function FinishStep() {
   const { t } = useTranslation();
+
+  const navigate = useNavigate();
 
   return (
     <motion.div
@@ -29,11 +33,12 @@ export default function FinishStep() {
       </p>
 
       <button
+        onClick={() => navigate("/dashboard")}
         className="
-        px-6 py-3 rounded-xl
-        bg-emerald-600 hover:bg-emerald-700
-        text-white transition
-      "
+          px-6 py-3 rounded-xl
+          bg-emerald-600 hover:bg-emerald-700
+          text-white transition
+        "
       >
         {t("dashboard")}
       </button>

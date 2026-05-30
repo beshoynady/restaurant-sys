@@ -6,9 +6,14 @@ const LanguageToggle = () => {
   return (
     <button
       onClick={toggleLanguage}
-      className="btn btn-outline-info btn-sm"
+      className="
+        px-3 py-2 rounded-xl
+        bg-white/10 text-white
+        hover:scale-105 transition
+        text-sm font-medium
+      "
     >
-      🌐 {lang === "ar" ? "EN" : "عربي"}
+      🌐 {lang === "ar" ? "EN" : "AR"}
     </button>
   );
 };

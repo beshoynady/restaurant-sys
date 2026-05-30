@@ -1,3 +1,4 @@
+// modules/organization/brand/brand.router.js
 import express from "express";
 
 import brandController from "./brand.controller.js";

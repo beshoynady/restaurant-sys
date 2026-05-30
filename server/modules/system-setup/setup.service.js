@@ -1,3 +1,5 @@
+// server/modules/system-setup/setup.service.js
+
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
@@ -8,11 +10,7 @@ import UserAccount from "../../modules/iam/user-account/user-account.model.js";
 
 import generateUniqueSlug from "../../utils/generateUniqueSlug.js";
 
-// 🔐 JWT utilities (Access + Refresh Tokens)
-import {
-  signAccessToken,
-  signRefreshToken,
-} from "../../utils/jwt.utils.js";
+import { signAccessToken, signRefreshToken } from "../../utils/jwt.utils.js";
 
 /**
  * 🔥 Build Owner Role with Full Permissions
@@ -45,25 +43,35 @@ const buildOwnerRole = (brandId) => {
 class SetupService {
   /**
    * ==========================================
-   * 🚀 INITIAL SYSTEM SETUP (FIRST INSTALL ONLY)
+   * 🚀 INITIAL SYSTEM SETUP
    * ==========================================
    */
   async initialize(data) {
     console.log("SETUP DATA:", JSON.stringify(data || {}, null, 2));
 
+    // ======================================
+    // 🚀 START SESSION
+    // ======================================
+    const session = await mongoose.startSession();
+
     try {
-      // =============================
+      // ======================================
+      // 🔥 START TRANSACTION
+      // ======================================
+      session.startTransaction();
+
+      // ======================================
       // 🚫 Prevent duplicate setup
-      // =============================
-      const existingBrand = await Brand.findOne().lean();
+      // ======================================
+      const existingBrand = await Brand.findOne().session(session).lean();
 
       if (existingBrand) {
         throw new Error("System already initialized");
       }
 
-      // =============================
-      // 1. BRAND PREPARATION
-      // =============================
+      // ======================================
+      // 1. PREPARE BRAND
+      // ======================================
       const brandData = {
         ...data.brand,
         slug: await generateUniqueSlug({
@@ -73,12 +81,19 @@ class SetupService {
         setupStatus: "basic",
       };
 
-      // =============================
-      // 2. BRANCH PREPARATION
-      // =============================
+      // ======================================
+      // 2. CREATE BRAND
+      // ======================================
+      const [brand] = await Brand.create([brandData], {
+        session,
+      });
+
+      // ======================================
+      // 3. PREPARE BRANCH
+      // ======================================
       const branchData = {
         ...data.branch,
-        brand: null,
+        brand: brand._id,
         slug: await generateUniqueSlug({
           name: data.branch.name,
           model: Branch,
@@ -86,30 +101,30 @@ class SetupService {
         isMainBranch: true,
       };
 
-      // =============================
-      // 3. CREATE BRAND
-      // =============================
-      const brand = await Brand.create(brandData);
-
-      // Attach brand to branch
-      branchData.brand = brand._id;
-
-      // =============================
+      // ======================================
       // 4. CREATE BRANCH
-      // =============================
-      const branch = await Branch.create(branchData);
+      // ======================================
+      const [branch] = await Branch.create([branchData], {
+        session,
+      });
 
-      // =============================
+      // ======================================
       // 5. CREATE OWNER ROLE
-      // =============================
+      // ======================================
       const ownerRoleData = buildOwnerRole(brand._id);
-      const ownerRole = await Role.create(ownerRoleData);
 
-      // =============================
-      // 6. CREATE OWNER USER
-      // =============================
+      const [ownerRole] = await Role.create([ownerRoleData], {
+        session,
+      });
+
+      // ======================================
+      // 6. HASH PASSWORD
+      // ======================================
       const hashedPassword = await bcrypt.hash(data.owner.password, 10);
 
+      // ======================================
+      // 7. CREATE USER
+      // ======================================
       const userData = {
         ...data.owner,
         brand: brand._id,
@@ -118,23 +133,36 @@ class SetupService {
         role: ownerRole._id,
       };
 
-      const user = await UserAccount.create(userData);
+      const [user] = await UserAccount.create([userData], {
+        session,
+      });
 
-      // =============================
-      // 🔐 GENERATE INITIAL TOKENS
-      // =============================
+      // ======================================
+      // 8. COMPLETE SETUP
+      // ======================================
+      brand.setupStatus = "complete";
+
+      await brand.save({ session });
+
+      // ======================================
+      // 🔐 TOKENS
+      // ======================================
       const accessToken = signAccessToken(user);
       const refreshToken = signRefreshToken(user);
 
-      // =============================
-      // ✅ FINALIZE SETUP
-      // =============================
-      brand.setupStatus = "complete";
-      await brand.save();
+      // ======================================
+      // ✅ COMMIT TRANSACTION
+      // ======================================
+      await session.commitTransaction();
 
-      // =============================
+      // ======================================
+      // 🔚 END SESSION
+      // ======================================
+      session.endSession();
+
+      // ======================================
       // 🚀 RESPONSE
-      // =============================
+      // ======================================
       return {
         brand,
         branch,
@@ -145,7 +173,18 @@ class SetupService {
         },
       };
     } catch (error) {
+      // ======================================
+      // ❌ ROLLBACK ALL CHANGES
+      // ======================================
+      await session.abortTransaction();
+
+      // ======================================
+      // 🔚 END SESSION
+      // ======================================
+      session.endSession();
+
       console.error("SETUP ERROR:", error);
+
       throw error;
     }
   }

@@ -1,59 +1,76 @@
-import { useState } from "react";
-import FormField from "../../../shared/ui/FormField.jsx";
+// src/modules/setup/steps/BrandStep.jsx
 
-export default function BrandStep({ data, update, onNext, onBack, lang }) {
-  const isArabic = lang === "ar";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+
+import FormField from "../../../shared/ui/FormField.jsx";
+import StepActions from "../../../shared/ui/StepActions";
+
+export default function BrandStep({ data, update, onNext, onBack }) {
+  const { t, i18n } = useTranslation();
+
+  const lang = i18n.language;
+
   const [errors, setErrors] = useState({});
 
   const validate = () => {
     let err = {};
 
-    if (!data?.brand?.name?.EN) err.nameEN = true;
-    if (!data?.brand?.name?.AR) err.nameAR = true;
-    if (!data?.brand?.legalName) err.legalName = true;
+    if (!data?.brand?.name?.en) {
+      err.nameEN = true;
+    }
+
+    if (!data?.brand?.name?.ar) {
+      err.nameAR = true;
+    }
+
+    if (!data?.brand?.legalName) {
+      err.legalName = true;
+    }
 
     setErrors(err);
+
     return Object.keys(err).length === 0;
   };
 
   return (
     <div className="space-y-6">
-
       {/* HEADER */}
+
       <div>
         <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-          {isArabic ? "بيانات العلامة التجارية" : "Brand Information"}
+          {t("brandInformation")}
         </h2>
 
-        <p className="text-sm text-gray-500">
-          {isArabic
-            ? "أدخل بيانات المطعم الأساسية"
-            : "Enter your restaurant basic information"}
-        </p>
+        <p className="text-sm text-gray-500">{t("brandDescription")}</p>
       </div>
 
-      {/* FIELDS */}
+      {/* BRAND NAME EN */}
 
       <FormField
-        label={isArabic ? "اسم العلامة (EN)" : "Brand Name (EN)"}
-        value={data?.brand?.name?.EN}
-        onChange={(e) => update("brand.name.EN", e.target.value)}
+        label={t("brandNameEN")}
+        value={data?.brand?.name?.en}
+        onChange={(e) => update("brand.name.en", e.target.value)}
         error={errors.nameEN}
         lang={lang}
         required
       />
 
+      {/* BRAND NAME AR */}
+
       <FormField
-        label={isArabic ? "اسم العلامة (AR)" : "Brand Name (AR)"}
-        value={data?.brand?.name?.AR}
-        onChange={(e) => update("brand.name.AR", e.target.value)}
+        label={t("brandNameAR")}
+        value={data?.brand?.name?.ar}
+        onChange={(e) => update("brand.name.ar", e.target.value)}
         error={errors.nameAR}
         lang={lang}
         required
       />
 
+      {/* LEGAL NAME */}
+
       <FormField
-        label={isArabic ? "الاسم القانوني" : "Legal Name"}
+        label={t("legalName")}
         value={data?.brand?.legalName}
         onChange={(e) => update("brand.legalName", e.target.value)}
         error={errors.legalName}
@@ -61,24 +78,18 @@ export default function BrandStep({ data, update, onNext, onBack, lang }) {
         required
       />
 
+      {/* LOGO */}
+
       <FormField
-        label="Logo URL"
+        label={t("logoUrl")}
         value={data?.brand?.logo}
         onChange={(e) => update("brand.logo", e.target.value)}
         lang={lang}
       />
 
       {/* ACTIONS */}
-      <div className="flex justify-between pt-4">
-        <button onClick={onBack} className="btn-secondary">
-          {isArabic ? "رجوع" : "Back"}
-        </button>
 
-        <button onClick={() => validate() && onNext()} className="btn-primary">
-          {isArabic ? "التالي" : "Next"}
-        </button>
-      </div>
-
+      <StepActions onBack={onBack} onNext={() => validate() && onNext()} />
     </div>
   );
 }

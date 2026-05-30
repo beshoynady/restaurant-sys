@@ -1,23 +1,31 @@
-//server/middlewares/authenticate.js
+// server/middlewares/authenticate.js
+
 import jwt from "jsonwebtoken";
+
 import User from "../modules/iam/user-account/user-account.model.js";
 import throwError from "../utils/throwError.js";
 
+/**
+ * ==========================================
+ * 🔐 User Authentication Middleware
+ * ==========================================
+ */
 const authenticateToken = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
 
-    if (!authHeader?.startsWith("Bearer ")) {
-      throw throwError("Unauthorized", 401);
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return next(throwError("Unauthorized", 401));
     }
 
     const token = authHeader.split(" ")[1];
 
     let payload;
+
     try {
-      payload = jwt.verify(token, process.env.JWT_SECRET);
+      payload = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     } catch {
-      throw throwError("Invalid or expired token", 403);
+      return next(throwError("Invalid or expired token", 403));
     }
 
     const user = await User.findById(payload.id)
@@ -26,15 +34,15 @@ const authenticateToken = async (req, res, next) => {
       .select("-password");
 
     if (!user || user.isDeleted) {
-      throw throwError("User not found", 401);
+      return next(throwError("User not found", 404));
     }
 
     if (!user.isActive) {
-      throw throwError("User inactive", 403);
+      return next(throwError("User inactive", 403));
     }
 
     if (user.brand.toString() !== payload.brand) {
-      throw throwError("Brand mismatch", 403);
+      return next(throwError("Brand mismatch", 403));
     }
 
     req.user = user;
@@ -43,9 +51,7 @@ const authenticateToken = async (req, res, next) => {
 
     next();
   } catch (err) {
-    return res.status(err.statusCode || 500).json({
-      message: err.message,
-    });
+    next(err);
   }
 };
 

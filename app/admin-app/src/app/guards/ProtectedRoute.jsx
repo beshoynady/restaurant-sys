@@ -1,17 +1,27 @@
+// src/app/guards/ProtectedRoute.jsx
+
 import { Navigate } from "react-router-dom";
 
 import LoadingPage from "../../shared/ui/loading/LoadingPage";
+import useAuth from "../../shared/hooks/useAuth";
 
 const ProtectedRoute = ({ children }) => {
   const { userLoginInfo, isLoading } = useAuth();
 
-  return <LoadingPage />;
+  // Loading
+  if (isLoading) {
+    return <LoadingPage />;
+  }
 
-  // Not Logged In
+  // Not logged in
+  if (!userLoginInfo) {
     return <Navigate to="/login" replace />;
+  }
 
-  // Inactive User
-    return <Navigate to="/login" replace />;
+  // User inactive example
+  // if (userLoginInfo.status !== "active") {
+  //   return <Navigate to="/login" replace />;
+  // }
 
   return children;
 };

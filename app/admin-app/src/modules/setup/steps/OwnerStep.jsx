@@ -1,50 +1,60 @@
-import { useState } from "react";
-import FormField from "../../../shared/ui/FormField.jsx";
+// src/modules/setup/steps/OwnerStep.jsx
 
-export default function OwnerStep({ data, update, onNext, onBack, lang }) {
-  const isArabic = lang === "ar";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+
+import FormField from "../../../shared/ui/FormField.jsx";
+import StepActions from "../../../shared/ui/StepActions";
+
+export default function OwnerStep({
+  data,
+  update,
+  onSubmit,
+  onBack,
+  isSubmitting,
+}) {
+  const { t, i18n } = useTranslation();
+
+  const lang = i18n.language;
+
   const [errors, setErrors] = useState({});
 
   const validate = () => {
     let err = {};
 
-    if (!data?.owner?.username) err.username = true;
-    if (!data?.owner?.password || data.owner.password.length < 6)
+    if (!data?.owner?.username) {
+      err.username = true;
+    }
+
+    if (!data?.owner?.password || data.owner.password.length < 6) {
       err.password = true;
+    }
 
     setErrors(err);
+
     return Object.keys(err).length === 0;
   };
 
   return (
     <div className="space-y-6">
-
       {/* HEADER */}
       <div>
-        <h2 className="text-2xl font-bold">
-          {isArabic ? "حساب المالك" : "Owner Account"}
-        </h2>
+        <h2 className="text-2xl font-bold">{t("ownerAccount")}</h2>
 
-        <p className="text-sm text-gray-500">
-          {isArabic
-            ? "إنشاء حساب المدير الرئيسي"
-            : "Create main admin account"}
-        </p>
+        <p className="text-sm text-gray-500">{t("ownerDescription")}</p>
       </div>
-
-      {/* FIELDS */}
-
+      {/* USERNAME */}
       <FormField
-        label={isArabic ? "اسم المستخدم" : "Username"}
+        label={t("username")}
         value={data?.owner?.username}
         onChange={(e) => update("owner.username", e.target.value)}
         error={errors.username}
         lang={lang}
         required
       />
-
+      {/* PASSWORD */}
       <FormField
-        label={isArabic ? "كلمة المرور" : "Password"}
+        label={t("password")}
         type="password"
         value={data?.owner?.password}
         onChange={(e) => update("owner.password", e.target.value)}
@@ -52,32 +62,27 @@ export default function OwnerStep({ data, update, onNext, onBack, lang }) {
         lang={lang}
         required
       />
-
+      {/* EMAIL */}
       <FormField
-        label={isArabic ? "البريد الإلكتروني" : "Email"}
+        label={t("email")}
         value={data?.owner?.email}
         onChange={(e) => update("owner.email", e.target.value)}
         lang={lang}
       />
-
+      {/* PHONE */}
       <FormField
-        label={isArabic ? "رقم الهاتف" : "Phone"}
+        label={t("phone")}
         value={data?.owner?.phone}
         onChange={(e) => update("owner.phone", e.target.value)}
         lang={lang}
       />
-
       {/* ACTIONS */}
-      <div className="flex justify-between pt-4">
-        <button onClick={onBack} className="btn-secondary">
-          {isArabic ? "رجوع" : "Back"}
-        </button>
-
-        <button onClick={() => validate() && onNext()} className="btn-primary">
-          {isArabic ? "التالي" : "Next"}
-        </button>
-      </div>
-
+      <StepActions
+        onBack={onBack}
+        onNext={() => validate() && onSubmit()}
+        nextLabel={t("finish")}
+        loading={isSubmitting}
+      />{" "}
     </div>
   );
 }

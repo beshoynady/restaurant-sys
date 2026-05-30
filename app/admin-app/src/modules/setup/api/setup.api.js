@@ -1,91 +1,114 @@
+// src/modules/setup/api/setup.api.js
+
 import axios from "axios";
+
 import { baseURL } from "../../../api/axios.js";
 
 /**
- * 🚀 Initialize System Setup
- * --------------------------
- * Sends first-time setup data:
+ * 🚀 Initialize Full System
+ * -----------------------------------
+ * Creates:
  * - Brand
- * - Branch
- * - Owner User
+ * - Main Branch
+ * - Owner Account
  *
  * Backend returns:
  * - accessToken
  * - user
- * - refreshToken cookie (HttpOnly)
+ * - brand
+ * - branch
+ *
+ * Refresh token stored in HttpOnly cookie.
  */
-export const initializeSetup = async (data) => {
+
+export const initializeSetup = async (payload) => {
   try {
     // =============================
-    // 🔍 DEBUG REQUEST (DEV ONLY)
+    // DEBUG REQUEST
     // =============================
     if (import.meta.env.DEV) {
-      console.log("🚀 Setup Payload:", data);
+      console.group("🚀 SYSTEM INITIALIZATION");
+
+      console.log("Payload:", payload);
+
+      console.groupEnd();
     }
 
     // =============================
-    // 📡 SEND REQUEST
+    // API REQUEST
     // =============================
-    const res = await axios.post(
-      `${baseURL}/setup/initialize`,
-      data,
-      {
-        // IMPORTANT:
-        // Allows browser to receive/send cookies
-        withCredentials: true,
-      }
-    );
+    const response = await axios.post(`${baseURL}/setup/initialize`, payload, {
+      withCredentials: true,
+    });
 
     // =============================
-    // 📦 EXTRACT RESPONSE DATA
+    // RESPONSE DATA
     // =============================
-    const responseData = res.data;
+    const responseData = response.data;
 
-    const {
+    const { accessToken, user, brand, branch } = responseData;
+
+    // =============================
+    // STORE ACCESS TOKEN
+    // =============================
+    /**
+     * Temporary Solution
+     *
+     * Later:
+     * - Zustand
+     * - Redux Toolkit
+     * - Context API
+     */
+
+    if (accessToken) {
+      localStorage.setItem("accessToken", accessToken);
+    }
+
+    // =============================
+    // DEBUG SUCCESS
+    // =============================
+    if (import.meta.env.DEV) {
+      console.group("✅ SYSTEM INITIALIZED");
+
+      console.log("User:", user);
+
+      console.log("Brand:", brand);
+
+      console.log("Branch:", branch);
+
+      console.log("Access Token Stored");
+
+      console.groupEnd();
+    }
+
+    // =============================
+    // RETURN CLEAN RESPONSE
+    // =============================
+    return {
+      success: true,
+
       accessToken,
+
       user,
+
       brand,
+
       branch,
-    } = responseData;
-
-    // =============================
-    // 🔐 STORE ACCESS TOKEN
-    // =============================
-    // Temporary solution:
-    // Store access token locally
-    //
-
-    localStorage.setItem("accessToken", accessToken);
-
-    // =============================
-    // 🔍 DEBUG RESPONSE (DEV ONLY)
-    // =============================
-    if (import.meta.env.DEV) {
-      console.log("✅ Setup Success:", responseData);
-
-      console.log("🔐 Access Token Saved");
-
-      console.log("👤 User:", user);
-
-      console.log("🏢 Brand:", brand);
-
-      console.log("🏪 Branch:", branch);
-    }
-
-    // =============================
-    // ✅ RETURN CLEAN DATA
-    // =============================
-    return responseData;
+    };
   } catch (error) {
     // =============================
-    // ❌ HANDLE ERRORS
+    // NORMALIZED ERROR
     // =============================
-    console.error("❌ Setup Error:", error);
-
     const message =
       error?.response?.data?.message ||
+      error?.response?.data?.error ||
       error.message ||
-      "Setup initialization failed";
+      "System initialization failed";
+
+    // =============================
+    // DEBUG ERROR
+    // =============================
+    console.error("❌ SYSTEM INITIALIZATION ERROR:", error);
 
     throw new Error(message);
   }

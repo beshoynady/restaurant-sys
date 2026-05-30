@@ -1,3 +1,4 @@
+// modules/organization/brand/brand.controller.js
 import BaseController from "../../../utils/BaseController.js";
 import brandService from "./brand.service.js";
 

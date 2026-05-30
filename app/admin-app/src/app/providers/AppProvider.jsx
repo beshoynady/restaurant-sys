@@ -1,5 +1,6 @@
+// src/app/providers/AppProvider.jsx
 import { ThemeProvider } from "./ThemeProvider";
-import LanguageProvider from "./LanguageProvider";
+import { LanguageProvider } from "./LanguageProvider";
 
 const AppProvider = ({ children }) => {
   return (

@@ -2,6 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { joiResolver } from "@hookform/resolvers/joi";
+import { useTranslation } from "react-i18next";
 
 import { loginSchema } from "../validation/loginSchema";
 import { useLogin } from "../hooks/useLogin";
@@ -11,6 +12,7 @@ import RememberMe from "./RememberMe";
 
 const LoginForm = () => {
   const { login, loading } = useLogin();
+  const { t } = useTranslation();
 
   const {
     register,
@@ -20,22 +22,26 @@ const LoginForm = () => {
     resolver: joiResolver(loginSchema),
   });
 
+  const identifierLabel = `${t("login.username")} / ${t("login.email")}`;
+
   return (
-    <form
-      onSubmit={handleSubmit(login)}
-      className="space-y-6"
-    >
-      {/* Username or Email */}
+    <form onSubmit={handleSubmit(login)} className="space-y-6">
+      {/* Identifier */}
       <div>
         <label className="block text-sm mb-2 text-gray-300">
-          Username or Email
+          {identifierLabel}
         </label>
 
         <input
           type="text"
-          placeholder="Enter username or email"
+          placeholder={t("login.placeholders.username")}
           {...register("identifier")}
-          className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/10 text-white outline-none focus:border-blue-500"
+          className="
+            w-full px-4 py-3 rounded-xl
+            bg-white/10 border border-white/10
+            text-white outline-none
+            focus:border-blue-500
+          "
         />
 
         {errors.identifier && (
@@ -46,21 +52,22 @@ const LoginForm = () => {
       </div>
 
       {/* Password */}
-      <PasswordInput
-        register={register}
-        error={errors.password}
-      />
+      <PasswordInput register={register} error={errors.password} />
 
-      {/* Remember me */}
+      {/* Remember Me */}
       <RememberMe />
 
       {/* Submit */}
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 transition-all text-white font-semibold"
+        className="
+          w-full py-3 rounded-xl
+          bg-blue-600 hover:bg-blue-700
+          transition-all text-white font-semibold
+        "
       >
-        {loading ? "Logging in..." : "Login"}
+        {loading ? t("login.loading") : t("login.loginButton")}
       </button>
     </form>
   );

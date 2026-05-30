@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 export default function FormField({
   label,
   value,
@@ -9,24 +11,37 @@ export default function FormField({
   required = false,
   hint,
 }) {
+  const { t } = useTranslation();
+
   const isArabic = lang === "ar";
 
-  const isInline = false; // ممكن نخليه prop بعدين لو عايز layout جانبي
-
   return (
-    <div className="w-full space-y-1">
+    <div
+      dir={isArabic ? "rtl" : "ltr"}
+      className={`
+        w-full space-y-1
+        ${isArabic ? "text-right" : "text-left"}
+      `}
+    >
 
       {/* ================= LABEL ================= */}
+
       <label
-        className={`text-sm font-medium text-gray-700 dark:text-gray-200 flex gap-1 ${
-          isArabic ? "text-right justify-end" : "text-left"
-        }`}
+        className="
+          text-sm font-medium
+          text-gray-700 dark:text-gray-200
+          flex items-center gap-1
+        "
       >
         {label}
-        {required && <span className="text-red-500">*</span>}
+
+        {required && (
+          <span className="text-red-500">*</span>
+        )}
       </label>
 
       {/* ================= INPUT ================= */}
+
       <input
         type={type}
         value={value || ""}
@@ -39,22 +54,28 @@ export default function FormField({
           border
           bg-white dark:bg-gray-900
           text-gray-800 dark:text-white
-          focus:outline-none focus:ring-2 focus:ring-blue-500
+          focus:outline-none
+          focus:ring-2 focus:ring-blue-500
           transition
 
-          ${error ? "border-red-500" : "border-gray-300 dark:border-gray-700"}
+          ${
+            error
+              ? "border-red-500"
+              : "border-gray-300 dark:border-gray-700"
+          }
         `}
-        dir={isArabic ? "rtl" : "ltr"}
       />
 
       {/* ================= ERROR ================= */}
+
       {error && (
         <p className="text-sm text-red-500">
-          {isArabic ? "هذا الحقل مطلوب" : "This field is required"}
+          {t("requiredField")}
         </p>
       )}
 
       {/* ================= HINT ================= */}
+
       {hint && (
         <p className="text-xs text-gray-500">
           {hint}
