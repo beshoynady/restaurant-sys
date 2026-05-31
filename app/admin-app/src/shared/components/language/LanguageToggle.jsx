@@ -1,3 +1,4 @@
+// src/shared/components/language/LanguageToggle.jsx
 import useLanguage from "../../hooks/useLanguage";
 
 const LanguageToggle = () => {

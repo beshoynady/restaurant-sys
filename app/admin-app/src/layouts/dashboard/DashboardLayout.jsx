@@ -1,13 +1,21 @@
-import React from 'react'
+// src/layouts/dashboard/DashboardLayout.jsx
+import { Outlet } from "react-router-dom";
 
-import DashboardPage from '../../modules/dashboard/pages/DashboardPage';
+import DashboardSidebar from "./DashboardSidebar";
+import DashboardTopBar from "./DashboardTopBar";
 
-const DashboardLayout = () => {
+export default function DashboardLayout() {
   return (
-    <div>
-      <DashboardPage />
-    </div>
-  )
-}
+    <div className="flex h-screen overflow-hidden bg-background">
+      <DashboardSidebar />
 
-export default DashboardLayout
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <DashboardTopBar />
+
+        <main className="flex-1 overflow-auto p-4 lg:p-6">
+          <Outlet />
+        </main>
+      </div>
+    </div>
+  );
+}

@@ -7,6 +7,7 @@ import { initializeApp } from "../initialization/initializeApp";
 
 // Guards
 import ProtectedRoute from "../guards/ProtectedRoute";
+import LoadingPage from "../../shared/ui/loading/LoadingPage.jsx";
 
 // ================= LAYOUTS =================
 const DashboardLayout = lazy(
@@ -21,6 +22,9 @@ const LoginPage = lazy(() => import("../../features/auth/pages/LoginPage"));
 const PosPage = lazy(() => import("../../modules/pos/pages/PosPage.jsx"));
 
 const KOTPage = lazy(() => import("../../modules/kitchen/pages/KDSPage.jsx"));
+
+
+const EmployeesPage = lazy(() => import("../../modules/employees/pages/EmployeesPage.jsx"));
 
 const NotFound = () => <div>404</div>;
 
@@ -50,14 +54,14 @@ export default function AppRoutes() {
   // ================= LOADING =================
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        Initializing System...
+      <div className="flex h-screen items-center justify-center">
+        <LoadingPage />
       </div>
     );
   }
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<LoadingPage/>}>
       <Routes>
         {/* =========================================
             FIRST TIME SETUP
@@ -82,9 +86,9 @@ export default function AppRoutes() {
             <Route
               path="/admin/*"
               element={
-                <ProtectedRoute>
+                // <ProtectedRoute>
                   <DashboardLayout />
-                </ProtectedRoute>
+                // </ProtectedRoute>
               }
             />
 
@@ -100,10 +104,11 @@ export default function AppRoutes() {
             
             <Route path="/pos" element={<PosPage />} />
             <Route path="/kot" element={<KOTPage />} />
+            <Route path="/employees" element={<EmployeesPage />} />
           </>
           
         )}
       </Routes>
-    </Suspense>
+    </Suspense> 
   );
 }
