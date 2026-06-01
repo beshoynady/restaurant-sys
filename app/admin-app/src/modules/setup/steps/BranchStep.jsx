@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import FormField from "../../../shared/ui/FormField.jsx";
-import StepActions from "../../../shared/ui/StepActions";
+import FormField from "../../../shared/ui/form/FormField.jsx";
+import StepActions from "../../../shared/ui/button/StepActions.jsx";
 
 export default function BranchStep({ data, update, onNext, onBack }) {
   const { t, i18n } = useTranslation();

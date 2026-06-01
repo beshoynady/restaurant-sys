@@ -36,6 +36,24 @@ const brandSchema = new mongoose.Schema(
       default: null,
     },
 
+    businessType: {
+      type: String,
+      enum: ["restaurant", "cafe", "fast_food", "bakery", "bar", "other"],
+      default: "restaurant",
+    },
+    cuisineType: {
+      type: [String],
+      enum: [
+        "arabic",
+        "italian",
+        "mexican",
+        "asian",
+        "american",
+        "mediterranean",
+        "fusion",
+      ],
+      default: ["arabic"],
+    },
     /**
      * Maximum number of branches allowed
      */
@@ -53,25 +71,35 @@ const brandSchema = new mongoose.Schema(
      * Default currency for the brand
      */
     currency: {
-      code: {
-        type: String,
-        enum: ["USD", "EUR", "GBP", "EGP", "SAR", "AED", "JPY", "CNY"],
-        trim: true,
-        maxlength: 3,
-        default: "EGP",
-      },
-      symbol: {
-        type: String,
-        trim: true,
-        maxlength: 5,
-        default: "£",
-      },
-      decimalPlaces: {
-        type: Number,
-        min: 0,
-        max: 4,
-        default: 2,
-      },
+      type: String,
+      enum: [
+        "USD",
+        "EUR",
+        "GBP",
+        "EGP",
+        "SAR",
+        "AED",
+        "JPY",
+        "CNY",
+        "INR",
+        "BRL",
+        "ZAR",
+        "TRY",
+        "RUB",
+        "KRW",
+        "NGN",
+        "MXN",
+      ],
+      trim: true,
+      maxlength: 3,
+      default: "EGP",
+    },
+
+    decimalPlaces: {
+      type: Number,
+      min: 0,
+      max: 4,
+      default: 2,
     },
 
     // ===============================
@@ -88,7 +116,6 @@ const brandSchema = new mongoose.Schema(
       default: "EN",
       required: true,
     },
-
 
     // ===============================
     // LEGAL & REGULATORY
@@ -139,6 +166,32 @@ const brandSchema = new mongoose.Schema(
       trim: true,
       minlength: 2,
       maxlength: 2,
+    },
+
+    branding: {
+      primaryColor: {
+        type: String,
+        trim: true,
+        maxlength: 7,
+        match: /^#([0-9A-F]{3}|[0-9A-F]{6})$/i, // hex color code validation
+      },
+      secondaryColor: {
+        type: String,
+        trim: true,
+        maxlength: 7,
+        match: /^#([0-9A-F]{3}|[0-9A-F]{6})$/i, // hex color code validation
+      },
+      backgroundColor: {
+        type: String,
+        trim: true,
+        maxlength: 7,
+        match: /^#([0-9A-F]{3}|[0-9A-F]{6})$/i, // hex color code validation
+      },
+      theme: {
+        type:   String,
+        enum: ["light", "dark"],
+        default: "light",
+      },
     },
 
     /**

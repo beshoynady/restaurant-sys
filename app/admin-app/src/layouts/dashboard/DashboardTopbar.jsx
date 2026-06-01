@@ -2,8 +2,8 @@
 import LanguageToggle from "../../shared/components/language/LanguageToggle";
 import ThemeToggle from "../../shared/components/theme/ThemeToggle";
 
-import FullscreenButton from "../../shared/ui/FullscreenButton";
-import NotificationDropdown from "../../shared/ui/NotificationDropdown";
+import FullscreenButton from "../../shared/ui/button/FullscreenButton";
+import NotificationDropdown from "../../shared/ui/button/NotificationDropdown";
 
 import DashboardUserMenu from "./components/DashboardUserMenu";
 

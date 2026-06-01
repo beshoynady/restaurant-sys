@@ -2,7 +2,7 @@ import UserDropdown from "./UserDropdown";
 import MessagesDropdown from "./MessagesDropdown";
 import NotificationsDropdown from "./NotificationsDropdown";
 import FullscreenToggle from "./FullscreenToggle";
-import ThemeToggle from "./ThemeToggle";
+import ThemeToggle from "../../shared/ui/ThemeToggle";
 import LanguageToggle from "./LanguageToggle";
 
 const NavBar = () => {

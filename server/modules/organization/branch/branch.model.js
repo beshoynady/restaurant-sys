@@ -52,14 +52,33 @@ const branchSchema = new mongoose.Schema(
       },
     },
 
-    postalCode: String,
+    postalCode: {
+      type: String,
+      trim: true,
+      maxlength: 20,
+    },
 
     isMainBranch: {
       type: Boolean,
       default: false,
     },
+    // manager reference for branch-level management and permissions 
+    manager: {
+      type: ObjectId,
+      ref: "UserAccount",
+    },  
 
-    taxIdentificationNumber: String,
+    taxIdentificationNumber: {
+      type: String,
+      trim: true,
+      maxlength: 50,
+    },
+
+    commercialRegisterNumber: {
+      type: String,
+      trim: true,
+      maxlength: 50,
+    },
 
     status: {
       type: String,

@@ -7,7 +7,13 @@ import { initializeApp } from "../initialization/initializeApp";
 
 // Guards
 import ProtectedRoute from "../guards/ProtectedRoute";
+
+// Shared
 import LoadingPage from "../../shared/ui/loading/LoadingPage.jsx";
+
+// Brand
+import BrandProfilePage from "../../modules/brand/pages/BrandProfilePage.jsx";
+import BranchProfilePage from "../../modules/branch/pages/BranchProfilePage.jsx";
 
 // ================= LAYOUTS =================
 const DashboardLayout = lazy(
@@ -23,10 +29,15 @@ const PosPage = lazy(() => import("../../modules/pos/pages/PosPage.jsx"));
 
 const KOTPage = lazy(() => import("../../modules/kitchen/pages/KDSPage.jsx"));
 
+const EmployeesPage = lazy(
+  () => import("../../modules/employees/pages/EmployeesPage.jsx"),
+);
 
-const EmployeesPage = lazy(() => import("../../modules/employees/pages/EmployeesPage.jsx"));
-
-const NotFound = () => <div>404</div>;
+const NotFound = () => (
+  <div className="flex h-screen items-center justify-center text-2xl font-bold">
+    404 - Page Not Found
+  </div>
+);
 
 export default function AppRoutes() {
   const [loading, setLoading] = useState(true);
@@ -61,54 +72,68 @@ export default function AppRoutes() {
   }
 
   return (
-    <Suspense fallback={<LoadingPage/>}>
+    <Suspense fallback={<LoadingPage />}>
       <Routes>
-        {/* =========================================
+        {/* =====================================
             FIRST TIME SETUP
-        ========================================= */}
+        ===================================== */}
         {!isSetupCompleted ? (
           <>
             <Route path="/setup" element={<SetupPage />} />
 
-            {/* Redirect everything to setup */}
             <Route path="*" element={<Navigate to="/setup" replace />} />
           </>
         ) : (
           <>
-            {/* =========================================
+            {/* =====================================
                 AUTH
-            ========================================= */}
+            ===================================== */}
             <Route path="/login" element={<LoginPage />} />
 
-            {/* =========================================
+            {/* =====================================
                 DASHBOARD
-            ========================================= */}
+            ===================================== */}
             <Route
-              path="/admin/*"
+              path="/admin"
               element={
                 // <ProtectedRoute>
-                  <DashboardLayout />
+                <DashboardLayout />
                 // </ProtectedRoute>
               }
-            />
+            >
+              {/* Dashboard Home */}
+              <Route index element={<Navigate to="brand" replace />} />
 
-            {/* =========================================
-                DEFAULT REDIRECT
-            ========================================= */}
-            <Route path="/" element={<Navigate to="/login" replace />} />
+              {/* Brand */}
+              <Route path="brand" element={<BrandProfilePage />} />
+              <Route path="branches" element={<BranchProfilePage />} />
 
-            {/* =========================================
-                404
-            ========================================= */}
-            <Route path="*" element={<NotFound />} />
-            
+              {/* Employees */}
+              <Route path="employees" element={<EmployeesPage />} />
+            </Route>
+
+            {/* =====================================
+                POS
+            ===================================== */}
             <Route path="/pos" element={<PosPage />} />
+
+            {/* =====================================
+                KDS
+            ===================================== */}
             <Route path="/kot" element={<KOTPage />} />
-            <Route path="/employees" element={<EmployeesPage />} />
+
+            {/* =====================================
+                DEFAULT REDIRECT
+            ===================================== */}
+            <Route path="/" element={<Navigate to="/admin" replace />} />
+
+            {/* =====================================
+                404
+            ===================================== */}
+            <Route path="*" element={<NotFound />} />
           </>
-          
         )}
       </Routes>
-    </Suspense> 
+    </Suspense>
   );
 }

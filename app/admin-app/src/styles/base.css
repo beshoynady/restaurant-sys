@@ -1,0 +1,50 @@
+/* src/styles/base.css */
+
+/* BODY */
+body {
+  background: var(--bg);
+  color: var(--text);
+  transition:
+    background 0.25s ease,
+    color 0.25s ease;
+}
+
+/* CARD */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+/* TEXT */
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+/* BUTTON PRIMARY */
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  border-radius: 10px;
+  padding: 8px 14px;
+  transition: background 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+}
+
+/* HOVER SURFACE */
+.hover-surface:hover {
+  background: var(--hover);
+}
+
+/* INPUT BASE */
+.input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: var(--text);
+  outline: none;
+}

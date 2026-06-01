@@ -23,7 +23,12 @@ const branchSettingsSchema = new mongoose.Schema(
 
     // 📞 Contact Information
     contact: {
-      phone: [{ type: String, trim: true, maxlength: 20 }], // Branch phone numbers
+      phone: [
+        {
+          label: { type: String, trim: true, maxlength: 100 }, // Label for the phone number, e.g., "Main Line", "Customer Support"
+          number: { type: String, trim: true, maxlength: 20 }, // Phone number with max length
+        },
+      ],
       whatsapp: { type: String, trim: true, maxlength: 20 }, // WhatsApp contact
       email: {
         type: String,
@@ -34,7 +39,14 @@ const branchSettingsSchema = new mongoose.Schema(
       },
     },
 
-    // 🕒 Operating Hours
+    timezone: {
+      type: String,
+      default: "Africa/Cairo",
+      trim: true,
+      maxlength: 50,
+    }, // Timezone for the branch, used for scheduling and time-based rules
+
+    // 🕒 Operating Hours 
     operatingHours: [
       {
         day: {
@@ -55,6 +67,7 @@ const branchSettingsSchema = new mongoose.Schema(
           enum: ["open", "closed", "holiday"],
           default: "open", // Open, closed, or holiday status
         },
+        // If open, specify opening and closing times
         periods: [
           {
             name: { type: String, trim: true, maxlength: 50 }, // Period label, e.g., "Morning Shift"
@@ -87,7 +100,7 @@ const branchSettingsSchema = new mongoose.Schema(
               {
                 reason: { type: String, trim: true, maxlength: 100 }, // Reason for break
                 from: { type: String, trim: true }, // Start time of pause
-                to: { type: String, trim: true },   // End time of pause
+                to: { type: String, trim: true }, // End time of pause
               },
             ],
           },
@@ -112,6 +125,10 @@ const branchSettingsSchema = new mongoose.Schema(
             "Smoking Area",
             "Live Sports",
             "Gaming Zone",
+            "Family Section",
+            "Prayer Area",
+            "Valet Parking",
+            "Private Dining",
             "Other",
           ],
           required: true, // Feature type
@@ -124,26 +141,24 @@ const branchSettingsSchema = new mongoose.Schema(
 
     // 🧾 Services & Policies
     usesReservationSystem: { type: Boolean, default: false }, // Whether branch uses reservation system
-    hasPrivateDining: { type: Boolean, default: false },      // Private dining available
-    hasOutdoorSeating: { type: Boolean, default: false },     // Outdoor seating available
-    offersCurbsidePickup: { type: Boolean, default: false },  // Curbside pickup option
-    offersOnlinePayment: { type: Boolean, default: false },   // Online payment available
-    offersCashOnDelivery: { type: Boolean, default: false },  // Cash on delivery option
-    hasLoyaltyProgram: { type: Boolean, default: false },     // Loyalty program available
-    supportsGiftCards: { type: Boolean, default: false },     // Gift cards available
-    supportsReferrals: { type: Boolean, default: false },     // Referral program available
+    offersCurbsidePickup: { type: Boolean, default: false }, // Curbside pickup option
+    offersOnlinePayment: { type: Boolean, default: false }, // Online payment available
+    offersCashOnDelivery: { type: Boolean, default: false }, // Cash on delivery option
+    hasLoyaltyProgram: { type: Boolean, default: false }, // Loyalty program available
+    supportsGiftCards: { type: Boolean, default: false }, // Gift cards available
+    supportsReferrals: { type: Boolean, default: false }, // Referral program available
 
     isActive: { type: Boolean, default: true }, // General active flag
 
     // 📝 Audit Fields
     createdBy: { type: ObjectId, ref: "UserAccount", required: true }, // Employee who created
-    updatedBy: { type: ObjectId, ref: "UserAccount" },  
+    updatedBy: { type: ObjectId, ref: "UserAccount" },
     // Soft delete fields for tracking who deleted and when a branch settings document was deleted
-    deletedBy: { type: ObjectId, ref: "UserAccount" },                // Employee who deleted
-    isDeleted: { type: Boolean, default: false },                  // Soft delete flag
-    deletedAt: { type: Date, default: null },                      // Soft delete timestamp
+    deletedBy: { type: ObjectId, ref: "UserAccount" }, // Employee who deleted
+    isDeleted: { type: Boolean, default: false }, // Soft delete flag
+    deletedAt: { type: Date, default: null }, // Soft delete timestamp
   },
-  { timestamps: true } // Automatically add createdAt & updatedAt
+  { timestamps: true }, // Automatically add createdAt & updatedAt
 );
 
 // Ensure one settings document per branch
@@ -151,7 +166,7 @@ branchSettingsSchema.index({ branch: 1 }, { unique: true });
 
 const BranchSettingsModel = mongoose.model(
   "BranchSettings",
-  branchSettingsSchema
+  branchSettingsSchema,
 );
 
 export default BranchSettingsModel;

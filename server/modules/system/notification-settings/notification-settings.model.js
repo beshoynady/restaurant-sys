@@ -1,3 +1,4 @@
+// modules/system/notification-settings/notification-settings.model.js
 import mongoose from "mongoose";
 const {ObjectId} = mongoose.Schema.Types;
 

@@ -1,3 +1,5 @@
+// src/app/providers/ThemeProvider.jsx
+
 import { createContext, useEffect, useState } from "react";
 
 export const ThemeContext = createContext();
@@ -10,8 +12,11 @@ export const ThemeProvider = ({ children }) => {
   useEffect(() => {
     const root = document.documentElement;
 
-    root.classList.remove("light", "dark");
-    root.classList.add(theme);
+    // clean previous state
+    root.removeAttribute("data-theme");
+
+    // set current theme
+    root.setAttribute("data-theme", theme);
 
     localStorage.setItem("theme", theme);
   }, [theme]);

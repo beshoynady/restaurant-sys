@@ -8,6 +8,8 @@ import AppProvider from "./app/providers/AppProvider";
 import App from "./App.jsx";
 
 import "./index.css";
+import "./theme/tokens.css";
+import "./styles/base.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <Provider store={store}>

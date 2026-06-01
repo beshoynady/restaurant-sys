@@ -1,3 +1,4 @@
+// modules/system/discount-settings/discount-settings.model.js
 import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 

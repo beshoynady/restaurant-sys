@@ -79,5 +79,43 @@
     },
     "heroTitle": "نظام إدارة المطاعم",
     "heroDescription": "إدارة الطلبات، المخزون، المطبخ، الموظفين، الحسابات والتحليلات من منصة واحدة متكاملة"
+  },
+  "theme": {
+    "dark": "الوضع الداكن",
+    "light": "الوضع الفاتح"
+  },
+   "language": {
+    "switchToArabic": "التبديل للعربية",
+    "switchToEnglish": "التبديل للإنجليزية"
+  },
+
+   "branches": {
+    "tabs": {
+      "overview": "نظرة عامة",
+      "settings": "الإعدادات",
+      "deliveryAreas": "مناطق التوصيل"
+    },
+
+    "overview": {
+      "info": "بيانات الفرع",
+      "address": "العنوان",
+      "manager": "مدير الفرع",
+      "legal": "البيانات القانونية",
+      "location": "الموقع",
+      "status": "الحالة"
+    },
+
+    "fields": {
+      "name": "اسم الفرع",
+      "slug": "المعرف",
+      "mainBranch": "الفرع الرئيسي",
+      "country": "الدولة",
+      "city": "المدينة",
+      "area": "المنطقة",
+      "street": "الشارع",
+      "postalCode": "الرمز البريدي",
+      "taxNumber": "الرقم الضريبي",
+      "commercialRegister": "السجل التجاري"
+    }
   }
 }

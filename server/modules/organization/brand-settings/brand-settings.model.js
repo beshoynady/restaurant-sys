@@ -1,124 +1,174 @@
+// modules/core/brand-settings/brand-settings.model.js
+
 import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema.Types;
 
+const moduleSchema = new mongoose.Schema(
+  {
+    enabled: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  { _id: false },
+);
+
 const brandSettingsSchema = new mongoose.Schema(
   {
-    // =========================
-    // 🔗 BRAND LINK
-    // =========================
+    // =====================================================
+    // BRAND REFERENCE
+    // =====================================================
+
     brand: {
       type: ObjectId,
       ref: "Brand",
-      unique: true,
       required: true,
+      unique: true,
+      index: true,
     },
 
-    // =========================
-    // 🗂️ DASHBOARD CONFIGURATION
-    // =========================
-    dashboardLanguages: {
-      type: [String],
-      enum: ["EN", "AR", "FR", "ES", "IT", "ZH", "JA", "RU"],
-      default: ["EN", "AR"],
-    },
-    defaultDashboardLanguage: { type: String, default: "EN", required: true },
+    // =====================================================
+    // SYSTEM MODULES
+    // Controls available modules across the brand
+    // =====================================================
 
-    // =========================
-    // 🧩 CORE SYSTEM MODULES
-    // =========================
-    features: {
-      // 🍽️ MENU (essential for any restaurant)
+    modules: {
+      // Core Modules
       menu: {
-        enabled: { type: Boolean, default: true },
+        type: moduleSchema,
+        default: () => ({ enabled: true }),
       },
 
-      // 🛒 SALES / POS (essential)
       sales: {
-        enabled: { type: Boolean, default: true },
+        type: moduleSchema,
+        default: () => ({ enabled: true }),
       },
 
-      // 👨‍🍳 PREPARATION (KDS / Stations)
       preparation: {
-        enabled: { type: Boolean, default: true },
+        type: moduleSchema,
+        default: () => ({ enabled: true }),
       },
 
-      // 🪑 SEATING
       seating: {
-        enabled: { type: Boolean, default: true },
+        type: moduleSchema,
+        default: () => ({ enabled: true }),
       },
 
-      // 💳 PAYMENTS
       payments: {
-        enabled: { type: Boolean, default: true },
+        type: moduleSchema,
+        default: () => ({ enabled: true }),
       },
 
-      // =========================
-      // 🟡 OPTIONAL MODULES
-      // =========================
+      // Optional Modules
 
-      // 🚚 DELIVERY
       delivery: {
-        enabled: { type: Boolean, default: false },
+        type: moduleSchema,
+        default: () => ({ enabled: false }),
       },
 
-      // 📦 INVENTORY
       inventory: {
-        enabled: { type: Boolean, default: false },
+        type: moduleSchema,
+        default: () => ({ enabled: false }),
       },
 
-      // 🎯 CRM
       crm: {
-        enabled: { type: Boolean, default: false },
+        type: moduleSchema,
+        default: () => ({ enabled: false }),
       },
 
-      // 🎁 LOYALTY
       loyalty: {
-        enabled: { type: Boolean, default: false },
+        type: moduleSchema,
+        default: () => ({ enabled: false }),
       },
 
-      // 👨‍💼 HR
       hr: {
-        enabled: { type: Boolean, default: false },
+        type: moduleSchema,
+        default: () => ({ enabled: false }),
       },
 
-      // =========================
-      // 🔵 ENTERPRISE MODULES
-      // =========================
+      // Enterprise Modules
 
-      // 📊 ACCOUNTING
       accounting: {
-        enabled: { type: Boolean, default: false },
+        type: moduleSchema,
+        default: () => ({ enabled: false }),
       },
 
-      // 🏭 PRODUCTION
-      production: {
-        enabled: { type: Boolean, default: false },
-      },
-
-      // 🧾 PURCHASING
       purchasing: {
-        enabled: { type: Boolean, default: false },
+        type: moduleSchema,
+        default: () => ({ enabled: false }),
       },
 
-      // 🏢 ASSETS
+      production: {
+        type: moduleSchema,
+        default: () => ({ enabled: false }),
+      },
+
       assets: {
-        enabled: { type: Boolean, default: false },
+        type: moduleSchema,
+        default: () => ({ enabled: false }),
       },
     },
 
-    // =========================
-    // ⚙️ SYSTEM FLAGS
-    // =========================
-    maintenanceMode: { type: Boolean, default: false },
-    isActive: { type: Boolean, default: true },
+    // =====================================================
+    // SYSTEM FLAGS
+    // =====================================================
 
-    // =========================
-    // 📝 AUDIT
-    // =========================
-    createdBy: { type: ObjectId, ref: "UserAccount" },
-    updatedBy: { type: ObjectId, ref: "UserAccount" },
+    maintenanceMode: {
+      type: Boolean,
+      default: false,
+    },
+
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+
+    // =====================================================
+    // SECURITY SETTINGS
+    // Global system restrictions
+    // =====================================================
+
+    security: {
+      allowMultipleSessions: {
+        type: Boolean,
+        default: true,
+      },
+
+      sessionTimeoutMinutes: {
+        type: Number,
+        default: 120,
+        min: 15,
+        max: 1440,
+      },
+    },
+
+    // =====================================================
+    // AUDIT
+    // =====================================================
+
+    createdBy: {
+      type: ObjectId,
+      ref: "UserAccount",
+      default: null,
+    },
+
+    updatedBy: {
+      type: ObjectId,
+      ref: "UserAccount",
+      default: null,
+    },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+  },
 );
 
-export default mongoose.model("BrandSettings", brandSettingsSchema);
+// =====================================================
+// INDEXES
+// =====================================================
+
+brandSettingsSchema.index({ brand: 1 }, { unique: true });
+
+const BrandSettings = mongoose.model("BrandSettings", brandSettingsSchema);
+
+export default BrandSettings;

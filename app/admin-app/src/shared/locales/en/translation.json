@@ -76,5 +76,42 @@
     },
     "heroTitle": "Restaurant Management System",
     "heroDescription": "Manage orders, inventory, kitchen, staff, accounts and analytics from one integrated platform"
+  },
+  "theme": {
+    "dark": "Dark Mode",
+    "light": "Light Mode"
+  },
+  "language": {
+    "switchToArabic": "Switch To Arabic",
+    "switchToEnglish": "Switch To English"
+  },
+  "branches": {
+    "tabs": {
+      "overview": "Overview",
+      "settings": "Settings",
+      "deliveryAreas": "Delivery Areas"
+    },
+
+    "overview": {
+      "info": "Branch Information",
+      "address": "Address Information",
+      "manager": "Branch Manager",
+      "legal": "Legal Information",
+      "location": "Location",
+      "status": "Status"
+    },
+
+    "fields": {
+      "name": "Branch Name",
+      "slug": "Slug",
+      "mainBranch": "Main Branch",
+      "country": "Country",
+      "city": "City",
+      "area": "Area",
+      "street": "Street",
+      "postalCode": "Postal Code",
+      "taxNumber": "Tax Number",
+      "commercialRegister": "Commercial Register"
+    }
   }
 }

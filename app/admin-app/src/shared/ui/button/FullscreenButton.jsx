@@ -1,5 +1,5 @@
 // src/shared/ui/FullscreenButton.jsx
-import useFullscreen from "../hooks/useFullscreen";
+import useFullscreen from "../../hooks/useFullscreen";
 import { Maximize, Minimize } from "lucide-react";
 
 export default function FullscreenButton() {

@@ -53,12 +53,26 @@ const DeliveryAreaSchema = new mongoose.Schema(
       min: 0,
     },
 
+    pricingType: {
+      enum: ["fixed", "distance_based"],
+      type: String,
+      default: "fixed",
+    }, // If distance_based, deliveryFee is the base fee and additional fees may apply based on distance
+
+    coverageArea: {
+      type: {
+        type: String,
+        enum: ["Polygon"],
+      },
+      coordinates: [[[Number]]],
+    }, // GeoJSON Polygon defining the delivery area boundaries
+
     minimumOrderAmount: {
       type: Number,
       default: 0,
       min: 0,
     },
-
+    // If order total is above this threshold, delivery is free. Null means no free delivery threshold.
     freeDeliveryThreshold: {
       type: Number,
       default: null,
@@ -71,7 +85,7 @@ const DeliveryAreaSchema = new mongoose.Schema(
       default: 0,
       min: 0, // in minutes
     },
-
+    // If null, no distance limit. Otherwise, orders beyond this distance will not be accepted.
     maxDeliveryDistance: {
       type: Number,
       default: null,
@@ -83,17 +97,17 @@ const DeliveryAreaSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-
+    // If true, this delivery area is currently accepting orders. Can be used for temporary closures or testing.
     acceptsCashOnDelivery: {
       type: Boolean,
       default: true,
     },
-
+    // If false, this delivery area will not accept online payments. Useful for areas where online payment is not available or for testing purposes.
     acceptsOnlinePayment: {
       type: Boolean,
       default: true,
     },
-
+    // priority can be used to determine which delivery area to apply when multiple areas match an order's location
     priority: {
       type: Number,
       default: 0,
