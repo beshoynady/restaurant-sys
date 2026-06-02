@@ -1,32 +1,25 @@
 // src/shared/ui/NotificationDropdown.jsx
 import { useEffect, useRef, useState } from "react";
 import { Bell } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
-export default function NotificationDropdown() {
+/**
+ * Notification Dropdown
+ * Fully integrated with:
+ * - Theme system (semantic tokens only)
+ * - i18n support
+ * - Reusable UI system
+ * - Outside click handling
+ */
+
+export default function NotificationDropdown({
+  notifications = [],
+  onViewAll,
+}) {
   const [open, setOpen] = useState(false);
-
   const dropdownRef = useRef(null);
 
-  const notifications = [
-    {
-      id: 1,
-      title: "New Order Received",
-      description: "Order #1054 has been created.",
-      time: "2 min ago",
-    },
-    {
-      id: 2,
-      title: "Low Stock Alert",
-      description: "Chicken Breast is running low.",
-      time: "10 min ago",
-    },
-    {
-      id: 3,
-      title: "Employee Leave Request",
-      description: "Ahmed submitted a leave request.",
-      time: "1 hour ago",
-    },
-  ];
+  const { t } = useTranslation("common");
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
@@ -37,24 +30,27 @@ export default function NotificationDropdown() {
 
     document.addEventListener("mousedown", handleOutsideClick);
 
-    return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
-    };
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, []);
 
   return (
     <div ref={dropdownRef} className="relative">
       {/* Trigger */}
       <button
-        onClick={() => setOpen((prev) => !prev)}
+        onClick={() => setOpen((p) => !p)}
         className="
           relative
           flex h-10 w-10 items-center justify-center
+
           rounded-xl
+
           border border-border
-          bg-card
+          bg-surface
+          text-foreground
+
+          hover:bg-surface-secondary
+
           transition
-          hover:bg-accent
         "
       >
         <Bell size={18} />
@@ -64,13 +60,17 @@ export default function NotificationDropdown() {
           <span
             className="
               absolute -end-1 -top-1
+
               flex h-5 min-w-5 items-center justify-center
+
               rounded-full
-              bg-red-500
+
+              bg-danger
+              text-danger-foreground
+
               px-1
               text-[10px]
               font-bold
-              text-white
             "
           >
             {notifications.length}
@@ -82,43 +82,48 @@ export default function NotificationDropdown() {
       {open && (
         <div
           className="
-            absolute end-0 mt-2
-            z-50
-            w-80
+            absolute end-0 mt-2 z-50 w-80
+
             overflow-hidden
+
             rounded-2xl
+
             border border-border
-            bg-card
-            shadow-xl
+            bg-surface
+
+            shadow-lg
           "
         >
           {/* Header */}
           <div className="border-b border-border p-4">
-            <h3 className="font-semibold">Notifications</h3>
+            <h3 className="font-semibold text-foreground">
+              {t("notifications.title")}
+            </h3>
           </div>
 
           {/* List */}
           <div className="max-h-96 overflow-y-auto">
             {notifications.length === 0 ? (
               <div className="p-6 text-center text-sm text-muted-foreground">
-                No notifications
+                {t("notifications.empty")}
               </div>
             ) : (
               notifications.map((item) => (
                 <button
                   key={item.id}
                   className="
-                    flex w-full flex-col
-                    items-start
-                    gap-1
+                    flex w-full flex-col gap-1
                     border-b border-border
-                    p-4
-                    text-start
+                    p-4 text-start
+
+                    hover:bg-surface-secondary
+
                     transition
-                    hover:bg-accent
                   "
                 >
-                  <span className="font-medium">{item.title}</span>
+                  <span className="font-medium text-foreground">
+                    {item.title}
+                  </span>
 
                   <span className="text-sm text-muted-foreground">
                     {item.description}
@@ -135,15 +140,22 @@ export default function NotificationDropdown() {
           {/* Footer */}
           <div className="border-t border-border p-2">
             <button
+              onClick={onViewAll}
               className="
                 w-full rounded-xl
+
                 px-3 py-2
+
                 text-sm font-medium
+
+                text-foreground
+
+                hover:bg-surface-secondary
+
                 transition
-                hover:bg-accent
               "
             >
-              View All Notifications
+              {t("notifications.viewAll")}
             </button>
           </div>
         </div>

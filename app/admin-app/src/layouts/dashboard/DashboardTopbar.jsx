@@ -1,28 +1,28 @@
-// src/layouts/dashboard/DashboardTopBar.jsx
-import LanguageToggle from "../../shared/components/language/LanguageToggle";
-import ThemeToggle from "../../shared/components/theme/ThemeToggle";
+// // src/layouts/dashboard/DashboardTopBar.jsx
+// import LanguageToggle from "../../shared/components/language/LanguageToggle";
+// import ThemeToggle from "../../shared/components/theme/ThemeToggle";
 
-import FullscreenButton from "../../shared/ui/button/FullscreenButton";
-import NotificationDropdown from "../../shared/ui/button/NotificationDropdown";
+// import FullscreenButton from "../../shared/ui/buttons/FullscreenButton";
+// import NotificationDropdown from "../../shared/ui/buttons/NotificationDropdown";
 
-import DashboardUserMenu from "./components/DashboardUserMenu";
+// import DashboardUserMenu from "./components/DashboardUserMenu";
 
-export default function DashboardTopBar() {
-  return (
-    <header className="flex h-16 items-center border-b bg-card px-4 lg:px-6">
-      <h1 className="text-lg font-semibold">Dashboard</h1>
+// export default function DashboardTopBar() {
+//   return (
+//     <header className="flex h-16 items-center border-b bg-card px-4 lg:px-6">
+//       <h1 className="text-lg font-semibold">Dashboard</h1>
 
-      <div className="ms-auto flex items-center gap-2">
-        <NotificationDropdown />
+//       <div className="ms-auto flex items-center gap-2">
+//         <NotificationDropdown />
 
-        <LanguageToggle />
+//         <LanguageToggle />
 
-        <ThemeToggle />
+//         <ThemeToggle />
 
-        <FullscreenButton />
+//         <FullscreenButton />
 
-        <DashboardUserMenu />
-      </div>
-    </header>
-  );
-}
+//         <DashboardUserMenu />
+//       </div>
+//     </header>
+//   );
+// }

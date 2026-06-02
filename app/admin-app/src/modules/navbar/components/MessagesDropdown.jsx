@@ -1,78 +1,189 @@
-import { Link } from "react-router-dom";
-import useMessages from "../hooks/useMessages";
+// src/shared/InboxDropdown.jsx
 
-const MessagesDropdown = () => {
-  const {
-    messages,
-    showMessages,
-    toggleMessages,
-    updateisSeenMessage,
-  } = useMessages();
+import { useEffect, useRef, useState } from "react";
+import { Mail, X } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+
+export default function InboxDropdown({ messages = [], onDismiss }) {
+  const [open, setOpen] = useState(false);
+
+  const dropdownRef = useRef(null);
+
+  const { t } = useTranslation("common");
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
-    <div className="nav-item mx-1 dropdown position-relative">
-      <button
-        className="nav-link dropdown-toggle text-light bg-transparent border-0"
-        onClick={toggleMessages}
-      >
-        <i className="bx bx-envelope"></i>
+    <div ref={dropdownRef} className="relative">
+      {/* Trigger */}
 
-        <span className="badge bg-danger rounded-pill">
-          {messages.length}
-        </span>
+      <button
+        onClick={() => setOpen((p) => !p)}
+        className="
+          relative
+
+          flex h-10 w-10
+          items-center justify-center
+
+          rounded-xl
+
+          border border-border
+          bg-surface
+          text-foreground
+
+          hover:bg-surface-secondary
+
+          transition
+        "
+      >
+        <Mail size={18} />
+
+        {messages.length > 0 && (
+          <span
+            className="
+              absolute
+              -top-1
+              -end-1
+
+              flex h-5 min-w-5
+              items-center justify-center
+
+              rounded-full
+
+              bg-danger
+              text-danger-foreground
+
+              text-[10px]
+              font-bold
+            "
+          >
+            {messages.length}
+          </span>
+        )}
       </button>
 
-      {showMessages && (
-        <div
-          className="dropdown-menu dropdown-menu-end flex-column show"
-          style={{
-            position: "absolute",
-            minWidth: "320px",
-            maxHeight: "400px",
-            overflow: "auto",
-          }}
-        >
-          {messages.length > 0 ? (
-            messages.map((message) => (
-              <Link
-                key={message._id}
-                to="/message"
-                className="dropdown-item text-end"
-              >
-                <div className="d-flex justify-content-between align-items-start">
-                  <div>
-                    <strong>{message.name}</strong>
+      {/* Dropdown */}
 
-                    <p className="mb-0 small">
+      {open && (
+        <div
+          className="
+            absolute
+            end-0
+            mt-2
+
+            z-50
+
+            w-80
+
+            overflow-hidden
+
+            rounded-2xl
+
+            border border-border
+            bg-surface
+
+            shadow-lg
+          "
+        >
+          {/* Header */}
+
+          <div className="border-b border-border p-4">
+            <h3 className="font-semibold text-foreground">
+              {t("messages.title")}
+            </h3>
+          </div>
+
+          {/* Messages */}
+
+          <div className="max-h-96 overflow-y-auto">
+            {messages.length === 0 ? (
+              <div className="p-6 text-center text-sm text-muted-foreground">
+                {t("messages.empty")}
+              </div>
+            ) : (
+              messages.map((message) => (
+                <Link
+                  key={message._id}
+                  to="/messages"
+                  className="
+                    flex items-start
+                    justify-between
+                    gap-3
+
+                    border-b border-border
+
+                    p-4
+
+                    hover:bg-surface-secondary
+
+                    transition
+                  "
+                >
+                  <div className="flex-1">
+                    <p className="font-medium text-foreground">
+                      {message.name}
+                    </p>
+
+                    <p className="text-sm text-muted-foreground line-clamp-2">
                       {message.message}
                     </p>
                   </div>
 
-                  <i
-                    className="material-icons text-danger"
-                    style={{
-                      cursor: "pointer",
-                      fontSize: "18px",
-                    }}
+                  <button
                     onClick={(e) => {
                       e.preventDefault();
-                      updateisSeenMessage(message._id);
+
+                      onDismiss?.(message._id);
                     }}
+                    className="
+                      text-danger
+
+                      hover:opacity-80
+                    "
                   >
-                    close
-                  </i>
-                </div>
-              </Link>
-            ))
-          ) : (
-            <span className="dropdown-item text-center">
-              لا يوجد رسائل
-            </span>
-          )}
+                    <X size={16} />
+                  </button>
+                </Link>
+              ))
+            )}
+          </div>
+
+          {/* Footer */}
+
+          <div className="border-t border-border p-2">
+            <Link
+              to="/messages"
+              className="
+                block
+
+                rounded-xl
+
+                px-3 py-2
+
+                text-center
+                text-sm
+
+                hover:bg-surface-secondary
+
+                transition
+              "
+            >
+              {t("messages.viewAll")}
+            </Link>
+          </div>
         </div>
       )}
     </div>
   );
-};
-
-export default MessagesDropdown;
+}

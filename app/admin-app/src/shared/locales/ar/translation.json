@@ -84,12 +84,13 @@
     "dark": "الوضع الداكن",
     "light": "الوضع الفاتح"
   },
-   "language": {
+  "language": {
+    "toggle": "تغيير اللغة",
     "switchToArabic": "التبديل للعربية",
     "switchToEnglish": "التبديل للإنجليزية"
   },
 
-   "branches": {
+  "branches": {
     "tabs": {
       "overview": "نظرة عامة",
       "settings": "الإعدادات",
@@ -116,6 +117,21 @@
       "postalCode": "الرمز البريدي",
       "taxNumber": "الرقم الضريبي",
       "commercialRegister": "السجل التجاري"
+    },
+    "language": {
+      "toggle": "Change language",
+      "switchToArabic": "Switch to Arabic",
+      "switchToEnglish": "Switch to English"
     }
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "empty": "لا توجد إشعارات",
+    "viewAll": "عرض كل الإشعارات"
+  },
+  "messages": {
+    "title": "الرسائل",
+    "empty": "لا توجد رسائل",
+    "viewAll": "عرض جميع الرسائل"
   }
 }

@@ -14,7 +14,7 @@ import { TextFilter } from "../../../shared/tables/filters/TextFilter";
 import { SelectFilter } from "../../../shared/tables/filters/SelectFilter";
 import { DateRangeFilter } from "../../../shared/tables/filters/DateRangeFilter";
 
-import { FormInput } from "../../../shared/forms/inputField";
+import { FormInput } from "../../../shared/ui/forms/inputField";
 
 export default function EmployeesPage() {
   // ================= DATA =================

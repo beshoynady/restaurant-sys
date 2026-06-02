@@ -82,8 +82,9 @@
     "light": "Light Mode"
   },
   "language": {
-    "switchToArabic": "Switch To Arabic",
-    "switchToEnglish": "Switch To English"
+    "toggle": "Change language",
+    "switchToArabic": "Switch to Arabic",
+    "switchToEnglish": "Switch to English"
   },
   "branches": {
     "tabs": {
@@ -113,5 +114,15 @@
       "taxNumber": "Tax Number",
       "commercialRegister": "Commercial Register"
     }
+  },
+   "notifications": {
+    "title": "Notifications",
+    "empty": "No notifications",
+    "viewAll": "View All Notifications"
+  },
+   "messages": {
+    "title": "Messages",
+    "empty": "No messages",
+    "viewAll": "View All Messages"
   }
 }

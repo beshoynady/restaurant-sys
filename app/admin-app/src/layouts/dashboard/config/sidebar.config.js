@@ -19,11 +19,11 @@ export const sidebarItems = [
     children: [
       {
         title: "Brand",
-        path: "/organization/brand",
+        path: "/admin/brand",
       },
       {
         title: "Branches",
-        path: "/organization/branches",
+        path: "/admin/branches",
       },
     ],
   },

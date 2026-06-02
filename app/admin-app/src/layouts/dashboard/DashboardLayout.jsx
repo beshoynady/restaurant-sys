@@ -3,7 +3,8 @@
 import { Outlet } from "react-router-dom";
 
 import DashboardSidebar from "./DashboardSidebar";
-import DashboardTopBar from "./DashboardTopBar";
+import NavBar from "../../modules/navbar/components/NavBar";
+// import DashboardTopBar from "./DashboardTopBar";
 
 export default function DashboardLayout() {
   return (
@@ -14,8 +15,9 @@ export default function DashboardLayout() {
       {/* Content */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* TopBar */}
-        <DashboardTopBar />
+        {/* <DashboardTopBar /> */}
 
+        <NavBar />
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto p-4 lg:p-6">
           <Outlet />

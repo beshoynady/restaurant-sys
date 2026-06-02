@@ -1,58 +1,190 @@
-import { useContext, useState } from "react";
-// import { AppContext } from "../../../context/appContext";
-import { employeeLogout } from "../services/auth.service";
+// src/shared/ui/UserDropdown.jsx
 
-const UserDropdown = () => {
-//   const { employeeLoginInfo } = useContext(AppContext);
+import { useEffect, useRef, useState } from "react";
+import { LogOut, User, Settings } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
-  const [showDropdown, setShowDropdown] = useState(false);
+/**
+ * User menu dropdown
+ *
+ * Supports:
+ * - Theme system
+ * - i18n
+ * - RTL/LTR
+ * - Outside click
+ */
+
+export default function UserDropdown({
+  user,
+  onLogout,
+  onProfile,
+  onSettings,
+}) {
+  const [open, setOpen] = useState(false);
+
+  const menuRef = useRef(null);
+
+  const { t } = useTranslation("common");
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target)
+      ) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside
+    );
+
+    return () =>
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
+  }, []);
+
+  const initial =
+    user?.username?.charAt(0)?.toUpperCase() || "U";
 
   return (
-    <div className="nav-item mx-1 dropdown position-relative">
+    <div
+      ref={menuRef}
+      className="relative"
+    >
+      {/* Trigger */}
+
       <button
-        className="nav-link d-flex align-items-center text-light bg-transparent border-0"
-        onClick={() => setShowDropdown((prev) => !prev)}
+        onClick={() => setOpen((p) => !p)}
+        className="
+          flex h-10 w-10
+          items-center justify-center
+
+          rounded-full
+
+          bg-primary
+          text-primary-foreground
+
+          font-semibold
+
+          transition
+          hover:opacity-90
+        "
       >
-        <div
-          className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
-          style={{
-            width: "36px",
-            height: "36px",
-            fontSize: "18px",
-          }}
-        >
-          {/* {employeeLoginInfo?.username?.charAt(0)} */}
-        </div>
+        {initial}
       </button>
 
-      {showDropdown && (
+      {/* Menu */}
+
+      {open && (
         <div
-          className="dropdown-menu dropdown-menu-end text-end flex-column show"
-          style={{
-            position: "absolute",
-            minWidth: "220px",
-          }}
+          className="
+            absolute end-0 mt-2
+
+            z-50
+
+            w-64
+
+            overflow-hidden
+
+            rounded-2xl
+
+            border border-border
+            bg-surface
+
+            shadow-lg
+          "
         >
-          <span className="dropdown-item fw-bold">
-            {/* {employeeLoginInfo?.username} */}
-          </span>
+          {/* Header */}
 
-          <span className="dropdown-item text-muted">
-            {/* {employeeLoginInfo?.role} */}
-          </span>
+          <div className="border-b border-border p-4">
+            <p className="font-semibold text-foreground">
+              {user?.username}
+            </p>
 
-          <div className="dropdown-divider"></div>
+            <p className="text-sm text-muted-foreground">
+              {user?.role}
+            </p>
+          </div>
+
+          {/* Profile */}
 
           <button
-            className="dropdown-item text-danger"
-            onClick={employeeLogout}
+            onClick={onProfile}
+            className="
+              flex w-full items-center gap-3
+
+              px-4 py-3
+
+              text-start
+
+              hover:bg-surface-secondary
+
+              transition
+            "
           >
-            تسجيل الخروج
+            <User size={18} />
+
+            <span>
+              {t("user.profile")}
+            </span>
+          </button>
+
+          {/* Settings */}
+
+          <button
+            onClick={onSettings}
+            className="
+              flex w-full items-center gap-3
+
+              px-4 py-3
+
+              text-start
+
+              hover:bg-surface-secondary
+
+              transition
+            "
+          >
+            <Settings size={18} />
+
+            <span>
+              {t("user.settings")}
+            </span>
+          </button>
+
+          {/* Logout */}
+
+          <button
+            onClick={onLogout}
+            className="
+              flex w-full items-center gap-3
+
+              border-t border-border
+
+              px-4 py-3
+
+              text-start
+
+              text-danger
+
+              hover:bg-surface-secondary
+
+              transition
+            "
+          >
+            <LogOut size={18} />
+
+            <span>
+              {t("user.logout")}
+            </span>
           </button>
         </div>
       )}
     </div>
   );
-};
-
-export default UserDropdown;
+}

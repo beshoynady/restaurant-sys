@@ -1,19 +1,48 @@
-import useTheme from "../hooks/useTheme";
+// src/shared/ui/ThemeToggle.jsx
 
-const ThemeToggle = () => {
-  const { isDarkMode, toggleTheme } = useTheme();
+// src/shared/ui/ThemeToggle.jsx
+
+import { Sun, Moon } from "@phosphor-icons/react";
+import { useTranslation } from "react-i18next";
+import useTheme from "../../../shared/hooks/useTheme";
+
+/**
+ * Theme toggle button.
+ *
+ * Supports:
+ * - Light / Dark mode
+ * - i18n
+ * - RTL / LTR
+ * - Theme tokens
+ */
+
+export default function ThemeToggle() {
+  const { isDark, toggleTheme } = useTheme();
+
+  const { t } = useTranslation("common");
 
   return (
-    <div
-      className="nav-item d-flex align-items-center justify-content-center mx-1"
-      style={{ cursor: "pointer" }}
+    <button
+      type="button"
       onClick={toggleTheme}
-    >
-      <button className="btn btn-sm btn-outline-light">
-        {isDarkMode ? "☀️" : "🌙"}
-      </button>
-    </div>
-  );
-};
+      aria-label={isDark ? t("theme.lightMode") : t("theme.darkMode")}
+      title={isDark ? t("theme.lightMode") : t("theme.darkMode")}
+      className="
+        flex h-10 w-10
+        items-center justify-center
 
-export default ThemeToggle;
+        rounded-xl
+
+        border border-border
+        bg-surface
+        text-foreground
+
+        transition
+
+        hover:bg-surface-secondary
+      "
+    >
+      {isDark ? <Sun size={20} /> : <Moon size={20} />}
+    </button>
+  );
+}

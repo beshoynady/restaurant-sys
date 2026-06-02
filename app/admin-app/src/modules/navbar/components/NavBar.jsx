@@ -1,35 +1,95 @@
+import { useTranslation } from "react-i18next";
+
 import UserDropdown from "./UserDropdown";
-import MessagesDropdown from "./MessagesDropdown";
-import NotificationsDropdown from "./NotificationsDropdown";
-import FullscreenToggle from "./FullscreenToggle";
-import ThemeToggle from "../../shared/ui/ThemeToggle";
-import LanguageToggle from "./LanguageToggle";
+import NotificationDropdown from "./NotificationDropdown";
+import FullscreenButton from "./FullscreenButton";
+import ThemeToggle from "./ThemeToggle";
+import LanguageSwitcher from "./LanguageSwitcher";
 
-const NavBar = () => {
+/**
+ * Dashboard Top Navigation Bar
+ *
+ * Features:
+ * - Fullscreen Toggle
+ * - Language Switcher
+ * - Theme Toggle
+ * - Notifications
+ * - User Menu
+ */
+
+export default function NavBar() {
+  const { t } = useTranslation();
+
+  const notifications = [
+    {
+      id: 1,
+      title: t("notifications.newOrder"),
+      description: "#1054",
+      time: "2 min",
+    },
+    {
+      id: 2,
+      title: t("notifications.lowStock"),
+      description: "Chicken Breast",
+      time: "10 min",
+    },
+  ];
+
+  const currentUser = {
+    username: "Beshoy",
+    role: "Administrator",
+  };
+
   return (
-    <nav
-      className="navbar w-100 navbar-expand-lg flex-row p-0 m-0 pr-2 sticky-top"
-      style={{
-        height: "50px",
-        backgroundColor: "#343a40",
-        zIndex: 999,
-      }}
+    <header
+      className="
+        sticky top-0 z-40
+
+        flex items-center justify-between
+
+        h-16
+
+        border-b border-border
+
+        bg-surface
+
+        px-4 md:px-6
+      "
     >
-      <div className="navbar-nav flex-row align-items-center w-100 px-1 mx-1 ms-auto h-100">
-        <UserDropdown />
+      {/* Left Side */}
 
-        <MessagesDropdown />
+      <div className="flex items-center gap-3">
+        <h1
+          className="
+            text-lg
+            font-semibold
+            text-foreground
+          "
+        >
+          {t("dashboard.title")}
+        </h1>
+      </div>
 
-        <NotificationsDropdown />
+      {/* Right Side */}
 
-        <FullscreenToggle />
+      <div className="flex items-center gap-2">
+        <FullscreenButton />
+
+        <LanguageSwitcher />
 
         <ThemeToggle />
 
-        <LanguageToggle />
-      </div>
-    </nav>
-  );
-};
+        <NotificationDropdown
+          notifications={notifications}
+        />
 
-export default NavBar;
+        <UserDropdown
+          user={currentUser}
+          onProfile={() => {}}
+          onSettings={() => {}}
+          onLogout={() => {}}
+        />
+      </div>
+    </header>
+  );
+}
