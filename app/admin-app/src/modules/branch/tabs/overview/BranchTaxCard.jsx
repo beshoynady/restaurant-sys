@@ -20,7 +20,7 @@ function Field({ label, value }) {
   return (
     <div>
       <p className="text-sm text-slate-500">{label}</p>
-      <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl mt-1">
+      <div className="p-3 bg-surface-secondary dark:bg-slate-800 rounded-xl mt-1">
         {value}
       </div>
     </div>

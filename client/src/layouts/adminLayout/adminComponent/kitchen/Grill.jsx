@@ -557,7 +557,7 @@ const Grill = () => {
       {/* Row containing section selection and ticket data boxes */}
       <div className="w-100 d-flex align-items-start justify-content-between bg-transparent mb-3">
         {/* Section selection dropdown */}
-        <div className="d-flex flex-column align-items-start bg-white shadow-sm rounded p-2 me-3">
+        <div className="d-flex flex-column align-items-start bg-surface shadow-sm rounded p-2 me-3">
           <label
             htmlFor="section-select"
             className="fw-bold text-dark"

@@ -38,7 +38,7 @@ const LoginForm = () => {
           {...register("identifier")}
           className="
             w-full px-4 py-3 rounded-xl
-            bg-white/10 border border-white/10
+            bg-surface/10 border border-white/10
             text-white outline-none
             focus:border-blue-500
           "

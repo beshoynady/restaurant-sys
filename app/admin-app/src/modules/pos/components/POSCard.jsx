@@ -5,7 +5,7 @@ export default function POSProductCard() {
         group
         overflow-hidden
         rounded-3xl
-        bg-white dark:bg-gray-900
+        bg-surface dark:bg-gray-900
         border border-gray-200 dark:border-gray-800
         shadow-sm
         hover:shadow-xl

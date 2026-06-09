@@ -15,7 +15,7 @@ const FormModal = ({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-3xl rounded-xl shadow-xl overflow-hidden">
+      <div className="bg-surface w-full max-w-3xl rounded-xl shadow-xl overflow-hidden">
         {/* HEADER */}
         <div className="flex items-center justify-between px-5 py-3 bg-blue-600 text-white">
           <h2 className="text-lg font-bold">{title}</h2>

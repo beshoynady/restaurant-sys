@@ -197,7 +197,7 @@ export default function AdminSidebar({ isDark, toggleTheme, isArabic, toggleLang
   return (
     <aside 
       className={`w-72 h-screen flex flex-col justify-between border-e transition-colors duration-300 shadow-xl ${
-        isDark ? "bg-[#090d1a] border-slate-800 text-slate-200" : "bg-white border-slate-200 text-slate-800"
+        isDark ? "bg-[#090d1a] border-slate-800 text-slate-200" : "bg-surface border-slate-200 text-slate-800"
       }`}
     >
       {/* 1. رأس السايد بار (Logo Area) */}
@@ -275,14 +275,14 @@ export default function AdminSidebar({ isDark, toggleTheme, isArabic, toggleLang
       </div>
 
       {/* 3. تذييل السايد بار (الأدوات والملف الشخصي والتحكم باللغات والثيمز) */}
-      <div className={`p-3 border-t space-y-3 ${isDark ? "border-slate-800/80 bg-[#070a14]" : "border-slate-100 bg-slate-50"}`}>
+      <div className={`p-3 border-t space-y-3 ${isDark ? "border-slate-800/80 bg-[#070a14]" : "border-slate-100 bg-surface-secondary"}`}>
         
         {/* أزرار تغيير التفضيلات اللحظية السريعة وعناصر المظهر */}
         <div className="grid grid-cols-2 gap-1.5">
           <button 
             onClick={toggleTheme}
             className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg border text-[10px] font-bold transition ${
-              isDark ? "bg-[#111930] border-slate-800 text-amber-400 hover:bg-slate-800" : "bg-white border-slate-200 text-slate-700 hover:bg-slate-100"
+              isDark ? "bg-[#111930] border-slate-800 text-amber-400 hover:bg-slate-800" : "bg-surface border-slate-200 text-slate-700 hover:bg-slate-100"
             }`}
           >
             {isDark ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
@@ -292,7 +292,7 @@ export default function AdminSidebar({ isDark, toggleTheme, isArabic, toggleLang
           <button 
             onClick={toggleLanguage}
             className={`flex items-center justify-center gap-1.5 py-1.5 rounded-lg border text-[10px] font-bold transition ${
-              isDark ? "bg-[#111930] border-slate-800 text-cyan-400 hover:bg-slate-800" : "bg-white border-slate-200 text-slate-700 hover:bg-slate-100"
+              isDark ? "bg-[#111930] border-slate-800 text-cyan-400 hover:bg-slate-800" : "bg-surface border-slate-200 text-slate-700 hover:bg-slate-100"
             }`}
           >
             <Languages className="w-3.5 h-3.5" />

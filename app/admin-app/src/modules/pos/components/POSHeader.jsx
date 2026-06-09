@@ -18,7 +18,7 @@ export default function POSHeader() {
         px-4 py-4
         border-b
         border-gray-200 dark:border-gray-800
-        bg-white dark:bg-gray-900
+        bg-surface dark:bg-gray-900
       "
     >
       {/* SEARCH */}

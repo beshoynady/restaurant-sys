@@ -143,7 +143,7 @@ export default function KDSPage() {
     <div 
       dir={isArabic ? "rtl" : "ltr"}
       className={`min-h-screen flex flex-col font-sans select-none overflow-hidden ${
-        isDark ? "bg-[#090d1a] text-slate-100" : "bg-slate-50 text-slate-900"
+        isDark ? "bg-[#090d1a] text-slate-100" : "bg-surface-secondary text-foreground"
       }`}
     >
       {/* 1. الشريط العلوي للتحكم والأقسام */}

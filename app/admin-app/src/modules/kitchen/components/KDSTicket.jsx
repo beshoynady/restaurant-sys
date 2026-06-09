@@ -22,7 +22,7 @@ export default function KDSTicket({ order, isDark, isArabic, onAccept, onReject,
     <div className={`rounded-xl border-2 flex flex-col justify-between gap-3 p-3.5 shadow-md transition-all duration-200 relative ${
       order.status === 'rejected' ? 'border-red-900/50 opacity-75' : 
       order.status === 'completed' ? 'border-emerald-900/50 opacity-75' :
-      isDark ? "bg-[#111827] border-slate-800" : "bg-white border-slate-200"
+      isDark ? "bg-[#111827] border-slate-800" : "bg-surface border-slate-200"
     }`}>
       
       {/* ترويسة التذكرة ومعلومات الوقت والمستغرق */}
@@ -42,7 +42,7 @@ export default function KDSTicket({ order, isDark, isArabic, onAccept, onReject,
       </div>
 
       {/* تفاصيل نوع التذكرة والمسؤول عنها الصادرة من الكاشير/الويتر */}
-      <div className={`grid grid-cols-2 text-[11px] p-2 rounded-lg ${isDark ? "bg-slate-900/60" : "bg-slate-50"}`}>
+      <div className={`grid grid-cols-2 text-[11px] p-2 rounded-lg ${isDark ? "bg-slate-900/60" : "bg-surface-secondary"}`}>
         <div>
           <span className="text-slate-400 block font-medium">{isArabic ? "النوع" : "Type"}</span>
           <span className="font-bold text-indigo-400">{isArabic ? order.type : order.typeEn}</span>

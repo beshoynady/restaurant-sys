@@ -20,7 +20,7 @@ export default function TopBar({ variant = "default" }) {
         ${
           variant === "auth"
             ? "absolute top-0 left-0 right-0 bg-transparent"
-            : "sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800"
+            : "sticky top-0 z-50 bg-surface/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800"
         }
       `}
       dir={isArabic ? "rtl" : "ltr"}

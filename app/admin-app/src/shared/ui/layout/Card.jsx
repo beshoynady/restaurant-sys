@@ -1,8 +1,6 @@
+// src/shared/ui/layout/Card.jsx
 import clsx from "clsx";
-
-/**
- * Generic Card container
- */
+    
 
 export default function Card({ children, className, ...props }) {
   return (

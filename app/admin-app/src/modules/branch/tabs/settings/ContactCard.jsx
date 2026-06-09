@@ -17,7 +17,7 @@ export default function ContactCard({ settings }) {
   const contact = settings?.contact || {};
 
   return (
-    <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+    <div className="rounded-3xl border border-gray-200 bg-surface p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
       <h3 className="mb-6 text-lg font-bold">
         {t("branches.settings.contact")}
       </h3>

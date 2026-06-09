@@ -8,7 +8,7 @@ export default function POSCart() {
         hidden lg:flex
         flex-col
         h-full
-        bg-white dark:bg-gray-900
+        bg-surface dark:bg-gray-900
         border-r
         border-gray-200 dark:border-gray-800
         overflow-hidden

@@ -13,7 +13,7 @@ export default function DeliveryAreaCard({ area, onEdit }) {
   const { i18n, t } = useTranslation();
 
   return (
-    <div className="rounded-3xl border bg-white p-5 shadow-sm transition hover:shadow-md dark:border-gray-800 dark:bg-gray-900">
+    <div className="rounded-3xl border bg-surface p-5 shadow-sm transition hover:shadow-md dark:border-gray-800 dark:bg-gray-900">
       {/* HEADER */}
       <div className="flex items-start justify-between">
         <div>

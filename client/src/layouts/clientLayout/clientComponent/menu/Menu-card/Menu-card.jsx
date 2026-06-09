@@ -73,7 +73,7 @@ const MenuCard = () => {
                                 addNoteToProduct(e, product._id, sizeId);
                                 setnoteArea(!noteArea);
                               }}
-                              className="position-absolute w-100 h-100 top-0 start-0 p-2 bg-white rounded-3 d-flex flex-column align-items-center justify-content-center overflow-hidden"
+                              className="position-absolute w-100 h-100 top-0 start-0 p-2 bg-surface rounded-3 d-flex flex-column align-items-center justify-content-center overflow-hidden"
                               style={{ zIndex: 10 }}
                             >
                               <textarea
@@ -117,7 +117,7 @@ const MenuCard = () => {
                               (size) => size._id === sizeId
                             )[0]?.sizeQuantity > 0 ? (
                               <div
-                                className="position-absolute w-100 h-100 top-0 start-0 bg-white rounded-3 d-flex flex-column align-items-center justify-content-center overflow-hidden"
+                                className="position-absolute w-100 h-100 top-0 start-0 bg-surface rounded-3 d-flex flex-column align-items-center justify-content-center overflow-hidden"
                                 style={{ zIndex: 10 }}
                               >
                                 <form
@@ -133,7 +133,7 @@ const MenuCard = () => {
                                     setSelectedButtonIndex(1);
                                     setextraArea(!extraArea);
                                   }}
-                                  className="w-100 h-100 top-0 start-0 bg-white rounded-3 d-flex flex-column align-items-center justify-content-between m-0 p-0"
+                                  className="w-100 h-100 top-0 start-0 bg-surface rounded-3 d-flex flex-column align-items-center justify-content-between m-0 p-0"
                                 >
                                   {/* أزرار الأصناف */}
                                   <div
@@ -277,7 +277,7 @@ const MenuCard = () => {
                               </div>
                             ) : (
                               <div
-                                className="position-absolute w-100 h-100 top-0 start-0 p-2 bg-white rounded-3 d-flex flex-column align-items-center justify-content-between overflow-hidden"
+                                className="position-absolute w-100 h-100 top-0 start-0 p-2 bg-surface rounded-3 d-flex flex-column align-items-center justify-content-between overflow-hidden"
                                 style={{ zIndex: 10 }}
                               >
                                 <p
@@ -578,7 +578,7 @@ const MenuCard = () => {
                                 addNoteToProduct(e, product._id, sizeId);
                                 setnoteArea(!noteArea);
                               }}
-                              className="position-absolute w-100 h-100 top-0 start-0 p-2 bg-white rounded-3 d-flex flex-column align-items-center justify-content-center overflow-hidden"
+                              className="position-absolute w-100 h-100 top-0 start-0 p-2 bg-surface rounded-3 d-flex flex-column align-items-center justify-content-center overflow-hidden"
                               style={{ zIndex: 10 }}
                             >
                               <textarea
@@ -614,7 +614,7 @@ const MenuCard = () => {
                           {product._id === productId && !product.hasSizes && extraArea === true ? (
                             product.quantity > 0 ? (
                               <div
-                                className="position-absolute w-100 h-100 top-0 start-0 bg-white rounded-3 d-flex flex-column align-items-center 
+                                className="position-absolute w-100 h-100 top-0 start-0 bg-surface rounded-3 d-flex flex-column align-items-center 
                                 justify-content-center overflow-hidden"
                                 style={{ zIndex: 10 }}
                               >
@@ -631,7 +631,7 @@ const MenuCard = () => {
                                     setSelectedButtonIndex(1);
                                     setextraArea(!extraArea);
                                   }}
-                                  className="w-100 h-100 top-0 start-0 bg-white rounded-3 d-flex flex-column align-items-center justify-content-between m-0 p-0"
+                                  className="w-100 h-100 top-0 start-0 bg-surface rounded-3 d-flex flex-column align-items-center justify-content-between m-0 p-0"
                                 >
                                   {/* أزرار الأصناف */}
                                   <div
@@ -762,7 +762,7 @@ const MenuCard = () => {
                               </div>
                             ) : (
                               <div
-                                className="position-absolute w-100 h-100 top-0 start-0 p-2 bg-white rounded-3 d-flex flex-column align-items-center justify-content-between overflow-hidden"
+                                className="position-absolute w-100 h-100 top-0 start-0 p-2 bg-surface rounded-3 d-flex flex-column align-items-center justify-content-between overflow-hidden"
                                 style={{ zIndex: 10 }}
                               >
                                 <p

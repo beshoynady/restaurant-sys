@@ -19,7 +19,7 @@ export default function BranchInfoCard({ branch }) {
         rounded-3xl
         border
         border-gray-200
-        bg-white
+        bg-surface
         p-6
         shadow-sm
         dark:border-gray-800

@@ -15,7 +15,7 @@ const POSSidebar = () => {
         ${
           isDark
             ? "bg-zinc-900 border-zinc-800"
-            : "bg-white border-zinc-200"
+            : "bg-surface border-zinc-200"
         }
       `}
     >

@@ -32,7 +32,7 @@ export default function BranchTabs({ activeTab, setActiveTab }) {
             onClick={() => setActiveTab(tab.id)}
             className={`rounded-xl px-5 py-3 text-sm font-medium transition-all ${
               activeTab === tab.id
-                ? "bg-white shadow dark:bg-gray-900"
+                ? "bg-surface shadow dark:bg-gray-900"
                 : "text-gray-500 hover:text-gray-900 dark:hover:text-white"
             }`}
           >

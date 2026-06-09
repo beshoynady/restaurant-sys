@@ -12,7 +12,7 @@ export default function BranchHeader({ branch }) {
   const { i18n } = useTranslation();
 
   return (
-    <div className="flex flex-col gap-4 rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900 lg:flex-row lg:items-center lg:justify-between">
+    <div className="flex flex-col gap-4 rounded-3xl border border-gray-200 bg-surface p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900 lg:flex-row lg:items-center lg:justify-between">
       {/* LEFT */}
       <div>
         <h1 className="text-2xl font-bold">{branch?.name?.[i18n.language]}</h1>

@@ -8,7 +8,7 @@ import NavBar from "../../modules/navbar/components/NavBar";
 
 export default function DashboardLayout() {
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50">
+    <div className="flex h-screen overflow-hidden bg-surface-secondary">
       {/* Sidebar */}
       <DashboardSidebar />
 

@@ -1,60 +1,70 @@
-// src/modules/brand/pages/BrandPage.jsx
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { useTranslation } from "react-i18next";
-import { useTheme } from "@/hooks/useTheme";
+import BrandHeader from "../components/BrandHeader";
 
-import BrandHeader from "@/modules/brand/components/BrandHeader";
-import IdentityTab from "@/modules/brand/tabs/IdentityTab";
-import FinancialTab from "@/modules/brand/tabs/FinancialTab";
-import LocalizationTab from "@/modules/brand/tabs/LocalizationTab";
-import BrandingTab from "@/modules/brand/tabs/BrandingTab";
+import BrandSummaryCard from "../components/BrandSummaryCard";
+import BrandStatsCard from "../components/BrandStatsCard";
+
+import BrandIdentitySection from "../components/sections/BrandIdentitySection";
+import LegalSection from "../components/sections/LegalSection";
+import FinancialSection from "../components/sections/FinancialSection";
+import LanguageSection from "../components/sections/LanguageSection";
+import OperationalSection from "../components/sections/OperationalSection";
+import AuditSection from "../components/sections/AuditSection";
+
+import { useBrandForm } from "../hooks/useBrandForm";
 
 export default function BrandPage() {
-  const { t } = useTranslation();
-  const { isDark } = useTheme();
+  const brandForm =
+    useBrandForm();
 
   return (
-    <div
-      className={`p-6 space-y-6 min-h-screen transition-colors duration-300
-      ${isDark ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}
-    >
-      <BrandHeader />
+    <div className="min-h-screen bg-surface-secondary p-6">
+      <div className="mx-auto max-w-7xl space-y-6">
+        <BrandHeader
+          {...brandForm}
+        />
 
-      <Tabs defaultValue="identity" className="w-full">
-        <TabsList className="grid grid-cols-4 w-full sm:grid-cols-2">
-          <TabsTrigger value="identity">
-            {t("brand.identity")}
-          </TabsTrigger>
+        <div className="grid lg:grid-cols-12 gap-6">
+          {/* Left Side */}
 
-          <TabsTrigger value="financial">
-            {t("brand.financial")}
-          </TabsTrigger>
+          <div className="lg:col-span-4 space-y-6">
+            <BrandSummaryCard
+              {...brandForm}
+            />
 
-          <TabsTrigger value="localization">
-            {t("brand.localization")}
-          </TabsTrigger>
+            <BrandStatsCard
+              {...brandForm}
+            />
+          </div>
 
-          <TabsTrigger value="branding">
-            {t("brand.branding")}
-          </TabsTrigger>
-        </TabsList>
+          {/* Right Side */}
 
-        <TabsContent value="identity">
-          <IdentityTab />
-        </TabsContent>
+          <div className="lg:col-span-8 space-y-6">
+            <BrandIdentitySection
+              {...brandForm}
+            />
 
-        <TabsContent value="financial">
-          <FinancialTab />
-        </TabsContent>
+            <LegalSection
+              {...brandForm}
+            />
 
-        <TabsContent value="localization">
-          <LocalizationTab />
-        </TabsContent>
+            <FinancialSection
+              {...brandForm}
+            />
 
-        <TabsContent value="branding">
-          <BrandingTab />
-        </TabsContent>
-      </Tabs>
+            <LanguageSection
+              {...brandForm}
+            />
+
+            <OperationalSection
+              {...brandForm}
+            />
+
+            <AuditSection
+              {...brandForm}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

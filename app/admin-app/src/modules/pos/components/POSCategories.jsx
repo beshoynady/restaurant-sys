@@ -15,7 +15,7 @@ export default function POSCategories() {
         flex items-center gap-3
         overflow-x-auto
         px-4 py-4
-        bg-white dark:bg-gray-900
+        bg-surface dark:bg-gray-900
         border-b
         border-gray-200 dark:border-gray-800
       "

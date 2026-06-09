@@ -12,7 +12,9 @@ import ProtectedRoute from "../guards/ProtectedRoute";
 import LoadingPage from "../../shared/ui/loading/LoadingPage.jsx";
 
 // Brand
-import BrandProfilePage from "../../modules/brand/pages/BrandProfilePage.jsx";
+// import BrandProfilePage from "../../modules/brand/pages/BrandProfilePage.jsx";
+import BrandProfilePage from "../../modules/brand/pages/BrandPage.jsx";
+
 import BranchProfilePage from "../../modules/branch/pages/BranchProfilePage.jsx";
 
 // ================= LAYOUTS =================

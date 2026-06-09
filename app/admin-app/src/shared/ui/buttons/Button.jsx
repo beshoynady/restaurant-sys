@@ -1,3 +1,4 @@
+// src/shared/ui/buttons/Button.jsx
 import clsx from "clsx";
 
 export default function Button({

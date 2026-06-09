@@ -168,32 +168,6 @@ const brandSchema = new mongoose.Schema(
       maxlength: 2,
     },
 
-    branding: {
-      primaryColor: {
-        type: String,
-        trim: true,
-        maxlength: 7,
-        match: /^#([0-9A-F]{3}|[0-9A-F]{6})$/i, // hex color code validation
-      },
-      secondaryColor: {
-        type: String,
-        trim: true,
-        maxlength: 7,
-        match: /^#([0-9A-F]{3}|[0-9A-F]{6})$/i, // hex color code validation
-      },
-      backgroundColor: {
-        type: String,
-        trim: true,
-        maxlength: 7,
-        match: /^#([0-9A-F]{3}|[0-9A-F]{6})$/i, // hex color code validation
-      },
-      theme: {
-        type:   String,
-        enum: ["light", "dark"],
-        default: "light",
-      },
-    },
-
     /**
      * Setup progress status
      */

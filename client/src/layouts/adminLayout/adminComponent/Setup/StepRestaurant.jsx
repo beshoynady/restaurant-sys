@@ -87,7 +87,7 @@ const StepRestaurant = ({ onNext, onBack, lang, theme, apiUrl, config }) => {
         ${
           isDark
             ? "bg-dark text-light border-secondary"
-            : "bg-white text-dark border-light"
+            : "bg-surface text-dark border-light"
         }
         ${isArabic ? "text-end" : "text-start"}`}
       initial={{ opacity: 0, y: 40 }}

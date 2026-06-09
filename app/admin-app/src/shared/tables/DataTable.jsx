@@ -36,7 +36,7 @@ const DataTable = ({
     columns.length + (selectable ? 1 : 0) + (renderActions ? 1 : 0);
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+    <div className="bg-surface rounded-xl shadow-sm border overflow-hidden">
       {title && <div className="px-4 py-3 border-b font-semibold">{title}</div>}
 
       <div className="overflow-auto">

@@ -540,7 +540,7 @@ const PreparationScreen = () => {
         style={{ alignItems: "flex-end", maxWidth: "150px" }}
       >
         {/* Section selection */}
-        <div className="d-flex flex-column align-items-end bg-white shadow-sm rounded p-2 mb-3 w-100">
+        <div className="d-flex flex-column align-items-end bg-surface shadow-sm rounded p-2 mb-3 w-100">
           <label
             htmlFor="section-select"
             className="w-100 fw-bold text-dark text-center"

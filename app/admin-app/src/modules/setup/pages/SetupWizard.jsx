@@ -94,7 +94,7 @@ export default function SetupWizard() {
             rounded-3xl
             p-6
             md:p-10
-            bg-white
+            bg-surface
             dark:bg-slate-900
             border
             border-slate-200

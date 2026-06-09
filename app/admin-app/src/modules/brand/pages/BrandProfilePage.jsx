@@ -26,7 +26,6 @@ export default function BrandProfilePage() {
 
     currency: {
       code: "EGP",
-      symbol: "£",
       decimalPlaces: 2,
     },
 
@@ -50,10 +49,10 @@ export default function BrandProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6">
+    <div className="min-h-screen bg-surface-secondary p-6">
       <div className="mx-auto max-w-7xl space-y-6">
         {/* Header */}
-        <div className="rounded-3xl bg-white border border-slate-200 shadow-sm p-6">
+        <div className="rounded-3xl bg-surface border border-border text-foreground shadow-sm p-6">
           <div className="flex flex-col lg:flex-row gap-6 items-center">
             <img
               src={brand.logo}
@@ -62,7 +61,7 @@ export default function BrandProfilePage() {
             />
 
             <div className="flex-1">
-              <h1 className="text-3xl font-bold text-slate-900">
+              <h1 className="text-3xl font-bold text-foreground">
                 {brand.name.EN}
               </h1>
 
@@ -102,7 +101,7 @@ export default function BrandProfilePage() {
           {/* Left Side */}
           <div className="lg:col-span-4 space-y-6">
             {/* Summary */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-6">
+            <div className="bg-surface rounded-3xl border border-border text-foreground p-6">
               <h3 className="font-semibold text-lg mb-5">
                 Brand Summary
               </h3>
@@ -136,7 +135,7 @@ export default function BrandProfilePage() {
             </div>
 
             {/* Quick Stats */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-6">
+            <div className="bg-surface rounded-3xl border border-border text-foreground p-6">
               <h3 className="font-semibold text-lg mb-5">
                 Quick Stats
               </h3>
@@ -314,7 +313,7 @@ export default function BrandProfilePage() {
 
 function Card({ title, icon, children }) {
   return (
-    <div className="bg-white rounded-3xl border border-slate-200 p-6">
+    <div className="bg-surface rounded-3xl border border-border text-foreground p-6">
       <div className="flex items-center gap-2 mb-6">
         {icon}
         <h2 className="font-semibold text-lg">{title}</h2>
@@ -332,7 +331,7 @@ function InfoField({ label, value }) {
         {label}
       </p>
 
-      <div className="h-12 rounded-xl border border-slate-200 px-4 flex items-center bg-slate-50">
+      <div className="h-12 rounded-xl border border-border text-foreground px-4 flex items-center bg-surface-secondary">
         {value}
       </div>
     </div>
@@ -351,7 +350,7 @@ function SummaryItem({ label, value }) {
 
 function StatCard({ title, value }) {
   return (
-    <div className="rounded-2xl bg-slate-50 border border-slate-200 p-4 text-center">
+    <div className="rounded-2xl bg-surface-secondary border border-border text-foreground p-4 text-center">
       <div className="text-sm text-slate-500">
         {title}
       </div>

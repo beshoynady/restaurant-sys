@@ -21,7 +21,7 @@ export default function KDSNavbar({
   return (
     <nav
       className={`px-4 py-3 flex flex-wrap items-center justify-between gap-4 border-b transition-colors ${
-        isDark ? "bg-[#0c1324] border-slate-800" : "bg-white border-slate-200"
+        isDark ? "bg-[#0c1324] border-slate-800" : "bg-surface border-slate-200"
       }`}
     >
       {/* اسم وشعار المطعم */}
@@ -53,7 +53,7 @@ export default function KDSNavbar({
                 ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/10 scale-105"
                 : isDark
                   ? "text-slate-400 hover:bg-slate-800 hover:text-slate-200"
-                  : "text-slate-600 hover:bg-white"
+                  : "text-slate-600 hover:bg-surface"
             }`}
           >
             {isArabic ? sec.labelAr : sec.labelEn}

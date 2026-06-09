@@ -7,7 +7,7 @@ const StepFinish = ({ lang, theme }) => {
   const isArabic = lang === "ar";
   return (
     <motion.div
-      className={`text-center p-5 rounded shadow-sm ${isDark ? "bg-dark text-light" : "bg-white text-dark"}`}
+      className={`text-center p-5 rounded shadow-sm ${isDark ? "bg-dark text-light" : "bg-surface text-dark"}`}
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}

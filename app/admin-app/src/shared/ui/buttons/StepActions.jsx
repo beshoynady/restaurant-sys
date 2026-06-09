@@ -35,7 +35,7 @@ export default function StepActions({
             border
             border-slate-300
             dark:border-slate-700
-            bg-white/70
+            bg-surface/70
             dark:bg-slate-800/70
             hover:bg-slate-100
             dark:hover:bg-slate-700

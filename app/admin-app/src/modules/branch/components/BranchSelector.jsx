@@ -38,7 +38,7 @@ export default function BranchSelector({ selectedBranch, onChange }) {
   ];
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+    <div className="rounded-2xl border border-gray-200 bg-surface p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
       <label className="mb-2 block text-sm font-medium">Branch</label>
 
       <select
@@ -48,7 +48,7 @@ export default function BranchSelector({ selectedBranch, onChange }) {
 
           onChange(branch);
         }}
-        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm dark:border-gray-700 dark:bg-gray-800"
+        className="w-full rounded-xl border border-gray-300 bg-surface px-4 py-3 text-sm dark:border-gray-700 dark:bg-gray-800"
       >
         {branches.map((branch) => (
           <option key={branch.id} value={branch.id}>

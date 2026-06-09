@@ -16,7 +16,7 @@ export default function BranchAddressCard() {
   };
 
   return (
-    <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+    <div className="rounded-3xl border border-gray-200 bg-surface p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
       <h3 className="mb-6 text-lg font-bold">Address Information</h3>
 
       <div className="grid gap-4 sm:grid-cols-2">

@@ -1,3 +1,4 @@
+// src/shared/ui/layout/PageHeader.jsx
 /**
  * Standard page header for all modules
  */

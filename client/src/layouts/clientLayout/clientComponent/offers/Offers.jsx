@@ -72,7 +72,7 @@ export   default function Offers() {
                               <img className='offer-img' src={`${apiUrl}/images/${product.image}`} alt="Delicious soup" />
                               {size._id === productId && noteArea === true ?
                                 <form onSubmit={(e) => { addNoteToProduct(e, product._id, size._id); setnoteArea(!noteArea); }}
-                                  className="position-absolute w-100 h-100 top-0 start-0 p-1 m-0 bg-white rounded-3 d-flex flex-column align-items-center justify-content-center overflow-hidden"
+                                  className="position-absolute w-100 h-100 top-0 start-0 p-1 m-0 bg-surface rounded-3 d-flex flex-column align-items-center justify-content-center overflow-hidden"
                                   style={{ zIndex: 10 , height:'40%'}}
                                 >
                                   <textarea
@@ -136,7 +136,7 @@ export   default function Offers() {
                           <img className='offer-img' src={`${apiUrl}/images/${product.image}`} alt="Delicious soup" />
                           {product._id === productId && noteArea === true ?
                           <form onSubmit={(e) => { addNoteToProduct(e, product._id, ''); setnoteArea(!noteArea); }} 
-                          className="position-absolute w-100 h-100 top-0 start-0 p-1 m-0 bg-white rounded-3 d-flex flex-column align-items-center justify-content-center overflow-hidden"
+                          className="position-absolute w-100 h-100 top-0 start-0 p-1 m-0 bg-surface rounded-3 d-flex flex-column align-items-center justify-content-center overflow-hidden"
                             style={{ zIndex: 10, height:'40%' }}
                           >
                             <textarea
@@ -213,7 +213,7 @@ export   default function Offers() {
                             addNoteToProduct(e, product._id, size._id);
                             setnoteArea(!noteArea);
                           }}
-                          className="position-absolute w-100 h-100 top-0 start-0 p-1 m-0 bg-white d-flex flex-column align-items-center justify-content-center"
+                          className="position-absolute w-100 h-100 top-0 start-0 p-1 m-0 bg-surface d-flex flex-column align-items-center justify-content-center"
                           style={{ zIndex: 100 }}
                         >
                           <textarea
@@ -253,7 +253,7 @@ export   default function Offers() {
                       {size._id === productId && extraArea === true ? (
                         size.sizeQuantity > 0 ? (
                           <div
-                            className="position-absolute w-100 h-100 top-0 start-0 p-1 m-0 bg-white d-flex flex-column align-items-center justify-content-center"
+                            className="position-absolute w-100 h-100 top-0 start-0 p-1 m-0 bg-surface d-flex flex-column align-items-center justify-content-center"
                             style={{ zIndex: 100 }}
                           >
                             <form
@@ -264,7 +264,7 @@ export   default function Offers() {
                                 setSelectedButtonIndex(1);
                                 setextraArea(!extraArea);
                               }}
-                              className="w-100 h-100 top-0 start-0 bg-white rounded-3 d-flex flex-column align-items-center justify-content-between m-0 p-0"
+                              className="w-100 h-100 top-0 start-0 bg-surface rounded-3 d-flex flex-column align-items-center justify-content-between m-0 p-0"
                             >
                               {/* أزرار الأصناف */}
                               <div className="d-flex align-items-center justify-content-center flex-wrap w-100 h-auto">
@@ -394,7 +394,7 @@ export   default function Offers() {
                           </div>
                         ) : (
                           <div
-                            className="position-absolute w-100 h-50 top-0 start-0 p-2 bg-white rounded-3 d-flex flex-column align-items-center justify-content-between overflow-hidden"
+                            className="position-absolute w-100 h-50 top-0 start-0 p-2 bg-surface rounded-3 d-flex flex-column align-items-center justify-content-between overflow-hidden"
                             style={{ zIndex: 10 }}
                           >
                             <p
@@ -571,7 +571,7 @@ export   default function Offers() {
                         addNoteToProduct(e, product._id, "");
                         setnoteArea(!noteArea);
                       }}
-                      className="position-absolute w-100 h-100 top-0 start-0 p-1 m-0 bg-white d-flex flex-column align-items-center justify-content-center"
+                      className="position-absolute w-100 h-100 top-0 start-0 p-1 m-0 bg-surface d-flex flex-column align-items-center justify-content-center"
                       style={{ zIndex: 100 }}
                     >
                       <textarea
@@ -611,7 +611,7 @@ export   default function Offers() {
                   {product._id === productId && extraArea === true ? (
                     product.quantity > 0 ? (
                       <div
-                        className="position-absolute w-100 h-100 top-0 start-0 p-1 m-0 bg-white d-flex flex-column align-items-center justify-content-center"
+                        className="position-absolute w-100 h-100 top-0 start-0 p-1 m-0 bg-surface d-flex flex-column align-items-center justify-content-center"
                         style={{ zIndex: 100 }}
                       >
                         <form
@@ -622,7 +622,7 @@ export   default function Offers() {
                             setSelectedButtonIndex(1);
                             setextraArea(!extraArea);
                           }}
-                          className="w-100 h-100 top-0 start-0 bg-white rounded-3 d-flex flex-column align-items-center justify-content-between m-0 p-0"
+                          className="w-100 h-100 top-0 start-0 bg-surface rounded-3 d-flex flex-column align-items-center justify-content-between m-0 p-0"
                         >
                           {/* أزرار الأصناف */}
                           <div className="d-flex align-items-center justify-content-center flex-wrap w-100 h-auto">
@@ -727,7 +727,7 @@ export   default function Offers() {
                       </div>
                     ) : (
                       <div
-                        className="position-absolute w-100 h-50 top-0 start-0 p-2 bg-white rounded-3 d-flex flex-column align-items-center justify-content-between overflow-hidden"
+                        className="position-absolute w-100 h-50 top-0 start-0 p-2 bg-surface rounded-3 d-flex flex-column align-items-center justify-content-between overflow-hidden"
                         style={{ zIndex: 10 }}
                       >
                         <p

@@ -22,7 +22,7 @@ const StepOwnerPersonal = ({ onNext, onBack }) => {
   return (
     <motion.form
       onSubmit={handleSubmit}
-      className="p-4 border rounded shadow-sm bg-white"
+      className="p-4 border rounded shadow-sm bg-surface"
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}

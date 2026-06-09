@@ -17,7 +17,7 @@ export default function TopBar() {
       flex items-center justify-between
       px-4 md:px-8
       h-16
-      bg-white/80 dark:bg-gray-900/80
+      bg-surface/80 dark:bg-gray-900/80
       backdrop-blur-md
       border-b border-gray-200 dark:border-gray-800
       transition-all duration-300

@@ -13,7 +13,7 @@ export default function KDSStatsBar({ stats, isDark, isArabic }) {
 
   return (
     <section className={`px-4 py-2.5 flex flex-wrap items-center justify-between gap-4 border-b ${
-      isDark ? "bg-[#0b1120] border-slate-800/80" : "bg-slate-50 border-slate-200"
+      isDark ? "bg-[#0b1120] border-slate-800/80" : "bg-surface-secondary border-slate-200"
     }`}>
       {/* بطاقات الإحصائيات */}
       <div className="flex flex-wrap items-center gap-2">
@@ -38,12 +38,12 @@ export default function KDSStatsBar({ stats, isDark, isArabic }) {
           <span>{isArabic ? "عرض المخزون والمكونات" : "Inventory & Stock"}</span>
         </button>
 
-        <button className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-bold transition ${isDark ? "bg-[#111930] border-slate-800 text-slate-300 hover:bg-slate-800" : "bg-white border-slate-200 text-slate-600"}`}>
+        <button className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-bold transition ${isDark ? "bg-[#111930] border-slate-800 text-slate-300 hover:bg-slate-800" : "bg-surface border-slate-200 text-slate-600"}`}>
           <Volume2 className="w-4 h-4 text-indigo-400" />
           <span>{isArabic ? "صوت التنبيه (تشغيل)" : "Alert Tone (ON)"}</span>
         </button>
 
-        <button className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-bold transition ${isDark ? "bg-[#111930] border-slate-800 text-slate-300 hover:bg-slate-800" : "bg-white border-slate-200 text-slate-600"}`}>
+        <button className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-bold transition ${isDark ? "bg-[#111930] border-slate-800 text-slate-300 hover:bg-slate-800" : "bg-surface border-slate-200 text-slate-600"}`}>
           <FileSpreadsheet className="w-4 h-4 text-cyan-400" />
           <span>{isArabic ? "تقرير وجبات اليوم" : "Daily Food Report"}</span>
         </button>

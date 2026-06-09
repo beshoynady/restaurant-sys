@@ -104,7 +104,7 @@ const StepOwnerEmployment = ({
         ${
           isDark
             ? "bg-dark text-light border-secondary"
-            : "bg-white text-dark border-light"
+            : "bg-surface text-dark border-light"
         }
         ${isArabic ? "text-start" : "text-start"}`}
       initial={{ opacity: 0, y: 40 }}

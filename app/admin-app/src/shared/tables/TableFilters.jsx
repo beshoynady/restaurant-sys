@@ -9,7 +9,7 @@ export default function TableFilters({
   title = "Filters",
 }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm border p-4 mb-4">
+    <div className="bg-surface rounded-xl shadow-sm border p-4 mb-4">
       {/* HEADER */}
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-semibold text-gray-700">{title}</h3>

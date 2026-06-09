@@ -498,7 +498,7 @@ const POS = () => {
                     product.sizes.filter((size) => size._id === item.sizeId)[0]
                       .sizeQuantity > 0 ? (
                       <div
-                        className="position-absolute w-100 h-auto top-0 start-0 bg-white rounded-3 d-flex flex-column align-items-center justify-content-center overflow-hidden"
+                        className="position-absolute w-100 h-auto top-0 start-0 bg-surface rounded-3 d-flex flex-column align-items-center justify-content-center overflow-hidden"
                         style={{ zIndex: 10 }}
                       >
                         <form
@@ -509,7 +509,7 @@ const POS = () => {
                             setSelectedButtonIndex(1);
                             setextraArea(!extraArea);
                           }}
-                          className="w-100 h-100 top-0 start-0 bg-white rounded-3 d-flex flex-column align-items-center justify-content-between m-0 p-0"
+                          className="w-100 h-100 top-0 start-0 bg-surface rounded-3 d-flex flex-column align-items-center justify-content-between m-0 p-0"
                         >
                           {/* أزرار الأصناف */}
                           <div
@@ -651,7 +651,7 @@ const POS = () => {
                       extraArea === true &&
                       product.quantity > 0 ? (
                       <div
-                        className="position-absolute w-100 h-auto top-0 start-0 bg-white rounded-3 d-flex flex-column align-items-center justify-content-center overflow-hidden"
+                        className="position-absolute w-100 h-auto top-0 start-0 bg-surface rounded-3 d-flex flex-column align-items-center justify-content-center overflow-hidden"
                         style={{ zIndex: 10 }}
                       >
                         <form
@@ -662,7 +662,7 @@ const POS = () => {
                             setSelectedButtonIndex(1);
                             setextraArea(!extraArea);
                           }}
-                          className="w-100 h-100 top-0 start-0 bg-white rounded-3 d-flex flex-column align-items-center justify-content-between m-0 p-0"
+                          className="w-100 h-100 top-0 start-0 bg-surface rounded-3 d-flex flex-column align-items-center justify-content-between m-0 p-0"
                         >
                           {/* أزرار الأصناف */}
                           <div
@@ -793,7 +793,7 @@ const POS = () => {
                     sizeId === item.sizeId &&
                     noteArea ? (
                       <div
-                        className="position-absolute w-100 h-100 top-0 start-0 bg-white rounded-3 d-flex flex-column align-items-center justify-content-center overflow-hidden"
+                        className="position-absolute w-100 h-100 top-0 start-0 bg-surface rounded-3 d-flex flex-column align-items-center justify-content-center overflow-hidden"
                         style={{ zIndex: 10 }}
                       >
                         <form
@@ -836,7 +836,7 @@ const POS = () => {
                       product._id === item.productId &&
                       noteArea ? (
                       <div
-                        className="position-absolute w-100 h-100 top-0 start-0 bg-white rounded-3 d-flex flex-column align-items-center justify-content-center overflow-hidden"
+                        className="position-absolute w-100 h-100 top-0 start-0 bg-surface rounded-3 d-flex flex-column align-items-center justify-content-center overflow-hidden"
                         style={{ zIndex: 10 }}
                       >
                         <form
@@ -1162,15 +1162,15 @@ const POS = () => {
             style={{ direction: "rtl" }}
           >
             <div className="col p-0 m-0">
-              <div className="order-details bg-white border rounded shadow-sm p-0 mb-1">
-                <p className="order-item mb-1 d-flex justify-content-between align-items-center text-black">
+              <div className="order-details bg-surface border rounded shadow-sm p-0 mb-1">
+                <p className="order-item mb-1 d-flex justify-content-between align-items-center text-foreground">
                   <span className="text-dark fw-bold fs-5">قيمة الأوردر:</span>
                   <span className="text-dark fw-bold fs-5 text-center">
                     {costOrder > 0 ? costOrder : 0} ج
                   </span>
                 </p>
                 {ordertype === "Dine-in" && brandInfo.serviceTaxRate > 0 ? (
-                  <p className="order-item mb-1 d-flex justify-content-between align-items-center text-black">
+                  <p className="order-item mb-1 d-flex justify-content-between align-items-center text-foreground">
                     <span className="text-dark fw-bold fs-5">{`خدمة صاله ${brandInfo.serviceTaxRate}%:`}</span>
                     <span className="text-dark fw-bold fs-5 text-center">
                       {serviceTax > 0 ? serviceTax : 0} ج
@@ -1178,7 +1178,7 @@ const POS = () => {
                   </p>
                 ) : null}
                 {brandInfo.salesTaxRate > 0 ? (
-                  <p className="order-item mb-1 d-flex justify-content-between align-items-center text-black">
+                  <p className="order-item mb-1 d-flex justify-content-between align-items-center text-foreground">
                     <span className="text-dark fw-bold fs-5">{`ضريبة مبيعات ${brandInfo.salesTaxRate}%:`}</span>
                     <span className="text-dark fw-bold fs-5 text-center">
                       {salesTax > 0 ? salesTax : 0} ج
@@ -1186,7 +1186,7 @@ const POS = () => {
                   </p>
                 ) : null}
                 {ordertype === "Delivery" ? (
-                  <p className="order-item mb-1 d-flex justify-content-between align-items-center text-black">
+                  <p className="order-item mb-1 d-flex justify-content-between align-items-center text-foreground">
                     <span className="text-dark fw-bold fs-5">
                       خدمة التوصيل:
                     </span>
@@ -1223,7 +1223,7 @@ const POS = () => {
                     </label>
                   </div>
                 ) : null}
-                <p className="order-item border-bottom m-0 d-flex justify-content-between align-items-center text-black">
+                <p className="order-item border-bottom m-0 d-flex justify-content-between align-items-center text-foreground">
                   <span className="text-dark fw-bold fs-5">الإجمالي:</span>
                   <span className="text-dark fw-bold fs-5 text-center">
                     {totalOrder ? totalOrder : 0} ج

@@ -1,3 +1,4 @@
+// src/shared/ui/forms/InputField.jsx
 import clsx from "clsx";
 
 /**
