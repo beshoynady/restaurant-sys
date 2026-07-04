@@ -38,9 +38,19 @@ const brandSchema = new mongoose.Schema(
 
     businessType: {
       type: String,
-      enum: ["restaurant", "cafe", "fast_food", "bakery", "bar", "other"],
+      enum: [
+        "restaurant",
+        "cafe",
+        "fast_food",
+        "bakery",
+        "food_truck",
+        "cloud_kitchen",
+        "bar",
+        "other",
+      ],
       default: "restaurant",
     },
+    // Cuisine types offered by the brand (supports multiple selections)
     cuisineType: {
       type: [String],
       enum: [
@@ -61,7 +71,6 @@ const brandSchema = new mongoose.Schema(
       type: Number,
       default: 1,
       min: 1,
-      max: 50,
     },
 
     // ===============================
@@ -113,6 +122,7 @@ const brandSchema = new mongoose.Schema(
 
     defaultDashboardLanguage: {
       type: String,
+      enum: ["EN", "AR", "FR", "ES", "IT", "ZH", "JA", "RU"],
       default: "EN",
       required: true,
     },

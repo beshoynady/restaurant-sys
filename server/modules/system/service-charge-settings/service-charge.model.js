@@ -49,16 +49,38 @@ const serviceChargeSchema = new mongoose.Schema(
       enum: ["BEFORE_TAX", "AFTER_TAX"],
       default: "BEFORE_TAX",
     },
-
+    roundingMode: {
+      type: String,
+      enum: ["UP", "DOWN", "NEAREST"],
+      default: "NEAREST",
+    },
     account: {
       type: ObjectId,
       ref: "Account",
       default: null,
     },
+    status: {
+      type: String,
+      enum: ["active", "inactive", "suspended"],
+      default: "active",
+    },
     createdBy: { type: ObjectId, ref: "UserAccount", required: true },
     updatedBy: { type: ObjectId, ref: "UserAccount", default: null },
+
+    // Soft delete fields
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
+    deletedBy: { type: ObjectId, ref: "UserAccount" },
   },
-  { timestamps: true },
+  {
+    timestamps: true, // Automatically add createdAt and updatedAt fields
+  },
 );
 
 serviceChargeSchema.index({ brand: 1, branch: 1 }, { unique: true });

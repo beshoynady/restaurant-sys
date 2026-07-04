@@ -36,7 +36,7 @@ const orderSettingsSchema = new Schema(
     // Edit after sent to kitchen
     allowEditOrderAfterSendToKitchen: { type: Boolean, default: false },
 
-    // Cancelation rules
+    // Order cancellation rules
     requireManagerApprovalForCancel: { type: Boolean, default: true },
     cancelReasonRequired: { type: Boolean, default: true },
 

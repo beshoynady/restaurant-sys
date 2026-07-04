@@ -78,6 +78,49 @@ class DeliveryAreaController extends BaseController {
 
     res.json({ success: true, valid: true });
   });
+
+  hardDelete = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    await this.service.hardDelete(id);
+    res.json({
+      success: true,
+      message: "Delivery area permanently deleted",
+    });
+  });
+  bulkHardDelete = asyncHandler(async (req, res) => {
+    const { ids } = req.body; // Expecting an array of IDs in the request body
+    await this.service.bulkHardDelete(ids);
+    res.json({
+      success: true,
+      message: "Delivery areas permanently deleted",
+    });
+  });
+
+  softDelete = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    await this.service.softDelete(id);
+    res.json({
+      success: true,
+      message: "Delivery area soft deleted",
+    });
+  });
+  restore = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    await this.service.restore(id);
+    res.json({
+      success: true,
+      message: "Delivery area restored",
+    });
+  });
+  bulkSoftDelete = asyncHandler(async (req, res) => {
+    const { ids } = req.body; // Expecting an array of IDs in the request body
+    await this.service.bulkSoftDelete(ids);
+    res.json({
+      success: true,
+      message: "Delivery areas soft deleted",
+    });
+  });
 }
 
 export default new DeliveryAreaController();

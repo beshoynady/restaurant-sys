@@ -1,58 +1,58 @@
-// src/shared/tables/modals/FormModal.jsx
 import React from "react";
+import { useTranslation } from "react-i18next";
 
-const FormModal = ({
-  open,
-  title,
+export default function FormModal({
+  isOpen,
   onClose,
   onSubmit,
+  title,
   children,
-  loading = false,
-  submitText = "Save",
-  cancelText = "Cancel",
-}) => {
-  if (!open) return null;
+}) {
+  const { t } = useTranslation();
+  if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-surface w-full max-w-3xl rounded-xl shadow-xl overflow-hidden">
-        {/* HEADER */}
-        <div className="flex items-center justify-between px-5 py-3 bg-blue-600 text-white">
-          <h2 className="text-lg font-bold">{title}</h2>
-
-          <button onClick={onClose} className="text-xl">
-            ✕
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-fade-in">
+      <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 w-full max-w-xl overflow-hidden flex flex-col max-h-[90vh]">
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+          <h3 className="text-base font-bold text-slate-800">{title}</h3>
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-600 transition text-lg font-bold"
+          >
+            ×
           </button>
         </div>
 
-        {/* BODY */}
-        <form onSubmit={onSubmit} className="p-5 max-h-[70vh] overflow-y-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {children}
-          </div>
+        {/* Form Body */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            onSubmit();
+          }}
+          className="flex flex-col flex-1 overflow-hidden"
+        >
+          <div className="p-6 overflow-y-auto space-y-4 flex-1">{children}</div>
 
-          {/* FOOTER */}
-          <div className="flex justify-end gap-2 pt-5 border-t mt-5">
+          {/* Actions Footer */}
+          <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-200 rounded"
+              className="px-5 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-100 transition"
             >
-              {cancelText}
+              {t("Cancel") || "إلغاء"}
             </button>
-
             <button
               type="submit"
-              disabled={loading}
-              className="px-5 py-2 bg-green-600 text-white rounded disabled:opacity-50"
+              className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-sm font-semibold text-white shadow-md shadow-indigo-100 transition"
             >
-              {loading ? "Loading..." : submitText}
+              {t("Save Changes") || "حفظ التغييرات"}
             </button>
           </div>
         </form>
       </div>
     </div>
   );
-};
-
-export default FormModal;
+}

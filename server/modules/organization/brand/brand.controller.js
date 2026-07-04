@@ -1,4 +1,3 @@
-// modules/organization/brand/brand.controller.js
 import BaseController from "../../../utils/BaseController.js";
 import brandService from "./brand.service.js";
 
@@ -7,77 +6,59 @@ class BrandController extends BaseController {
     super(brandService);
   }
 
-  // =========================
-  // STATUS
-  // =========================
   changeStatus = async (req, res) => {
-    const result = await this.service.changeStatus(
+    const data = await this.service.changeStatus(
       req.params.id,
       req.body.status,
-      req.user.id,
+      req.user.userId,
     );
-    res.json(result);
+
+    res.json({ success: true, data });
   };
 
-  // =========================
-  // LOGO
-  // =========================
   updateLogo = async (req, res) => {
-    const result = await this.service.updateLogo(
+    const data = await this.service.updateLogo(
       req.params.id,
       req.body.logo,
-      req.user.id,
+      req.user.userId,
     );
-    res.json(result);
+
+    res.json({ success: true, data });
   };
 
-  // =========================
-  // SETTINGS
-  // =========================
   updateSettings = async (req, res) => {
-    const result = await this.service.updateSettings(
+    const data = await this.service.updateSettings(
       req.params.id,
       req.body,
-      req.user.id,
+      req.user.userId,
     );
-    res.json(result);
+
+    res.json({ success: true, data });
   };
 
-  // =========================
-  // SETUP FLOW
-  // =========================
   updateSetup = async (req, res) => {
-    const result = await this.service.updateSetupStatus(
+    const data = await this.service.updateSetupStatus(
       req.params.id,
       req.body.step,
-      req.user.id,
+      req.user.userId,
     );
-    res.json(result);
+
+    res.json({ success: true, data });
   };
 
-  // =========================
-  // SUMMARY (DASHBOARD)
-  // =========================
-  getSummary = async (req, res) => {
-    const result = await this.service.getSummary(req.params.id);
-    res.json(result);
-  };
-
-  // =========================
-  // SEARCH
-  // =========================
-  search = async (req, res) => {
-    const result = await this.service.searchBrands(req.query.q, req.user.id);
-    res.json(result);
-  };
-
-  // =========================
-  // SETUP STATUS
-  // =========================
   getSetupStatus = async (req, res) => {
-    const result = await this.service.getSetupStatus();
+    const data = await this.service.getSetupStatus(req.params.id);
+    res.json({ success: true, data });
+  };
 
-    res.json(result);
+  getSummary = async (req, res) => {
+    const data = await this.service.getSummary(req.params.id);
+    res.json({ success: true, data });
+  };
+
+  search = async (req, res) => {
+    const data = await this.service.searchBrands(req.query.search);
+    res.json({ success: true, data });
   };
 }
 

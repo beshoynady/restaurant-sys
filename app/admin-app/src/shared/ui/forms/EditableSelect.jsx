@@ -1,3 +1,5 @@
+// src/shared/ui/forms/EditableSelect.jsx 
+
 export default function EditableSelect({
   label,
   value,

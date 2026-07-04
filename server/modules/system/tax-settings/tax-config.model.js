@@ -30,6 +30,19 @@ const TaxConfigSchema = new mongoose.Schema(
       // If null, settings apply to all branches under the brand.
     },
 
+    taxName: {
+      type: String,
+      trim: true,
+      default: "VAT",
+      // Name of the tax (e.g., VAT, GST). Useful for display purposes.
+    },
+    taxNumber: {
+      type: String,
+      trim: true,
+      default: "",
+      // Tax registration number for invoicing and legal compliance.
+    },
+
     // ------------------------------
     // VAT Configuration
     // ------------------------------
@@ -82,10 +95,47 @@ const TaxConfigSchema = new mongoose.Schema(
       // True → Prices already include tax
       // False → Tax will be added on top of menu prices
     },
+
+    // ------------------------------
+    // Optional: Tax Reporting & Compliance
+    // ------------------------------
+    taxReportingCode: {
+      type: String,
+      trim: true,
+      default: "",
+      // Optional code for tax reporting or integration with tax authorities.
+    },
+
+    taxFilingFrequency: {
+      type: String,
+      enum: ["monthly", "quarterly", "annually"],
+      default: "monthly",
+      // Frequency of tax filing for this branch. Useful for compliance tracking.
+    },
+
+    status: {
+      type: String,
+      enum: ["active", "inactive", "suspended"],
+      default: "active",
+    },
+
+    createdBy: { type: ObjectId, ref: "UserAccount", required: true },
+    updatedBy: { type: ObjectId, ref: "UserAccount", default: null },
+
+    // Soft delete fields
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
+    deletedBy: { type: ObjectId, ref: "UserAccount" },
   },
   {
     timestamps: true, // Automatically add createdAt and updatedAt fields
-  }
+  },
 );
 
 /**

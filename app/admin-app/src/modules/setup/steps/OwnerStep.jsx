@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import FormField from "../../../shared/ui/forms/FormField.js";
-import StepActions from "../../../shared/ui/buttons/StepActions.js";
+import FormField from "../../../shared/ui/forms/FormField.jsx";
+import StepActions from "../../../shared/ui/buttons/StepActions.jsx";
 
 export default function OwnerStep({
   data,

@@ -123,7 +123,7 @@ const accountSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["active", "inactive"],
+      enum: ["active", "inactive", "suspended"],
       default: "active",
     },
 

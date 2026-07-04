@@ -1,39 +1,75 @@
+/* -------------------------------------------------------------------------- */
+/*                                BaseService                                 */
+/* -------------------------------------------------------------------------- */
+/*
+ * Generic service layer for all Mongoose models.
+ *
+ * Features:
+ * - CRUD operations
+ * - Brand scoping
+ * - Soft delete
+ * - Search
+ * - Filtering
+ * - Pagination
+ * - Sorting
+ * - Populate
+ * - Field selection
+ * - Bulk operations
+ * - Transaction support
+ * - Audit fields support
+ * - Extensible lifecycle hooks
+ */
+
 import mongoose from "mongoose";
 import throwError from "./throwError.js";
 
-/**
- * BaseService - Generic Service Layer for all modules
- * Features:
- * - Multi-tenant (brand scoped)
- * - Soft delete
- * - Pagination & filtering
- * - Search
- * - Populate
- * - Unique validation
- * - Transactions
- * - Clean architecture ready
- */
 class BaseService {
-  constructor(model, options = {}) {
+  constructor(
+    model,
+    {
+      brandScoped = true,
+      enableSoftDelete = true,
+      defaultSort = { createdAt: -1 },
+      searchableFields = [],
+      defaultPopulate = [],
+    } = {},
+  ) {
     this.model = model;
 
-    // 🔹 Config
-    this.brandScoped = options.brandScoped ?? true;
-    this.enableSoftDelete = options.softDelete ?? true;
+    this.brandScoped = brandScoped;
+    this.enableSoftDelete = enableSoftDelete;
 
-    this.defaultPopulate = options.defaultPopulate ?? [];
-    this.searchFields = options.searchFields ?? [];
-    this.defaultSort = options.defaultSort ?? { createdAt: -1 };
+    this.defaultSort = defaultSort;
+    this.searchableFields = searchableFields;
+    this.defaultPopulate = defaultPopulate;
   }
 
-  // =========================
-  // 🔹 Helpers
-  // =========================
+  /* -------------------------------------------------------------------------- */
+  /*                               Helper Methods                               */
+  /* -------------------------------------------------------------------------- */
 
-  _baseQuery(brandId, includeDeleted = false) {
-    const query = {};
+  /**
+   * Validate MongoDB ObjectId.
+   */
+  validateObjectId(id) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw throwError("Invalid resource ID", 400);
+    }
+  }
 
-    if (this.brandScoped && brandId) query.brand = brandId;
+  /**
+   * Generate base query.
+   */
+  buildBaseQuery({
+    brandId = null,
+    includeDeleted = false,
+    filters = {},
+  } = {}) {
+    const query = { ...filters };
+
+    if (this.brandScoped && brandId) {
+      query.brand = brandId;
+    }
 
     if (this.enableSoftDelete) {
       query.isDeleted = includeDeleted ? { $in: [true, false] } : false;
@@ -42,363 +78,382 @@ class BaseService {
     return query;
   }
 
-  _applyPopulate(query, populate = []) {
-    const list = [...this.defaultPopulate, ...populate];
-    list.forEach((p) => (query = query.populate(p)));
+  /**
+   * Apply search conditions.
+   */
+  applySearch(query, search) {
+    if (!search || !this.searchableFields.length) {
+      return query;
+    }
+
+    query.$or = this.searchableFields.map((field) => ({
+      [field]: {
+        $regex: search,
+        $options: "i",
+      },
+    }));
+
     return query;
   }
 
-  _buildSearch(search) {
-    if (!search || !this.searchFields.length) return {};
+  /**
+   * Remove protected fields from update payload.
+   */
+  sanitizeUpdatePayload(data = {}) {
+    const payload = { ...data };
 
-    return {
-      $or: this.searchFields.map((field) => ({
-        [field]: { $regex: search, $options: "i" },
-      })),
-    };
+    delete payload.createdAt;
+    delete payload.createdBy;
+
+    delete payload.deletedAt;
+    delete payload.deletedBy;
+    delete payload.isDeleted;
+
+    return payload;
   }
 
-  async _findOrFail(id, brandId, includeDeleted = false) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw throwError("Invalid ID", 400);
+  /**
+   * Apply populate options.
+   */
+  applyPopulate(query, populate = []) {
+    const finalPopulate = populate.length > 0 ? populate : this.defaultPopulate;
+
+    finalPopulate.forEach((item) => {
+      query.populate(item);
+    });
+
+    return query;
+  }
+
+  /**
+   * Lifecycle hooks.
+   */
+  async beforeCreate(data) {
+    return data;
+  }
+
+  async afterCreate(document) {
+    return document;
+  }
+
+  async beforeUpdate(data) {
+    return data;
+  }
+
+  async afterUpdate(document) {
+    return document;
+  }
+
+  /* -------------------------------------------------------------------------- */
+  /*                                  Create                                    */
+  /* -------------------------------------------------------------------------- */
+
+  async create({ brandId, data, createdBy = null, session = null }) {
+    let payload = { ...data };
+
+    if (this.brandScoped) {
+      payload.brand = brandId;
     }
 
-    const doc = await this.model.findOne({
-      _id: id,
-      ...this._baseQuery(brandId, includeDeleted),
-    });
+    if (createdBy) {
+      payload.createdBy = createdBy;
+    }
 
-    if (!doc) throw throwError("Record not found", 404);
+    payload = await this.beforeCreate(payload);
 
-    return doc;
+    const [document] = await this.model.create([payload], { session });
+
+    return this.afterCreate(document);
   }
 
-  async _checkUnique(brandId, data, uniqueFields = [], excludeId = null) {
-    if (!uniqueFields.length) return;
-
-    const query = {};
-
-    uniqueFields.forEach((field) => {
-      if (data[field] !== undefined) query[field] = data[field];
-    });
-
-    if (!Object.keys(query).length) return;
-
-    if (this.brandScoped && brandId) query.brand = brandId;
-    if (excludeId) query._id = { $ne: excludeId };
-
-    const exists = await this.model.findOne(query);
-
-    if (exists) throw throwError("Duplicate record", 409);
-  }
-
-  _validateLangFields(data, fields = [], lang) {
-    if (!fields.length || !lang) return;
-
-    fields.forEach((field) => {
-      const val = data[field];
-
-      if (!val || typeof val !== "object") {
-        throw throwError(`${field} must be multilingual object`, 400);
-      }
-
-      if (!val[lang]) {
-        throw throwError(`${field} must include language ${lang}`, 400);
-      }
-    });
-  }
-
-  // =========================
-  // 🔹 CREATE
-  // =========================
-
-  async create({
-    brandId,
-    data,
-    createdBy,
-    uniqueFields = [],
-    fieldsWithLang = [],
-    lang,
-  }) {
-    await this._checkUnique(brandId, data, uniqueFields);
-    this._validateLangFields(data, fieldsWithLang, lang);
-
-    const payload = {
-      ...data,
-      ...(this.brandScoped && brandId && { brand: brandId }),
-      ...(createdBy && { createdBy }),
-    };
-
-    return this.model.create(payload);
-  }
-
-  // =========================
-  // 🔹 READ
-  // =========================
+  /* -------------------------------------------------------------------------- */
+  /*                                   Get All                                  */
+  /* -------------------------------------------------------------------------- */
 
   async getAll({
     brandId,
-    filter = {},
     page = 1,
     limit = 10,
-    sort,
-    search,
+    search = "",
+    filters = {},
+    sort = null,
+    select = null,
     populate = [],
     includeDeleted = false,
-  }) {
+  } = {}) {
     const skip = (page - 1) * limit;
 
-    const query = {
-      ...this._baseQuery(brandId, includeDeleted),
-      ...filter,
-      ...this._buildSearch(search),
-    };
+    let query = this.buildBaseQuery({
+      brandId,
+      includeDeleted,
+      filters,
+    });
+
+    query = this.applySearch(query, search);
 
     let mongooseQuery = this.model
       .find(query)
-      .sort(sort || this.defaultSort)
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .sort(sort || this.defaultSort);
 
-    mongooseQuery = this._applyPopulate(mongooseQuery, populate);
+    if (select) {
+      mongooseQuery.select(select);
+    }
+
+    mongooseQuery = this.applyPopulate(mongooseQuery, populate);
 
     const [data, total] = await Promise.all([
-      mongooseQuery.lean(),
+      mongooseQuery,
       this.model.countDocuments(query),
     ]);
 
     return {
       data,
       pagination: {
-        total,
         page,
         limit,
-        pages: Math.ceil(total / limit),
+        total,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page * limit < total,
+        hasPreviousPage: page > 1,
       },
     };
   }
 
-  async findById({ id, brandId, populate = [], includeDeleted = false }) {
-    let query = this.model.findOne({
-      _id: id,
-      ...this._baseQuery(brandId, includeDeleted),
-    });
+  /* -------------------------------------------------------------------------- */
+  /*                                  Find One                                  */
+  /* -------------------------------------------------------------------------- */
 
-    query = this._applyPopulate(query, populate);
-
-    const doc = await query.lean();
-
-    if (!doc) throw throwError("Record not found", 404);
-
-    return doc;
-  }
-
-  async findOne({
+  async findById({
+    id,
     brandId,
-    filter = {},
+    select = null,
     populate = [],
     includeDeleted = false,
   }) {
+    this.validateObjectId(id);
+
     let query = this.model.findOne({
-      ...this._baseQuery(brandId, includeDeleted),
-      ...filter,
+      _id: id,
+      ...this.buildBaseQuery({
+        brandId,
+        includeDeleted,
+      }),
     });
 
-    query = this._applyPopulate(query, populate);
+    if (select) {
+      query.select(select);
+    }
 
-    const doc = await query.lean();
+    query = this.applyPopulate(query, populate);
 
-    if (!doc) throw throwError("Record not found", 404);
+    const document = await query;
 
-    return doc;
+    if (!document) {
+      throw throwError("Resource not found", 404);
+    }
+
+    return document;
   }
 
-  // =========================
-  // 🔹 UPDATE
-  // =========================
+  /* -------------------------------------------------------------------------- */
+  /*                                   Update                                   */
+  /* -------------------------------------------------------------------------- */
 
-  async update({ id, brandId, data, updatedBy, uniqueFields = [] }) {
-    await this._checkUnique(brandId, data, uniqueFields, id);
+  async update({ id, brandId, data, updatedBy = null, session = null }) {
+    this.validateObjectId(id);
 
-    const updated = await this.model.findOneAndUpdate(
+    let payload = this.sanitizeUpdatePayload(data);
+
+    if (updatedBy) {
+      payload.updatedBy = updatedBy;
+    }
+
+    payload = await this.beforeUpdate(payload);
+
+    const document = await this.model.findOneAndUpdate(
       {
         _id: id,
-        ...this._baseQuery(brandId),
+        ...this.buildBaseQuery({
+          brandId,
+        }),
       },
       {
-        $set: {
-          ...data,
-          ...(updatedBy && { updatedBy }),
-        },
+        $set: payload,
       },
       {
         new: true,
+        session,
         runValidators: true,
       },
     );
 
-    if (!updated) throw throwError("Record not found", 404);
+    if (!document) {
+      throw throwError("Resource not found", 404);
+    }
 
-    return updated;
+    return this.afterUpdate(document);
   }
 
-  async findOneAndUpdate({ brandId, filter, data, updatedBy }) {
-    const updated = await this.model.findOneAndUpdate(
+  /* -------------------------------------------------------------------------- */
+  /*                                Soft Delete                                 */
+  /* -------------------------------------------------------------------------- */
+
+  async softDelete({ id, brandId, deletedBy = null, session = null }) {
+    this.validateObjectId(id);
+
+    const document = await this.model.findOneAndUpdate(
       {
-        ...this._baseQuery(brandId),
-        ...filter,
+        _id: id,
+        ...this.buildBaseQuery({
+          brandId,
+        }),
       },
       {
         $set: {
-          ...data,
-          ...(updatedBy && { updatedBy }),
+          isDeleted: true,
+          deletedAt: new Date(),
+          deletedBy,
         },
       },
       {
         new: true,
-        runValidators: true,
+        session,
       },
     );
 
-    if (!updated) throw throwError("Record not found", 404);
-
-    return updated;
-  }
-
-  async toggleStatus({ id, brandId, userId }) {
-    const doc = await this._findOrFail(id, brandId);
-
-    if (!("isActive" in doc.toObject())) {
-      throw throwError("Model does not support status toggle", 400);
+    if (!document) {
+      throw throwError("Resource not found", 404);
     }
 
-    doc.isActive = !doc.isActive;
-    doc.updatedBy = userId;
-
-    await doc.save();
-
-    return doc;
+    return document;
   }
 
-  // =========================
-  // 🔹 DELETE
-  // =========================
+  /* -------------------------------------------------------------------------- */
+  /*                                  Restore                                   */
+  /* -------------------------------------------------------------------------- */
 
-  async softDelete(id, brandId, userId) {
-    if (!this.enableSoftDelete) {
-      throw throwError("Soft delete disabled", 400);
+  async restore({ id, brandId, session = null }) {
+    this.validateObjectId(id);
+
+    const document = await this.model.findOneAndUpdate(
+      {
+        _id: id,
+        ...this.buildBaseQuery({
+          brandId,
+          includeDeleted: true,
+        }),
+      },
+      {
+        $set: {
+          isDeleted: false,
+          deletedAt: null,
+          deletedBy: null,
+        },
+      },
+      {
+        new: true,
+        session,
+      },
+    );
+
+    if (!document) {
+      throw throwError("Resource not found", 404);
     }
 
-    const doc = await this._findOrFail(id, brandId);
-
-    doc.isDeleted = true;
-    doc.deletedAt = new Date();
-    doc.deletedBy = userId;
-
-    if ("isActive" in doc) doc.isActive = false;
-
-    await doc.save();
-
-    return doc;
+    return document;
   }
 
-  async restore(id, brandId, userId) {
-    const doc = await this._findOrFail(id, brandId, true);
+  /* -------------------------------------------------------------------------- */
+  /*                                Hard Delete                                 */
+  /* -------------------------------------------------------------------------- */
 
-    if (!doc.isDeleted) {
-      throw throwError("Record is not deleted", 400);
-    }
+  async hardDelete({ id, session = null }) {
+    this.validateObjectId(id);
 
-    doc.isDeleted = false;
-    doc.deletedAt = null;
-    doc.deletedBy = null;
-
-    if ("isActive" in doc) doc.isActive = true;
-
-    doc.updatedBy = userId;
-
-    await doc.save();
-
-    return doc;
+    return this.model.deleteOne({ _id: id }, { session });
   }
 
-  async hardDelete(id, brandId) {
-    const doc = await this._findOrFail(id, brandId, true);
-    await doc.deleteOne();
-    return true;
-  }
+  /* -------------------------------------------------------------------------- */
+  /*                             Bulk Soft Delete                               */
+  /* -------------------------------------------------------------------------- */
 
-  async bulkSoftDelete(ids = [], brandId, userId) {
-    if (!ids.length) throw throwError("IDs required", 400);
-
-    const result = await this.model.updateMany(
+  async bulkSoftDelete({ ids, brandId, deletedBy = null }) {
+    return this.model.updateMany(
       {
         _id: { $in: ids },
-        ...this._baseQuery(brandId),
+        ...this.buildBaseQuery({
+          brandId,
+        }),
       },
       {
-        isDeleted: true,
-        deletedAt: new Date(),
-        deletedBy: userId,
+        $set: {
+          isDeleted: true,
+          deletedAt: new Date(),
+          deletedBy,
+        },
       },
     );
-
-    return result.modifiedCount;
   }
 
-  async bulkHardDelete(ids = [], brandId) {
-    if (!ids.length) throw throwError("IDs required", 400);
+  /* -------------------------------------------------------------------------- */
+  /*                               Bulk Restore                                 */
+  /* -------------------------------------------------------------------------- */
 
-    const result = await this.model.deleteMany({
+  async bulkRestore({ ids, brandId }) {
+    return this.model.updateMany(
+      {
+        _id: { $in: ids },
+        ...this.buildBaseQuery({
+          brandId,
+          includeDeleted: true,
+        }),
+      },
+      {
+        $set: {
+          isDeleted: false,
+          deletedAt: null,
+          deletedBy: null,
+        },
+      },
+    );
+  }
+
+  /* -------------------------------------------------------------------------- */
+  /*                             Bulk Hard Delete                               */
+  /* -------------------------------------------------------------------------- */
+
+  async bulkHardDelete(ids) {
+    return this.model.deleteMany({
       _id: { $in: ids },
-      ...this._baseQuery(brandId, true),
-    });
-
-    return result.deletedCount;
-  }
-
-  // =========================
-  // 🔹 UTILITIES
-  // =========================
-
-  async count(brandId, filter = {}, includeDeleted = false) {
-    return this.model.countDocuments({
-      ...this._baseQuery(brandId, includeDeleted),
-      ...filter,
     });
   }
 
-  async exists(brandId, filter = {}) {
-    const doc = await this.model
-      .findOne({
-        ...this._baseQuery(brandId),
-        ...filter,
-      })
-      .select("_id")
-      .lean();
+  /* -------------------------------------------------------------------------- */
+  /*                                   Exists                                   */
+  /* -------------------------------------------------------------------------- */
 
-    return !!doc;
+  async exists({ id, brandId }) {
+    return this.model.exists({
+      _id: id,
+      ...this.buildBaseQuery({
+        brandId,
+      }),
+    });
   }
 
-  async aggregate(pipeline = [], brandId, includeDeleted = false) {
-    const baseMatch = this._baseQuery(brandId, includeDeleted);
-    return this.model.aggregate([{ $match: baseMatch }, ...pipeline]);
-  }
+  /* -------------------------------------------------------------------------- */
+  /*                                    Count                                   */
+  /* -------------------------------------------------------------------------- */
 
-  async transaction(fn) {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-
-    try {
-      const result = await fn(session);
-      await session.commitTransaction();
-      return result;
-    } catch (err) {
-      await session.abortTransaction();
-      throw err;
-    } finally {
-      session.endSession();
-    }
+  async count({ brandId, filters = {} }) {
+    return this.model.countDocuments(
+      this.buildBaseQuery({
+        brandId,
+        filters,
+      }),
+    );
   }
 }
 

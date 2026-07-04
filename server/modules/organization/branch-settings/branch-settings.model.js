@@ -1,172 +1,365 @@
+// server/models/core/branch-settings.model.js
+
 import mongoose from "mongoose";
+
 const { ObjectId } = mongoose.Schema.Types;
+const { Schema } = mongoose;
 
 /**
- * ====================================================
- * Branch Settings Schema
- * ----------------------------------------------------
- * This schema stores all configurable settings for a branch.
- * It covers:
- * - Contact information
- * - Operating hours & periods
- * - Service availability
- * - Branch features
- * - Policies & options
- * - Audit fields for tracking
- * ====================================================
+ * =====================================================
+ * Reusable Schemas
+ * =====================================================
  */
-const branchSettingsSchema = new mongoose.Schema(
-  {
-    // 🔗 References to Brand and Branch
-    brand: { type: ObjectId, ref: "Brand", required: true }, // Link to the parent brand
-    branch: { type: ObjectId, ref: "Branch", required: true }, // Link to the specific branch
 
-    // 📞 Contact Information
-    contact: {
-      phone: [
-        {
-          label: { type: String, trim: true, maxlength: 100 }, // Label for the phone number, e.g., "Main Line", "Customer Support"
-          number: { type: String, trim: true, maxlength: 20 }, // Phone number with max length
-        },
+const phoneSchema = new Schema(
+  {
+    label: {
+      type: String,
+      trim: true,
+      maxlength: 50,
+    },
+
+    number: {
+      type: String,
+      trim: true,
+      maxlength: 20,
+      required: true,
+    },
+  },
+  { _id: false },
+);
+
+const serviceSchema = new Schema(
+  {
+    enabled: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  { _id: false },
+);
+
+const deliveryServiceSchema = new Schema(
+  {
+    enabled: {
+      type: Boolean,
+      default: false,
+    },
+
+    minOrderAmount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    estimatedTimeMinutes: {
+      type: Number,
+      default: 30,
+      min: 0,
+    },
+  },
+  { _id: false },
+);
+
+const periodSchema = new Schema(
+  {
+    name: {
+      type: String,
+      trim: true,
+      maxlength: 50,
+    },
+
+    openTime: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    closeTime: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+  },
+  { _id: false },
+);
+
+const operatingDaySchema = new Schema(
+  {
+    day: {
+      type: String,
+      enum: [
+        "Saturday",
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
       ],
-      whatsapp: { type: String, trim: true, maxlength: 20 }, // WhatsApp contact
+      required: true,
+    },
+
+    status: {
+      type: String,
+      enum: ["open", "closed"],
+      default: "open",
+    },
+
+    periods: {
+      type: [periodSchema],
+      default: [],
+    },
+  },
+  { _id: false },
+);
+
+/**
+ * =====================================================
+ * Branch Settings Schema
+ * =====================================================
+ */
+
+const branchSettingsSchema = new Schema(
+  {
+    /**
+     * =====================================================
+     * References
+     * =====================================================
+     */
+
+    brand: {
+      type: ObjectId,
+      ref: "Brand",
+      required: true,
+      index: true,
+    },
+
+    branch: {
+      type: ObjectId,
+      ref: "Branch",
+      required: true,
+      unique: true,
+      index: true,
+    },
+
+    /**
+     * =====================================================
+     * Contact Information
+     * =====================================================
+     */
+
+    contact: {
+      phones: {
+        type: [phoneSchema],
+        default: [],
+      },
+
+      whatsapp: {
+        type: String,
+        trim: true,
+        maxlength: 20,
+      },
+
       email: {
         type: String,
         lowercase: true,
         trim: true,
         maxlength: 100,
-        match: /\S+@\S+\.\S+/, // Valid email format
       },
     },
 
+    /**
+     * =====================================================
+     * Timezone
+     * =====================================================
+     */
+
     timezone: {
       type: String,
-      default: "Africa/Cairo",
       trim: true,
-      maxlength: 50,
-    }, // Timezone for the branch, used for scheduling and time-based rules
+      default: "Africa/Cairo",
+      maxlength: 100,
+    },
 
-    // 🕒 Operating Hours 
-    operatingHours: [
-      {
-        day: {
+    /**
+     * =====================================================
+     * Working Hours
+     * =====================================================
+     */
+
+    operatingHours: {
+      type: [operatingDaySchema],
+      default: [],
+    },
+
+    /**
+     * =====================================================
+     * Available Services
+     * =====================================================
+     */
+
+    services: {
+      dineIn: {
+        type: serviceSchema,
+        default: () => ({ enabled: true }),
+      },
+
+      takeaway: {
+        type: serviceSchema,
+        default: () => ({ enabled: true }),
+      },
+
+      delivery: {
+        type: deliveryServiceSchema,
+        default: () => ({ enabled: false }),
+      },
+    },
+
+    /**
+     * =====================================================
+     * Reservations
+     * =====================================================
+     */
+
+    reservation: {
+      enabled: {
+        type: Boolean,
+        default: false,
+      },
+
+      advanceBookingDays: {
+        type: Number,
+        default: 30,
+        min: 0,
+      },
+
+      maxGuestsPerReservation: {
+        type: Number,
+        default: 10,
+        min: 1,
+      },
+    },
+
+    /**
+     * =====================================================
+     * Branch Features
+     * Displayed in Public Menu
+     * =====================================================
+     */
+
+    features: {
+      type: [
+        {
           type: String,
           enum: [
-            "Saturday",
-            "Sunday",
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
+            "wifi",
+            "parking",
+            "outdoor_seating",
+            "family_section",
+            "wheelchair_accessible",
+            "kids_friendly",
+            "prayer_area",
+            "air_conditioning",
+            "smoking_area",
+            "live_music",
+            "pet_friendly",
+            "valet_parking",
           ],
-          required: true, // Day of the week
         },
-        status: {
-          type: String,
-          enum: ["open", "closed", "holiday"],
-          default: "open", // Open, closed, or holiday status
-        },
-        // If open, specify opening and closing times
-        periods: [
-          {
-            name: { type: String, trim: true, maxlength: 50 }, // Period label, e.g., "Morning Shift"
-            openTime: { type: String, required: true, trim: true }, // Opening time in HH:mm 24-hour format
-            closeTime: { type: String, required: true, trim: true }, // Closing time in HH:mm, can be next day
+      ],
+      default: [],
+    },
 
-            // Services availability for this period
-            services: {
-              dineIn: {
-                enabled: { type: Boolean, default: true }, // Enable dine-in service
-                openTime: { type: String, trim: true }, // Optional override open time
-                closeTime: { type: String, trim: true }, // Optional override close time
-              },
-              takeaway: {
-                enabled: { type: Boolean, default: true },
-                openTime: { type: String, trim: true },
-                closeTime: { type: String, trim: true },
-              },
-              delivery: {
-                enabled: { type: Boolean, default: true },
-                openTime: { type: String, trim: true },
-                closeTime: { type: String, trim: true },
-                minOrderAmount: { type: Number, default: 0, min: 0 }, // Minimum order for delivery
-                estimatedTimeMinutes: { type: Number, default: null, min: 0 }, // Estimated delivery time
-              },
-            },
+    /**
+     * =====================================================
+     * Customer Policies
+     * =====================================================
+     */
 
-            // Temporary pauses/breaks
-            pauses: [
-              {
-                reason: { type: String, trim: true, maxlength: 100 }, // Reason for break
-                from: { type: String, trim: true }, // Start time of pause
-                to: { type: String, trim: true }, // End time of pause
-              },
-            ],
-          },
-        ],
+    policies: {
+      acceptsOnlinePayment: {
+        type: Boolean,
+        default: false,
       },
-    ],
 
-    // ⭐ Branch Features
-    features: [
-      {
-        name: {
-          type: String,
-          enum: [
-            "WiFi",
-            "Parking",
-            "Outdoor Seating",
-            "Wheelchair Accessible",
-            "Live Music",
-            "Pet Friendly",
-            "Kids Friendly",
-            "Air Conditioning",
-            "Smoking Area",
-            "Live Sports",
-            "Gaming Zone",
-            "Family Section",
-            "Prayer Area",
-            "Valet Parking",
-            "Private Dining",
-            "Other",
-          ],
-          required: true, // Feature type
-        },
-        enabled: { type: Boolean, default: true }, // Whether feature is active
-        description: { type: String, trim: true, maxlength: 150 }, // Optional description of feature
-        iconUrl: { type: String, trim: true, maxlength: 200 }, // Optional icon image
+      acceptsCashOnDelivery: {
+        type: Boolean,
+        default: true,
       },
-    ],
 
-    // 🧾 Services & Policies
-    usesReservationSystem: { type: Boolean, default: false }, // Whether branch uses reservation system
-    offersCurbsidePickup: { type: Boolean, default: false }, // Curbside pickup option
-    offersOnlinePayment: { type: Boolean, default: false }, // Online payment available
-    offersCashOnDelivery: { type: Boolean, default: false }, // Cash on delivery option
-    hasLoyaltyProgram: { type: Boolean, default: false }, // Loyalty program available
-    supportsGiftCards: { type: Boolean, default: false }, // Gift cards available
-    supportsReferrals: { type: Boolean, default: false }, // Referral program available
+      supportsLoyaltyProgram: {
+        type: Boolean,
+        default: false,
+      },
 
-    isActive: { type: Boolean, default: true }, // General active flag
+      supportsGiftCards: {
+        type: Boolean,
+        default: false,
+      },
+    },
 
-    // 📝 Audit Fields
-    createdBy: { type: ObjectId, ref: "UserAccount", required: true }, // Employee who created
-    updatedBy: { type: ObjectId, ref: "UserAccount" },
-    // Soft delete fields for tracking who deleted and when a branch settings document was deleted
-    deletedBy: { type: ObjectId, ref: "UserAccount" }, // Employee who deleted
-    isDeleted: { type: Boolean, default: false }, // Soft delete flag
-    deletedAt: { type: Date, default: null }, // Soft delete timestamp
+    /**
+     * =====================================================
+     * Status
+     * =====================================================
+     */
+
+    status: {
+      type: String,
+      enum: ["active", "inactive", "suspended"],
+      default: "active",
+    },
+
+    /**
+     * =====================================================
+     * Audit Fields
+     * =====================================================
+     */
+
+    createdBy: {
+      type: ObjectId,
+      ref: "UserAccount",
+      default: null,
+    },
+
+    updatedBy: {
+      type: ObjectId,
+      ref: "UserAccount",
+      default: null,
+    },
+
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
+
+    deletedBy: {
+      type: ObjectId,
+      ref: "UserAccount",
+      default: null,
+    },
   },
-  { timestamps: true }, // Automatically add createdAt & updatedAt
+  {
+    timestamps: true,
+  },
 );
 
-// Ensure one settings document per branch
+/**
+ * =====================================================
+ * Indexes
+ * =====================================================
+ */
+
 branchSettingsSchema.index({ branch: 1 }, { unique: true });
+branchSettingsSchema.index({ brand: 1 });
+branchSettingsSchema.index({ status: 1 });
 
-const BranchSettingsModel = mongoose.model(
-  "BranchSettings",
-  branchSettingsSchema,
-);
+const BranchSettings = mongoose.model("BranchSettings", branchSettingsSchema);
 
-export default BranchSettingsModel;
+export default BranchSettings;

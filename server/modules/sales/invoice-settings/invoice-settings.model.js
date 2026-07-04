@@ -25,39 +25,33 @@ const invoiceSettingsSchema = new mongoose.Schema(
       prefix: {
         type: String,
         uppercase: true, // convert to uppercase
-        maxlength: 5,    // max 5 characters
-        default: "INV",  // prefix for invoice number
-        
+        maxlength: 5, // max 5 characters
+        default: "INV", // prefix for invoice number
       },
       startNumber: {
         type: Number,
         default: 1,
-        
       },
       padding: {
         type: Number,
         default: 5,
         min: 1,
         max: 10,
-        
       },
       includeDate: {
         type: String,
         enum: ["NONE", "DD", "MM", "YYYY", "YYYYMMDD"],
         default: "NONE",
-        
       },
       separator: {
         type: String,
         default: "-",
         maxlength: 2,
-        
       },
       resetPolicy: {
         type: String,
         enum: ["NONE", "MONTHLY", "YEARLY"],
         default: "YEARLY",
-        
       },
     },
 
@@ -68,25 +62,39 @@ const invoiceSettingsSchema = new mongoose.Schema(
       type: String,
       maxlength: 300,
       default: "",
-      
     },
-    headerText: {
+    receiptHeader: {
       type: Map,
       of: { type: String, maxlength: 200 },
       default: {},
-      
     },
-    footerText: {
+    receiptFooter: {
       type: Map,
       of: { type: String, maxlength: 200 },
       default: {},
-      
     },
 
     // ================================
     // DISPLAY OPTIONS
     // ================================
     showInvoiceNumber: { type: Boolean, default: true },
+    showBrandName: { type: Boolean, default: true },
+    showBranchName: { type: Boolean, default: true },
+    showBrandLogo: { type: Boolean, default: true },
+    showCustomerName: { type: Boolean, default: true },
+    showCustomerContact: { type: Boolean, default: true },
+    showOrderDetails: { type: Boolean, default: true },
+    showPaymentDetails: { type: Boolean, default: true },
+    showTaxDetails: { type: Boolean, default: false },
+    showServiceCharge: { type: Boolean, default: true },
+    showDeliveryFee: { type: Boolean, default: true },
+    showQRCode: { type: Boolean, default: false },
+    // ================================
+    // PRINTING BEHAVIOR
+    // ================================
+    printOnPayment: { type: Boolean, default: true },
+    printOnOrderClose: { type: Boolean, default: true },
+    numberOfCopies: { type: Number, default: 1, min: 1, max: 5 },
     showDate: { type: Boolean, default: true },
     showCashier: { type: Boolean, default: true },
     showTableNumber: { type: Boolean, default: true },
@@ -136,22 +144,42 @@ const invoiceSettingsSchema = new mongoose.Schema(
       type: String,
       enum: ["none", "nearest_0_05", "nearest_0_1"],
       default: "none",
-      
+    },
+
+    status: {
+      type: String,
+      enum: ["active", "inactive", "suspended"],
+      default: "active",
     },
 
     // ================================
     // AUDIT
     // ================================
+    
     createdBy: { type: ObjectId, ref: "UserAccount", required: true },
     updatedBy: { type: ObjectId, ref: "UserAccount", default: null },
 
-    isActive: { type: Boolean, default: true },
+    // Soft delete fields
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
+    deletedBy: { type: ObjectId, ref: "UserAccount" },
   },
-  { timestamps: true }
+  {
+    timestamps: true, // Automatically add createdAt and updatedAt fields
+  },
 );
 
 // Unique index to avoid duplicate settings per brand/branch
 invoiceSettingsSchema.index({ brand: 1, branch: 1 }, { unique: true });
 
-const InvoiceSettings = mongoose.model("InvoiceSettings", invoiceSettingsSchema);
+const InvoiceSettings = mongoose.model(
+  "InvoiceSettings",
+  invoiceSettingsSchema,
+);
 export default InvoiceSettings;

@@ -33,7 +33,7 @@ const ProductReviewSchema = new Schema(
     },
     reviewSource: {
       type: String,
-      enum: ["User", "Customer", "Table"],
+      enum: ["User", "Customer", "Table", "Delivery", "Other"],
       required: true,
     },
     referenceId: {

@@ -16,10 +16,9 @@ export const createBranchSchema = createSchema(BranchModel.schema);
 /* =========================
    UPDATE
 ========================= */
-export const updateBranchSchema = updateSchema(
-  BranchModel.schema,
-  ["updatedBy"]
-);
+export const updateBranchSchema = updateSchema(BranchModel.schema, [
+  "updatedBy",
+]);
 
 /* =========================
    PARAMS
@@ -43,7 +42,6 @@ export const queryBranchSchema = Joi.object({
   city: Joi.string(),
   country: Joi.string(),
 
-  // 🔥 GEO FILTER (Google Maps)
   lat: Joi.number(),
   lng: Joi.number(),
   maxDistance: Joi.number().default(5000),

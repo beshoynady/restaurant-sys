@@ -1,6 +1,6 @@
 // modules/system/notification-settings/notification-settings.model.js
 import mongoose from "mongoose";
-const {ObjectId} = mongoose.Schema.Types;
+const { ObjectId } = mongoose.Schema.Types;
 
 const notificationSettingsSchema = new mongoose.Schema(
   {
@@ -11,7 +11,7 @@ const notificationSettingsSchema = new mongoose.Schema(
     // 🔔 Enable / Disable notifications at branch level
     enabled: {
       type: Boolean,
-      default: { type: Boolean, default: true },
+      default: true,
     },
 
     /**
@@ -106,15 +106,15 @@ const notificationSettingsSchema = new mongoose.Schema(
         roles: {
           cashier: {
             type: Boolean,
-            default: { type: Boolean, default: true },
+            default: true,
           },
           kitchen: {
             type: Boolean,
-            default: { type: Boolean, default: true },
+            default: true,
           },
           manager: {
             type: Boolean,
-            default: { type: Boolean, default: true },
+            default: true,
           },
         },
       },
@@ -206,17 +206,40 @@ const notificationSettingsSchema = new mongoose.Schema(
       },
     },
 
-    // 🧾 Audit
+    status: {
+      type: String,
+      enum: ["active", "inactive", "suspended"],
+      default: "active",
+    },
+
+    // ================================
+    // AUDIT
+    // ================================
+    
     createdBy: { type: ObjectId, ref: "UserAccount", required: true },
-    updatedBy: { type: ObjectId, ref: "UserAccount" },
+    updatedBy: { type: ObjectId, ref: "UserAccount", default: null },
+
+    // Soft delete fields
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
+    deletedBy: { type: ObjectId, ref: "UserAccount" },
   },
-  { timestamps: true }
+
+  { timestamps: true },
 );
 
 // 🔹 One settings document per branch
 notificationSettingsSchema.index({ branch: 1 }, { unique: true });
 
-
-const NotificationSettingsModel = mongoose.model("NotificationSettings", notificationSettingsSchema);
+const NotificationSettingsModel = mongoose.model(
+  "NotificationSettings",
+  notificationSettingsSchema,
+);
 
 export default NotificationSettingsModel;

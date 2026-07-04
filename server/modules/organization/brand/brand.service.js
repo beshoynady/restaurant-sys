@@ -1,91 +1,70 @@
-// modules/organization/brand/brand.service.js
 import BrandModel from "./brand.model.js";
-import AdvancedService from "../../../utils/BaseService.js";
+import BaseService from "../../../utils/BaseService.js";
+import throwError from "../../../utils/throwError.js";
 
-class BrandService extends AdvancedService {
+class BrandService extends BaseService {
   constructor() {
     super(BrandModel, {
-      brandScoped: true,
+      brandScoped: false,
       softDelete: true,
-      defaultPopulate: ["createdBy", "updatedBy", "deletedBy"],
-      defaultSort: { createdAt: -1 },
     });
   }
 
-  // =========================
-  // 🟢 BRAND STATUS CONTROL
-  // =========================
+  /* ---------------- SAFE UPDATE ---------------- */
+  async updateBrand({ id, data, userId }) {
+    if (!id) throw throwError("ID required", 400);
+
+    return this.update({
+      id,
+      data: { ...data, updatedBy: userId },
+    });
+  }
+
+  /* ---------------- STATUS ---------------- */
   async changeStatus(id, status, userId) {
-    return this.update(id, {
-      status,
-      updatedBy: userId,
-    });
-  }
-
-  // =========================
-  // 🟢 UPDATE LOGO ONLY
-  // =========================
-  async updateLogo(id, logoUrl, userId) {
-    return this.update(id, {
-      logo: logoUrl,
-      updatedBy: userId,
-    });
-  }
-
-  // =========================
-  // 🟢 UPDATE BRAND SETTINGS (Dashboard settings)
-  // =========================
-  async updateSettings(id, data, userId) {
-    const allowedFields = {
-      currency: data.currency,
-      timezone: data.timezone,
-      countryCode: data.countryCode,
-      defaultDashboardLanguage: data.defaultDashboardLanguage,
-      dashboardLanguages: data.dashboardLanguages,
-    };
-
-    return this.update(id, {
-      ...allowedFields,
-      updatedBy: userId,
-    });
-  }
-
-  // =========================
-  // 🟢 SETUP PROGRESS FLOW (IMPORTANT)
-  // =========================
-  async updateSetupStatus(id, step, userId) {
-    let status = "draft";
-
-    if (step >= 1) status = "basic";
-    if (step >= 3) status = "complete";
-
-    return this.update(id, {
-      setupStatus: status,
-      updatedBy: userId,
-    });
-  }
-
-  // =========================
-  // 🟢 SEARCH FOR FRONTEND
-  // =========================
-  async searchBrands(query, userId) {
-    return this.findAll({
-      filter: {
-        $or: [
-          { "name.en": { $regex: query, $options: "i" } },
-          { "name.ar": { $regex: query, $options: "i" } },
-          { legalName: { $regex: query, $options: "i" } },
-        ],
-      },
+    return this.updateBrand({
+      id,
+      data: { status },
       userId,
     });
   }
 
-  // =========================
-  // 🟢 DASHBOARD SUMMARY (IMPORTANT FOR FRONT)
-  // =========================
+  /* ---------------- LOGO ---------------- */
+  async updateLogo(id, logo, userId) {
+    return this.updateBrand({
+      id,
+      data: { logo },
+      userId,
+    });
+  }
+
+  /* ---------------- SETTINGS ---------------- */
+  async updateSettings(id, data, userId) {
+    return this.updateBrand({
+      id,
+      data,
+      userId,
+    });
+  }
+
+  /* ---------------- SEARCH ---------------- */
+  async searchBrands(q) {
+    if (!q) return [];
+
+    return this.model.find({
+      isDeleted: false,
+      $or: [
+        { "name.EN": { $regex: q, $options: "i" } },
+        { "name.AR": { $regex: q, $options: "i" } },
+        { legalName: { $regex: q, $options: "i" } },
+      ],
+    });
+  }
+
+  /* ---------------- SUMMARY ---------------- */
   async getSummary(id) {
-    const brand = await this.findOne(id);
+    const brand = await this.model.findById(id).lean();
+    if (!brand) throw throwError("Brand not found", 404);
 
     return {
       id: brand._id,
@@ -93,33 +72,62 @@ class BrandService extends AdvancedService {
       status: brand.status,
       setupStatus: brand.setupStatus,
       currency: brand.currency,
-      timezone: brand.timezone,
-      branchesLimit: brand.maxBranches,
       logo: brand.logo,
+      maxBranches: brand.maxBranches,
     };
   }
 
-  // =========================
-  // 🟢 BRANCH LIMIT CHECK
-  // =========================
-  async canCreateBranch(id, currentBranchesCount) {
-    const brand = await this.findOne(id);
-    return currentBranchesCount < brand.maxBranches;
-  }
-
-  // =========================
-  // 🟢 GLOBAL SETUP STATUS
-  // =========================
-  async getSetupStatus() {
-    const brand = await this.model.findOne({
-      isDeleted: false,
-    });
+  /* ---------------- SETUP STATUS ---------------- */
+  async getSetupStatus(id) {
+    const brand = await this.model.findById(id);
+    if (!brand) throw throwError("Brand not found", 404);
 
     return {
-      isSetupCompleted: !!brand,
-      setupStatus: brand?.setupStatus || "not_started",
-      brandId: brand?._id || null,
+      step: brand.setupStatus,
+      isCompleted: brand.setupStatus === "complete",
     };
+  }
+
+  async updateSetupStatus(id, step, userId) {
+    let setupStatus = "draft";
+
+    if (step >= 1) setupStatus = "basic";
+    if (step >= 3) setupStatus = "complete";
+
+    return this.updateBrand({
+      id,
+      data: { setupStatus },
+      userId,
+    });
+  }
+
+  /* ---------------- DELETE ---------------- */
+  async hardDelete(id) {
+    return this.model.findByIdAndDelete(id);
+  }
+
+  async softDelete(id, userId) {
+    return this.updateBrand({
+      id,
+      data: {
+        isDeleted: true,
+        deletedBy: userId,
+        deletedAt: new Date(),
+      },
+      userId,
+    });
+  }
+
+  async restore(id, userId) {
+    return this.updateBrand({
+      id,
+      data: {
+        isDeleted: false,
+        deletedBy: null,
+        deletedAt: null,
+      },
+      userId,
+    });
   }
 }
 

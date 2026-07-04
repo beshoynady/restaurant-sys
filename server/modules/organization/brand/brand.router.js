@@ -1,4 +1,3 @@
-// modules/organization/brand/brand.router.js
 import express from "express";
 
 import brandController from "./brand.controller.js";
@@ -19,9 +18,7 @@ import {
 
 const router = express.Router();
 
-/* =========================
-   CREATE + LIST
-========================= */
+/* CREATE + LIST */
 router
   .route("/")
   .post(
@@ -37,9 +34,32 @@ router
     brandController.getAll,
   );
 
-/* =========================
-   SINGLE BRAND OPS
-========================= */
+/* SEARCH */
+router.get(
+  "/search",
+  authenticateToken,
+  authorize("brand:read"),
+  brandController.search,
+);
+
+/* SETUP STATUS */
+router.get(
+  "/:id/setup",
+  authenticateToken,
+  authorize("brand:read"),
+  brandController.getSetupStatus,
+);
+
+/* SUMMARY */
+router.get(
+  "/:id/summary",
+  authenticateToken,
+  authorize("brand:read"),
+  validate(paramsBrandSchema, "params"),
+  brandController.getSummary,
+);
+
+/* SINGLE */
 router
   .route("/:id")
   .get(
@@ -51,6 +71,7 @@ router
   .put(
     authenticateToken,
     authorize("brand:update"),
+    validate(paramsBrandSchema, "params"),
     validate(updateBrandSchema),
     brandController.update,
   )
@@ -61,95 +82,40 @@ router
     brandController.hardDelete,
   );
 
-/* =========================
-   SOFT DELETE / RESTORE
-========================= */
-router.patch(
-  "/soft-delete/:id",
-  authenticateToken,
-  authorize("brand:delete"),
-  validate(paramsBrandSchema, "params"),
-  brandController.softDelete,
-);
-
-router.patch(
-  "/restore/:id",
-  authenticateToken,
-  authorize("brand:restore"),
-  validate(paramsBrandSchema, "params"),
-  brandController.restore,
-);
-
-/* =========================
-   STATUS CONTROL
-========================= */
+/* STATUS */
 router.patch(
   "/:id/status",
   authenticateToken,
   authorize("brand:update"),
-  validate(paramsBrandSchema, "params"),
   validate(changeStatusSchema),
   brandController.changeStatus,
 );
 
-/* =========================
-   LOGO UPDATE
-========================= */
+/* LOGO */
 router.patch(
   "/:id/logo",
   authenticateToken,
   authorize("brand:update"),
-  validate(paramsBrandSchema, "params"),
   validate(updateLogoSchema),
   brandController.updateLogo,
 );
 
-/* =========================
-   SETTINGS UPDATE
-========================= */
+/* SETTINGS */
 router.patch(
   "/:id/settings",
   authenticateToken,
   authorize("brand:update"),
-  validate(paramsBrandSchema, "params"),
   validate(updateBrandSettingsSchema),
   brandController.updateSettings,
 );
 
-/* =========================
-   SETUP FLOW
-========================= */
+/* SETUP PROGRESS */
 router.patch(
   "/:id/setup",
   authenticateToken,
   authorize("brand:update"),
-  validate(paramsBrandSchema, "params"),
   validate(setupProgressSchema),
   brandController.updateSetup,
 );
-
-/* =========================
-   SUMMARY (DASHBOARD)
-========================= */
-router.get(
-  "/:id/summary",
-  authenticateToken,
-  authorize("brand:read"),
-  validate(paramsBrandSchema, "params"),
-  brandController.getSummary,
-);
-
-/* =========================
-   SEARCH
-========================= */
-router.get(
-  "/search",
-  authenticateToken,
-  authorize("brand:read"),
-  validate(queryBrandSchema, "query"),
-  brandController.search,
-);
-
-router.get("/setup/status", brandController.getSetupStatus);
 
 export default router;

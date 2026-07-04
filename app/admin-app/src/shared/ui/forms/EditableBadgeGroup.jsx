@@ -1,3 +1,4 @@
+// src/shared/ui/forms/EditableBadgeGroup.jsx
 export default function EditableBadgeGroup({
   label,
   values,

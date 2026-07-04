@@ -1,119 +1,73 @@
-// src/shared/tables/TablePagination.jsx
 import React from "react";
 
-const TablePagination = ({
+export default function TablePagination({
   total = 0,
   page = 1,
   pageSize = 10,
-
   onPageChange,
   onPageSizeChange,
-
-  pageSizeOptions = [10, 25, 50, 100],
-}) => {
-  const totalPages = Math.ceil(total / pageSize);
-
-  const startItem = total === 0 ? 0 : (page - 1) * pageSize + 1;
-
-  const endItem = Math.min(page * pageSize, total);
-
-  const getPages = () => {
-    const pages = [];
-
-    let start = Math.max(page - 2, 1);
-    let end = Math.min(page + 2, totalPages);
-
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-
-    return pages;
-  };
+}) {
+  const totalPages = Math.ceil(total / pageSize) || 1;
 
   return (
-    <div className="flex flex-col lg:flex-row items-center justify-between gap-4 mt-4">
-      {/* INFO */}
-
-      <div className="text-sm text-gray-600">
-        عرض
-        <span className="font-semibold mx-1">{startItem}</span>
-        إلى
-        <span className="font-semibold mx-1">{endItem}</span>
-        من
-        <span className="font-semibold mx-1">{total}</span>
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-5 bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+      <div className="text-xs font-bold text-slate-400 uppercase tracking-wide">
+        Showing{" "}
+        <span className="text-slate-700">{(page - 1) * pageSize + 1}</span> -{" "}
+        <span className="text-slate-700">
+          {Math.min(page * pageSize, total)}
+        </span>{" "}
+        of <span className="text-slate-700">{total}</span> Rows
       </div>
 
-      <div className="flex items-center gap-2">
-        {/* PAGE SIZE */}
-
+      <div className="flex items-center gap-3">
         <select
           value={pageSize}
           onChange={(e) => onPageSizeChange?.(Number(e.target.value))}
-          className="border rounded-lg px-2 py-1"
+          className="h-9 text-xs font-bold text-slate-600 border border-slate-200 rounded-xl px-2.5 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
         >
-          {pageSizeOptions.map((size) => (
+          {[10, 25, 50].map((size) => (
             <option key={size} value={size}>
-              {size}
+              {size} Rows
             </option>
           ))}
         </select>
 
-        {/* FIRST */}
-
-        <button
-          disabled={page === 1}
-          onClick={() => onPageChange(1)}
-          className="border px-3 py-1 rounded"
-        >
-          «
-        </button>
-
-        {/* PREV */}
-
-        <button
-          disabled={page === 1}
-          onClick={() => onPageChange(page - 1)}
-          className="border px-3 py-1 rounded"
-        >
-          السابق
-        </button>
-
-        {/* PAGES */}
-
-        {getPages().map((p) => (
+        <div className="flex gap-1">
           <button
-            key={p}
-            onClick={() => onPageChange(p)}
-            className={`px-3 py-1 rounded border ${
-              p === page ? "bg-primary text-white" : ""
-            }`}
+            disabled={page === 1}
+            onClick={() => onPageChange(page - 1)}
+            className="w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-sm font-bold text-slate-600 bg-white hover:bg-slate-50 disabled:opacity-40 transition"
           >
-            {p}
+            ‹
           </button>
-        ))}
 
-        {/* NEXT */}
+          {[...Array(totalPages)].map((_, idx) => {
+            const p = idx + 1;
+            return (
+              <button
+                key={p}
+                onClick={() => onPageChange(p)}
+                className={`w-9 h-9 flex items-center justify-center rounded-xl text-xs font-bold transition ${
+                  p === page
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-100"
+                    : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                {p}
+              </button>
+            );
+          })}
 
-        <button
-          disabled={page === totalPages}
-          onClick={() => onPageChange(page + 1)}
-          className="border px-3 py-1 rounded"
-        >
-          التالي
-        </button>
-
-        {/* LAST */}
-
-        <button
-          disabled={page === totalPages}
-          onClick={() => onPageChange(totalPages)}
-          className="border px-3 py-1 rounded"
-        >
-          »
-        </button>
+          <button
+            disabled={page === totalPages}
+            onClick={() => onPageChange(page + 1)}
+            className="w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-sm font-bold text-slate-600 bg-white hover:bg-slate-50 disabled:opacity-40 transition"
+          >
+            ›
+          </button>
+        </div>
       </div>
     </div>
   );
-};
-
-export default TablePagination;
+}

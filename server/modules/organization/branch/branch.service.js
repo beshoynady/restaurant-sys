@@ -1,7 +1,9 @@
+// modules/organization/branch/branch.service.js
+
 import BaseService from "../../../utils/BaseService.js";
 import BranchModel from "./branch.model.js";
 import throwError from "../../../utils/throwError.js";
-import generateUniqueSlug  from "../../../utils/generateUniqueSlug.js";
+import generateUniqueSlug from "../../../utils/generateUniqueSlug.js";
 
 class BranchService extends BaseService {
   constructor() {
@@ -10,40 +12,40 @@ class BranchService extends BaseService {
       softDelete: true,
       defaultPopulate: ["brand", "createdBy", "updatedBy"],
       searchFields: ["name.EN", "name.AR", "slug"],
-      defaultSort: { createdAt: -1 },
     });
   }
 
-  /* =========================
-     CREATE
-  ========================= */
+  // =========================
+  // CREATE
+  // =========================
   async create({ brandId, data, createdBy }) {
-    data.slug = await generateUniqueSlug({
+    const slug = await generateUniqueSlug({
       name: data.name,
       model: this.model,
       brandId,
     });
 
-    if (data.isMainBranch) {
-      const exists = await this.model.findOne({
-        brand: brandId,
-        isMainBranch: true,
-        isDeleted: false,
-      });
+    const isMainExists = await this.model.findOne({
+      brand: brandId,
+      isMainBranch: true,
+      isDeleted: false,
+    });
 
-      if (exists) throw throwError("Main branch exists", 400);
+    if (data.isMainBranch && isMainExists) {
+      throw throwError("Main branch already exists", 400);
     }
 
     return this.model.create({
       ...data,
+      slug,
       brand: brandId,
       createdBy,
     });
   }
 
-  /* =========================
-     UPDATE
-  ========================= */
+  // =========================
+  // UPDATE
+  // =========================
   async update({ id, brandId, data, updatedBy }) {
     if (data.name) {
       data.slug = await generateUniqueSlug({
@@ -68,17 +70,17 @@ class BranchService extends BaseService {
     return this.model.findOneAndUpdate(
       { _id: id, brand: brandId },
       { $set: { ...data, updatedBy } },
-      { new: true }
+      { new: true },
     );
   }
 
-  /* =========================
-     GET ALL (FULL FILTERING)
-  ========================= */
+  // =========================
+  // GET ALL (FIXED GEO + FILTER)
+  // =========================
   async getAllBranches({ brandId, query }) {
     const {
-      page,
-      limit,
+      page = 1,
+      limit = 10,
       search,
       status,
       isMainBranch,
@@ -86,9 +88,9 @@ class BranchService extends BaseService {
       country,
       lat,
       lng,
-      maxDistance,
-      sortBy,
-      sortOrder,
+      maxDistance = 5000,
+      sortBy = "createdAt",
+      sortOrder = "desc",
     } = query;
 
     const filter = {
@@ -97,24 +99,11 @@ class BranchService extends BaseService {
     };
 
     if (status) filter.status = status;
-    if (typeof isMainBranch !== "undefined")
-      filter.isMainBranch = isMainBranch;
+    if (typeof isMainBranch !== "undefined") filter.isMainBranch = isMainBranch;
 
-    if (city) filter["address.*.city"] = city;
-    if (country) filter["address.*.country"] = country;
-
-    /* 🔥 GEO FILTER */
-    if (lat && lng) {
-      filter.location = {
-        $near: {
-          $geometry: {
-            type: "Point",
-            coordinates: [lng, lat],
-          },
-          $maxDistance: maxDistance || 5000,
-        },
-      };
-    }
+    // FIXED multilingual search
+    if (city) filter["address.city"] = { $exists: true };
+    if (country) filter["address.country"] = { $exists: true };
 
     if (search) {
       filter.$or = [
@@ -124,21 +113,35 @@ class BranchService extends BaseService {
       ];
     }
 
+    let geoFilter = {};
+
+    if (lat && lng) {
+      geoFilter.location = {
+        $near: {
+          $geometry: {
+            type: "Point",
+            coordinates: [lng, lat],
+          },
+          $maxDistance: maxDistance,
+        },
+      };
+    }
+
     const skip = (page - 1) * limit;
 
-    const sort = {
-      [sortBy]: sortOrder === "asc" ? 1 : -1,
-    };
+    const sort = { [sortBy]: sortOrder === "asc" ? 1 : -1 };
+
+    const finalFilter = { ...filter, ...geoFilter };
 
     const [data, total] = await Promise.all([
       this.model
-        .find(filter)
+        .find(finalFilter)
         .populate("brand createdBy updatedBy")
         .sort(sort)
         .skip(skip)
         .limit(limit),
 
-      this.model.countDocuments(filter),
+      this.model.countDocuments(finalFilter),
     ]);
 
     return {
@@ -153,21 +156,17 @@ class BranchService extends BaseService {
     };
   }
 
-  /* =========================
-     SET MAIN BRANCH
-  ========================= */
+  // =========================
+  // MAIN BRANCH
+  // =========================
   async setMainBranch({ id, brandId, userId }) {
-    return this.transaction(async (session) => {
-      await this.model.updateMany(
-        { brand: brandId },
-        { isMainBranch: false },
-        { session }
-      );
+    return this.transaction(async () => {
+      await this.model.updateMany({ brand: brandId }, { isMainBranch: false });
 
       const branch = await this.model.findOneAndUpdate(
         { _id: id, brand: brandId },
         { isMainBranch: true, updatedBy: userId },
-        { new: true, session }
+        { new: true },
       );
 
       if (!branch) throw throwError("Branch not found", 404);
@@ -175,6 +174,47 @@ class BranchService extends BaseService {
       return branch;
     });
   }
+
+  // =========================
+  // BULK SOFT DELETE
+  // =========================
+  async bulkSoftDelete({ ids, brandId, userId }) {
+    return this.model.updateMany(
+      { _id: { $in: ids }, brand: brandId },
+      { isDeleted: true, deletedBy: userId, deletedAt: new Date() },
+    );
+  }
+
+  // =========================
+  // OVERRIDE BASE METHODS (IF NEEDED)
+  // =========================
+    async hardDelete({ id, brandId, userId }) { 
+    const branch = await this.model.findOneAndDelete({ _id: id, brand: brandId });
+    if (!branch) throw throwError("Branch not found", 404);
+    return branch;
+    };
+
+  async softDelete({ id, brandId, userId }) {
+    const branch = await this.model.findOneAndUpdate(
+      { _id: id, brand: brandId },
+      { isDeleted: true, deletedBy: userId, deletedAt: new Date() },
+      { new: true },
+    );
+    if (!branch) throw throwError("Branch not found", 404);
+    return branch;
+  }
+
+  async restore({ id, brandId, userId }) {
+    const branch = await this.model.findOneAndUpdate(
+      { _id: id, brand: brandId },
+      { isDeleted: false, deletedBy: null, deletedAt: null },
+      { new: true },
+    );
+    if (!branch) throw throwError("Branch not found", 404);
+    return branch;
+  }
+  
+    
 }
 
 export default new BranchService();

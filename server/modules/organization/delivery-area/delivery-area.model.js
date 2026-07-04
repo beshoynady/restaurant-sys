@@ -1,16 +1,39 @@
 import mongoose from "mongoose";
-const { ObjectId } = mongoose.Schema;
+
+const { ObjectId } = mongoose.Schema.Types;
+const { Schema } = mongoose;
 
 /**
- * DeliveryArea Schema
- * -------------------
- * Defines delivery zones for branches with pricing and operational rules.
- * Supports multilingual names (optional, for future expansion).
- * Used in Orders and Invoices.
+ * ==========================================================
+ * Delivery Area
+ * ----------------------------------------------------------
+ * Defines delivery zones for a branch.
+ * Used to determine:
+ * - Delivery fee
+ * - Coverage area
+ * - Delivery availability
+ * - Estimated delivery time
+ * ==========================================================
  */
-const DeliveryAreaSchema = new mongoose.Schema(
+
+const multilingualString = new Schema(
   {
-    // ─────────── Organization Context ───────────
+    type: Map,
+    of: {
+      type: String,
+      trim: true,
+      maxlength: 100,
+    },
+  },
+  { _id: false },
+);
+
+const DeliveryAreaSchema = new Schema(
+  {
+    // =====================================================
+    // REFERENCES
+    // =====================================================
+
     brand: {
       type: ObjectId,
       ref: "Brand",
@@ -25,100 +48,135 @@ const DeliveryAreaSchema = new mongoose.Schema(
       index: true,
     },
 
-    // ─────────── Identity ───────────
-    // Multilingual name support: { EN: "Downtown", AR: "وسط المدينة" }
-    name: {
-      type: Map,
-      of: {
-        type: String,
-        trim: true,
-        minlength: 2,
-        maxlength: 100,
-      },
-      required: true,
+    // =====================================================
+    // IDENTITY
+    // =====================================================
+
+    name: multilingualString,
+
+    slug: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      maxlength: 150,
     },
 
     code: {
       type: String,
       trim: true,
       uppercase: true,
-      index: true,
-      // Example: ZONE_A, AREA_01
+      maxlength: 30,
     },
 
-    // ─────────── Pricing Rules ───────────
+    // =====================================================
+    // DELIVERY PRICING
+    // =====================================================
+
+    pricingType: {
+      type: String,
+      enum: ["fixed", "distance_based"],
+      default: "fixed",
+    },
+
     deliveryFee: {
       type: Number,
       required: true,
       min: 0,
+      default: 0,
     },
-
-    pricingType: {
-      enum: ["fixed", "distance_based"],
-      type: String,
-      default: "fixed",
-    }, // If distance_based, deliveryFee is the base fee and additional fees may apply based on distance
-
-    coverageArea: {
-      type: {
-        type: String,
-        enum: ["Polygon"],
-      },
-      coordinates: [[[Number]]],
-    }, // GeoJSON Polygon defining the delivery area boundaries
 
     minimumOrderAmount: {
       type: Number,
       default: 0,
       min: 0,
     },
-    // If order total is above this threshold, delivery is free. Null means no free delivery threshold.
+
     freeDeliveryThreshold: {
       type: Number,
       default: null,
       min: 0,
     },
 
-    // ─────────── Time & Distance ───────────
-    estimatedDeliveryTime: {
+    // =====================================================
+    // DELIVERY LIMITS
+    // =====================================================
+
+    estimatedDeliveryTimeMinutes: {
       type: Number,
-      default: 0,
-      min: 0, // in minutes
-    },
-    // If null, no distance limit. Otherwise, orders beyond this distance will not be accepted.
-    maxDeliveryDistance: {
-      type: Number,
-      default: null,
-      min: 0, // in kilometers
+      default: 30,
+      min: 0,
     },
 
-    // ─────────── Operational Rules ───────────
-    isActive: {
-      type: Boolean,
-      default: true,
+    maxDeliveryDistanceKm: {
+      type: Number,
+      default: null,
+      min: 0,
     },
-    // If true, this delivery area is currently accepting orders. Can be used for temporary closures or testing.
+
+    // =====================================================
+    // PAYMENT OPTIONS
+    // =====================================================
+
     acceptsCashOnDelivery: {
       type: Boolean,
       default: true,
     },
-    // If false, this delivery area will not accept online payments. Useful for areas where online payment is not available or for testing purposes.
+
     acceptsOnlinePayment: {
       type: Boolean,
       default: true,
     },
-    // priority can be used to determine which delivery area to apply when multiple areas match an order's location
+
+    // =====================================================
+    // GEO COVERAGE
+    // =====================================================
+
+    coverageArea: {
+      type: {
+        type: String,
+        enum: ["Polygon"],
+        default: "Polygon",
+      },
+
+      coordinates: {
+        type: [[[Number]]],
+        required: true,
+      },
+    },
+
+    // =====================================================
+    // DISPLAY & PRIORITY
+    // =====================================================
+
     priority: {
       type: Number,
       default: 0,
     },
 
-    // ─────────── Notes & Audit ───────────
-    notes: {
-      type: String,
-      trim: true,
-      maxlength: 250,
+    sortOrder: {
+      type: Number,
+      default: 0,
     },
+
+    // =====================================================
+    // PUBLIC INFO
+    // =====================================================
+
+    notes: multilingualString,
+
+    // =====================================================
+    // STATUS
+    // =====================================================
+
+    status: {
+      type: String,
+      enum: ["active", "inactive", "suspended"],
+      default: "active",
+    },
+
+    // =====================================================
+    // AUDIT
+    // =====================================================
 
     createdBy: {
       type: ObjectId,
@@ -132,28 +190,71 @@ const DeliveryAreaSchema = new mongoose.Schema(
       default: null,
     },
 
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+
     deletedAt: {
       type: Date,
       default: null,
     },
-    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
+
+    deletedBy: {
+      type: ObjectId,
+      ref: "UserAccount",
+      default: null,
+    },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+  },
 );
 
-// ─────────── Indexes ───────────
-// Unique delivery area per branch per language
+// =====================================================
+// INDEXES
+// =====================================================
+
+DeliveryAreaSchema.index({
+  coverageArea: "2dsphere",
+});
+
+DeliveryAreaSchema.index({
+  branch: 1,
+  priority: 1,
+});
+
+DeliveryAreaSchema.index({
+  branch: 1,
+  status: 1,
+});
+
 DeliveryAreaSchema.index(
-  { branch: 1, "name.$**": 1 },
-  { unique: true, partialFilterExpression: { isActive: true } },
+  {
+    branch: 1,
+    code: 1,
+  },
+  {
+    unique: true,
+    sparse: true,
+  },
 );
 
-// Optional: index code per branch for fast lookup
+DeliveryAreaSchema.index({
+  "name.$**": 1,
+});
+
 DeliveryAreaSchema.index(
-  { branch: 1, code: 1 },
-  { unique: true, sparse: true },
+  {
+    branch: 1,
+    slug: 1,
+  },
+  {
+    unique: true,
+    sparse: true,
+  },
 );
 
-const DeliveryAreaModel = mongoose.model("DeliveryArea", DeliveryAreaSchema);
+const DeliveryArea = mongoose.model("DeliveryArea", DeliveryAreaSchema);
 
-export default DeliveryAreaModel;
+export default DeliveryArea;

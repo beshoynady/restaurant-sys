@@ -35,6 +35,13 @@ const DiscountSettingsSchema = new mongoose.Schema(
       // true => any discount above maxManualDiscount needs manager approval
     },
 
+    approvalThreshold: {
+      type: Number,
+      default: 20, // % discount above which manager approval is required
+      min: 0,
+      max: 100,
+    },
+
     // =========================
     // Discount scope
     // =========================
@@ -48,8 +55,31 @@ const DiscountSettingsSchema = new mongoose.Schema(
       default: true,
       // Allow discount on the total invoice
     },
+
+    status: {
+      type: String,
+      enum: ["active", "inactive", "suspended"],
+      default: "active",
+    },
+    // ================================
+    // AUDIT
+    // ================================
+
+    createdBy: { type: ObjectId, ref: "UserAccount", required: true },
+    updatedBy: { type: ObjectId, ref: "UserAccount", default: null },
+
+    // Soft delete fields
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    deletedAt: {
+      type: Date,
+      default: null,
+    },
+    deletedBy: { type: ObjectId, ref: "UserAccount" },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Ensure one settings document per brand/branch

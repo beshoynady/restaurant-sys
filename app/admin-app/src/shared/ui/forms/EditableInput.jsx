@@ -1,3 +1,5 @@
+// src/shared/ui/forms/EditableInput.jsx
+
 export default function EditableInput({
   label,
   value,

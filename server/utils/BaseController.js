@@ -1,3 +1,22 @@
+/* -------------------------------------------------------------------------- */
+/*                               BaseController                               */
+/* -------------------------------------------------------------------------- */
+/*
+ * Generic controller layer for all resources.
+ *
+ * Features:
+ * - CRUD endpoints
+ * - Brand scoped operations
+ * - Soft delete support
+ * - Bulk operations
+ * - Pagination
+ * - Search
+ * - Filtering
+ * - Sorting
+ * - Consistent API responses
+ * - Async error handling
+ */
+
 import asyncHandler from "./asyncHandler.js";
 
 class BaseController {
@@ -5,9 +24,32 @@ class BaseController {
     this.service = service;
   }
 
-  // =========================
-  // 🔹 CREATE
-  // =========================
+  /* -------------------------------------------------------------------------- */
+  /*                                Response Helper                             */
+  /* -------------------------------------------------------------------------- */
+
+  sendResponse(
+    res,
+    {
+      success = true,
+      message = null,
+      data = null,
+      meta = null,
+      statusCode = 200,
+    } = {},
+  ) {
+    return res.status(statusCode).json({
+      success,
+      message,
+      data,
+      meta,
+    });
+  }
+
+  /* -------------------------------------------------------------------------- */
+  /*                                   Create                                   */
+  /* -------------------------------------------------------------------------- */
+
   create = asyncHandler(async (req, res) => {
     const { brandId, userId } = req.user;
 
@@ -15,62 +57,78 @@ class BaseController {
       brandId,
       data: req.body,
       createdBy: userId,
-      uniqueFields: req.uniqueFields || [],
-      lang: req.lang,
-      fieldsWithLang: req.fieldsWithLang || [],
     });
 
-    res.status(201).json({
-      success: true,
+    return this.sendResponse(res, {
+      statusCode: 201,
+      message: "Created successfully",
       data,
     });
   });
 
-  // =========================
-  // 🔹 GET ALL
-  // =========================
+  /* -------------------------------------------------------------------------- */
+  /*                                   Get All                                  */
+  /* -------------------------------------------------------------------------- */
+
   getAll = asyncHandler(async (req, res) => {
     const { brandId } = req.user;
 
+    const {
+      page = 1,
+      limit = 10,
+      search = "",
+      includeDeleted = false,
+      sort,
+      select,
+    } = req.query;
+
+    const filters = { ...req.query };
+
+    delete filters.page;
+    delete filters.limit;
+    delete filters.search;
+    delete filters.includeDeleted;
+    delete filters.sort;
+    delete filters.select;
+
     const result = await this.service.getAll({
       brandId,
-      filter: req.filter || {},
-      page: Number(req.query.page) || 1,
-      limit: Number(req.query.limit) || 10,
-      sort: req.query.sort,
-      search: req.query.search,
-      populate: req.populate || [],
-      includeDeleted: req.query.includeDeleted === "true",
+      page: Number(page),
+      limit: Number(limit),
+      search,
+      filters,
+      sort,
+      select,
+      includeDeleted: includeDeleted === "true",
     });
 
-    res.json({
-      success: true,
-      ...result,
+    return this.sendResponse(res, {
+      data: result.data,
+      meta: result.pagination,
     });
   });
 
-  // =========================
-  // 🔹 GET BY ID
-  // =========================
+  /* -------------------------------------------------------------------------- */
+  /*                                  Get One                                   */
+  /* -------------------------------------------------------------------------- */
+
   getOne = asyncHandler(async (req, res) => {
     const { brandId } = req.user;
 
     const data = await this.service.findById({
       id: req.params.id,
       brandId,
-      populate: req.populate || [],
-      includeDeleted: req.query.includeDeleted === "true",
     });
 
-    res.json({
-      success: true,
+    return this.sendResponse(res, {
       data,
     });
   });
 
-  // =========================
-  // 🔹 UPDATE
-  // =========================
+  /* -------------------------------------------------------------------------- */
+  /*                                   Update                                   */
+  /* -------------------------------------------------------------------------- */
+
   update = asyncHandler(async (req, res) => {
     const { brandId, userId } = req.user;
 
@@ -79,84 +137,134 @@ class BaseController {
       brandId,
       data: req.body,
       updatedBy: userId,
-      uniqueFields: req.uniqueFields || [],
     });
 
-    res.json({
-      success: true,
+    return this.sendResponse(res, {
+      message: "Updated successfully",
       data,
     });
   });
 
-  // =========================
-  // 🔹 SOFT DELETE
-  // =========================
+  /* -------------------------------------------------------------------------- */
+  /*                                Soft Delete                                 */
+  /* -------------------------------------------------------------------------- */
+
   softDelete = asyncHandler(async (req, res) => {
     const { brandId, userId } = req.user;
 
-    const data = await this.service.softDelete(req.params.id, brandId, userId);
+    const data = await this.service.softDelete({
+      id: req.params.id,
+      brandId,
+      deletedBy: userId,
+    });
 
-    res.json({
-      success: true,
+    return this.sendResponse(res, {
+      message: "Deleted successfully",
       data,
     });
   });
 
-  // =========================
-  // 🔹 RESTORE
-  // =========================
+  /* -------------------------------------------------------------------------- */
+  /*                                  Restore                                   */
+  /* -------------------------------------------------------------------------- */
+
   restore = asyncHandler(async (req, res) => {
-    const { brandId, userId } = req.user;
-
-    const data = await this.service.restore(req.params.id, brandId, userId);
-
-    res.json({
-      success: true,
-      data,
-    });
-  });
-
-  // =========================
-  // 🔹 HARD DELETE
-  // =========================
-  hardDelete = asyncHandler(async (req, res) => {
     const { brandId } = req.user;
 
-    await this.service.hardDelete(req.params.id, brandId);
+    const data = await this.service.restore({
+      id: req.params.id,
+      brandId,
+    });
 
-    res.json({
-      success: true,
-      message: "Deleted successfully",
+    return this.sendResponse(res, {
+      message: "Restored successfully",
+      data,
     });
   });
 
-  // =========================
-  // 🔹 BULK SOFT DELETE
-  // =========================
+  /* -------------------------------------------------------------------------- */
+  /*                                Hard Delete                                 */
+  /* -------------------------------------------------------------------------- */
+
+  hardDelete = asyncHandler(async (req, res) => {
+    await this.service.hardDelete({
+      id: req.params.id,
+    });
+
+    return this.sendResponse(res, {
+      message: "Deleted permanently",
+    });
+  });
+
+  /* -------------------------------------------------------------------------- */
+  /*                             Bulk Soft Delete                               */
+  /* -------------------------------------------------------------------------- */
+
   bulkSoftDelete = asyncHandler(async (req, res) => {
     const { brandId, userId } = req.user;
-    const { ids } = req.body;
 
-    const count = await this.service.bulkSoftDelete(ids, brandId, userId);
+    const { ids = [] } = req.body;
 
-    res.json({
-      success: true,
-      message: `${count} records soft deleted`,
+    const result = await this.service.bulkSoftDelete({
+      ids,
+      brandId,
+      deletedBy: userId,
+    });
+
+    return this.sendResponse(res, {
+      message: "Resources deleted",
+      data: result,
     });
   });
 
-  // =========================
-  // 🔹 BULK HARD DELETE
-  // =========================
-  bulkHardDelete = asyncHandler(async (req, res) => {
+  /* -------------------------------------------------------------------------- */
+  /*                               Bulk Restore                                 */
+  /* -------------------------------------------------------------------------- */
+
+  bulkRestore = asyncHandler(async (req, res) => {
     const { brandId } = req.user;
-    const { ids } = req.body;
 
-    const count = await this.service.bulkHardDelete(ids, brandId);
+    const { ids = [] } = req.body;
 
-    res.json({
-      success: true,
-      message: `${count} records deleted`,
+    const result = await this.service.bulkRestore({
+      ids,
+      brandId,
+    });
+
+    return this.sendResponse(res, {
+      message: "Resources restored",
+      data: result,
+    });
+  });
+
+  /* -------------------------------------------------------------------------- */
+  /*                             Bulk Hard Delete                               */
+  /* -------------------------------------------------------------------------- */
+
+  bulkHardDelete = asyncHandler(async (req, res) => {
+    const { ids = [] } = req.body;
+
+    const result = await this.service.bulkHardDelete(ids);
+
+    return this.sendResponse(res, {
+      message: "Resources deleted permanently",
+      data: result,
+    });
+  });
+
+  /* -------------------------------------------------------------------------- */
+  /*                                   Count                                    */
+  /* -------------------------------------------------------------------------- */
+
+  count = asyncHandler(async (req, res) => {
+    const { brandId } = req.user;
+
+    const total = await this.service.count({
+      brandId,
+    });
+
+    return this.sendResponse(res, {
+      data: { total },
     });
   });
 }

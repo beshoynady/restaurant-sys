@@ -1,10 +1,6 @@
 // utils/generateUniqueSlug.js
-
 import slugify from "slugify";
 
-/**
- * Generate UNIQUE slug for ANY model
- */
 const generateUniqueSlug = async ({
   name = {},
   model,
@@ -13,74 +9,37 @@ const generateUniqueSlug = async ({
   excludeId = null,
   includeDeleted = false,
 }) => {
-  // -----------------------------
-  // 1. Choose best language
-  // -----------------------------
-  let source = null;
+  let source =
+    name.EN ||
+    Object.entries(name).find(([k]) => k !== "AR")?.[1] ||
+    name.AR ||
+    "item";
 
-  if (name.EN) {
-    source = name.EN;
-  } else {
-    const nonArabic = Object.entries(name).find(
-      ([key, value]) => key !== "AR" && value
-    );
-
-    source = nonArabic?.[1] || name.AR;
-  }
-
-  if (!source) source = "item";
-
-  // -----------------------------
-  // 2. Generate base slug
-  // -----------------------------
   let baseSlug = slugify(source, {
     lower: true,
     strict: true,
-    trim: true,
   });
 
-  if (!baseSlug) {
-    baseSlug = `item-${Date.now()}`;
-  }
-
-  // -----------------------------
-  // 3. Prepare query
-  // -----------------------------
-  const baseQuery = {
+  const query = {
     ...(brandId && { brand: brandId }),
     ...(excludeId && { _id: { $ne: excludeId } }),
+    ...(includeDeleted ? {} : { isDeleted: false }),
   };
 
-  if (!includeDeleted) {
-    baseQuery.isDeleted = false;
-  }
-
-  // -----------------------------
-  // 4. Find all similar slugs ONCE
-  // -----------------------------
-  const existingSlugs = await model
-    .find({
-      ...baseQuery,
-      [field]: { $regex: `^${baseSlug}` },
-    })
+  const existing = await model
+    .find({ ...query, [field]: new RegExp(`^${baseSlug}`) })
     .select(field)
     .lean();
 
-  if (!existingSlugs.length) return baseSlug;
+  if (!existing.length) return baseSlug;
 
-  const slugSet = new Set(existingSlugs.map((doc) => doc[field]));
+  const set = new Set(existing.map((x) => x[field]));
 
-  let counter = 1;
+  let i = 1;
   let slug = baseSlug;
 
-  while (slugSet.has(slug)) {
-    slug = `${baseSlug}-${counter++}`;
-
-    // safety limit
-    if (counter > 1000) {
-      slug = `${baseSlug}-${Date.now()}`;
-      break;
-    }
+  while (set.has(slug)) {
+    slug = `${baseSlug}-${i++}`;
   }
 
   return slug;

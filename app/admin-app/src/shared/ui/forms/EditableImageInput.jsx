@@ -1,3 +1,4 @@
+// src/shared/ui/forms/EditableImageInput.jsx
 /**
  * Logo URL editor with preview.
  */

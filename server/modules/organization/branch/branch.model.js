@@ -2,6 +2,16 @@ import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema.Types;
 const { Schema } = mongoose;
 
+const multilingualString = {
+  type: Map,
+  of: {
+    type: String,
+    trim: true,
+    minlength: 2,
+    maxlength: 100,
+  },
+};
+
 const branchSchema = new mongoose.Schema(
   {
     brand: {
@@ -30,14 +40,21 @@ const branchSchema = new mongoose.Schema(
       match: /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
     },
 
+    code: {
+      type: String,
+      trim: true,
+      uppercase: true,
+      maxlength: 20,
+    },
+
     address: {
-      type: Map,
-      of: {
-        country: String,
-        city: String,
-        area: String,
-        street: String,
-      },
+      country: multilingualString,
+      city: multilingualString,
+      area: multilingualString,
+      street: multilingualString,
+      building: multilingualString,
+      floor: multilingualString,
+      landmark: multilingualString,
     },
 
     // 🔥 GEO LOCATION (Google Maps)
@@ -45,10 +62,12 @@ const branchSchema = new mongoose.Schema(
       type: {
         type: String,
         enum: ["Point"],
+        default: "Point",
       },
 
       coordinates: {
         type: [Number],
+        default: [0, 0],
       },
     },
 
@@ -62,11 +81,11 @@ const branchSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    // manager reference for branch-level management and permissions 
+    // manager reference for branch-level management and permissions
     manager: {
       type: ObjectId,
       ref: "UserAccount",
-    },  
+    },
 
     taxIdentificationNumber: {
       type: String,

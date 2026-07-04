@@ -1,209 +1,369 @@
-// utils/joiFactory.js
+/* -------------------------------------------------------------------------- */
+/*                                 joiFactory                                 */
+/* -------------------------------------------------------------------------- */
+/*
+ * Generic Joi validation factory for Mongoose schemas.
+ *
+ * Supported:
+ * - String
+ * - Number
+ * - Boolean
+ * - Date
+ * - ObjectId
+ * - Multi-language Maps
+ * - Arrays
+ * - Nested Objects
+ * - Create / Update validation
+ * - Query validation
+ * - Bulk IDs validation
+ */
 
 import Joi from "joi";
 import mongoose from "mongoose";
 
 const { ObjectId } = mongoose.Types;
 
-/* =========================
-   Helpers
-========================= */
+/* -------------------------------------------------------------------------- */
+/*                           MongoDB ObjectId Validator                       */
+/* -------------------------------------------------------------------------- */
 
 export const objectId = (allowNull = false) => {
-  let schema = Joi.string().custom((value, helpers) => {
-    if (!ObjectId.isValid(value)) {
-      return helpers.message("Invalid ObjectId format");
-    }
-    return value;
-  });
-
-  return allowNull ? schema.allow(null) : schema;
-};
-
-export const objectIdArray = () =>
-  Joi.array().items(objectId()).min(1);
-
-/* =========================
-   MultiLang (Improved)
-========================= */
-
-export const multiLang = (options = {}, required = false) => {
-  let valueValidator = Joi.string().trim();
-
-  if (options.minlength)
-    valueValidator = valueValidator.min(options.minlength);
-
-  if (options.maxlength)
-    valueValidator = valueValidator.max(options.maxlength);
-
-  let schema = Joi.object()
-    .pattern(
-      Joi.string().length(2).uppercase(), // dynamic languages
-      valueValidator
-    )
-    .min(1);
-
-  return required ? schema.required() : schema;
-};
-
-/* =========================
-   Core Builder
-========================= */
-
-export const buildJoiSchema = (mongooseSchema, options = {}) => {
-  const joiSchema = {};
-  const paths = mongooseSchema.paths;
-
-  const excludedFields = options.exclude || [
-    "__v",
-    "_id",
-    "createdAt",
-    "updatedAt",
-  ];
-
-  Object.keys(paths).forEach((key) => {
-    if (excludedFields.includes(key)) return;
-    if (key.includes(".")) return;
-
-    const field = paths[key];
-    let validator;
-
-    switch (field.instance) {
-      case "String":
-        validator = Joi.string().trim();
-
-        if (field.options.minlength)
-          validator = validator.min(field.options.minlength);
-
-        if (field.options.maxlength)
-          validator = validator.max(field.options.maxlength);
-
-        if (field.options.enum)
-          validator = validator.valid(...field.options.enum);
-
-        if (field.options.match)
-          validator = validator.pattern(field.options.match);
-
-        if (field.options.required)
-          validator = validator.required();
-
-        break;
-
-      case "Number":
-        validator = Joi.number();
-
-        if (field.options.min != null)
-          validator = validator.min(field.options.min);
-
-        if (field.options.max != null)
-          validator = validator.max(field.options.max);
-
-        if (field.options.required)
-          validator = validator.required();
-
-        break;
-
-      case "Boolean":
-        validator = Joi.boolean();
-        if (field.options.required) validator = validator.required();
-        break;
-
-      case "Date":
-        validator = Joi.date();
-        if (field.options.required) validator = validator.required();
-        break;
-
-      case "ObjectId":
-        validator = objectId(field.options.default === null);
-        if (field.options.required) validator = validator.required();
-        break;
-
-      case "Map": {
-        const mapOptions = field.$__schemaType?.options || {};
-        validator = multiLang(mapOptions, field.options.required);
-        break;
+  let schema = Joi.string()
+    .trim()
+    .custom((value, helpers) => {
+      if (!ObjectId.isValid(value)) {
+        return helpers.error("any.invalid");
       }
 
-      case "Array":
-        if (field.caster?.instance === "ObjectId") {
-          validator = Joi.array().items(objectId());
-        } else if (field.caster?.instance === "String") {
-          validator = Joi.array().items(Joi.string());
-        } else if (field.caster?.instance === "Number") {
-          validator = Joi.array().items(Joi.number());
-        } else {
-          validator = Joi.array().items(Joi.any());
-        }
+      return value;
+    })
+    .messages({
+      "any.invalid": "Invalid ObjectId format",
+    });
 
-        if (field.options.required) validator = validator.required();
-        break;
+  if (allowNull) {
+    schema = schema.allow(null);
+  }
 
-      case "Embedded":
-      case "Subdocument":
-        validator = Joi.object(
-          buildJoiSchema(field.schema, options)
-        );
-        if (field.options.required) validator = validator.required();
-        break;
+  return schema;
+};
 
-      default:
-        validator = Joi.any();
-        if (field.options.required) validator = validator.required();
+/* -------------------------------------------------------------------------- */
+/*                          Multi Language Validator                          */
+/* -------------------------------------------------------------------------- */
+
+export const multiLang = (options = {}, required = false) => {
+  let valueSchema = Joi.string().trim();
+
+  if (options.minlength) {
+    valueSchema = valueSchema.min(options.minlength);
+  }
+
+  if (options.maxlength) {
+    valueSchema = valueSchema.max(options.maxlength);
+  }
+
+  let schema = Joi.object()
+    .pattern(Joi.string().length(2).uppercase(), valueSchema)
+    .min(1);
+
+  if (required) {
+    schema = schema.required();
+  }
+
+  return schema;
+};
+
+/* -------------------------------------------------------------------------- */
+/*                        Array Validator Builder                             */
+/* -------------------------------------------------------------------------- */
+
+const buildArrayValidator = (field) => {
+  const caster = field.caster;
+
+  if (!caster) {
+    return Joi.array();
+  }
+
+  switch (caster.instance) {
+    case "String": {
+      let validator = Joi.string().trim();
+
+      if (caster.options?.enum) {
+        validator = validator.valid(...caster.options.enum);
+      }
+
+      return Joi.array().items(validator);
     }
 
-    joiSchema[key] = validator;
+    case "Number":
+      return Joi.array().items(Joi.number());
+
+    case "Boolean":
+      return Joi.array().items(Joi.boolean());
+
+    case "ObjectId":
+      return Joi.array().items(objectId());
+
+    default:
+      return Joi.array().items(Joi.any());
+  }
+};
+
+/* -------------------------------------------------------------------------- */
+/*                        Nested Object Builder                               */
+/* -------------------------------------------------------------------------- */
+
+const buildNestedSchema = (nestedObject, mode = "create") => {
+  const fields = {};
+
+  Object.entries(nestedObject).forEach(([key, value]) => {
+    if (
+      value &&
+      typeof value === "object" &&
+      !Array.isArray(value) &&
+      !value.type
+    ) {
+      fields[key] = buildNestedSchema(value, mode);
+    } else {
+      fields[key] = Joi.any();
+    }
   });
 
-  return Joi.object(joiSchema).unknown(false);
+  return Joi.object(fields);
 };
 
-/* =========================
-   Schema Generators
-========================= */
+/* -------------------------------------------------------------------------- */
+/*                         Single Field Validator                             */
+/* -------------------------------------------------------------------------- */
 
-export const createSchema = (mongooseSchema) => {
-  return buildJoiSchema(mongooseSchema);
+const buildFieldValidator = (field, mode = "create") => {
+  let validator;
+
+  switch (field.instance) {
+    /* ---------------------------- String ---------------------------- */
+
+    case "String":
+      validator = Joi.string().trim();
+
+      if (field.options.enum) {
+        validator = validator.valid(...field.options.enum);
+      }
+
+      if (field.options.minlength) {
+        validator = validator.min(field.options.minlength);
+      }
+
+      if (field.options.maxlength) {
+        validator = validator.max(field.options.maxlength);
+      }
+
+      if (field.options.match) {
+        validator = validator.pattern(field.options.match);
+      }
+
+      break;
+
+    /* ---------------------------- Number ---------------------------- */
+
+    case "Number":
+      validator = Joi.number();
+
+      if (field.options.min !== undefined) {
+        validator = validator.min(field.options.min);
+      }
+
+      if (field.options.max !== undefined) {
+        validator = validator.max(field.options.max);
+      }
+
+      break;
+
+    /* ---------------------------- Boolean --------------------------- */
+
+    case "Boolean":
+      validator = Joi.boolean();
+      break;
+
+    /* ----------------------------- Date ----------------------------- */
+
+    case "Date":
+      validator = Joi.date();
+      break;
+
+    /* --------------------------- ObjectId --------------------------- */
+
+    case "ObjectId":
+      validator = objectId(field.options.default === null);
+      break;
+
+    /* ----------------------------- Map ------------------------------ */
+
+    case "Map":
+      validator = multiLang(
+        field.$__schemaType?.options || {},
+        field.options.required,
+      );
+      break;
+
+    /* ----------------------------- Array ---------------------------- */
+
+    case "Array":
+      validator = buildArrayValidator(field);
+      break;
+
+    default:
+      validator = Joi.any();
+  }
+
+  if (mode === "create" && field.options.required) {
+    validator = validator.required();
+  }
+
+  if (mode === "update") {
+    validator = validator.optional();
+  }
+
+  return validator;
 };
 
-export const updateSchema = (mongooseSchema, extraRequired = []) => {
-  const schema = buildJoiSchema(mongooseSchema);
+/* -------------------------------------------------------------------------- */
+/*                         Build Joi Schema                                   */
+/* -------------------------------------------------------------------------- */
 
-  const allowedFields = Object.keys(mongooseSchema.paths).filter(
-    (key) =>
-      !["_id", "__v", "createdAt", "updatedAt"].includes(key) &&
-      !key.includes(".")
-  );
+export const buildJoiSchema = (
+  mongooseSchema,
+  { mode = "create", exclude = [] } = {},
+) => {
+  const schemaFields = {};
 
-  let updated = schema.fork(allowedFields, (field) =>
-    field.optional()
-  );
+  const excludedFields = [
+    "_id",
+    "__v",
 
-  const requiredFields = {
-    id: objectId().required(),
-  };
+    "createdAt",
+    "updatedAt",
 
-  extraRequired.forEach((field) => {
-    requiredFields[field] = objectId().required();
+    "createdBy",
+    "updatedBy",
+
+    "deletedAt",
+    "deletedBy",
+    "isDeleted",
+
+    ...exclude,
+  ];
+
+  Object.entries(mongooseSchema.paths).forEach(([key, field]) => {
+    if (excludedFields.includes(key)) {
+      return;
+    }
+
+    if (key.includes(".")) {
+      return;
+    }
+
+    schemaFields[key] = buildFieldValidator(field, mode);
   });
 
-  return updated.min(1).keys(requiredFields);
+  let schema = Joi.object(schemaFields).prefs({
+    stripUnknown: true,
+  });
+
+  if (mode === "update") {
+    schema = schema.min(1);
+  }
+
+  return schema;
 };
+
+/* -------------------------------------------------------------------------- */
+/*                             Create Schema                                  */
+/* -------------------------------------------------------------------------- */
+
+export const createSchema = (mongooseSchema, options = {}) =>
+  buildJoiSchema(mongooseSchema, {
+    mode: "create",
+    ...options,
+  });
+
+/* -------------------------------------------------------------------------- */
+/*                             Update Schema                                  */
+/* -------------------------------------------------------------------------- */
+
+export const updateSchema = (mongooseSchema, options = {}) =>
+  buildJoiSchema(mongooseSchema, {
+    mode: "update",
+    ...options,
+  });
+
+/* -------------------------------------------------------------------------- */
+/*                           Route Params Schema                              */
+/* -------------------------------------------------------------------------- */
 
 export const paramsSchema = () =>
   Joi.object({
     id: objectId().required(),
   });
 
-export const paramsIdsSchema = () =>
+/* -------------------------------------------------------------------------- */
+/*                             Bulk IDs Schema                                */
+/* -------------------------------------------------------------------------- */
+
+export const bulkIdsSchema = () =>
   Joi.object({
     ids: Joi.array().items(objectId()).min(1).required(),
   });
 
+/* -------------------------------------------------------------------------- */
+/*                              Query Schema                                  */
+/* -------------------------------------------------------------------------- */
+
 export const querySchema = () =>
   Joi.object({
-    limit: Joi.number().min(1).max(100).default(10),
-    skip: Joi.number().min(0).default(0),
-    search: Joi.string().trim().min(1).max(100).optional(),
-    sortBy: Joi.string().optional(),
-    order: Joi.string().valid("asc", "desc").optional(),
+    page: Joi.number().integer().min(1).default(1),
+
+    limit: Joi.number().integer().min(1).max(100).default(10),
+
+    search: Joi.string().trim().allow("").optional(),
+
+    sort: Joi.string().optional(),
+
+    select: Joi.string().optional(),
+
+    includeDeleted: Joi.boolean().optional(),
   });
+
+/* -------------------------------------------------------------------------- */
+/*                           Bulk IDs Validation                              */
+/* -------------------------------------------------------------------------- */
+/*
+ * Used for:
+ * - bulkSoftDelete
+ * - bulkRestore
+ * - bulkHardDelete
+ */
+
+export const paramsIdsSchema = () =>
+  Joi.object({
+    ids: Joi.array().items(objectId()).min(1).required().messages({
+      "array.base": "ids must be an array",
+      "array.min": "At least one id is required",
+      "any.required": "ids field is required",
+    }),
+  });
+/* -------------------------------------------------------------------------- */
+/*                                  Export                                    */
+/* -------------------------------------------------------------------------- */
+
+export default {
+  objectId,
+  multiLang,
+  buildJoiSchema,
+  createSchema,
+  updateSchema,
+  paramsSchema,
+  bulkIdsSchema,
+  querySchema,
+  paramsIdsSchema,
+};

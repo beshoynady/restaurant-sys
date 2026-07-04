@@ -12,11 +12,13 @@ import ProtectedRoute from "../guards/ProtectedRoute";
 import LoadingPage from "../../shared/ui/loading/LoadingPage.jsx";
 
 // Brand
-// import BrandProfilePage from "../../modules/brand/pages/BrandProfilePage.jsx";
-import BrandProfilePage from "../../modules/brand/pages/BrandPage.jsx";
+import BrandProfilePage from "../../modules/brand/pages/BrandProfilePage.jsx";
+// import BrandProfilePage from "../../modules/brand/pages/BrandPage.jsx";
 
 import BranchProfilePage from "../../modules/branch/pages/BranchProfilePage.jsx";
+// import BranchProfilePage from "../../modules/branches/pages/BranchFormPage.jsx";
 
+import AdvancedSettingsPage from "../../modules/AdvancedSettings/pages/AdvancedSettingsPage.jsx";
 // ================= LAYOUTS =================
 const DashboardLayout = lazy(
   () => import("../../layouts/dashboard/DashboardLayout.jsx"),
@@ -34,6 +36,8 @@ const KOTPage = lazy(() => import("../../modules/kitchen/pages/KDSPage.jsx"));
 const EmployeesPage = lazy(
   () => import("../../modules/employees/pages/EmployeesPage.jsx"),
 );
+
+const OrdersPage = lazy(() => import("../../modules/OrdersDashboard/pages/OrdersDashboardPage.jsx"));
 
 const NotFound = () => (
   <div className="flex h-screen items-center justify-center text-2xl font-bold">
@@ -79,13 +83,13 @@ export default function AppRoutes() {
         {/* =====================================
             FIRST TIME SETUP
         ===================================== */}
-        {!isSetupCompleted ? (
+        {/* {!isSetupCompleted ? ( */}
           <>
             <Route path="/setup" element={<SetupPage />} />
 
             <Route path="*" element={<Navigate to="/setup" replace />} />
           </>
-        ) : (
+        {/* ) : ( */}
           <>
             {/* =====================================
                 AUTH
@@ -109,9 +113,11 @@ export default function AppRoutes() {
               {/* Brand */}
               <Route path="brand" element={<BrandProfilePage />} />
               <Route path="branches" element={<BranchProfilePage />} />
+              <Route path="advanced-settings" element={<AdvancedSettingsPage />} />
 
               {/* Employees */}
               <Route path="employees" element={<EmployeesPage />} />
+              <Route path="orders" element={<OrdersPage />} />
             </Route>
 
             {/* =====================================
@@ -134,7 +140,7 @@ export default function AppRoutes() {
             ===================================== */}
             <Route path="*" element={<NotFound />} />
           </>
-        )}
+        {/* )} */}
       </Routes>
     </Suspense>
   );
