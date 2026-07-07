@@ -23,6 +23,8 @@
 import mongoose from "mongoose";
 import throwError from "./throwError.js";
 
+const escapeRegex = (text = "") => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 class BaseService {
   constructor(
     model,
@@ -86,9 +88,11 @@ class BaseService {
       return query;
     }
 
+    const keyword = escapeRegex(search.trim());
+
     query.$or = this.searchableFields.map((field) => ({
       [field]: {
-        $regex: search,
+        $regex: keyword,
         $options: "i",
       },
     }));
@@ -102,12 +106,19 @@ class BaseService {
   sanitizeUpdatePayload(data = {}) {
     const payload = { ...data };
 
-    delete payload.createdAt;
-    delete payload.createdBy;
+    [
+      "_id",
+      "__v",
 
-    delete payload.deletedAt;
-    delete payload.deletedBy;
-    delete payload.isDeleted;
+      "brand",
+
+      "createdAt",
+      "createdBy",
+
+      "deletedAt",
+      "deletedBy",
+      "isDeleted",
+    ].forEach((field) => delete payload[field]);
 
     return payload;
   }
@@ -118,9 +129,9 @@ class BaseService {
   applyPopulate(query, populate = []) {
     const finalPopulate = populate.length > 0 ? populate : this.defaultPopulate;
 
-    finalPopulate.forEach((item) => {
+    for (const item of finalPopulate) {
       query.populate(item);
-    });
+    }
 
     return query;
   }
@@ -141,6 +152,14 @@ class BaseService {
   }
 
   async afterUpdate(document) {
+    return document;
+  }
+
+  async beforeDelete(document) {
+    return document;
+  }
+
+  async afterDelete(document) {
     return document;
   }
 
@@ -181,6 +200,9 @@ class BaseService {
     populate = [],
     includeDeleted = false,
   } = {}) {
+    page = Math.max(Number(page) || 1, 1);
+    limit = Math.min(Math.max(Number(limit) || 10, 1), 100);
+
     const skip = (page - 1) * limit;
 
     let query = this.buildBaseQuery({
@@ -191,22 +213,26 @@ class BaseService {
 
     query = this.applySearch(query, search);
 
-    let mongooseQuery = this.model
-      .find(query)
-      .skip(skip)
-      .limit(limit)
-      .sort(sort || this.defaultSort);
+    let mongooseQuery = this.model.find(query);
 
     if (select) {
-      mongooseQuery.select(select);
+      mongooseQuery = mongooseQuery.select(select);
     }
 
     mongooseQuery = this.applyPopulate(mongooseQuery, populate);
+
+    mongooseQuery = mongooseQuery
+      .sort(sort || this.defaultSort)
+      .skip(skip)
+      .limit(limit)
+      .lean();
 
     const [data, total] = await Promise.all([
       mongooseQuery,
       this.model.countDocuments(query),
     ]);
+
+    const totalPages = Math.ceil(total / limit);
 
     return {
       data,
@@ -214,8 +240,8 @@ class BaseService {
         page,
         limit,
         total,
-        totalPages: Math.ceil(total / limit),
-        hasNextPage: page * limit < total,
+        totalPages,
+        hasNextPage: page < totalPages,
         hasPreviousPage: page > 1,
       },
     };
@@ -234,13 +260,15 @@ class BaseService {
   }) {
     this.validateObjectId(id);
 
-    let query = this.model.findOne({
-      _id: id,
-      ...this.buildBaseQuery({
-        brandId,
-        includeDeleted,
-      }),
-    });
+    let query = this.model
+      .findOne({
+        _id: id,
+        ...this.buildBaseQuery({
+          brandId,
+          includeDeleted,
+        }),
+      })
+      .lean();
 
     if (select) {
       query.select(select);
@@ -272,22 +300,24 @@ class BaseService {
 
     payload = await this.beforeUpdate(payload);
 
-    const document = await this.model.findOneAndUpdate(
-      {
-        _id: id,
-        ...this.buildBaseQuery({
-          brandId,
-        }),
-      },
-      {
-        $set: payload,
-      },
-      {
-        new: true,
-        session,
-        runValidators: true,
-      },
-    );
+    const document = await this.model
+      .findOneAndUpdate(
+        {
+          _id: id,
+          ...this.buildBaseQuery({
+            brandId,
+          }),
+        },
+        {
+          $set: payload,
+        },
+        {
+          new: true,
+          runValidators: true,
+          session,
+        },
+      )
+      .lean();
 
     if (!document) {
       throw throwError("Resource not found", 404);
@@ -303,25 +333,27 @@ class BaseService {
   async softDelete({ id, brandId, deletedBy = null, session = null }) {
     this.validateObjectId(id);
 
-    const document = await this.model.findOneAndUpdate(
-      {
-        _id: id,
-        ...this.buildBaseQuery({
-          brandId,
-        }),
-      },
-      {
-        $set: {
-          isDeleted: true,
-          deletedAt: new Date(),
-          deletedBy,
+    const document = await this.model
+      .findOneAndUpdate(
+        {
+          _id: id,
+          ...this.buildBaseQuery({
+            brandId,
+          }),
         },
-      },
-      {
-        new: true,
-        session,
-      },
-    );
+        {
+          $set: {
+            isDeleted: true,
+            deletedAt: new Date(),
+            deletedBy,
+          },
+        },
+        {
+          new: true,
+          session,
+        },
+      )
+      .lean();
 
     if (!document) {
       throw throwError("Resource not found", 404);
@@ -337,26 +369,28 @@ class BaseService {
   async restore({ id, brandId, session = null }) {
     this.validateObjectId(id);
 
-    const document = await this.model.findOneAndUpdate(
-      {
-        _id: id,
-        ...this.buildBaseQuery({
-          brandId,
-          includeDeleted: true,
-        }),
-      },
-      {
-        $set: {
-          isDeleted: false,
-          deletedAt: null,
-          deletedBy: null,
+    const document = await this.model
+      .findOneAndUpdate(
+        {
+          _id: id,
+          ...this.buildBaseQuery({
+            brandId,
+            includeDeleted: true,
+          }),
         },
-      },
-      {
-        new: true,
-        session,
-      },
-    );
+        {
+          $set: {
+            isDeleted: false,
+            deletedAt: null,
+            deletedBy: null,
+          },
+        },
+        {
+          new: true,
+          session,
+        },
+      )
+      .lean();
 
     if (!document) {
       throw throwError("Resource not found", 404);
@@ -369,10 +403,15 @@ class BaseService {
   /*                                Hard Delete                                 */
   /* -------------------------------------------------------------------------- */
 
-  async hardDelete({ id, session = null }) {
+  async hardDelete({ id, brandId = null, session = null }) {
     this.validateObjectId(id);
 
-    return this.model.deleteOne({ _id: id }, { session });
+    return this.model
+      .deleteOne({
+        _id: id,
+        ...(this.brandScoped && brandId ? { brand: brandId } : {}),
+      })
+      .session(session);
   }
 
   /* -------------------------------------------------------------------------- */
@@ -424,9 +463,10 @@ class BaseService {
   /*                             Bulk Hard Delete                               */
   /* -------------------------------------------------------------------------- */
 
-  async bulkHardDelete(ids) {
+  async bulkHardDelete({ ids, brandId = null }) {
     return this.model.deleteMany({
       _id: { $in: ids },
+      ...(this.brandScoped && brandId ? { brand: brandId } : {}),
     });
   }
 
@@ -447,10 +487,11 @@ class BaseService {
   /*                                    Count                                   */
   /* -------------------------------------------------------------------------- */
 
-  async count({ brandId, filters = {} }) {
+  async count({ brandId, filters = {}, includeDeleted = false }) {
     return this.model.countDocuments(
       this.buildBaseQuery({
         brandId,
+        includeDeleted,
         filters,
       }),
     );
