@@ -1,3 +1,10 @@
+// server/modules/hr/employee-advance/employee-advance.model.js
+
+/* Employee Advance Model
+This model represents an employee advance, which is a financial transaction where an employee receives funds in advance of their regular salary or wages. The model includes details about the advance, such as the total amount, repayment frequency and duration, installment amounts, and the status of the advance (e.g., Draft, Approved, Active, Completed, Cancelled). It also tracks the employee who received the advance, the branch and brand associated with the advance, and any related financial transactions and payments.
+*/
+
+
 import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 

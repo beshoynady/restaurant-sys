@@ -102,6 +102,7 @@ import reservationRouter from "../../modules/seating/reservation/reservation.rou
 // LOYALTY
 // ========================
 import loyaltyRouter from "../../modules/loyalty/customer-loyalty/customer-loyalty.router.js";
+import auditLogRouter from "../../modules/audit-log/audit-log.router.js";
 
 
 // ========================
@@ -191,6 +192,11 @@ router.use("/sales/invoices", invoiceRouter);
 // Seating
 router.use("/seating/tables", tableRouter);
 router.use("/seating/reservations", reservationRouter);
+
+/* ========================
+   AUDIT LOG
+======================== */
+router.use("/audit-logs", auditLogRouter);
 
 // Loyalty
 router.use("/loyalty", loyaltyRouter);

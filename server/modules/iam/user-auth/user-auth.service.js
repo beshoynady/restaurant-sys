@@ -1,10 +1,8 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import throwError from "../../../utils/throwError.js";
+import { signAccessToken, signRefreshToken } from "../../../utils/jwt.utils.js";
 import User from "../user-account/user-account.model.js";
-
-const ACCESS_EXPIRE = process.env.ACCESS_TOKEN_EXPIRES || "15m";
-const REFRESH_EXPIRE = process.env.REFRESH_TOKEN_EXPIRES || "7d";
 
 class AuthService {
   async login({ identifier, password }) {
@@ -32,8 +30,8 @@ class AuthService {
 
     return {
       user: this.sanitize(user),
-      accessToken: this.generateAccessToken(user),
-      refreshToken: this.generateRefreshToken(user),
+      accessToken: signAccessToken(user),
+      refreshToken: signRefreshToken(user),
     };
   }
 
@@ -50,35 +48,17 @@ class AuthService {
 
     const user = await User.findById(payload.id);
 
-    if (!user) throwError("User not found", 404);
+    if (!user || user.isDeleted) {
+      throwError("User not found", 404);
+    }
+
+    if (!user.isActive) {
+      throwError("User inactive", 403);
+    }
 
     return {
-      accessToken: this.generateAccessToken(user),
+      accessToken: signAccessToken(user),
     };
-  }
-
-  generateAccessToken(user) {
-    return jwt.sign(
-      {
-        id: user._id.toString(),
-        brand: user.brand?.toString(),
-        role: user.role?.toString(),
-        branch: user.branch?.toString(),
-      },
-      process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: ACCESS_EXPIRE },
-    );
-  }
-
-  generateRefreshToken(user) {
-    return jwt.sign(
-      {
-        id: user._id.toString(),
-        brand: user.brand?.toString(),
-      },
-      process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: REFRESH_EXPIRE },
-    );
   }
 
   sanitize(user) {

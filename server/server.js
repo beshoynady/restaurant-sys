@@ -9,6 +9,7 @@ import path from "path";
 import { initSocket } from "./socket/socket.js";
 import notFound from "./middlewares/notFound.js";
 import errorHandler from "./middlewares/errorHandler.js";
+import auditLogger from "./middlewares/auditLogger.js";
 
 import routerV1 from "./router/v1/index.router.js";
 // Import database connection
@@ -81,6 +82,11 @@ const limiter = rateLimit({
   trustProxy: false,
 });
 app.use("/api/v1", limiter);
+
+// -------------------
+// AUDIT LOGGER
+// -------------------
+app.use(auditLogger);
 
 // -------------------
 // ROUTES
