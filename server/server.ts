@@ -7,7 +7,7 @@ import cookieParser from "cookie-parser";
 import http from "http";
 import path from "path";
 
-import { initSocket } from "./socket/socket.js";
+import { initSocket } from "./socket/socket.ts";
 
 import notFound from "./middlewares/notFound.ts";
 import errorHandler from "./middlewares/errorHandler.ts";

@@ -1,4 +1,4 @@
-import express from "express";
+import express, { type Request, type Response } from "express";
 const router = express.Router();
 
 
@@ -108,7 +108,7 @@ import auditLogRouter from "../../modules/audit-log/audit-log.router.js";
 // ========================
 // HEALTH CHECK
 // ========================
-router.get("/health", (req, res) => {
+router.get("/health", (_req: Request, res: Response) => {
   res.status(200).json({
     success: true,
     message: "API is running 🚀",
