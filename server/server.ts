@@ -1,0 +1,118 @@
+import express from "express";
+import cors from "cors";
+import rateLimit from "express-rate-limit";
+import dotenv from "dotenv";
+import helmet from "helmet";
+import cookieParser from "cookie-parser";
+import http from "http";
+import path from "path";
+
+import { initSocket } from "./socket/socket.js";
+
+import notFound from "./middlewares/notFound.ts";
+import errorHandler from "./middlewares/errorHandler.ts";
+import auditLogger from "./middlewares/auditLogger.ts";
+
+import routerV1 from "./router/v1/index.router.ts";
+import connectDB from "./database/connect-db.js";
+
+// Load environment variables
+dotenv.config();
+
+// Connect to MongoDB
+connectDB();
+
+const app = express();
+const frontEnd = process.env.FRONT_END_URL;
+
+// -------------------
+// SECURITY MIDDLEWARE
+// -------------------
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: false,
+  }),
+);
+
+// -------------------
+// MIDDLEWARE SETUP
+// -------------------
+app.use(express.json({ limit: "100kb" }));
+app.use(cookieParser());
+
+// -------------------
+// CORS CONFIG
+// -------------------
+const allowedOrigins = ["http://localhost:5173", frontEnd];
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, origin);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
+
+// -------------------
+// STATIC FILES
+// -------------------
+app.use("/", express.static("public"));
+app.use("/images", express.static("images"));
+
+// -------------------
+// TEST ENDPOINT
+// -------------------
+app.get("/", (req, res) => res.send("Welcome to the server!"));
+
+// -------------------
+// RATE LIMITING
+// -------------------
+  const limiter = rateLimit({
+    windowMs: 1 * 60 * 1000, // 1 minute
+    limit: 100, // max 100 requests per minute
+    standardHeaders: "draft-7",
+    legacyHeaders: false,
+  });
+app.use("/api/v1", limiter);
+
+// -------------------
+// AUDIT LOGGER
+// -------------------
+app.use(auditLogger);
+
+// -------------------
+// ROUTES
+// -------------------
+app.use("/api/v1", routerV1);
+
+// -------------------
+// ERROR HANDLING
+// -------------------
+app.use(notFound);
+app.use(errorHandler);
+
+// -------------------
+// HTTP SERVER
+// -------------------
+const server = http.createServer(app);
+
+// Initialize Socket.IO with the HTTP server
+initSocket(server);
+
+// -------------------
+// START SERVER
+// -------------------
+const port = process.env.PORT || 8000;
+server.listen(port, () => {
+  // eslint-disable-next-line no-console
+  console.log(
+    `🚀 Server is running on port ${port} in ${process.env.NODE_ENV} mode`,
+  );
+});

@@ -1,12 +1,34 @@
 import ShiftModel from "./shift.model.js";
 import AdvancedService from "../../../utils/BaseService.js";
 
-// Initialize service for shift model
+/**
+ * Shift Service
+ * Notes (EN):
+ * - Uses BaseService to provide: brand scoping, pagination, soft delete, populate, search & filters.
+ * - Search uses MongoDB regex against `searchableFields`.
+ * - `name` is stored as a multilang Map => search via dot-notation (name.EN / name.AR).
+ */
 const shiftService = new AdvancedService(ShiftModel, {
   brandScoped: true,
-  softDelete: true,
-  defaultPopulate: ["brand","branch","createdBy","updatedBy","deletedBy"],
-  searchFields: [], // specify searchable fields if needed
+  enableSoftDelete: true,
+
+  defaultPopulate: [
+    "brand",
+    "branch",
+    "createdBy",
+    "updatedBy",
+    "deletedBy",
+  ],
+
+  // EN: search fields for BaseService (regex on MongoDB)
+  searchableFields: [
+    "code",
+    "status",
+    "shiftType",
+    "name.EN",
+    "name.AR",
+  ],
+
   defaultSort: { createdAt: -1 },
 });
 

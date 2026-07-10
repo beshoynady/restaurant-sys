@@ -1,5 +1,11 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../../utils/joiFactory.js";
+import {
+  createSchema,
+  updateSchema,
+  paramsSchema,
+  paramsIdsSchema,
+  querySchema,
+} from "../../../utils/joiFactory.js";
 import ShiftModel from "./shift.model.js";
 
 /* =========================
@@ -10,10 +16,9 @@ export const createShiftSchema = createSchema(ShiftModel.schema);
 /* =========================
    Update Schema
 ========================= */
-export const updateShiftSchema = updateSchema(
-  ShiftModel.schema,
-  ["updatedBy"]
-);
+export const updateShiftSchema = updateSchema(ShiftModel.schema, [
+  "updatedBy",
+]);
 
 /* =========================
    Params Schema
@@ -25,8 +30,20 @@ export const paramsShiftSchema = paramsSchema();
 ========================= */
 export const paramsShiftIdsSchema = paramsIdsSchema();
 
-
 /* =========================
-   Query Schema
+   Query Schema (HR Filters)
 ========================= */
-export const queryShiftSchema = querySchema();
+/**
+ * Notes (EN):
+ * - BaseController.getAll passes ALL req.query keys as `filters` (excluding page/limit/search/includeDeleted/sort/select).
+ * - querySchema() is strict (unknown(false)), so we must explicitly allow filter fields used by frontend.
+ */
+export const queryShiftSchema = querySchema({
+  // ObjectId filters (stored as strings in query params)
+  branch: Joi.string().optional(),
+
+  // String filters
+  code: Joi.string().trim().optional(),
+  status: Joi.string().trim().optional(),
+  shiftType: Joi.string().trim().optional(),
+});

@@ -9,7 +9,6 @@ const shiftSchema = new mongoose.Schema(
       ref: "Brand",
       required: true,
       index: true,
-      
     },
 
     // Branch reference (for multi-branch systems)
@@ -18,20 +17,19 @@ const shiftSchema = new mongoose.Schema(
       ref: "Branch",
       required: true,
       index: true,
-      
     },
 
     // Localized display name for the shift
     name: {
-  type: Map,
-  of: {
-    type: String,
-    trim: true,
-    minlength: 2,
-    maxlength: 100,
-  },
-  required: true,
-},
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      required: true,
+    },
 
     // Unique internal code for business logic & uniqueness
     code: {
@@ -41,7 +39,6 @@ const shiftSchema = new mongoose.Schema(
       uppercase: true,
       minlength: 2,
       maxlength: 20,
-      
     },
 
     // Type of shift
@@ -49,7 +46,6 @@ const shiftSchema = new mongoose.Schema(
       type: String,
       enum: ["morning", "afternoon", "night", "custom", "flexible", "other"],
       required: true,
-      
     },
 
     // Start time of shift in minutes from midnight (0-1439)
@@ -58,7 +54,6 @@ const shiftSchema = new mongoose.Schema(
       required: true,
       min: 0,
       max: 1439,
-      
     },
 
     // End time of shift in minutes from midnight (0-1439)
@@ -67,7 +62,6 @@ const shiftSchema = new mongoose.Schema(
       required: true,
       min: 0,
       max: 1439,
-      
     },
 
     // Current operational status
@@ -76,7 +70,6 @@ const shiftSchema = new mongoose.Schema(
       enum: ["draft", "active", "inactive", "archived"],
       default: "draft",
       index: true,
-      
     },
 
     // Additional notes for the shift
@@ -84,7 +77,6 @@ const shiftSchema = new mongoose.Schema(
       type: String,
       trim: true,
       maxlength: 500,
-      
     },
 
     // Audit fields
@@ -92,27 +84,23 @@ const shiftSchema = new mongoose.Schema(
       type: ObjectId,
       ref: "UserAccount",
       required: true,
-      
     },
 
     updatedBy: {
       type: ObjectId,
       ref: "UserAccount",
       default: null,
-      
     },
 
     deletedBy: {
       type: ObjectId,
       ref: "UserAccount",
       default: null,
-      
     },
 
     deletedAt: {
       type: Date,
       default: null,
-      
     },
   },
   {
