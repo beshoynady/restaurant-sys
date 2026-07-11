@@ -12,7 +12,15 @@
     "strict": true,
     "noEmit": true,
     "types": ["node"],
-    "rootDir": "."
+    "rootDir": ".",
+
+    // Type-check only (noEmit above) — tsx remains the dev/runtime tool.
+    // These three speed up repeated `tsc --noEmit` runs and give ts-aware
+    // tools (editor, future test runner) real source maps to work with,
+    // without introducing an actual build/dist step.
+    "incremental": true,
+    "tsBuildInfoFile": "./.tsbuildinfo",
+    "sourceMap": true
   },
   "include": ["./**/*.ts"],
   "exclude": ["node_modules", "dist"]

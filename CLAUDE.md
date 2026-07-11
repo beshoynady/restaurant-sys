@@ -17,7 +17,9 @@ That document is the architectural source of truth — SaaS multi-tenancy model 
 Two levels, English, technical and concise, aimed at a programmer picking up the code:
 
 1. **Server-level doc** — [server/BACKEND_FOUNDATION.md](server/BACKEND_FOUNDATION.md). Covers the foundation layer: what changed in the 2026-07-11 review, why, how the request pipeline/`BaseService`/`BaseController`/RBAC/feature-toggle/multi-tenancy work now, and the mandatory checklist for building any new module on top of it. Read this before touching `server/`.
-2. **Per-module doc** (one file per entity, e.g. `modules/hr/employee/EMPLOYEE.module.md` — already-existing examples to follow as the template): business purpose, schema field/relationship reference, endpoints with required permissions, non-CRUD business logic, related settings.
+2. **[server/ARCHITECTURE_REVIEW.md](server/ARCHITECTURE_REVIEW.md)** — structural + business architecture review: naming issues, domain-boundary problems, duplicate/legacy trees, module classification, entity state machines, business rules, ownership/source-of-truth, event catalog, ERP gap analysis, and readiness ratings for every module. Analysis only — frozen as the architecture reference, nothing in it has been implemented.
+3. **[server/IMPLEMENTATION_PLAN.md](server/IMPLEMENTATION_PLAN.md)** — the execution roadmap derived from the Architecture Review: foundation tasks, the full refactoring backlog (title/priority/risk/affected files per item), module build order with rationale, settings-implementation scheduling, phase-by-phase plan (7 phases), risks, and success criteria. This is what to follow when implementation actually starts — check here before picking up any task.
+4. **Per-module doc** (one file per entity, e.g. `modules/hr/employee/EMPLOYEE.module.md` — already-existing examples to follow as the template): business purpose, schema field/relationship reference, endpoints with required permissions, non-CRUD business logic, related settings.
 
 Per-module docs not yet written for most modules — build incrementally, matching the template, rather than inventing a new format per module.
 
@@ -36,7 +38,7 @@ A full architectural review of the infrastructure layer (bootstrap, middlewares,
 
 **Still open:**
 8. Order → Invoice → Accounting → Inventory is not connected end-to-end — no code creates JournalEntry postings or deducts stock from invoices/orders yet.
-9. JS↔TS migration strategy for the `modules/**` business layer (controllers/services/models/routers) is still undecided — that layer remains 100% JS by design for now.
+9. ~~JS↔TS migration strategy undecided~~ — **decided 2026-07-11**: TypeScript is now the project's official language. Existing `modules/**` stay JS until each module comes up for rebuild in `IMPLEMENTATION_PLAN.md`'s order; every new module, and every rebuilt module, is written entirely in TypeScript (no mixed JS/TS within one module). Full detail: `server/BACKEND_FOUNDATION.md` §5. TypeScript itself was downgraded from `7.0.2` to `5.9.3` (stable) for tooling compatibility — see the same section for why. ESLint + Prettier are now configured (`npm run lint`/`typecheck`/`format`); testing infrastructure (Jest/etc.) is intentionally postponed to a later phase, not part of this change.
 10. Duplicate/legacy trees not yet resolved: `modules/setup/*` (legacy, mostly dead) vs `modules/system-setup/*` (live); `modules/audit-log/*` (live) vs `modules/system/audit-log/*` (abandoned scaffold).
 
 **New pattern to follow for any new module going forward:** every router must chain `authenticateToken, authorize("<ResourceEnumValue>", "<action>"), checkModuleEnabled("<brandSettingsModuleKey>"), validate(schema), controller.method` — copy this order from any router under `modules/sales/`, `modules/accounting/`, etc.

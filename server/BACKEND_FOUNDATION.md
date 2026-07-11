@@ -181,8 +181,71 @@ Checklist before opening a PR for a new module:
 4. **Mount the router** in `router/v1/index.router.ts`, following the existing grouped-by-domain layout with a comment header.
 5. **Don't reuse the legacy trees** (`modules/setup/*`, `modules/system/audit-log/*`) as a reference — they're dead/abandoned; use `modules/system-setup/*` and `modules/audit-log/*` instead.
 6. **Business logic goes in the service** (lifecycle hooks or custom methods), never in the controller or router.
-7. Keep the module JS (not TS) for now, consistent with every other module — the module-layer TS migration is a separate, not-yet-decided initiative (see `CLAUDE.md`).
+7. **Write the module entirely in TypeScript.** This is now decided (see §5 below) — every new module, and every existing module when it gets rebuilt, is 100% TypeScript. Never mix `.js` and `.ts` files within the same module folder.
 8. Write module documentation as a single `<ENTITY>.module.md` in English next to the module's files, following `modules/hr/employee/EMPLOYEE.module.md` as the template (business purpose, schema reference, endpoints + required permissions, non-CRUD business logic, related settings).
+
+---
+
+## 5. TypeScript, Linting & Formatting Strategy
+
+Added 2026-07-11 as a dedicated foundation-upgrade pass, separate from the middleware/RBAC work in §1–§4. Scope was deliberately narrow: tooling only — **no business module under `modules/**` was touched** to produce this section.
+
+### 5.1 TypeScript version — pinned to 5.x, not the newest major
+
+The project's `typescript` devDependency was `^7.0.2` (Microsoft's new native/Go-ported compiler line) before this pass. It was **downgraded to `^5.9.3`** (the latest stable 5.x release) and will intentionally stay on the 5.x line until the ecosystem catches up.
+
+**Why:** `typescript-eslint` (and, when the testing phase is introduced later, `ts-jest`) declare a peer-dependency ceiling that TypeScript 7 already exceeds (`typescript-eslint@8.63.0` requires `>=4.8.4 <6.1.0`). Installing on top of TS7 would have required `--legacy-peer-deps`, silently accepting an unverified combination in a project where "stability first" was the explicit driver for this whole foundation-upgrade phase. TS7 is designed to be behaviorally compatible with TS5.x type-checking, so it likely would have worked — but "likely" isn't the bar for an ERP handling real money and stock movement. Re-evaluate this pin when `typescript-eslint` (and, later, the chosen test runner) officially support TypeScript 7.
+
+### 5.2 Type-checking configuration (`tsconfig.json`)
+
+Still `noEmit: true` — **there is no build/dist step and none is planned**; `tsx` remains the sole way the project runs, in dev and via `npm start` alike. `tsc` is used only as a type-checker (`npm run typecheck`), not a compiler. Added in this pass, all purely to make repeated type-checking faster/more informative without introducing a build step:
+- `incremental: true` + `tsBuildInfoFile: "./.tsbuildinfo"` — caches type-check state between runs.
+- `sourceMap: true` — accurate stack traces from any tool that reads them (editor, future test runner), even though nothing is emitted to disk today.
+
+`NodeNext` module resolution (unchanged, already correct): relative imports in `.ts` files use a `.js` extension even when only a `.ts` file exists on disk (e.g. `import OrderModel from "./order.model.js"` when only `order.model.ts` exists) — this is standard NodeNext behavior, not a mistake. **This is different from the self-referential-import bug found and fixed in §1** (`utils/BaseService.ts` deleted): that bug was specifically about a `.ts` file importing a `.js` specifier while a `.js` file of the *identical* name also existed — a same-basename collision. A brand-new module where only the `.ts` file exists has no such collision and resolves correctly.
+
+Path aliases (`@modules/*`, `@utils/*`, etc.) were considered and **deliberately deferred** — `tsx`/Node's ESM loader doesn't resolve TypeScript's `compilerOptions.paths` natively, and introducing aliases now (with zero TS business modules yet written) would add a second import convention with no real user. Revisit when the first module is actually rebuilt in TypeScript.
+
+### 5.3 Module-by-module TypeScript migration rule
+
+This is the authoritative rule — restated from §4.2 item 7:
+
+- **Existing modules stay JavaScript** until they come up for rebuild/refactor in `IMPLEMENTATION_PLAN.md`'s module order. Nothing was converted in this pass.
+- **Every new module, and every module rebuilt from now on, is written entirely in TypeScript** — model, service, controller, router, and validation files all `.ts`.
+- **A module must never contain a mix of `.js` and `.ts` files.** If a module is being rebuilt, convert all 5 files in the same change, not incrementally file-by-file.
+- Infrastructure (`middlewares/`, `utils/`, `router/v1/`) is already TypeScript from the earlier foundation review and is unaffected by this rule.
+
+### 5.4 ESLint (`eslint.config.js`, flat config)
+
+Two independent rule sets in one config, split by file extension — this reflects that `.js` files are an established, unaudited legacy codebase and `.ts` files are held to the standard the project is committing to going forward:
+
+- **`**/*.js`** — `@eslint/js` `recommended` rules, with `no-unused-vars`/`no-empty`/`no-constant-condition` downgraded to `warn` (not `error`) specifically because the existing ~570-file codebase predates this config and would otherwise fail loudly on established, working patterns. No type-aware rules apply (JS isn't type-checked).
+- **`**/*.ts`** — `typescript-eslint`'s `strictTypeChecked` + `stylisticTypeChecked` presets (full strict, type-aware linting), using `parserOptions.projectService: true` against `tsconfig.json`.
+- `eslint-config-prettier` is applied last, disabling any ESLint stylistic rule that would fight Prettier's formatting.
+- **Introducing this config did not auto-fix anything.** Running `npm run lint` today will report real findings on the pre-existing `.ts` infrastructure files (e.g. `middlewares/authenticate.ts` — ~54 findings, mostly `no-unsafe-*`/`no-explicit-any` from `(req as any)` casts written before this lint config existed) and, more sparsely, on `.js` files. These are **known, accepted findings, not regressions** — they are not fixed as part of this pass (that would violate "don't touch business modules / don't auto-fix"); they're a worklist for whenever those specific files are next touched.
+
+### 5.5 Prettier (`.prettierrc.json`, `.prettierignore`)
+
+`semi: true, singleQuote: false, trailingComma: "all", printWidth: 100, tabWidth: 2, endOfLine: "lf"` — chosen to match the double-quote/semicolon style already dominant across the existing codebase, to minimize the diff on any file the moment `--write` is eventually run on it. `format`/`format:check` scripts exist; **neither was run against the existing codebase** — `format:check` will currently report differences on most files, same reasoning as §5.4.
+
+### 5.6 npm scripts added
+
+```
+npm run typecheck     # tsc --noEmit -p tsconfig.json
+npm run lint          # eslint .
+npm run lint:fix      # eslint . --fix   (explicit opt-in, never run automatically)
+npm run format        # prettier --write .   (explicit opt-in, never run automatically)
+npm run format:check  # prettier --check .
+```
+
+No test script was added or changed in this pass — testing infrastructure (Jest/Vitest/Supertest/etc.) is explicitly postponed to a later phase per `IMPLEMENTATION_PLAN.md`.
+
+### 5.7 Folder & import conventions (for future TypeScript modules)
+
+- Folder layout unchanged: `modules/<domain>/<entity>/` — the TS migration does not change directory structure, only file extensions within already-established locations.
+- Relative imports, `.js` extension on the specifier even in `.ts` source files (§5.2) — this matches the pattern already used by every existing `.ts` infrastructure file; do not deviate per-module.
+- No path aliases yet (§5.2) — use relative paths (`../../../utils/BaseService.js` etc.) exactly as the JS modules do today, for consistency until aliases are revisited.
+- Prefer real types over `any` in new TypeScript modules — `strictTypeChecked` will flag `any` usage; the existing `.ts` infra files' `any`-heavy patterns are legacy, not the standard to copy going forward.
 
 ---
 

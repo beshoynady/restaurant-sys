@@ -1,0 +1,8 @@
+node_modules
+dist
+uploads
+public
+images
+*.zip
+.tsbuildinfo
+package-lock.json
