@@ -46,6 +46,7 @@ export const RESOURCE_ENUM = [
   "InvoiceSettings",
   "OrderSettings",
   "SalesReturns",
+  "SalesReturnSettings",
   "Promotions",
   "ProductReviews",
 
@@ -53,12 +54,14 @@ export const RESOURCE_ENUM = [
   "PreparationTickets",
   "PreparationSections",
   "PreparationReturns",
+  "PreparationReturnSettings",
   "PreparationTicketSettings",
 
   // ================= INVENTORY =================
   "StockItems",
   "StockCategories",
   "Inventory",
+  "InventorySettings",
   "InventoryCounts",
   "StockLedgers",
   "StockTransferRequests",
@@ -117,6 +120,7 @@ export const RESOURCE_ENUM = [
 
   // ================= LOYALTY =================
   "CustomerLoyalty",
+  "LoyaltySettings",
 
   // ================= SEATING =================
   "Tables",

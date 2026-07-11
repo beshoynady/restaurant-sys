@@ -10,7 +10,17 @@ const ShiftSettingsSchema = new mongoose.Schema({
 
   allowNegativeCash: { type: Boolean, default: false },
 
-  maxDifferenceAllowed: { type: Number, default: 50 }
+  maxDifferenceAllowed: { type: Number, default: 50 },
+
+  createdBy: { type: ObjectId, ref: "UserAccount", default: null },
+  updatedBy: { type: ObjectId, ref: "UserAccount", default: null },
+
+  isDeleted: { type: Boolean, default: false },
+  deletedAt: { type: Date, default: null },
+  deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
 }, { timestamps: true });
+
+// One settings document per brand+branch (branch: null = brand-wide)
+ShiftSettingsSchema.index({ brand: 1, branch: 1 }, { unique: true });
 
 export default mongoose.model("ShiftSettings", ShiftSettingsSchema);

@@ -1,47 +1,49 @@
 import express from "express";
-import inventorySettingsController from "../../controllers/inventory/inventory-settings.controller.js";
+import inventorySettingsController from "./inventory-settings.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
+import authorize from "../../../middlewares/authorize.js";
+import checkModuleEnabled from "../../../middlewares/checkModuleEnabled.js";
 import validate from "../../../middlewares/validate.js";
-import { 
-  createInventorySettingsSchema, 
-  updateInventorySettingsSchema, 
-  paramsInventorySettingsSchema, 
+import {
+  createInventorySettingsSchema,
+  updateInventorySettingsSchema,
+  paramsInventorySettingsSchema,
   paramsInventorySettingsIdsSchema,
-  queryInventorySettingsSchema 
-} from "../../validation/inventory/inventory-settings.validation.js";
+  queryInventorySettingsSchema
+} from "./inventory-settings.validation.js";
 
 const router = express.Router();
 
 // Create & GetAll
 router.route("/")
-  .post(authenticateToken, validate(createInventorySettingsSchema), inventorySettingsController.create)
-  .get(authenticateToken, validate(queryInventorySettingsSchema), inventorySettingsController.getAll)
+  .post(authenticateToken, authorize("InventorySettings", "create"), checkModuleEnabled("inventory"), validate(createInventorySettingsSchema), inventorySettingsController.create)
+  .get(authenticateToken, authorize("InventorySettings", "read"), checkModuleEnabled("inventory"), validate(queryInventorySettingsSchema), inventorySettingsController.getAll)
 ;
 
 // GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, validate(paramsInventorySettingsSchema), inventorySettingsController.getOne)
-  .put(authenticateToken, validate(updateInventorySettingsSchema), inventorySettingsController.update)
-  .delete(authenticateToken, validate(paramsInventorySettingsSchema), inventorySettingsController.hardDelete) // soft delete
+  .get(authenticateToken, authorize("InventorySettings", "read"), checkModuleEnabled("inventory"), validate(paramsInventorySettingsSchema), inventorySettingsController.getOne)
+  .put(authenticateToken, authorize("InventorySettings", "update"), checkModuleEnabled("inventory"), validate(updateInventorySettingsSchema), inventorySettingsController.update)
+  .delete(authenticateToken, authorize("InventorySettings", "delete"), checkModuleEnabled("inventory"), validate(paramsInventorySettingsSchema), inventorySettingsController.hardDelete)
 ;
 
 router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsInventorySettingsSchema), inventorySettingsController.softDelete) // soft delete
+  .patch(authenticateToken, authorize("InventorySettings", "delete"), checkModuleEnabled("inventory"), validate(paramsInventorySettingsSchema), inventorySettingsController.softDelete)
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsInventorySettingsSchema), inventorySettingsController.restore)
+  .patch(authenticateToken, authorize("InventorySettings", "update"), checkModuleEnabled("inventory"), validate(paramsInventorySettingsSchema), inventorySettingsController.restore)
 ;
 
  // --- BULK HARD DELETE ---
   router.route("/bulk-delete")
-    .delete(authenticateToken, validate(paramsInventorySettingsIdsSchema), inventorySettingsController.bulkHardDelete);
+    .delete(authenticateToken, authorize("InventorySettings", "delete"), checkModuleEnabled("inventory"), validate(paramsInventorySettingsIdsSchema), inventorySettingsController.bulkHardDelete);
 
 
   // --- BULK SOFT DELETE ---
   router.route("/bulk-soft-delete")
-    .patch(authenticateToken,validate(paramsInventorySettingsIdsSchema), inventorySettingsController.bulkSoftDelete);
+    .patch(authenticateToken, authorize("InventorySettings", "delete"), checkModuleEnabled("inventory"), validate(paramsInventorySettingsIdsSchema), inventorySettingsController.bulkSoftDelete);
 
 
 export default router;

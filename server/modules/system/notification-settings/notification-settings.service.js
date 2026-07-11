@@ -4,9 +4,10 @@ import AdvancedService from "../../../utils/BaseService.js";
 // Initialize service for notification-settings model
 const notificationSettingsService = new AdvancedService(NotificationSettingsModel, {
   brandScoped: true,
-  softDelete: true,
+  branchScoped: true,
+  enableSoftDelete: true,
   defaultPopulate: ["brand","branch","createdBy","updatedBy"],
-  searchFields: [], // specify searchable fields if needed
+  searchableFields: [],
   defaultSort: { createdAt: -1 },
 });
 

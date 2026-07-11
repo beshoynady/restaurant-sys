@@ -217,6 +217,10 @@ const PurchaseSettingsSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null },
+    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
   { timestamps: true }
 );

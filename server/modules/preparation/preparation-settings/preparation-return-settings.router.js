@@ -1,47 +1,49 @@
 import express from "express";
-import preparationReturnSettingsController from "../../controllers/kitchen/preparation-return-settings.controller.js";
+import preparationReturnSettingsController from "./preparation-return-settings.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
+import authorize from "../../../middlewares/authorize.js";
+import checkModuleEnabled from "../../../middlewares/checkModuleEnabled.js";
 import validate from "../../../middlewares/validate.js";
-import { 
-  createPreparationReturnSettingsSchema, 
-  updatePreparationReturnSettingsSchema, 
-  paramsPreparationReturnSettingsSchema, 
+import {
+  createPreparationReturnSettingsSchema,
+  updatePreparationReturnSettingsSchema,
+  paramsPreparationReturnSettingsSchema,
   paramsPreparationReturnSettingsIdsSchema,
-  queryPreparationReturnSettingsSchema 
-} from "../../validation/kitchen/preparation-return-settings.validation.js";
+  queryPreparationReturnSettingsSchema
+} from "./preparation-return-settings.validation.js";
 
 const router = express.Router();
 
 // Create & GetAll
 router.route("/")
-  .post(authenticateToken, validate(createPreparationReturnSettingsSchema), preparationReturnSettingsController.create)
-  .get(authenticateToken, validate(queryPreparationReturnSettingsSchema), preparationReturnSettingsController.getAll)
+  .post(authenticateToken, authorize("PreparationReturnSettings", "create"), checkModuleEnabled("preparation"), validate(createPreparationReturnSettingsSchema), preparationReturnSettingsController.create)
+  .get(authenticateToken, authorize("PreparationReturnSettings", "read"), checkModuleEnabled("preparation"), validate(queryPreparationReturnSettingsSchema), preparationReturnSettingsController.getAll)
 ;
 
 // GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, validate(paramsPreparationReturnSettingsSchema), preparationReturnSettingsController.getOne)
-  .put(authenticateToken, validate(updatePreparationReturnSettingsSchema), preparationReturnSettingsController.update)
-  .delete(authenticateToken, validate(paramsPreparationReturnSettingsSchema), preparationReturnSettingsController.hardDelete) // soft delete
+  .get(authenticateToken, authorize("PreparationReturnSettings", "read"), checkModuleEnabled("preparation"), validate(paramsPreparationReturnSettingsSchema), preparationReturnSettingsController.getOne)
+  .put(authenticateToken, authorize("PreparationReturnSettings", "update"), checkModuleEnabled("preparation"), validate(updatePreparationReturnSettingsSchema), preparationReturnSettingsController.update)
+  .delete(authenticateToken, authorize("PreparationReturnSettings", "delete"), checkModuleEnabled("preparation"), validate(paramsPreparationReturnSettingsSchema), preparationReturnSettingsController.hardDelete)
 ;
 
 router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsPreparationReturnSettingsSchema), preparationReturnSettingsController.softDelete) // soft delete
+  .patch(authenticateToken, authorize("PreparationReturnSettings", "delete"), checkModuleEnabled("preparation"), validate(paramsPreparationReturnSettingsSchema), preparationReturnSettingsController.softDelete)
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsPreparationReturnSettingsSchema), preparationReturnSettingsController.restore)
+  .patch(authenticateToken, authorize("PreparationReturnSettings", "update"), checkModuleEnabled("preparation"), validate(paramsPreparationReturnSettingsSchema), preparationReturnSettingsController.restore)
 ;
 
  // --- BULK HARD DELETE ---
   router.route("/bulk-delete")
-    .delete(authenticateToken, validate(paramsPreparationReturnSettingsIdsSchema), preparationReturnSettingsController.bulkHardDelete);
+    .delete(authenticateToken, authorize("PreparationReturnSettings", "delete"), checkModuleEnabled("preparation"), validate(paramsPreparationReturnSettingsIdsSchema), preparationReturnSettingsController.bulkHardDelete);
 
 
   // --- BULK SOFT DELETE ---
   router.route("/bulk-soft-delete")
-    .patch(authenticateToken,validate(paramsPreparationReturnSettingsIdsSchema), preparationReturnSettingsController.bulkSoftDelete);
+    .patch(authenticateToken, authorize("PreparationReturnSettings", "delete"), checkModuleEnabled("preparation"), validate(paramsPreparationReturnSettingsIdsSchema), preparationReturnSettingsController.bulkSoftDelete);
 
 
 export default router;

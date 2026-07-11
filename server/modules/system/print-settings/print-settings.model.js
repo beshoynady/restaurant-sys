@@ -56,4 +56,8 @@ const PrintSettingsSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+// One settings document per brand+branch (was missing entirely — nothing
+// prevented duplicate PrintSettings docs for the same branch).
+PrintSettingsSchema.index({ brand: 1, branch: 1 }, { unique: true });
+
 export default mongoose.model("PrintSettings", PrintSettingsSchema);

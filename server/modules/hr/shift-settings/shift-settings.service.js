@@ -4,9 +4,10 @@ import AdvancedService from "../../../utils/BaseService.js";
 // Initialize service for shift-settings model
 const shiftSettingsService = new AdvancedService(ShiftSettingsModel, {
   brandScoped: true,
-  softDelete: true,
-  defaultPopulate: ["brand","branch"],
-  searchFields: [], // specify searchable fields if needed
+  branchScoped: true,
+  enableSoftDelete: true,
+  defaultPopulate: ["brand", "branch"],
+  searchableFields: [],
   defaultSort: { createdAt: -1 },
 });
 

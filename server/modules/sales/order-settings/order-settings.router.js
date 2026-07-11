@@ -1,6 +1,8 @@
 import express from "express";
 import orderSettingsController from "./order-settings.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
+import authorize from "../../../middlewares/authorize.js";
+import checkModuleEnabled from "../../../middlewares/checkModuleEnabled.js";
 import validate from "../../../middlewares/validate.js";
 import { 
   createOrderSettingsSchema, 
@@ -14,34 +16,52 @@ const router = express.Router();
 
 // Create & GetAll
 router.route("/")
-  .post(authenticateToken, validate(createOrderSettingsSchema), orderSettingsController.create)
-  .get(authenticateToken, validate(queryOrderSettingsSchema), orderSettingsController.getAll)
+  .post(authenticateToken,
+    authorize("OrderSettings", "create"),
+    checkModuleEnabled("sales"), validate(createOrderSettingsSchema), orderSettingsController.create)
+  .get(authenticateToken,
+    authorize("OrderSettings", "read"),
+    checkModuleEnabled("sales"), validate(queryOrderSettingsSchema), orderSettingsController.getAll)
 ;
 
 // GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, validate(paramsOrderSettingsSchema), orderSettingsController.getOne)
-  .put(authenticateToken, validate(updateOrderSettingsSchema), orderSettingsController.update)
-  .delete(authenticateToken, validate(paramsOrderSettingsSchema), orderSettingsController.hardDelete) // soft delete
+  .get(authenticateToken,
+    authorize("OrderSettings", "read"),
+    checkModuleEnabled("sales"), validate(paramsOrderSettingsSchema), orderSettingsController.getOne)
+  .put(authenticateToken,
+    authorize("OrderSettings", "update"),
+    checkModuleEnabled("sales"), validate(updateOrderSettingsSchema), orderSettingsController.update)
+  .delete(authenticateToken,
+    authorize("OrderSettings", "delete"),
+    checkModuleEnabled("sales"), validate(paramsOrderSettingsSchema), orderSettingsController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsOrderSettingsSchema), orderSettingsController.softDelete) // soft delete
+  .patch(authenticateToken,
+    authorize("OrderSettings", "delete"),
+    checkModuleEnabled("sales"), validate(paramsOrderSettingsSchema), orderSettingsController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsOrderSettingsSchema), orderSettingsController.restore)
+  .patch(authenticateToken,
+    authorize("OrderSettings", "update"),
+    checkModuleEnabled("sales"), validate(paramsOrderSettingsSchema), orderSettingsController.restore)
 ;
 
  // --- BULK HARD DELETE ---
   router.route("/bulk-delete")
-    .delete(authenticateToken, validate(paramsOrderSettingsIdsSchema), orderSettingsController.bulkHardDelete);
+    .delete(authenticateToken,
+    authorize("OrderSettings", "delete"),
+    checkModuleEnabled("sales"), validate(paramsOrderSettingsIdsSchema), orderSettingsController.bulkHardDelete);
 
 
   // --- BULK SOFT DELETE ---
   router.route("/bulk-soft-delete")
-    .patch(authenticateToken,validate(paramsOrderSettingsIdsSchema), orderSettingsController.bulkSoftDelete);
+    .patch(authenticateToken,
+    authorize("OrderSettings", "delete"),
+    checkModuleEnabled("sales"),validate(paramsOrderSettingsIdsSchema), orderSettingsController.bulkSoftDelete);
 
 
 export default router;

@@ -4,8 +4,9 @@ import express from "express";
 import LoyaltySettingsController from "./loyalty-settings.controller.js";
 
 import authenticateToken from "../../../middlewares/authenticate.js";
-import { authenticateCustomerToken } from "../../../middlewares/authenticate-customer.js";
+import authenticateCustomerToken from "../../../middlewares/authenticate-customer.js";
 import authorize from "../../../middlewares/authorize.js";
+import checkModuleEnabled from "../../../middlewares/checkModuleEnabled.js";
 import validate from "../../../middlewares/validate.js";
 
 import {
@@ -13,6 +14,7 @@ import {
   updateLoyaltySettingsSchema,
   paramsLoyaltySettingsSchema,
   paramsLoyaltySettingsIdsSchema,
+  paramsBrandIdSchema,
   queryLoyaltySettingsSchema,
   calculatePointsSchema,
   calculateTierSchema,
@@ -23,65 +25,65 @@ const router = express.Router();
 
 /* ================= ADMIN ================= */
 
-router.use("/admin", authenticateToken);
+router.use("/admin", authenticateToken, checkModuleEnabled("loyalty"));
 
 // Create & GetAll
 router.route("/admin")
   .post(
-    authorize("loyalty_settings_create"),
+    authorize("LoyaltySettings", "create"),
     validate(createLoyaltySettingsSchema),
     LoyaltySettingsController.create
   )
   .get(
-    authorize("loyalty_settings_view"),
-    validate(queryLoyaltySettingsSchema),
+    authorize("LoyaltySettings", "read"),
+    validate(queryLoyaltySettingsSchema, "query"),
     LoyaltySettingsController.getAll
   );
 
 // GetOne / Update / Delete
 router.route("/admin/:id")
   .get(
-    authorize("loyalty_settings_view"),
-    validate(paramsLoyaltySettingsSchema),
+    authorize("LoyaltySettings", "read"),
+    validate(paramsLoyaltySettingsSchema, "params"),
     LoyaltySettingsController.getOne
   )
   .put(
-    authorize("loyalty_settings_update"),
+    authorize("LoyaltySettings", "update"),
     validate(updateLoyaltySettingsSchema),
     LoyaltySettingsController.update
   )
   .delete(
-    authorize("loyalty_settings_delete"),
-    validate(paramsLoyaltySettingsSchema),
+    authorize("LoyaltySettings", "delete"),
+    validate(paramsLoyaltySettingsSchema, "params"),
     LoyaltySettingsController.hardDelete
   );
 
 // Soft Delete
 router.patch(
   "/admin/soft-delete/:id",
-  authorize("loyalty_settings_delete"),
-  validate(paramsLoyaltySettingsSchema),
+  authorize("LoyaltySettings", "delete"),
+  validate(paramsLoyaltySettingsSchema, "params"),
   LoyaltySettingsController.softDelete
 );
 
 router.patch(
   "/admin/restore/:id",
-  authorize("loyalty_settings_update"),
-  validate(paramsLoyaltySettingsSchema),
+  authorize("LoyaltySettings", "update"),
+  validate(paramsLoyaltySettingsSchema, "params"),
   LoyaltySettingsController.restore
 );
 
 // Bulk
 router.delete(
   "/admin/bulk-delete",
-  authorize("loyalty_settings_delete"),
+  authorize("LoyaltySettings", "delete"),
   validate(paramsLoyaltySettingsIdsSchema),
   LoyaltySettingsController.bulkHardDelete
 );
 
 router.patch(
   "/admin/bulk-soft-delete",
-  authorize("loyalty_settings_delete"),
+  authorize("LoyaltySettings", "delete"),
   validate(paramsLoyaltySettingsIdsSchema),
   LoyaltySettingsController.bulkSoftDelete
 );
@@ -91,7 +93,7 @@ router.patch(
 // Public system usage
 router.get(
   "/brand/:brandId/active",
-  validate(paramsLoyaltySettingsSchema),
+  validate(paramsBrandIdSchema, "params"),
   LoyaltySettingsController.getActiveSettings
 );
 
@@ -119,7 +121,7 @@ router.use("/customer", authenticateCustomerToken);
 
 router.get(
   "/customer/settings/:brandId",
-  validate(paramsLoyaltySettingsSchema),
+  validate(paramsBrandIdSchema, "params"),
   LoyaltySettingsController.getActiveSettings
 );
 

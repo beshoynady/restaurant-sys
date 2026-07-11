@@ -4,9 +4,10 @@ import AdvancedService from "../../../utils/BaseService.js";
 // Initialize service for print-settings model
 const printSettingsService = new AdvancedService(PrintSettingsModel, {
   brandScoped: true,
-  softDelete: true,
+  branchScoped: true,
+  enableSoftDelete: true,
   defaultPopulate: ["branch"],
-  searchFields: [], // specify searchable fields if needed
+  searchableFields: [],
   defaultSort: { createdAt: -1 },
 });
 

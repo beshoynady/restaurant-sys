@@ -5,7 +5,9 @@ class LoyaltySettingsService extends AdvancedService {
   constructor() {
     super(LoyaltySettingsModel, {
       brandScoped: true,
-      softDelete: true,
+      branchScoped: false, // brand-only entity, no `branch` field
+      enableSoftDelete: true,
+      searchableFields: [],
       defaultPopulate: ["brand", "createdBy", "updatedBy"],
       defaultSort: { createdAt: -1 },
     });
@@ -13,15 +15,19 @@ class LoyaltySettingsService extends AdvancedService {
 
   /* =====================================================
      🔹 CREATE OVERRIDE (Prevent duplicate per brand)
+     Matches BaseService.create()'s object-argument signature
+     ({brandId, branchId, data, createdBy, session}) — BaseController
+     always calls it this way, so an override with a different
+     signature would silently break on every real request.
   ===================================================== */
-  async create(data, options = {}) {
-    const existing = await this.model.findOne({ brand: data.brand });
+  async create({ brandId, branchId, data, createdBy = null, session = null }) {
+    const existing = await this.model.findOne({ brand: brandId });
 
     if (existing) {
       throw new Error("Loyalty settings already exist for this brand");
     }
 
-    return super.create(data, options);
+    return super.create({ brandId, branchId, data, createdBy, session });
   }
 
   /* =====================================================

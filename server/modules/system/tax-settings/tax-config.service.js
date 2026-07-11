@@ -4,9 +4,10 @@ import AdvancedService from "../../../utils/BaseService.js";
 // Initialize service for tax-config model
 const taxConfigService = new AdvancedService(TaxConfigModel, {
   brandScoped: true,
-  softDelete: true,
+  branchScoped: true,
+  enableSoftDelete: true,
   defaultPopulate: ["brand","branch","vatReceivableAccount","vatPayableAccount"],
-  searchFields: [], // specify searchable fields if needed
+  searchableFields: [],
   defaultSort: { createdAt: -1 },
 });
 

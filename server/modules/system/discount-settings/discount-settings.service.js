@@ -4,9 +4,10 @@ import AdvancedService from "../../../utils/BaseService.js";
 // Initialize service for discount-settings model
 const discountSettingsService = new AdvancedService(DiscountSettingsModel, {
   brandScoped: true,
-  softDelete: true,
+  branchScoped: true,
+  enableSoftDelete: true,
   defaultPopulate: ["brand","branch"],
-  searchFields: [], // specify searchable fields if needed
+  searchableFields: [],
   defaultSort: { createdAt: -1 },
 });
 

@@ -6,7 +6,9 @@ class BranchSettingsService extends BaseService {
   constructor() {
     super(BranchSettingsModel, {
       brandScoped: true,
-      softDelete: true,
+      branchScoped: true,
+      enableSoftDelete: true,
+      searchableFields: [],
       defaultPopulate: ["brand", "branch", "createdBy", "updatedBy"],
       defaultSort: { createdAt: -1 },
     });
@@ -15,7 +17,7 @@ class BranchSettingsService extends BaseService {
   // =====================================================
   // 🔹 CREATE (Prevent duplicate per branch)
   // =====================================================
-  async create({ brandId, data, createdBy }) {
+  async create({ brandId, branchId, data, createdBy }) {
     const exists = await this.model.findOne({
       branch: data.branch,
       isDeleted: false,
@@ -27,6 +29,7 @@ class BranchSettingsService extends BaseService {
 
     return super.create({
       brandId,
+      branchId,
       data,
       createdBy,
     });
@@ -34,12 +37,22 @@ class BranchSettingsService extends BaseService {
 
   // =====================================================
   // 🔹 GET BY BRANCH (IMPORTANT FOR FRONT)
+  // BaseService has no `findOne` — this queries the model directly.
   // =====================================================
-  async getByBranch({ branchId, brandId }) {
-    return this.findOne({
-      brandId,
-      filter: { branch: branchId },
-    });
+  async getByBranch({ branchId, brandId = null }) {
+    const query = { branch: branchId, isDeleted: false };
+    if (brandId) query.brand = brandId;
+
+    const settings = await this.model
+      .findOne(query)
+      .populate(this.defaultPopulate)
+      .lean();
+
+    if (!settings) {
+      throw throwError("Branch settings not found", 404);
+    }
+
+    return settings;
   }
 
   // =====================================================
@@ -55,6 +68,7 @@ class BranchSettingsService extends BaseService {
       return this.update({
         id: existing._id,
         brandId,
+        branchId,
         data,
         updatedBy: userId,
       });
@@ -62,6 +76,7 @@ class BranchSettingsService extends BaseService {
 
     return this.create({
       brandId,
+      branchId,
       data: { ...data, branch: branchId },
       createdBy: userId,
     });
@@ -70,7 +85,7 @@ class BranchSettingsService extends BaseService {
   // =====================================================
   // 🔹 IS BRANCH OPEN
   // =====================================================
-  async isBranchOpen({ branchId, brandId }) {
+  async isBranchOpen({ branchId, brandId = null }) {
     const settings = await this.getByBranch({ branchId, brandId });
 
     const now = new Date();
@@ -97,7 +112,7 @@ class BranchSettingsService extends BaseService {
   // =====================================================
   // 🔹 SERVICE AVAILABILITY
   // =====================================================
-  async isServiceAvailable({ branchId, brandId, serviceType }) {
+  async isServiceAvailable({ branchId, brandId = null, serviceType }) {
     const allowed = ["dineIn", "takeaway", "delivery"];
 
     if (!allowed.includes(serviceType)) {
@@ -136,7 +151,7 @@ class BranchSettingsService extends BaseService {
   // =====================================================
   // 🔹 CURRENT PERIOD
   // =====================================================
-  async getCurrentPeriod({ branchId, brandId }) {
+  async getCurrentPeriod({ branchId, brandId = null }) {
     const settings = await this.getByBranch({ branchId, brandId });
 
     const now = new Date();
@@ -156,7 +171,7 @@ class BranchSettingsService extends BaseService {
   // =====================================================
   // 🔹 NEXT OPEN TIME (🔥 للفرونت)
   // =====================================================
-  async getNextOpenTime({ branchId, brandId }) {
+  async getNextOpenTime({ branchId, brandId = null }) {
     const settings = await this.getByBranch({ branchId, brandId });
 
     const now = new Date();

@@ -4,9 +4,10 @@ import AdvancedService from "../../../utils/BaseService.js";
 // Initialize service for purchase-settings model
 const purchaseSettingsService = new AdvancedService(PurchaseSettingsModel, {
   brandScoped: true,
-  softDelete: true,
+  branchScoped: true,
+  enableSoftDelete: true,
   defaultPopulate: ["brand","branch","createdBy","updatedBy"],
-  searchFields: [], // specify searchable fields if needed
+  searchableFields: [],
   defaultSort: { createdAt: -1 },
 });
 

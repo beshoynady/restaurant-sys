@@ -1,5 +1,6 @@
 import Joi from "joi";
 import {
+  objectId,
   createSchema,
   updateSchema,
   paramsSchema,
@@ -9,48 +10,44 @@ import {
 
 import LoyaltySettingsModel from "./loyalty-settings.model.js";
 
-/* ========================= 
+/* =========================
    CRUD
 ========================= */
 
-export const createLoyaltySettingsSchema = {
-  body: createSchema(LoyaltySettingsModel.schema),
-};
+export const createLoyaltySettingsSchema = createSchema(LoyaltySettingsModel.schema);
 
-export const updateLoyaltySettingsSchema = {
-  body: updateSchema(LoyaltySettingsModel.schema, ["updatedBy"]),
-};
+export const updateLoyaltySettingsSchema = updateSchema(LoyaltySettingsModel.schema, ["updatedBy"]);
 
-export const paramsLoyaltySettingsSchema = {
-  params: paramsSchema(),
-};
+export const paramsLoyaltySettingsSchema = paramsSchema();
 
-export const paramsLoyaltySettingsIdsSchema = {
-  body: paramsIdsSchema(),
-};
+export const paramsLoyaltySettingsIdsSchema = paramsIdsSchema();
 
-export const queryLoyaltySettingsSchema = {
-  query: querySchema(),
-};
+export const queryLoyaltySettingsSchema = querySchema();
+
+/* =========================
+   :brandId routes (not :id)
+========================= */
+
+export const paramsBrandIdSchema = Joi.object({
+  brandId: objectId().required(),
+});
 
 /* =========================
    Business Logic
 ========================= */
 
-export const calculatePointsSchema = {
-  body: Joi.object({
-    orderAmount: Joi.number().min(1).required(),
-  }),
-};
+export const calculatePointsSchema = Joi.object({
+  brandId: objectId().required(),
+  orderAmount: Joi.number().min(1).required(),
+});
 
-export const calculateTierSchema = {
-  body: Joi.object({
-    points: Joi.number().min(0).required(),
-  }),
-};
+export const calculateTierSchema = Joi.object({
+  brandId: objectId().required(),
+  points: Joi.number().min(0).required(),
+});
 
-export const calculateRedeemSchema = {
-  body: Joi.object({
-    points: Joi.number().min(1).required(),
-  }),
-};
+export const calculateRedeemSchema = Joi.object({
+  brandId: objectId().required(),
+  points: Joi.number().min(1).required(),
+  orderAmount: Joi.number().min(1).required(),
+});

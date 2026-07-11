@@ -17,7 +17,6 @@ const accountingSettingsSchema = new mongoose.Schema(
       type: ObjectId,
       ref: "Brand",
       required: true,
-      unique: true,
       index: true,
     },
 

@@ -6,6 +6,13 @@ import asyncHandler from "../../../utils/asyncHandler.js";
 
 /**
  * BranchSettingsController
+ *
+ * notes:
+ * - hardDelete/bulkHardDelete/softDelete/restore/bulkSoftDelete are NOT
+ *   overridden here — the inherited BaseController versions already do the
+ *   right thing (brand/branch-scoped, correct object signature). Earlier
+ *   versions of this file shadowed them with broken overrides that called
+ *   the service with raw ids/arrays instead of the expected object shape.
  */
 class BranchSettingsController extends BaseController {
   constructor() {
@@ -18,7 +25,7 @@ class BranchSettingsController extends BaseController {
   isBranchOpen = asyncHandler(async (req, res) => {
     const { branchId } = req.params;
 
-    const isOpen = await this.service.isBranchOpen(branchId);
+    const isOpen = await this.service.isBranchOpen({ branchId });
 
     res.json({
       success: true,
@@ -35,10 +42,10 @@ class BranchSettingsController extends BaseController {
   isServiceAvailable = asyncHandler(async (req, res) => {
     const { branchId, serviceType } = req.params;
 
-    const available = await this.service.isServiceAvailable(
+    const available = await this.service.isServiceAvailable({
       branchId,
-      serviceType
-    );
+      serviceType,
+    });
 
     res.json({
       success: true,
@@ -56,7 +63,7 @@ class BranchSettingsController extends BaseController {
   getCurrentPeriod = asyncHandler(async (req, res) => {
     const { branchId } = req.params;
 
-    const period = await this.service.getCurrentPeriod(branchId);
+    const period = await this.service.getCurrentPeriod({ branchId });
 
     res.json({
       success: true,
@@ -70,63 +77,13 @@ class BranchSettingsController extends BaseController {
   getPublicSettings = asyncHandler(async (req, res) => {
     const { branchId } = req.params;
 
-    const settings = await this.service.getByBranch(branchId);
+    const settings = await this.service.getByBranch({ branchId });
 
     res.json({
       success: true,
       data: settings,
     });
   });
-
-  hardDelete = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    
-    await this.service.hardDelete(id);
-    res.json({
-      success: true,
-      message: "Branch settings permanently deleted",
-    }); 
-  });
-  bulkHardDelete = asyncHandler(async (req, res) => {
-    const { ids } = req.body; // Expecting an array of IDs in the request body
-    
-    await this.service.bulkHardDelete(ids);
-    res.json({
-      success: true,
-      message: "Branch settings permanently deleted",
-    });
-  });
-
-  softDelete = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    
-    await this.service.softDelete(id);
-    res.json({
-      success: true,
-      message: "Branch settings soft deleted",
-    }); 
-  });
-restore = asyncHandler(async (req, res) => {
-    const { id } = req.params;
-    
-    await this.service.restore(id);
-    res.json({
-      success: true,
-      message: "Branch settings restored",
-    }); 
-  }
-);
-
-  bulkSoftDelete = asyncHandler(async (req, res) => {
-    const { ids } = req.body; // Expecting an array of IDs in the request body
-    
-    await this.service.bulkSoftDelete(ids);
-    res.json({
-      success: true,
-      message: "Branch settings soft deleted",
-    });
-  });
-
 }
 
 export default new BranchSettingsController();

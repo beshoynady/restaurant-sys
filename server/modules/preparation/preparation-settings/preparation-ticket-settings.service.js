@@ -4,9 +4,10 @@ import AdvancedService from "../../../utils/BaseService.js";
 // Initialize service for preparation-ticket-settings model
 const preparationTicketSettingsService = new AdvancedService(PreparationTicketSettingsModel, {
   brandScoped: true,
-  softDelete: true,
-  defaultPopulate: ["brand","branch","createdBy","updatedBy"],
-  searchFields: [], // specify searchable fields if needed
+  branchScoped: true,
+  enableSoftDelete: true,
+  defaultPopulate: ["brand", "branch", "createdBy", "updatedBy"],
+  searchableFields: [],
   defaultSort: { createdAt: -1 },
 });
 

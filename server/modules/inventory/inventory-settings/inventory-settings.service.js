@@ -1,12 +1,13 @@
-import InventorySettingsModel from "../../models/inventory/inventory-settings.model.js";
+import InventorySettingsModel from "./inventory-settings.model.js";
 import AdvancedService from "../../../utils/BaseService.js";
 
 // Initialize service for inventory-settings model
 const inventorySettingsService = new AdvancedService(InventorySettingsModel, {
   brandScoped: true,
-  softDelete: true,
-  defaultPopulate: ["brand","branch"],
-  searchFields: [], // specify searchable fields if needed
+  branchScoped: true,
+  enableSoftDelete: true,
+  defaultPopulate: ["brand", "branch"],
+  searchableFields: [],
   defaultSort: { createdAt: -1 },
 });
 

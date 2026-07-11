@@ -1,47 +1,49 @@
 import express from "express";
-import preparationTicketSettingsController from "../../controllers/kitchen/preparation-ticket-settings.controller.js";
+import preparationTicketSettingsController from "./preparation-ticket-settings.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
+import authorize from "../../../middlewares/authorize.js";
+import checkModuleEnabled from "../../../middlewares/checkModuleEnabled.js";
 import validate from "../../../middlewares/validate.js";
-import { 
-  createPreparationTicketSettingsSchema, 
-  updatePreparationTicketSettingsSchema, 
-  paramsPreparationTicketSettingsSchema, 
+import {
+  createPreparationTicketSettingsSchema,
+  updatePreparationTicketSettingsSchema,
+  paramsPreparationTicketSettingsSchema,
   paramsPreparationTicketSettingsIdsSchema,
-  queryPreparationTicketSettingsSchema 
-} from "../../validation/kitchen/preparation-ticket-settings.validation.js";
+  queryPreparationTicketSettingsSchema
+} from "./preparation-ticket-settings.validation.js";
 
 const router = express.Router();
 
 // Create & GetAll
 router.route("/")
-  .post(authenticateToken, validate(createPreparationTicketSettingsSchema), preparationTicketSettingsController.create)
-  .get(authenticateToken, validate(queryPreparationTicketSettingsSchema), preparationTicketSettingsController.getAll)
+  .post(authenticateToken, authorize("PreparationTicketSettings", "create"), checkModuleEnabled("preparation"), validate(createPreparationTicketSettingsSchema), preparationTicketSettingsController.create)
+  .get(authenticateToken, authorize("PreparationTicketSettings", "read"), checkModuleEnabled("preparation"), validate(queryPreparationTicketSettingsSchema), preparationTicketSettingsController.getAll)
 ;
 
 // GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, validate(paramsPreparationTicketSettingsSchema), preparationTicketSettingsController.getOne)
-  .put(authenticateToken, validate(updatePreparationTicketSettingsSchema), preparationTicketSettingsController.update)
-  .delete(authenticateToken, validate(paramsPreparationTicketSettingsSchema), preparationTicketSettingsController.hardDelete) // soft delete
+  .get(authenticateToken, authorize("PreparationTicketSettings", "read"), checkModuleEnabled("preparation"), validate(paramsPreparationTicketSettingsSchema), preparationTicketSettingsController.getOne)
+  .put(authenticateToken, authorize("PreparationTicketSettings", "update"), checkModuleEnabled("preparation"), validate(updatePreparationTicketSettingsSchema), preparationTicketSettingsController.update)
+  .delete(authenticateToken, authorize("PreparationTicketSettings", "delete"), checkModuleEnabled("preparation"), validate(paramsPreparationTicketSettingsSchema), preparationTicketSettingsController.hardDelete)
 ;
 
 router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsPreparationTicketSettingsSchema), preparationTicketSettingsController.softDelete) // soft delete
+  .patch(authenticateToken, authorize("PreparationTicketSettings", "delete"), checkModuleEnabled("preparation"), validate(paramsPreparationTicketSettingsSchema), preparationTicketSettingsController.softDelete)
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsPreparationTicketSettingsSchema), preparationTicketSettingsController.restore)
+  .patch(authenticateToken, authorize("PreparationTicketSettings", "update"), checkModuleEnabled("preparation"), validate(paramsPreparationTicketSettingsSchema), preparationTicketSettingsController.restore)
 ;
 
  // --- BULK HARD DELETE ---
   router.route("/bulk-delete")
-    .delete(authenticateToken, validate(paramsPreparationTicketSettingsIdsSchema), preparationTicketSettingsController.bulkHardDelete);
+    .delete(authenticateToken, authorize("PreparationTicketSettings", "delete"), checkModuleEnabled("preparation"), validate(paramsPreparationTicketSettingsIdsSchema), preparationTicketSettingsController.bulkHardDelete);
 
 
   // --- BULK SOFT DELETE ---
   router.route("/bulk-soft-delete")
-    .patch(authenticateToken,validate(paramsPreparationTicketSettingsIdsSchema), preparationTicketSettingsController.bulkSoftDelete);
+    .patch(authenticateToken, authorize("PreparationTicketSettings", "delete"), checkModuleEnabled("preparation"), validate(paramsPreparationTicketSettingsIdsSchema), preparationTicketSettingsController.bulkSoftDelete);
 
 
 export default router;

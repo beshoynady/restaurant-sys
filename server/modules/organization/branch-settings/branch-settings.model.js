@@ -61,6 +61,24 @@ const deliveryServiceSchema = new Schema(
   { _id: false },
 );
 
+const pauseSchema = new Schema(
+  {
+    from: { type: String, trim: true, required: true },
+    to: { type: String, trim: true, required: true },
+    reason: { type: String, trim: true, maxlength: 200 },
+  },
+  { _id: false },
+);
+
+const periodServiceOverrideSchema = new Schema(
+  {
+    enabled: { type: Boolean, default: true },
+    openTime: { type: String, trim: true, default: null },
+    closeTime: { type: String, trim: true, default: null },
+  },
+  { _id: false },
+);
+
 const periodSchema = new Schema(
   {
     name: {
@@ -79,6 +97,21 @@ const periodSchema = new Schema(
       type: String,
       required: true,
       trim: true,
+    },
+
+    // Per-service override within this period (e.g. delivery closes
+    // earlier than dine-in during the same period). Falls back to the
+    // period's own openTime/closeTime when a field is null.
+    services: {
+      dineIn: { type: periodServiceOverrideSchema, default: () => ({}) },
+      takeaway: { type: periodServiceOverrideSchema, default: () => ({}) },
+      delivery: { type: periodServiceOverrideSchema, default: () => ({}) },
+    },
+
+    // Temporary closures within this period (e.g. kitchen break).
+    pauses: {
+      type: [pauseSchema],
+      default: [],
     },
   },
   { _id: false },

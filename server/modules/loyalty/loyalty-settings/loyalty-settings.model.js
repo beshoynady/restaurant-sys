@@ -45,11 +45,15 @@ const loyaltySettingsSchema = new mongoose.Schema(
 
     createdBy: { type: ObjectId, ref: "UserAccount", required: true },
     updatedBy: { type: ObjectId, ref: "UserAccount" },
+
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null },
+    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
   { timestamps: true },
 );
 
-// Ensure one settings per brand
-loyaltySettingsSchema.index({ brand: 1 }, { unique: true });
+// Note: no extra `.index({brand:1})` here — the `unique: true` on the
+// `brand` field above already creates that index.
 
 export default mongoose.model("LoyaltySettings", loyaltySettingsSchema);

@@ -234,8 +234,9 @@ const notificationSettingsSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-// 🔹 One settings document per branch
-notificationSettingsSchema.index({ branch: 1 }, { unique: true });
+// One settings document per brand+branch (was unique on `branch` alone,
+// not compound with `brand`).
+notificationSettingsSchema.index({ brand: 1, branch: 1 }, { unique: true });
 
 const NotificationSettingsModel = mongoose.model(
   "NotificationSettings",
