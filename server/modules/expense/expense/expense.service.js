@@ -1,5 +1,5 @@
 import ExpenseModel from "./expense.model.js";
-import AdvancedService from "../../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/BaseService.js";
 
 // Initialize service for expense model
 const expenseService = new AdvancedService(ExpenseModel, {

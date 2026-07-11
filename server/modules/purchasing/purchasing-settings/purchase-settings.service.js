@@ -1,5 +1,5 @@
 import PurchaseSettingsModel from "./purchase-settings.model.js";
-import AdvancedService from "../../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/BaseService.js";
 
 // Initialize service for purchase-settings model
 const purchaseSettingsService = new AdvancedService(PurchaseSettingsModel, {

@@ -1,5 +1,5 @@
 import TaxConfigModel from "./tax-config.model.js";
-import AdvancedService from "../../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/BaseService.js";
 
 // Initialize service for tax-config model
 const taxConfigService = new AdvancedService(TaxConfigModel, {

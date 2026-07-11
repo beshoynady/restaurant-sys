@@ -1,5 +1,5 @@
 import PaymentMethodModel from "./payment-method.model.js";
-import AdvancedService from "../../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/BaseService.js";
 
 // Initialize service for payment-method model
 const paymentMethodService = new AdvancedService(PaymentMethodModel, {

@@ -1,5 +1,5 @@
 import ServiceChargeModel from "./service-charge.model.js";
-import AdvancedService from "../../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/BaseService.js";
 
 // Initialize service for service-charge model
 const serviceChargeService = new AdvancedService(ServiceChargeModel, {

@@ -1,5 +1,5 @@
 import DiscountSettingsModel from "./discount-settings.model.js";
-import AdvancedService from "../../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/BaseService.js";
 
 // Initialize service for discount-settings model
 const discountSettingsService = new AdvancedService(DiscountSettingsModel, {

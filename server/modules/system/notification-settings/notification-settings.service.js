@@ -1,5 +1,5 @@
 import NotificationSettingsModel from "./notification-settings.model.js";
-import AdvancedService from "../../../utils/AdvancedService.js";
+import AdvancedService from "../../../utils/BaseService.js";
 
 // Initialize service for notification-settings model
 const notificationSettingsService = new AdvancedService(NotificationSettingsModel, {
