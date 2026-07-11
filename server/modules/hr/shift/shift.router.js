@@ -1,6 +1,8 @@
 import express from "express";
 import shiftController from "./shift.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
+import authorize from "../../../middlewares/authorize.js";
+import checkModuleEnabled from "../../../middlewares/checkModuleEnabled.js";
 import validate from "../../../middlewares/validate.js";
 import {
   createShiftSchema,
@@ -21,12 +23,16 @@ const router = express.Router();
 // Create & GetAll
 router.route("/").post(
   authenticateToken,
+    authorize("Shifts", "create"),
+    checkModuleEnabled("hr"),
   validate(createShiftSchema),
   shiftController.create,
 );
 
 router.route("/").get(
   authenticateToken,
+    authorize("Shifts", "read"),
+    checkModuleEnabled("hr"),
   validate(queryShiftSchema),
   shiftController.getAll,
 );
@@ -34,19 +40,29 @@ router.route("/").get(
 // Count (supports same filters as list)
 router.route("/count").get(
   authenticateToken,
+    authorize("Shifts", "read"),
+    checkModuleEnabled("hr"),
   validate(queryShiftSchema),
   shiftController.count,
 );
 
 // GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, validate(paramsShiftSchema), shiftController.getOne)
-  .put(authenticateToken, validate(updateShiftSchema), shiftController.update)
-  .delete(authenticateToken, validate(paramsShiftSchema), shiftController.hardDelete);
+  .get(authenticateToken,
+    authorize("Shifts", "read"),
+    checkModuleEnabled("hr"), validate(paramsShiftSchema), shiftController.getOne)
+  .put(authenticateToken,
+    authorize("Shifts", "update"),
+    checkModuleEnabled("hr"), validate(updateShiftSchema), shiftController.update)
+  .delete(authenticateToken,
+    authorize("Shifts", "delete"),
+    checkModuleEnabled("hr"), validate(paramsShiftSchema), shiftController.hardDelete);
 
 // Soft Delete
 router.route("/soft-delete/:id").patch(
   authenticateToken,
+    authorize("Shifts", "delete"),
+    checkModuleEnabled("hr"),
   validate(paramsShiftSchema),
   shiftController.softDelete,
 );
@@ -54,6 +70,8 @@ router.route("/soft-delete/:id").patch(
 // Restore soft-deleted item
 router.route("/restore/:id").patch(
   authenticateToken,
+    authorize("Shifts", "update"),
+    checkModuleEnabled("hr"),
   validate(paramsShiftSchema),
   shiftController.restore,
 );
@@ -61,6 +79,8 @@ router.route("/restore/:id").patch(
 // --- BULK HARD DELETE ---
 router.route("/bulk-delete").delete(
   authenticateToken,
+    authorize("Shifts", "delete"),
+    checkModuleEnabled("hr"),
   validate(paramsShiftIdsSchema),
   shiftController.bulkHardDelete,
 );
@@ -68,6 +88,8 @@ router.route("/bulk-delete").delete(
 // --- BULK SOFT DELETE ---
 router.route("/bulk-soft-delete").patch(
   authenticateToken,
+    authorize("Shifts", "delete"),
+    checkModuleEnabled("hr"),
   validate(paramsShiftIdsSchema),
   shiftController.bulkSoftDelete,
 );

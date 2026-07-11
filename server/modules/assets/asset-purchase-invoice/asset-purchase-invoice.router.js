@@ -1,6 +1,8 @@
 import express from "express";
 import assetPurchaseInvoiceController from "./asset-purchase-invoice.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
+import authorize from "../../../middlewares/authorize.js";
+import checkModuleEnabled from "../../../middlewares/checkModuleEnabled.js";
 import validate from "../../../middlewares/validate.js";
 import { 
   createAssetPurchaseInvoiceSchema, 
@@ -14,34 +16,52 @@ const router = express.Router();
 
 // Create & GetAll
 router.route("/")
-  .post(authenticateToken, validate(createAssetPurchaseInvoiceSchema), assetPurchaseInvoiceController.create)
-  .get(authenticateToken, validate(queryAssetPurchaseInvoiceSchema), assetPurchaseInvoiceController.getAll)
+  .post(authenticateToken,
+    authorize("AssetPurchaseInvoices", "create"),
+    checkModuleEnabled("assets"), validate(createAssetPurchaseInvoiceSchema), assetPurchaseInvoiceController.create)
+  .get(authenticateToken,
+    authorize("AssetPurchaseInvoices", "read"),
+    checkModuleEnabled("assets"), validate(queryAssetPurchaseInvoiceSchema), assetPurchaseInvoiceController.getAll)
 ;
 
 // GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, validate(paramsAssetPurchaseInvoiceSchema), assetPurchaseInvoiceController.getOne)
-  .put(authenticateToken, validate(updateAssetPurchaseInvoiceSchema), assetPurchaseInvoiceController.update)
-  .delete(authenticateToken, validate(paramsAssetPurchaseInvoiceSchema), assetPurchaseInvoiceController.hardDelete) // soft delete
+  .get(authenticateToken,
+    authorize("AssetPurchaseInvoices", "read"),
+    checkModuleEnabled("assets"), validate(paramsAssetPurchaseInvoiceSchema), assetPurchaseInvoiceController.getOne)
+  .put(authenticateToken,
+    authorize("AssetPurchaseInvoices", "update"),
+    checkModuleEnabled("assets"), validate(updateAssetPurchaseInvoiceSchema), assetPurchaseInvoiceController.update)
+  .delete(authenticateToken,
+    authorize("AssetPurchaseInvoices", "delete"),
+    checkModuleEnabled("assets"), validate(paramsAssetPurchaseInvoiceSchema), assetPurchaseInvoiceController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsAssetPurchaseInvoiceSchema), assetPurchaseInvoiceController.softDelete) // soft delete
+  .patch(authenticateToken,
+    authorize("AssetPurchaseInvoices", "delete"),
+    checkModuleEnabled("assets"), validate(paramsAssetPurchaseInvoiceSchema), assetPurchaseInvoiceController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsAssetPurchaseInvoiceSchema), assetPurchaseInvoiceController.restore)
+  .patch(authenticateToken,
+    authorize("AssetPurchaseInvoices", "update"),
+    checkModuleEnabled("assets"), validate(paramsAssetPurchaseInvoiceSchema), assetPurchaseInvoiceController.restore)
 ;
 
  // --- BULK HARD DELETE ---
   router.route("/bulk-delete")
-    .delete(authenticateToken, validate(paramsAssetPurchaseInvoiceIdsSchema), assetPurchaseInvoiceController.bulkHardDelete);
+    .delete(authenticateToken,
+    authorize("AssetPurchaseInvoices", "delete"),
+    checkModuleEnabled("assets"), validate(paramsAssetPurchaseInvoiceIdsSchema), assetPurchaseInvoiceController.bulkHardDelete);
 
 
   // --- BULK SOFT DELETE ---
   router.route("/bulk-soft-delete")
-    .patch(authenticateToken,validate(paramsAssetPurchaseInvoiceIdsSchema), assetPurchaseInvoiceController.bulkSoftDelete);
+    .patch(authenticateToken,
+    authorize("AssetPurchaseInvoices", "delete"),
+    checkModuleEnabled("assets"),validate(paramsAssetPurchaseInvoiceIdsSchema), assetPurchaseInvoiceController.bulkSoftDelete);
 
 
 export default router;

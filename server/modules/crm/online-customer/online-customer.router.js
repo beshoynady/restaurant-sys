@@ -7,6 +7,7 @@ import authenticateToken from "../../../middlewares/authenticate.js";
 import validate from "../../../middlewares/validate.js";
 import authorize from "../../../middlewares/authorize.js";
 
+import checkModuleEnabled from "../../../middlewares/checkModuleEnabled.js";
 import {
   createOnlineCustomerSchema,
   updateOnlineCustomerSchema,
@@ -32,12 +33,16 @@ const customerConfig = (req, res, next) => {
 router.route("/")
   .post(
     authenticateToken,
+    authorize("OnlineCustomers", "create"),
+    checkModuleEnabled("crm"),
     customerConfig,
     validate(createOnlineCustomerSchema),
     onlineCustomerController.create
   )
   .get(
     authenticateToken,
+    authorize("OnlineCustomers", "read"),
+    checkModuleEnabled("crm"),
     customerConfig,
     validate(queryOnlineCustomerSchema),
     onlineCustomerController.getAll
@@ -54,18 +59,24 @@ router.route("customer/:id")
 
 .get(
     authenticateToken,
+    authorize("OnlineCustomers", "read"),
+    checkModuleEnabled("crm"),
     customerConfig,
     validate(paramsOnlineCustomerSchema),
     onlineCustomerController.getOne
   )
   .put(
     authenticateToken,
+    authorize("OnlineCustomers", "update"),
+    checkModuleEnabled("crm"),
     customerConfig,
     validate(updateOnlineCustomerSchema),
     onlineCustomerController.update
   )
   .delete(
     authenticateToken,
+    authorize("OnlineCustomers", "delete"),
+    checkModuleEnabled("crm"),
     validate(paramsOnlineCustomerSchema),
     onlineCustomerController.hardDelete
   );
@@ -77,6 +88,8 @@ router.route("customer/:id")
 router.patch(
   "/soft-delete/:id",
   authenticateToken,
+  authorize("OnlineCustomers", "delete"),
+    checkModuleEnabled("crm"),
   validate(paramsOnlineCustomerSchema),
   onlineCustomerController.softDelete
 );
@@ -84,6 +97,8 @@ router.patch(
 router.patch(
   "/restore/:id",
   authenticateToken,
+  authorize("OnlineCustomers", "update"),
+    checkModuleEnabled("crm"),
   validate(paramsOnlineCustomerSchema),
   onlineCustomerController.restore
 );
@@ -95,6 +110,8 @@ router.patch(
 router.delete(
   "/bulk-delete",
   authenticateToken,
+  authorize("OnlineCustomers", "delete"),
+    checkModuleEnabled("crm"),
   validate(paramsOnlineCustomerIdsSchema),
   onlineCustomerController.bulkHardDelete
 );
@@ -102,6 +119,8 @@ router.delete(
 router.patch(
   "/bulk-soft-delete",
   authenticateToken,
+  authorize("OnlineCustomers", "delete"),
+    checkModuleEnabled("crm"),
   validate(paramsOnlineCustomerIdsSchema),
   onlineCustomerController.bulkSoftDelete
 );
@@ -113,18 +132,24 @@ router.patch(
 router.patch(
   "/:id/add-points",
   authenticateToken,
+  authorize("OnlineCustomers", "update"),
+    checkModuleEnabled("crm"),
   onlineCustomerController.addPoints
 );
 
 router.patch(
   "/:id/recalc-tier",
   authenticateToken,
+  authorize("OnlineCustomers", "update"),
+    checkModuleEnabled("crm"),
   onlineCustomerController.recalcTier
 );
 
 router.patch(
   "/:id/set-default-address",
   authenticateToken,
+  authorize("OnlineCustomers", "update"),
+    checkModuleEnabled("crm"),
   onlineCustomerController.setDefaultAddress
 );
 

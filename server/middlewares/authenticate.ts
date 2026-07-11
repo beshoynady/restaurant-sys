@@ -54,6 +54,15 @@ const authenticateToken = async (
       return next(throwError("Brand mismatch", 403));
     }
 
+    // Request context contract:
+    // BaseController/BaseService and most module controllers read
+    // req.user.brandId / req.user.userId (not the raw Mongoose `brand`/`_id`
+    // fields). Attach both aliases here, once, so every downstream consumer
+    // gets a consistent context regardless of which property name it reads.
+    (user as any).brandId = user.brand;
+    (user as any).userId = user._id;
+    (user as any).branchId = user.branch || null;
+
     // Attach to request
     (req as any).user = user;
     (req as any).brandId = user.brand;

@@ -18,7 +18,7 @@ const router = express.Router();
 router.get(
   "/:brandId",
   authenticateToken,
-  authorize("brand:read"),
+  authorize("BrandSettings", "read"),
   controller.get
 );
 
@@ -26,7 +26,7 @@ router.get(
 router.post(
   "/:brandId",
   authenticateToken,
-  authorize("brand:create"),
+  authorize("BrandSettings", "create"),
   validate(createBrandSettingsSchema),
   controller.create
 );
@@ -35,7 +35,7 @@ router.post(
 router.patch(
   "/:brandId",
   authenticateToken,
-  authorize("brand:update"),
+  authorize("BrandSettings", "update"),
   validate(updateBrandSettingsSchema),
   controller.update
 );
@@ -44,7 +44,7 @@ router.patch(
 router.patch(
   "/:brandId/module",
   authenticateToken,
-  authorize("brand:update"),
+  authorize("BrandSettings", "update"),
   validate(toggleModuleSchema),
   controller.toggleModule
 );
@@ -53,7 +53,7 @@ router.patch(
 router.delete(
   "/:brandId",
   authenticateToken,
-  authorize("brand:delete"),
+  authorize("BrandSettings", "delete"),
   controller.softDelete
 );
 
@@ -61,7 +61,7 @@ router.delete(
 router.patch(
   "/:brandId/restore",
   authenticateToken,
-  authorize("brand:restore"),
+  authorize("BrandSettings", "update"),
   controller.restore
 );
 

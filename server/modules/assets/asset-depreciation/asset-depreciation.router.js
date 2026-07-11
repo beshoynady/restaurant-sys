@@ -1,6 +1,8 @@
 import express from "express";
 import assetDepreciationController from "./asset-depreciation.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
+import authorize from "../../../middlewares/authorize.js";
+import checkModuleEnabled from "../../../middlewares/checkModuleEnabled.js";
 import validate from "../../../middlewares/validate.js";
 import { 
   createAssetDepreciationSchema, 
@@ -14,34 +16,52 @@ const router = express.Router();
 
 // Create & GetAll
 router.route("/")
-  .post(authenticateToken, validate(createAssetDepreciationSchema), assetDepreciationController.create)
-  .get(authenticateToken, validate(queryAssetDepreciationSchema), assetDepreciationController.getAll)
+  .post(authenticateToken,
+    authorize("AssetDepreciations", "create"),
+    checkModuleEnabled("assets"), validate(createAssetDepreciationSchema), assetDepreciationController.create)
+  .get(authenticateToken,
+    authorize("AssetDepreciations", "read"),
+    checkModuleEnabled("assets"), validate(queryAssetDepreciationSchema), assetDepreciationController.getAll)
 ;
 
 // GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, validate(paramsAssetDepreciationSchema), assetDepreciationController.getOne)
-  .put(authenticateToken, validate(updateAssetDepreciationSchema), assetDepreciationController.update)
-  .delete(authenticateToken, validate(paramsAssetDepreciationSchema), assetDepreciationController.hardDelete) // soft delete
+  .get(authenticateToken,
+    authorize("AssetDepreciations", "read"),
+    checkModuleEnabled("assets"), validate(paramsAssetDepreciationSchema), assetDepreciationController.getOne)
+  .put(authenticateToken,
+    authorize("AssetDepreciations", "update"),
+    checkModuleEnabled("assets"), validate(updateAssetDepreciationSchema), assetDepreciationController.update)
+  .delete(authenticateToken,
+    authorize("AssetDepreciations", "delete"),
+    checkModuleEnabled("assets"), validate(paramsAssetDepreciationSchema), assetDepreciationController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsAssetDepreciationSchema), assetDepreciationController.softDelete) // soft delete
+  .patch(authenticateToken,
+    authorize("AssetDepreciations", "delete"),
+    checkModuleEnabled("assets"), validate(paramsAssetDepreciationSchema), assetDepreciationController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsAssetDepreciationSchema), assetDepreciationController.restore)
+  .patch(authenticateToken,
+    authorize("AssetDepreciations", "update"),
+    checkModuleEnabled("assets"), validate(paramsAssetDepreciationSchema), assetDepreciationController.restore)
 ;
 
  // --- BULK HARD DELETE ---
   router.route("/bulk-delete")
-    .delete(authenticateToken, validate(paramsAssetDepreciationIdsSchema), assetDepreciationController.bulkHardDelete);
+    .delete(authenticateToken,
+    authorize("AssetDepreciations", "delete"),
+    checkModuleEnabled("assets"), validate(paramsAssetDepreciationIdsSchema), assetDepreciationController.bulkHardDelete);
 
 
   // --- BULK SOFT DELETE ---
   router.route("/bulk-soft-delete")
-    .patch(authenticateToken,validate(paramsAssetDepreciationIdsSchema), assetDepreciationController.bulkSoftDelete);
+    .patch(authenticateToken,
+    authorize("AssetDepreciations", "delete"),
+    checkModuleEnabled("assets"),validate(paramsAssetDepreciationIdsSchema), assetDepreciationController.bulkSoftDelete);
 
 
 export default router;

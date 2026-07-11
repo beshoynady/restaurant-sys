@@ -20,13 +20,13 @@ const router = express.Router();
 router.route("/")
   .post(
     authenticateToken,
-    authorize("branch.create"),
+    authorize("Branches", "create"),
     validate(createBranchSchema),
     branchController.create
   )
   .get(
     authenticateToken,
-    authorize("branch.read"),
+    authorize("Branches", "read"),
     validate(queryBranchSchema, "query"),
     branchController.getAllBranches
   );
@@ -37,19 +37,19 @@ router.route("/")
 router.route("/:id")
   .get(
     authenticateToken,
-    authorize("branch.read"),
+    authorize("Branches", "read"),
     validate(paramsBranchSchema, "params"),
     branchController.getOne
   )
   .put(
     authenticateToken,
-    authorize("branch.update"),
+    authorize("Branches", "update"),
     validate(updateBranchSchema),
     branchController.update
   )
   .delete(
     authenticateToken,
-    authorize("branch.delete"),
+    authorize("Branches", "delete"),
     validate(paramsBranchSchema, "params"),
     branchController.hardDelete
   );
@@ -60,7 +60,7 @@ router.route("/:id")
 router.patch(
   "/soft-delete/:id",
   authenticateToken,
-  authorize("branch.delete"),
+  authorize("Branches", "delete"),
   validate(paramsBranchSchema, "params"),
   branchController.softDelete
 );
@@ -68,7 +68,7 @@ router.patch(
 router.patch(
   "/restore/:id",
   authenticateToken,
-  authorize("branch.restore"),
+  authorize("Branches", "update"),
   validate(paramsBranchSchema, "params"),
   branchController.restore
 );
@@ -79,7 +79,7 @@ router.patch(
 router.delete(
   "/bulk-delete",
   authenticateToken,
-  authorize("branch.delete"),
+  authorize("Branches", "delete"),
   validate(paramsBranchIdsSchema),
   branchController.bulkHardDelete
 );
@@ -87,7 +87,7 @@ router.delete(
 router.patch(
   "/bulk-soft-delete",
   authenticateToken,
-  authorize("branch.delete"),
+  authorize("Branches", "delete"),
   validate(paramsBranchIdsSchema),
   branchController.bulkSoftDelete
 );
@@ -98,7 +98,7 @@ router.patch(
 router.patch(
   "/set-main/:id",
   authenticateToken,
-  authorize("branch.update"),
+  authorize("Branches", "update"),
   validate(paramsBranchSchema, "params"),
   branchController.setMainBranch
 );

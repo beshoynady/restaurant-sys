@@ -3,6 +3,8 @@
 import express from "express";
 import deliveryAreaController from "./delivery-area.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
+import authorize from "../../../middlewares/authorize.js";
+import checkModuleEnabled from "../../../middlewares/checkModuleEnabled.js";
 import validate from "../../../middlewares/validate.js";
 
 import {
@@ -52,12 +54,16 @@ router
   .route("/")
   .post(
     authenticateToken,
+    authorize("DeliveryAreas", "create"),
+    checkModuleEnabled("delivery"),
     deliveryAreaConfig,
     validate(createDeliveryAreaSchema),
     deliveryAreaController.create,
   )
   .get(
     authenticateToken,
+    authorize("DeliveryAreas", "read"),
+    checkModuleEnabled("delivery"),
     deliveryAreaConfig,
     validate(queryDeliveryAreaSchema),
     deliveryAreaController.getAll,
@@ -67,18 +73,24 @@ router
   .route("/:id")
   .get(
     authenticateToken,
+    authorize("DeliveryAreas", "read"),
+    checkModuleEnabled("delivery"),
     deliveryAreaConfig,
     validate(paramsDeliveryAreaSchema),
     deliveryAreaController.getOne,
   )
   .put(
     authenticateToken,
+    authorize("DeliveryAreas", "update"),
+    checkModuleEnabled("delivery"),
     deliveryAreaConfig,
     validate(updateDeliveryAreaSchema),
     deliveryAreaController.update,
   )
   .delete(
     authenticateToken,
+    authorize("DeliveryAreas", "delete"),
+    checkModuleEnabled("delivery"),
     validate(paramsDeliveryAreaSchema),
     deliveryAreaController.hardDelete,
   );
@@ -87,6 +99,8 @@ router
 router.patch(
   "/soft-delete/:id",
   authenticateToken,
+    authorize("DeliveryAreas", "delete"),
+    checkModuleEnabled("delivery"),
   validate(paramsDeliveryAreaSchema),
   deliveryAreaController.softDelete,
 );
@@ -95,6 +109,8 @@ router.patch(
 router.patch(
   "/restore/:id",
   authenticateToken,
+    authorize("DeliveryAreas", "update"),
+    checkModuleEnabled("delivery"),
   validate(paramsDeliveryAreaSchema),
   deliveryAreaController.restore,
 );
@@ -103,6 +119,8 @@ router.patch(
 router.delete(
   "/bulk-delete",
   authenticateToken,
+    authorize("DeliveryAreas", "delete"),
+    checkModuleEnabled("delivery"),
   validate(paramsDeliveryAreaIdsSchema),
   deliveryAreaController.bulkHardDelete,
 );
@@ -110,6 +128,8 @@ router.delete(
 router.patch(
   "/bulk-soft-delete",
   authenticateToken,
+    authorize("DeliveryAreas", "delete"),
+    checkModuleEnabled("delivery"),
   validate(paramsDeliveryAreaIdsSchema),
   deliveryAreaController.bulkSoftDelete,
 );

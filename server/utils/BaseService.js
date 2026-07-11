@@ -30,6 +30,11 @@ class BaseService {
     model,
     {
       brandScoped = true,
+      // Opt-in only: most modules apply branch isolation manually today.
+      // Defaulting to false keeps every existing module's behavior unchanged;
+      // set `branchScoped: true` for models that must never leak data across
+      // branches within the same brand.
+      branchScoped = false,
       enableSoftDelete = true,
       defaultSort = { createdAt: -1 },
       searchableFields = [],
@@ -39,6 +44,7 @@ class BaseService {
     this.model = model;
 
     this.brandScoped = brandScoped;
+    this.branchScoped = branchScoped;
     this.enableSoftDelete = enableSoftDelete;
 
     this.defaultSort = defaultSort;
@@ -64,6 +70,7 @@ class BaseService {
    */
   buildBaseQuery({
     brandId = null,
+    branchId = null,
     includeDeleted = false,
     filters = {},
   } = {}) {
@@ -71,6 +78,10 @@ class BaseService {
 
     if (this.brandScoped && brandId) {
       query.brand = brandId;
+    }
+
+    if (this.branchScoped && branchId) {
+      query.branch = branchId;
     }
 
     if (this.enableSoftDelete) {
@@ -167,11 +178,15 @@ class BaseService {
   /*                                  Create                                    */
   /* -------------------------------------------------------------------------- */
 
-  async create({ brandId, data, createdBy = null, session = null }) {
+  async create({ brandId, branchId = null, data, createdBy = null, session = null }) {
     let payload = { ...data };
 
     if (this.brandScoped) {
       payload.brand = brandId;
+    }
+
+    if (this.branchScoped && branchId) {
+      payload.branch = branchId;
     }
 
     if (createdBy) {
@@ -191,6 +206,7 @@ class BaseService {
 
   async getAll({
     brandId,
+    branchId = null,
     page = 1,
     limit = 10,
     search = "",
@@ -207,6 +223,7 @@ class BaseService {
 
     let query = this.buildBaseQuery({
       brandId,
+      branchId,
       includeDeleted,
       filters,
     });
@@ -254,6 +271,7 @@ class BaseService {
   async findById({
     id,
     brandId,
+    branchId = null,
     select = null,
     populate = [],
     includeDeleted = false,
@@ -265,6 +283,7 @@ class BaseService {
         _id: id,
         ...this.buildBaseQuery({
           brandId,
+          branchId,
           includeDeleted,
         }),
       })
@@ -289,7 +308,7 @@ class BaseService {
   /*                                   Update                                   */
   /* -------------------------------------------------------------------------- */
 
-  async update({ id, brandId, data, updatedBy = null, session = null }) {
+  async update({ id, brandId, branchId = null, data, updatedBy = null, session = null }) {
     this.validateObjectId(id);
 
     let payload = this.sanitizeUpdatePayload(data);
@@ -306,6 +325,7 @@ class BaseService {
           _id: id,
           ...this.buildBaseQuery({
             brandId,
+            branchId,
           }),
         },
         {
@@ -330,7 +350,7 @@ class BaseService {
   /*                                Soft Delete                                 */
   /* -------------------------------------------------------------------------- */
 
-  async softDelete({ id, brandId, deletedBy = null, session = null }) {
+  async softDelete({ id, brandId, branchId = null, deletedBy = null, session = null }) {
     this.validateObjectId(id);
 
     const document = await this.model
@@ -339,6 +359,7 @@ class BaseService {
           _id: id,
           ...this.buildBaseQuery({
             brandId,
+            branchId,
           }),
         },
         {
@@ -366,7 +387,7 @@ class BaseService {
   /*                                  Restore                                   */
   /* -------------------------------------------------------------------------- */
 
-  async restore({ id, brandId, session = null }) {
+  async restore({ id, brandId, branchId = null, session = null }) {
     this.validateObjectId(id);
 
     const document = await this.model
@@ -375,6 +396,7 @@ class BaseService {
           _id: id,
           ...this.buildBaseQuery({
             brandId,
+            branchId,
             includeDeleted: true,
           }),
         },
@@ -403,13 +425,14 @@ class BaseService {
   /*                                Hard Delete                                 */
   /* -------------------------------------------------------------------------- */
 
-  async hardDelete({ id, brandId = null, session = null }) {
+  async hardDelete({ id, brandId = null, branchId = null, session = null }) {
     this.validateObjectId(id);
 
     return this.model
       .deleteOne({
         _id: id,
         ...(this.brandScoped && brandId ? { brand: brandId } : {}),
+        ...(this.branchScoped && branchId ? { branch: branchId } : {}),
       })
       .session(session);
   }
@@ -418,12 +441,13 @@ class BaseService {
   /*                             Bulk Soft Delete                               */
   /* -------------------------------------------------------------------------- */
 
-  async bulkSoftDelete({ ids, brandId, deletedBy = null }) {
+  async bulkSoftDelete({ ids, brandId, branchId = null, deletedBy = null }) {
     return this.model.updateMany(
       {
         _id: { $in: ids },
         ...this.buildBaseQuery({
           brandId,
+          branchId,
         }),
       },
       {
@@ -440,12 +464,13 @@ class BaseService {
   /*                               Bulk Restore                                 */
   /* -------------------------------------------------------------------------- */
 
-  async bulkRestore({ ids, brandId }) {
+  async bulkRestore({ ids, brandId, branchId = null }) {
     return this.model.updateMany(
       {
         _id: { $in: ids },
         ...this.buildBaseQuery({
           brandId,
+          branchId,
           includeDeleted: true,
         }),
       },
@@ -463,10 +488,11 @@ class BaseService {
   /*                             Bulk Hard Delete                               */
   /* -------------------------------------------------------------------------- */
 
-  async bulkHardDelete({ ids, brandId = null }) {
+  async bulkHardDelete({ ids, brandId = null, branchId = null }) {
     return this.model.deleteMany({
       _id: { $in: ids },
       ...(this.brandScoped && brandId ? { brand: brandId } : {}),
+      ...(this.branchScoped && branchId ? { branch: branchId } : {}),
     });
   }
 
@@ -474,11 +500,12 @@ class BaseService {
   /*                                   Exists                                   */
   /* -------------------------------------------------------------------------- */
 
-  async exists({ id, brandId }) {
+  async exists({ id, brandId, branchId = null }) {
     return this.model.exists({
       _id: id,
       ...this.buildBaseQuery({
         brandId,
+        branchId,
       }),
     });
   }
@@ -487,10 +514,11 @@ class BaseService {
   /*                                    Count                                   */
   /* -------------------------------------------------------------------------- */
 
-  async count({ brandId, filters = {}, includeDeleted = false }) {
+  async count({ brandId, branchId = null, filters = {}, includeDeleted = false }) {
     return this.model.countDocuments(
       this.buildBaseQuery({
         brandId,
+        branchId,
         includeDeleted,
         filters,
       }),

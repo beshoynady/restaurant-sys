@@ -1,6 +1,8 @@
 import express from "express";
 import costCenterController from "./cost-center.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
+import authorize from "../../../middlewares/authorize.js";
+import checkModuleEnabled from "../../../middlewares/checkModuleEnabled.js";
 import validate from "../../../middlewares/validate.js";
 import { 
   createCostCenterSchema, 
@@ -14,34 +16,52 @@ const router = express.Router();
 
 // Create & GetAll
 router.route("/")
-  .post(authenticateToken, validate(createCostCenterSchema), costCenterController.create)
-  .get(authenticateToken, validate(queryCostCenterSchema), costCenterController.getAll)
+  .post(authenticateToken,
+    authorize("CostCenters", "create"),
+    checkModuleEnabled("accounting"), validate(createCostCenterSchema), costCenterController.create)
+  .get(authenticateToken,
+    authorize("CostCenters", "read"),
+    checkModuleEnabled("accounting"), validate(queryCostCenterSchema), costCenterController.getAll)
 ;
 
 // GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, validate(paramsCostCenterSchema), costCenterController.getOne)
-  .put(authenticateToken, validate(updateCostCenterSchema), costCenterController.update)
-  .delete(authenticateToken, validate(paramsCostCenterSchema), costCenterController.hardDelete) // soft delete
+  .get(authenticateToken,
+    authorize("CostCenters", "read"),
+    checkModuleEnabled("accounting"), validate(paramsCostCenterSchema), costCenterController.getOne)
+  .put(authenticateToken,
+    authorize("CostCenters", "update"),
+    checkModuleEnabled("accounting"), validate(updateCostCenterSchema), costCenterController.update)
+  .delete(authenticateToken,
+    authorize("CostCenters", "delete"),
+    checkModuleEnabled("accounting"), validate(paramsCostCenterSchema), costCenterController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsCostCenterSchema), costCenterController.softDelete) // soft delete
+  .patch(authenticateToken,
+    authorize("CostCenters", "delete"),
+    checkModuleEnabled("accounting"), validate(paramsCostCenterSchema), costCenterController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsCostCenterSchema), costCenterController.restore)
+  .patch(authenticateToken,
+    authorize("CostCenters", "update"),
+    checkModuleEnabled("accounting"), validate(paramsCostCenterSchema), costCenterController.restore)
 ;
 
  // --- BULK HARD DELETE ---
   router.route("/bulk-delete")
-    .delete(authenticateToken, validate(paramsCostCenterIdsSchema), costCenterController.bulkHardDelete);
+    .delete(authenticateToken,
+    authorize("CostCenters", "delete"),
+    checkModuleEnabled("accounting"), validate(paramsCostCenterIdsSchema), costCenterController.bulkHardDelete);
 
 
   // --- BULK SOFT DELETE ---
   router.route("/bulk-soft-delete")
-    .patch(authenticateToken,validate(paramsCostCenterIdsSchema), costCenterController.bulkSoftDelete);
+    .patch(authenticateToken,
+    authorize("CostCenters", "delete"),
+    checkModuleEnabled("accounting"),validate(paramsCostCenterIdsSchema), costCenterController.bulkSoftDelete);
 
 
 export default router;

@@ -1,6 +1,8 @@
 import express from "express";
 import payrollController from "./payroll.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
+import authorize from "../../../middlewares/authorize.js";
+import checkModuleEnabled from "../../../middlewares/checkModuleEnabled.js";
 import validate from "../../../middlewares/validate.js";
 import { 
   createPayrollSchema, 
@@ -14,34 +16,52 @@ const router = express.Router();
 
 // Create & GetAll
 router.route("/")
-  .post(authenticateToken, validate(createPayrollSchema), payrollController.create)
-  .get(authenticateToken, validate(queryPayrollSchema), payrollController.getAll)
+  .post(authenticateToken,
+    authorize("Payrolls", "create"),
+    checkModuleEnabled("hr"), validate(createPayrollSchema), payrollController.create)
+  .get(authenticateToken,
+    authorize("Payrolls", "read"),
+    checkModuleEnabled("hr"), validate(queryPayrollSchema), payrollController.getAll)
 ;
 
 // GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, validate(paramsPayrollSchema), payrollController.getOne)
-  .put(authenticateToken, validate(updatePayrollSchema), payrollController.update)
-  .delete(authenticateToken, validate(paramsPayrollSchema), payrollController.hardDelete) // soft delete
+  .get(authenticateToken,
+    authorize("Payrolls", "read"),
+    checkModuleEnabled("hr"), validate(paramsPayrollSchema), payrollController.getOne)
+  .put(authenticateToken,
+    authorize("Payrolls", "update"),
+    checkModuleEnabled("hr"), validate(updatePayrollSchema), payrollController.update)
+  .delete(authenticateToken,
+    authorize("Payrolls", "delete"),
+    checkModuleEnabled("hr"), validate(paramsPayrollSchema), payrollController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsPayrollSchema), payrollController.softDelete) // soft delete
+  .patch(authenticateToken,
+    authorize("Payrolls", "delete"),
+    checkModuleEnabled("hr"), validate(paramsPayrollSchema), payrollController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsPayrollSchema), payrollController.restore)
+  .patch(authenticateToken,
+    authorize("Payrolls", "update"),
+    checkModuleEnabled("hr"), validate(paramsPayrollSchema), payrollController.restore)
 ;
 
  // --- BULK HARD DELETE ---
   router.route("/bulk-delete")
-    .delete(authenticateToken, validate(paramsPayrollIdsSchema), payrollController.bulkHardDelete);
+    .delete(authenticateToken,
+    authorize("Payrolls", "delete"),
+    checkModuleEnabled("hr"), validate(paramsPayrollIdsSchema), payrollController.bulkHardDelete);
 
 
   // --- BULK SOFT DELETE ---
   router.route("/bulk-soft-delete")
-    .patch(authenticateToken,validate(paramsPayrollIdsSchema), payrollController.bulkSoftDelete);
+    .patch(authenticateToken,
+    authorize("Payrolls", "delete"),
+    checkModuleEnabled("hr"),validate(paramsPayrollIdsSchema), payrollController.bulkSoftDelete);
 
 
 export default router;

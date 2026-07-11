@@ -6,6 +6,7 @@ import CustomerLoyaltyController from "./customer-loyalty.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
 import authenticateCustomerToken from "../../../middlewares/authenticate-customer.js";
 import authorize from "../../../middlewares/authorize.js";
+import checkModuleEnabled from "../../../middlewares/checkModuleEnabled.js";
 import validate from "../../../middlewares/validate.js";
 
 import {
@@ -23,7 +24,8 @@ router.use("/admin", authenticateToken);
 // Create wallet
 router.post(
   "/admin",
-  authorize("loyalty_wallet_create"),
+  authorize("CustomerLoyalty", "create"),
+    checkModuleEnabled("loyalty"),
   validate(createCustomerLoyaltySchema),
   CustomerLoyaltyController.create
 );
@@ -31,7 +33,8 @@ router.post(
 // Get wallets
 router.get(
   "/admin",
-  authorize("loyalty_wallet_view"),
+  authorize("CustomerLoyalty", "read"),
+    checkModuleEnabled("loyalty"),
   validate(queryCustomerLoyaltySchema),
   CustomerLoyaltyController.getAll
 );
@@ -39,7 +42,8 @@ router.get(
 // Get one
 router.get(
   "/admin/:id",
-  authorize("loyalty_wallet_view"),
+  authorize("CustomerLoyalty", "read"),
+    checkModuleEnabled("loyalty"),
   validate(paramsCustomerLoyaltySchema),
   CustomerLoyaltyController.getOne
 );

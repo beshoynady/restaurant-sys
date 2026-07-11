@@ -55,14 +55,14 @@ router.get(
 router.route("/")
   .post(
     authenticateToken,
-    authorize("branch_settings.create"),
+    authorize("BranchSettings", "create"),
     branchSettingsConfig,
     validate(createBranchSettingsSchema),
     branchSettingsController.create
   )
   .get(
     authenticateToken,
-    authorize("branch_settings.view"),
+    authorize("BranchSettings", "read"),
     branchSettingsConfig,
     validate(queryBranchSettingsSchema),
     branchSettingsController.getAll
@@ -71,21 +71,21 @@ router.route("/")
 router.route("/:id")
   .get(
     authenticateToken,
-    authorize("branch_settings.view"),
+    authorize("BranchSettings", "read"),
     branchSettingsConfig,
     validate(paramsBranchSettingsSchema),
     branchSettingsController.getOne
   )
   .put(
     authenticateToken,
-    authorize("branch_settings.update"),
+    authorize("BranchSettings", "update"),
     branchSettingsConfig,
     validate(updateBranchSettingsSchema),
     branchSettingsController.update
   )
   .delete(
     authenticateToken,
-    authorize("branch_settings.delete"),
+    authorize("BranchSettings", "delete"),
     validate(paramsBranchSettingsSchema),
     branchSettingsController.hardDelete
   );
@@ -97,7 +97,7 @@ router.route("/:id")
 router.patch(
   "/soft-delete/:id",
   authenticateToken,
-  authorize("branch_settings.delete"),
+  authorize("BranchSettings", "delete"),
   validate(paramsBranchSettingsSchema),
   branchSettingsController.softDelete
 );
@@ -105,7 +105,7 @@ router.patch(
 router.patch(
   "/restore/:id",
   authenticateToken,
-  authorize("branch_settings.update"),
+  authorize("BranchSettings", "update"),
   validate(paramsBranchSettingsSchema),
   branchSettingsController.restore
 );
@@ -117,7 +117,7 @@ router.patch(
 router.delete(
   "/bulk-delete",
   authenticateToken,
-  authorize("branch_settings.delete"),
+  authorize("BranchSettings", "delete"),
   validate(paramsBranchSettingsIdsSchema),
   branchSettingsController.bulkHardDelete
 );
@@ -125,7 +125,7 @@ router.delete(
 router.patch(
   "/bulk-soft-delete",
   authenticateToken,
-  authorize("branch_settings.delete"),
+  authorize("BranchSettings", "delete"),
   validate(paramsBranchSettingsIdsSchema),
   branchSettingsController.bulkSoftDelete
 );

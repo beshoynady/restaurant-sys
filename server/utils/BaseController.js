@@ -51,10 +51,11 @@ class BaseController {
   /* -------------------------------------------------------------------------- */
 
   create = asyncHandler(async (req, res) => {
-    const { brandId, userId } = req.user;
+    const { brandId, branchId, userId } = req.user;
 
     const data = await this.service.create({
       brandId,
+      branchId,
       data: req.body,
       createdBy: userId,
     });
@@ -71,7 +72,7 @@ class BaseController {
   /* -------------------------------------------------------------------------- */
 
   getAll = asyncHandler(async (req, res) => {
-    const { brandId } = req.user;
+    const { brandId, branchId } = req.user;
 
     const {
       page = 1,
@@ -93,6 +94,7 @@ class BaseController {
 
     const result = await this.service.getAll({
       brandId,
+      branchId,
       page: Number(page),
       limit: Number(limit),
       search,
@@ -113,11 +115,12 @@ class BaseController {
   /* -------------------------------------------------------------------------- */
 
   getOne = asyncHandler(async (req, res) => {
-    const { brandId } = req.user;
+    const { brandId, branchId } = req.user;
 
     const data = await this.service.findById({
       id: req.params.id,
       brandId,
+      branchId,
     });
 
     return this.sendResponse(res, {
@@ -130,11 +133,12 @@ class BaseController {
   /* -------------------------------------------------------------------------- */
 
   update = asyncHandler(async (req, res) => {
-    const { brandId, userId } = req.user;
+    const { brandId, branchId, userId } = req.user;
 
     const data = await this.service.update({
       id: req.params.id,
       brandId,
+      branchId,
       data: req.body,
       updatedBy: userId,
     });
@@ -150,11 +154,12 @@ class BaseController {
   /* -------------------------------------------------------------------------- */
 
   softDelete = asyncHandler(async (req, res) => {
-    const { brandId, userId } = req.user;
+    const { brandId, branchId, userId } = req.user;
 
     const data = await this.service.softDelete({
       id: req.params.id,
       brandId,
+      branchId,
       deletedBy: userId,
     });
 
@@ -169,11 +174,12 @@ class BaseController {
   /* -------------------------------------------------------------------------- */
 
   restore = asyncHandler(async (req, res) => {
-    const { brandId } = req.user;
+    const { brandId, branchId } = req.user;
 
     const data = await this.service.restore({
       id: req.params.id,
       brandId,
+      branchId,
     });
 
     return this.sendResponse(res, {
@@ -187,8 +193,12 @@ class BaseController {
   /* -------------------------------------------------------------------------- */
 
   hardDelete = asyncHandler(async (req, res) => {
+    const { brandId, branchId } = req.user;
+
     await this.service.hardDelete({
       id: req.params.id,
+      brandId,
+      branchId,
     });
 
     return this.sendResponse(res, {
@@ -201,13 +211,14 @@ class BaseController {
   /* -------------------------------------------------------------------------- */
 
   bulkSoftDelete = asyncHandler(async (req, res) => {
-    const { brandId, userId } = req.user;
+    const { brandId, branchId, userId } = req.user;
 
     const { ids = [] } = req.body;
 
     const result = await this.service.bulkSoftDelete({
       ids,
       brandId,
+      branchId,
       deletedBy: userId,
     });
 
@@ -222,13 +233,14 @@ class BaseController {
   /* -------------------------------------------------------------------------- */
 
   bulkRestore = asyncHandler(async (req, res) => {
-    const { brandId } = req.user;
+    const { brandId, branchId } = req.user;
 
     const { ids = [] } = req.body;
 
     const result = await this.service.bulkRestore({
       ids,
       brandId,
+      branchId,
     });
 
     return this.sendResponse(res, {
@@ -242,9 +254,15 @@ class BaseController {
   /* -------------------------------------------------------------------------- */
 
   bulkHardDelete = asyncHandler(async (req, res) => {
+    const { brandId, branchId } = req.user;
+
     const { ids = [] } = req.body;
 
-    const result = await this.service.bulkHardDelete(ids);
+    const result = await this.service.bulkHardDelete({
+      ids,
+      brandId,
+      branchId,
+    });
 
     return this.sendResponse(res, {
       message: "Resources deleted permanently",
@@ -257,10 +275,11 @@ class BaseController {
   /* -------------------------------------------------------------------------- */
 
   count = asyncHandler(async (req, res) => {
-    const { brandId } = req.user;
+    const { brandId, branchId } = req.user;
 
     const total = await this.service.count({
       brandId,
+      branchId,
     });
 
     return this.sendResponse(res, {

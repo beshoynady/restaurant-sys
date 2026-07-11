@@ -1,6 +1,8 @@
 import express from "express";
 import employeeController from "./employee.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
+import authorize from "../../../middlewares/authorize.js";
+import checkModuleEnabled from "../../../middlewares/checkModuleEnabled.js";
 import validate from "../../../middlewares/validate.js";
 import {
   createEmployeeSchema,
@@ -21,12 +23,16 @@ const router = express.Router();
 // Create & GetAll
 router.route("/").post(
   authenticateToken,
+    authorize("Employees", "create"),
+    checkModuleEnabled("hr"),
   validate(createEmployeeSchema),
   employeeController.create,
 );
 
 router.route("/").get(
   authenticateToken,
+    authorize("Employees", "read"),
+    checkModuleEnabled("hr"),
   validate(queryEmployeeSchema),
   employeeController.getAll,
 );
@@ -34,16 +40,24 @@ router.route("/").get(
 // Count (supports same filters as list)
 router.route("/count").get(
   authenticateToken,
+    authorize("Employees", "read"),
+    checkModuleEnabled("hr"),
   validate(queryEmployeeSchema),
   employeeController.count,
 );
 
 // GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, validate(paramsEmployeeSchema), employeeController.getOne)
-  .put(authenticateToken, validate(updateEmployeeSchema), employeeController.update)
+  .get(authenticateToken,
+    authorize("Employees", "read"),
+    checkModuleEnabled("hr"), validate(paramsEmployeeSchema), employeeController.getOne)
+  .put(authenticateToken,
+    authorize("Employees", "update"),
+    checkModuleEnabled("hr"), validate(updateEmployeeSchema), employeeController.update)
   .delete(
     authenticateToken,
+    authorize("Employees", "delete"),
+    checkModuleEnabled("hr"),
     validate(paramsEmployeeSchema),
     employeeController.hardDelete,
   );
@@ -51,6 +65,8 @@ router.route("/:id")
 // Soft Delete
 router.route("/soft-delete/:id").patch(
   authenticateToken,
+    authorize("Employees", "delete"),
+    checkModuleEnabled("hr"),
   validate(paramsEmployeeSchema),
   employeeController.softDelete,
 );
@@ -58,6 +74,8 @@ router.route("/soft-delete/:id").patch(
 // Restore soft-deleted item
 router.route("/restore/:id").patch(
   authenticateToken,
+    authorize("Employees", "update"),
+    checkModuleEnabled("hr"),
   validate(paramsEmployeeSchema),
   employeeController.restore,
 );
@@ -65,6 +83,8 @@ router.route("/restore/:id").patch(
 // --- BULK HARD DELETE ---
 router.route("/bulk-delete").delete(
   authenticateToken,
+    authorize("Employees", "delete"),
+    checkModuleEnabled("hr"),
   validate(paramsEmployeeIdsSchema),
   employeeController.bulkHardDelete,
 );
@@ -72,6 +92,8 @@ router.route("/bulk-delete").delete(
 // --- BULK SOFT DELETE ---
 router.route("/bulk-soft-delete").patch(
   authenticateToken,
+    authorize("Employees", "delete"),
+    checkModuleEnabled("hr"),
   validate(paramsEmployeeIdsSchema),
   employeeController.bulkSoftDelete,
 );

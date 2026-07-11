@@ -9,7 +9,7 @@ import setupRouter from "../../modules/system-setup/setup.router.js";
 // ========================
 import brandRouter from "../../modules/organization/brand/brand.router.js";
 import branchRouter from "../../modules/organization/branch/branch.router.js";
-// import brandSettingsRouter from "../../modules/organization/brand-settings/brand-settings.router.js";
+import brandSettingsRouter from "../../modules/organization/brand-settings/brand-settings.router.js";
 import branchSettingsRouter from "../../modules/organization/branch-settings/branch-settings.router.js";
 import deliveryAreaRouter from "../../modules/organization/delivery-area/delivery-area.router.js";
 
@@ -128,7 +128,7 @@ router.use("/setup", setupRouter);
 // Organization
 router.use("/organization/brand", brandRouter);
 router.use("/organization/branches", branchRouter);
-// router.use("/organization/brand-settings", brandSettingsRouter);
+router.use("/organization/brand-settings", brandSettingsRouter);
 router.use("/organization/branch-settings", branchSettingsRouter);
 router.use("/organization/delivery-areas", deliveryAreaRouter);
 

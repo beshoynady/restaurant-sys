@@ -19,8 +19,10 @@ import connectDB from "./database/connect-db.js";
 // Load environment variables
 dotenv.config();
 
-// Connect to MongoDB
-connectDB();
+// Connect to MongoDB (awaited: the app must not accept traffic before the
+// DB connection is established, otherwise early requests race an unready
+// connection).
+await connectDB();
 
 const app = express();
 const frontEnd = process.env.FRONT_END_URL;

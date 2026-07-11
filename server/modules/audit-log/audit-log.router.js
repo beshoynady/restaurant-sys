@@ -1,6 +1,7 @@
 import express from "express";
 import auditLogController from "./audit-log.controller.js";
 import authenticateToken from "../../middlewares/authenticate.js";
+import authorize from "../../middlewares/authorize.js";
 import validate from "../../middlewares/validate.js";
 import {
   createAuditLogSchema,
@@ -16,32 +17,40 @@ const router = express.Router();
 router.route("/")
   .post(
     authenticateToken,
+    authorize("AuditLogs", "create"),
     validate(createAuditLogSchema),
     auditLogController.create,
   )
   .get(
     authenticateToken,
+    authorize("AuditLogs", "read"),
     validate(queryAuditLogSchema),
     auditLogController.getAll,
   );
 
 // GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, validate(paramsAuditLogSchema), auditLogController.getOne)
-  .put(authenticateToken, validate(updateAuditLogSchema), auditLogController.update)
-  .delete(authenticateToken, validate(paramsAuditLogSchema), auditLogController.hardDelete);
+  .get(authenticateToken,
+    authorize("AuditLogs", "read"), validate(paramsAuditLogSchema), auditLogController.getOne)
+  .put(authenticateToken,
+    authorize("AuditLogs", "update"), validate(updateAuditLogSchema), auditLogController.update)
+  .delete(authenticateToken,
+    authorize("AuditLogs", "delete"), validate(paramsAuditLogSchema), auditLogController.hardDelete);
 
 // Soft delete/restore
 router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsAuditLogSchema), auditLogController.softDelete);
+  .patch(authenticateToken,
+    authorize("AuditLogs", "delete"), validate(paramsAuditLogSchema), auditLogController.softDelete);
 
 router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsAuditLogSchema), auditLogController.restore);
+  .patch(authenticateToken,
+    authorize("AuditLogs", "update"), validate(paramsAuditLogSchema), auditLogController.restore);
 
 // Bulk hard delete
 router.route("/bulk-delete")
   .delete(
     authenticateToken,
+    authorize("AuditLogs", "delete"),
     validate(paramsAuditLogIdsSchema),
     auditLogController.bulkHardDelete,
   );
@@ -50,6 +59,7 @@ router.route("/bulk-delete")
 router.route("/bulk-soft-delete")
   .patch(
     authenticateToken,
+    authorize("AuditLogs", "delete"),
     validate(paramsAuditLogIdsSchema),
     auditLogController.bulkSoftDelete,
   );

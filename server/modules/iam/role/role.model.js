@@ -12,6 +12,7 @@ const { ObjectId } = Schema.Types;
 export const RESOURCE_ENUM = [
   // ================= CORE BUSINESS =================
   "Brands",
+  "BrandSettings",
   "Branches",
   "BranchSettings",
   "DeliveryAreas",
@@ -108,6 +109,25 @@ export const RESOURCE_ENUM = [
   "FinancialReports",
   "EmployeeReports",
   "OperationalReports",
+
+  // ================= CRM =================
+  "Messages",
+  "OfflineCustomers",
+  "OnlineCustomers",
+
+  // ================= LOYALTY =================
+  "CustomerLoyalty",
+
+  // ================= SEATING =================
+  "Tables",
+  "Reservations",
+
+  // ================= ACCOUNTING (extra) =================
+  "AccountBalances",
+  "Ledgers",
+
+  // ================= AUDIT =================
+  "AuditLogs",
 ];
 
 const roleSchema = new Schema(

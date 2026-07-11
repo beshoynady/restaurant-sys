@@ -23,13 +23,13 @@ router
   .route("/")
   .post(
     authenticateToken,
-    authorize("brand:create"),
+    authorize("Brands", "create"),
     validate(createBrandSchema),
     brandController.create,
   )
   .get(
     authenticateToken,
-    authorize("brand:read"),
+    authorize("Brands", "read"),
     validate(queryBrandSchema, "query"),
     brandController.getAll,
   );
@@ -38,7 +38,7 @@ router
 router.get(
   "/search",
   authenticateToken,
-  authorize("brand:read"),
+  authorize("Brands", "read"),
   brandController.search,
 );
 
@@ -46,7 +46,7 @@ router.get(
 router.get(
   "/:id/setup",
   authenticateToken,
-  authorize("brand:read"),
+  authorize("Brands", "read"),
   brandController.getSetupStatus,
 );
 
@@ -54,7 +54,7 @@ router.get(
 router.get(
   "/:id/summary",
   authenticateToken,
-  authorize("brand:read"),
+  authorize("Brands", "read"),
   validate(paramsBrandSchema, "params"),
   brandController.getSummary,
 );
@@ -64,20 +64,20 @@ router
   .route("/:id")
   .get(
     authenticateToken,
-    authorize("brand:read"),
+    authorize("Brands", "read"),
     validate(paramsBrandSchema, "params"),
     brandController.getOne,
   )
   .put(
     authenticateToken,
-    authorize("brand:update"),
+    authorize("Brands", "update"),
     validate(paramsBrandSchema, "params"),
     validate(updateBrandSchema),
     brandController.update,
   )
   .delete(
     authenticateToken,
-    authorize("brand:delete"),
+    authorize("Brands", "delete"),
     validate(paramsBrandSchema, "params"),
     brandController.hardDelete,
   );
@@ -86,7 +86,7 @@ router
 router.patch(
   "/:id/status",
   authenticateToken,
-  authorize("brand:update"),
+  authorize("Brands", "update"),
   validate(changeStatusSchema),
   brandController.changeStatus,
 );
@@ -95,7 +95,7 @@ router.patch(
 router.patch(
   "/:id/logo",
   authenticateToken,
-  authorize("brand:update"),
+  authorize("Brands", "update"),
   validate(updateLogoSchema),
   brandController.updateLogo,
 );
@@ -104,7 +104,7 @@ router.patch(
 router.patch(
   "/:id/settings",
   authenticateToken,
-  authorize("brand:update"),
+  authorize("Brands", "update"),
   validate(updateBrandSettingsSchema),
   brandController.updateSettings,
 );
@@ -113,7 +113,7 @@ router.patch(
 router.patch(
   "/:id/setup",
   authenticateToken,
-  authorize("brand:update"),
+  authorize("Brands", "update"),
   validate(setupProgressSchema),
   brandController.updateSetup,
 );
