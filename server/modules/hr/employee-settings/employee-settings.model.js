@@ -237,6 +237,13 @@ const employeeSettingSchema = new mongoose.Schema(
     // ===============================
     createdBy: { type: ObjectId, ref: "UserAccount" },
     updatedBy: { type: ObjectId, ref: "UserAccount" },
+
+    // Soft delete (required: BaseService.softDelete()/restore() write these
+    // fields, and getAll()'s default filter `{isDeleted:false}` never
+    // matches a document where the field is entirely absent).
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null },
+    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
   {
     timestamps: true,
@@ -244,10 +251,9 @@ const employeeSettingSchema = new mongoose.Schema(
   },
 );
 
-// ===============================
-// Indexes
-// ===============================
-employeeSettingSchema.index({ brand: 1 });
+// Note: no extra `.index({brand:1})` here — the `unique: true` on the
+// `brand` field above already creates that index; a second explicit index
+// on the same field is redundant.
 
 // ===============================
 // Middleware (Important)

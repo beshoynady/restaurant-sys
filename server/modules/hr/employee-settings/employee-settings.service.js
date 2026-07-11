@@ -1,12 +1,13 @@
-import EmployeeSettingsModel from "../../models/employees/employee-settings.model.js";
+import EmployeeSettingsModel from "./employee-settings.model.js";
 import AdvancedService from "../../../utils/BaseService.js";
 
 // Initialize service for employee-settings model
 const employeeSettingsService = new AdvancedService(EmployeeSettingsModel, {
   brandScoped: true,
-  softDelete: true,
-  defaultPopulate: ["brand","createdBy","updatedBy"],
-  searchFields: [], // specify searchable fields if needed
+  branchScoped: false, // this settings doc has no `branch` field — brand-wide only
+  enableSoftDelete: true,
+  defaultPopulate: ["brand", "createdBy", "updatedBy"],
+  searchableFields: [],
   defaultSort: { createdAt: -1 },
 });
 
