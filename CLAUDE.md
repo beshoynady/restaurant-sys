@@ -12,14 +12,14 @@ That document is the architectural source of truth — SaaS multi-tenancy model 
 - `app/` — frontend.
 - `docs/` — project documentation. `docs/PROJECT_VISION_ar.md` is the architectural source of truth (Arabic, exception — see language policy above). Server-level technical docs and one doc per module are planned (English) — see "Documentation system" below.
 
-## Documentation system (planned)
+## Documentation system
 
 Two levels, English, technical and concise, aimed at a programmer picking up the code:
 
-1. **Server-level doc** — stack/bootstrap flow, the model/service/controller/router/validation module pattern and how to scaffold a new module the same way, `BaseService`/`BaseController` and their override hooks, the security pipeline (auth → tenant/brand/branch → module-enabled → permission → settings → business logic), multi-tenancy rules, local setup/env vars, testing (Jest).
+1. **Server-level doc** — [server/BACKEND_FOUNDATION.md](server/BACKEND_FOUNDATION.md). Covers the foundation layer: what changed in the 2026-07-11 review, why, how the request pipeline/`BaseService`/`BaseController`/RBAC/feature-toggle/multi-tenancy work now, and the mandatory checklist for building any new module on top of it. Read this before touching `server/`.
 2. **Per-module doc** (one file per entity, e.g. `modules/hr/employee/EMPLOYEE.module.md` — already-existing examples to follow as the template): business purpose, schema field/relationship reference, endpoints with required permissions, non-CRUD business logic, related settings.
 
-Not yet written for most modules — build incrementally, matching this structure, rather than inventing a new format per module.
+Per-module docs not yet written for most modules — build incrementally, matching the template, rather than inventing a new format per module.
 
 ## Foundation review (2026-07-11) — status
 
