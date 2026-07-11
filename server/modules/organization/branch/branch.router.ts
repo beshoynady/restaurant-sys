@@ -17,41 +17,43 @@ const router = express.Router();
 /* =========================
    CREATE + LIST
 ========================= */
-router.route("/")
+router
+  .route("/")
   .post(
     authenticateToken,
     authorize("Branches", "create"),
     validate(createBranchSchema),
-    branchController.create
+    branchController.create,
   )
   .get(
     authenticateToken,
     authorize("Branches", "read"),
     validate(queryBranchSchema, "query"),
-    branchController.getAllBranches
+    branchController.getAllBranches,
   );
 
 /* =========================
    SINGLE
 ========================= */
-router.route("/:id")
+router
+  .route("/:id")
   .get(
     authenticateToken,
     authorize("Branches", "read"),
     validate(paramsBranchSchema, "params"),
-    branchController.getOne
+    branchController.getOne,
   )
   .put(
     authenticateToken,
     authorize("Branches", "update"),
     validate(updateBranchSchema),
-    branchController.update
+    branchController.update,
   )
   .delete(
     authenticateToken,
     authorize("Branches", "delete"),
     validate(paramsBranchSchema, "params"),
-    branchController.hardDelete
+    branchController.hardDelete,
   );
 
 /* =========================
@@ -62,7 +64,7 @@ router.patch(
   authenticateToken,
   authorize("Branches", "delete"),
   validate(paramsBranchSchema, "params"),
-  branchController.softDelete
+  branchController.softDelete,
 );
 
 router.patch(
@@ -70,7 +72,7 @@ router.patch(
   authenticateToken,
   authorize("Branches", "update"),
   validate(paramsBranchSchema, "params"),
-  branchController.restore
+  branchController.restore,
 );
 
 /* =========================
@@ -81,7 +83,7 @@ router.delete(
   authenticateToken,
   authorize("Branches", "delete"),
   validate(paramsBranchIdsSchema),
-  branchController.bulkHardDelete
+  branchController.bulkHardDelete,
 );
 
 router.patch(
@@ -89,7 +91,7 @@ router.patch(
   authenticateToken,
   authorize("Branches", "delete"),
   validate(paramsBranchIdsSchema),
-  branchController.bulkSoftDelete
+  branchController.bulkSoftDelete,
 );
 
 /* =========================
@@ -100,7 +102,7 @@ router.patch(
   authenticateToken,
   authorize("Branches", "update"),
   validate(paramsBranchSchema, "params"),
-  branchController.setMainBranch
+  branchController.setMainBranch,
 );
 
 export default router;

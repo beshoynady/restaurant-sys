@@ -212,6 +212,7 @@ This is the authoritative rule — restated from §4.2 item 7:
 
 - **Existing modules stay JavaScript** until they come up for rebuild/refactor in `IMPLEMENTATION_PLAN.md`'s module order. Nothing was converted in this pass.
 - **Every new module, and every module rebuilt from now on, is written entirely in TypeScript** — model, service, controller, router, and validation files all `.ts`.
+- **Confirmed: conversion means an actual file rename, not just TS-flavored syntax kept in a `.js` file.** `order.model.js` → `order.model.ts`, `order.service.js` → `order.service.ts`, and so on for every file in the module. The old `.js` file is removed as part of the same change, not left alongside its `.ts` replacement — a `.js` and a `.ts` file with the same basename must never coexist (this is also what the self-referential-import bug in §1 was specifically about).
 - **A module must never contain a mix of `.js` and `.ts` files.** If a module is being rebuilt, convert all 5 files in the same change, not incrementally file-by-file.
 - Infrastructure (`middlewares/`, `utils/`, `router/v1/`) is already TypeScript from the earlier foundation review and is unaffected by this rule.
 
@@ -246,6 +247,32 @@ No test script was added or changed in this pass — testing infrastructure (Jes
 - Relative imports, `.js` extension on the specifier even in `.ts` source files (§5.2) — this matches the pattern already used by every existing `.ts` infrastructure file; do not deviate per-module.
 - No path aliases yet (§5.2) — use relative paths (`../../../utils/BaseService.js` etc.) exactly as the JS modules do today, for consistency until aliases are revisited.
 - Prefer real types over `any` in new TypeScript modules — `strictTypeChecked` will flag `any` usage; the existing `.ts` infra files' `any`-heavy patterns are legacy, not the standard to copy going forward.
+
+---
+
+## 6. Module Complexity Tiering (binding rule for all refactoring/rebuild work)
+
+Decided 2026-07-11, during the Organization module review. **Do not add abstractions, layers, methods, files, or patterns unless they solve a real problem in the specific module being worked on.** Prefer the simplest architecture that satisfies current business requirements while remaining extensible. This overrides any generic "always fully rebuild with full DDD layering" instruction given for an individual task — that kind of instruction still applies, but scoped by the tier below, not applied uniformly to every module regardless of its actual complexity.
+
+Every module falls into exactly one of three tiers. The tier determines how much structure it's allowed to carry — not a ceiling to reach for its own sake, a ceiling not to exceed without a concrete reason tied to that module's own requirements.
+
+### Tier 1 — Simple CRUD
+**Structure:** `model.ts/js` + `service.ts/js` (thin `BaseService` instance) + `controller.ts/js` (thin `BaseController` instance) + `router.ts/js` + `validation.ts/js`. Nothing more. No domain services, no event emission, no extra CRUD methods beyond what `BaseService`/`BaseController` already provide.
+**Criteria:** no complex business rules, no workflow, changing it doesn't need to trigger anything elsewhere.
+**Modules:** `JobTitle`, `Department`, `MenuCategory`, `StockCategory`, `CostCenter`, `PaymentMethod`, `PaymentChannel`, every Configuration-classified settings module (all 19 from the Settings review — `accounting-settings`, `order-settings`, `loyalty-settings`, etc.), `BrandSettings`, `BranchSettings`, `DeliveryArea` (once its current field-name bugs are fixed — the bugs are Tier 1-appropriate surgical fixes, not a reason to move it up a tier).
+
+### Tier 2 — Business Modules
+**Structure:** Tier 1 plus real business-rule methods on the service (lifecycle hook overrides or named methods), transactions where a single logical operation touches more than one collection, and audit-trail writes where the action is sensitive. Still no dedicated Domain/Workflow Service split, no event bus.
+**Criteria:** real invariants to enforce (uniqueness beyond a DB index, cross-field validation, a state that must stay consistent), but the module's own boundary is where the consequences stop — it doesn't need to notify or trigger other modules.
+**Modules:** `Brand`, `Branch`, `Employee`, `Supplier`, `Account`, `JournalEntry`, `Asset`, `PurchaseInvoice`, `SalesReturn`, `Table`, `Reservation`.
+
+### Tier 3 — Workflow Modules
+**Structure:** full separation per the Architecture Review's Module Interfaces (§6) and Business Events catalog (§7) — CRUD stays in the base Service, but the actual workflow lives in a dedicated Domain/Workflow Service (e.g. `OrderWorkflowService`, `KitchenQueueService`) that the CRUD service and controller call into, not the other way around. Split into Repository/Mapper/DTO/Constants only when the module actually grows large enough that a single service file becomes hard to navigate — not preemptively.
+**Criteria:** the action has consequences outside the module's own collection — matches `IMPLEMENTATION_PLAN.md`'s Phase 2–4 modules.
+**Modules:** `Order`, `Invoice`, `Preparation`/Kitchen, `Inventory` (deduction/reservation), `Payments`, `Loyalty`, `Payroll`, `CashierShift`, `Accounting` (posting).
+
+### How to apply this
+When a module comes up for rebuild (per `IMPLEMENTATION_PLAN.md`'s module order), look it up in the table above (or classify it the same way if it's not listed — cross-reference `ARCHITECTURE_REVIEW.md` §6 Module Classification/§12 Readiness first) before writing any code, and build to that tier only. If the work reveals the module actually needs a tier higher than assigned here (a Tier 1 module turns out to need a transaction, say), that's a signal to update this table, not to quietly over-build every future Tier 1 module "just in case."
 
 ---
 

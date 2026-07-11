@@ -1,29 +1,23 @@
-import Joi from "joi";
-import {
-  createSchema,
-  updateSchema,
-  paramsSchema,
-  paramsIdsSchema,
-  querySchema,
-  objectId,
-} from "../../../utils/joiFactory.js";
-
+import Joi, { ObjectSchema } from "joi";
+import joiFactoryJs from "../../../utils/joiFactory.js";
 import BranchSettingsModel from "./branch-settings.model.js";
 
-/* =========================
-   Custom Validation
-========================= */
+const { createSchema, updateSchema, paramsSchema, paramsIdsSchema, querySchema } =
+  joiFactoryJs as {
+    createSchema: (schema: unknown) => ObjectSchema;
+    updateSchema: (schema: unknown, exclude?: string[]) => ObjectSchema;
+    paramsSchema: () => ObjectSchema;
+    paramsIdsSchema: () => ObjectSchema;
+    querySchema: () => ObjectSchema;
+  };
 
 // Validate time format HH:mm
 const timeSchema = Joi.string()
   .pattern(/^([01]\d|2[0-3]):([0-5]\d)$/)
   .message("Time must be in HH:mm format");
 
-/* =========================
-   Create Schema
-========================= */
-export const createBranchSettingsSchema = createSchema(
-  BranchSettingsModel.schema
+export const createBranchSettingsSchema: ObjectSchema = createSchema(
+  BranchSettingsModel.schema,
 ).keys({
   operatingHours: Joi.array().items(
     Joi.object({
@@ -62,29 +56,19 @@ export const createBranchSettingsSchema = createSchema(
               reason: Joi.string(),
               from: timeSchema,
               to: timeSchema,
-            })
+            }),
           ),
-        })
+        }),
       ),
-    })
+    }),
   ),
 });
 
-/* =========================
-   Update Schema
-========================= */
-export const updateBranchSettingsSchema = updateSchema(
+export const updateBranchSettingsSchema: ObjectSchema = updateSchema(
   BranchSettingsModel.schema,
-  ["updatedBy"]
+  ["updatedBy"],
 );
 
-/* =========================
-   Params
-========================= */
-export const paramsBranchSettingsSchema = paramsSchema();
-export const paramsBranchSettingsIdsSchema = paramsIdsSchema();
-
-/* =========================
-   Query
-========================= */
-export const queryBranchSettingsSchema = querySchema();
+export const paramsBranchSettingsSchema: ObjectSchema = paramsSchema();
+export const paramsBranchSettingsIdsSchema: ObjectSchema = paramsIdsSchema();
+export const queryBranchSettingsSchema: ObjectSchema = querySchema();

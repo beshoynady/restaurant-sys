@@ -1,0 +1,44 @@
+import Joi, { ObjectSchema } from "joi";
+import joiFactoryJs from "../../../utils/joiFactory.js";
+import BranchModel from "./branch.model.js";
+
+const { createSchema, updateSchema, paramsSchema, paramsIdsSchema } = joiFactoryJs as {
+  createSchema: (schema: unknown) => ObjectSchema;
+  updateSchema: (schema: unknown, exclude?: string[]) => ObjectSchema;
+  paramsSchema: () => ObjectSchema;
+  paramsIdsSchema: () => ObjectSchema;
+};
+
+export const createBranchSchema: ObjectSchema = createSchema(BranchModel.schema);
+
+export const updateBranchSchema: ObjectSchema = updateSchema(BranchModel.schema, [
+  "updatedBy",
+]);
+
+export const paramsBranchSchema: ObjectSchema = paramsSchema();
+export const paramsBranchIdsSchema: ObjectSchema = paramsIdsSchema();
+
+// Full frontend filtering surface (list/table screen) — kept as an explicit
+// schema rather than the generic querySchema() factory output, since Branch
+// supports geo (`lat`/`lng`/`maxDistance`) and field filters (`city`,
+// `country`, `isMainBranch`) that the generic factory doesn't know about.
+export const queryBranchSchema: ObjectSchema = Joi.object({
+  page: Joi.number().default(1),
+  limit: Joi.number().default(10),
+
+  search: Joi.string().allow(""),
+
+  status: Joi.string().valid("active", "inactive", "under_maintenance"),
+
+  isMainBranch: Joi.boolean(),
+
+  city: Joi.string(),
+  country: Joi.string(),
+
+  lat: Joi.number(),
+  lng: Joi.number(),
+  maxDistance: Joi.number().default(5000),
+
+  sortBy: Joi.string().default("createdAt"),
+  sortOrder: Joi.string().valid("asc", "desc").default("desc"),
+});

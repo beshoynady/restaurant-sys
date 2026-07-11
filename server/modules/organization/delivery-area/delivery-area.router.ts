@@ -1,6 +1,4 @@
-// routes/core/delivery-area.routes.js
-
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import deliveryAreaController from "./delivery-area.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
 import authorize from "../../../middlewares/authorize.js";
@@ -17,37 +15,24 @@ import {
 
 const router = express.Router();
 
-/**
- * 🔹 Inject config
- */
-const deliveryAreaConfig = (req, res, next) => {
-  req.populate = ["brand", "branch", "createdBy", "updatedBy"];
-  req.uniqueFields = ["code"];
-  req.fieldsWithLang = ["name"];
+const deliveryAreaConfig = (req: Request, _res: Response, next: NextFunction) => {
+  (req as any).populate = ["brand", "branch", "createdBy", "updatedBy"];
+  (req as any).uniqueFields = ["code"];
+  (req as any).fieldsWithLang = ["name"];
   next();
 };
 
 // =====================================================
-// 🌐 PUBLIC (Customer / Checkout)
+// PUBLIC (Customer / Checkout)
 // =====================================================
 
-// Active areas by branch
-router.get(
-  "/branch/:branchId/active",
-  deliveryAreaController.getActiveAreasByBranch,
-);
-
-// Delivery summary
+router.get("/branch/:branchId/active", deliveryAreaController.getActiveAreasByBranch);
 router.get("/:areaId/summary", deliveryAreaController.getDeliverySummary);
-
-// Calculate fee
 router.get("/:areaId/calculate", deliveryAreaController.calculateDeliveryFee);
-
-// Validate order
 router.post("/:areaId/validate", deliveryAreaController.validateOrder);
 
 // =====================================================
-// 🔐 ADMIN
+// ADMIN
 // =====================================================
 
 router
@@ -99,8 +84,8 @@ router
 router.patch(
   "/soft-delete/:id",
   authenticateToken,
-    authorize("DeliveryAreas", "delete"),
-    checkModuleEnabled("delivery"),
+  authorize("DeliveryAreas", "delete"),
+  checkModuleEnabled("delivery"),
   validate(paramsDeliveryAreaSchema),
   deliveryAreaController.softDelete,
 );
@@ -109,8 +94,8 @@ router.patch(
 router.patch(
   "/restore/:id",
   authenticateToken,
-    authorize("DeliveryAreas", "update"),
-    checkModuleEnabled("delivery"),
+  authorize("DeliveryAreas", "update"),
+  checkModuleEnabled("delivery"),
   validate(paramsDeliveryAreaSchema),
   deliveryAreaController.restore,
 );
@@ -119,8 +104,8 @@ router.patch(
 router.delete(
   "/bulk-delete",
   authenticateToken,
-    authorize("DeliveryAreas", "delete"),
-    checkModuleEnabled("delivery"),
+  authorize("DeliveryAreas", "delete"),
+  checkModuleEnabled("delivery"),
   validate(paramsDeliveryAreaIdsSchema),
   deliveryAreaController.bulkHardDelete,
 );
@@ -128,8 +113,8 @@ router.delete(
 router.patch(
   "/bulk-soft-delete",
   authenticateToken,
-    authorize("DeliveryAreas", "delete"),
-    checkModuleEnabled("delivery"),
+  authorize("DeliveryAreas", "delete"),
+  checkModuleEnabled("delivery"),
   validate(paramsDeliveryAreaIdsSchema),
   deliveryAreaController.bulkSoftDelete,
 );
