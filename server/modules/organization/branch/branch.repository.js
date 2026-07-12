@@ -8,6 +8,10 @@
 import BaseRepository from "../../../utils/BaseRepository.js";
 import throwError from "../../../utils/throwError.js";
 import generateUniqueSlug from "../../../utils/generateUniqueSlug.js";
+import escapeRegex from "../../../utils/regex.js";
+import buildMultilingualRegexMatch, {
+  multilingualSearchableFields,
+} from "../../../utils/multilingualSearch.js";
 import BranchModel from "./branch.model.js";
 
 class BranchRepository extends BaseRepository {
@@ -17,7 +21,12 @@ class BranchRepository extends BaseRepository {
       branchScoped: false, // Branch IS the scope unit — branchScoped doesn't apply to itself.
       enableSoftDelete: true,
       defaultPopulate: ["brand", "createdBy", "updatedBy"],
-      searchableFields: ["name.EN", "name.AR", "slug"],
+      // Every SUPPORTED_LANGUAGES key, not just EN/AR (Organization Final
+      // Audit, M-1) — note this config is currently only consulted by the
+      // inherited BaseRepository.getAll(), which nothing in this module
+      // calls (getAllBranches below builds its own query); kept correct
+      // anyway since it's the module's declared search surface.
+      searchableFields: multilingualSearchableFields("name", "slug"),
     });
   }
 
@@ -74,14 +83,22 @@ class BranchRepository extends BaseRepository {
 
     if (status) filter.status = status;
     if (typeof isMainBranch !== "undefined") filter.isMainBranch = isMainBranch;
-    if (city) filter["address.city"] = { $exists: true };
-    if (country) filter["address.country"] = { $exists: true };
+
+    // Previously `{ $exists: true }` — matched ANY branch with *some* city
+    // set, completely ignoring the actual `city`/`country` value the
+    // caller asked to filter by (Organization Final Audit, H-2). `address.
+    // city`/`address.country` are multilingual Map fields, so matching the
+    // real value means checking every supported language key, same as name
+    // search below.
+    if (city) filter.$and = [...(filter.$and || []), { $or: buildMultilingualRegexMatch("address.city", city) }];
+    if (country) {
+      filter.$and = [...(filter.$and || []), { $or: buildMultilingualRegexMatch("address.country", country) }];
+    }
 
     if (search) {
       filter.$or = [
-        { slug: { $regex: search, $options: "i" } },
-        { "name.EN": { $regex: search, $options: "i" } },
-        { "name.AR": { $regex: search, $options: "i" } },
+        { slug: { $regex: escapeRegex(search), $options: "i" } },
+        ...buildMultilingualRegexMatch("name", search),
       ];
     }
 

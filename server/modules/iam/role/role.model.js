@@ -186,6 +186,25 @@ const roleSchema = new Schema(
 
     isSystemRole: { type: Boolean, default: false },
 
+    // Distinct from isSystemRole (which just marks a tenant's default
+    // full-access "Owner" role, brand-scoped like every other role).
+    // isPlatformAdmin marks a role that manages the platform itself across
+    // ALL brands — required because Brand is brandScoped:false at the
+    // repository level (it's the tenant root, so there's no higher brand
+    // id to filter by), meaning the normal automatic
+    // {brand: req.user.brandId} isolation every other Organization module
+    // gets "for free" does not apply to it. Without this flag, any tenant's
+    // Owner role (which is granted full "Brands" CRUD permission by
+    // buildOwnerRole() so it can manage its OWN brand profile) had no
+    // technical boundary stopping it from reading/updating/deleting every
+    // OTHER brand on the platform too — confirmed exploitable in the
+    // Organization Final Audit. Defaults false; never set by
+    // system-setup/setup.service.js's tenant-bootstrap Owner role, so no
+    // existing or newly-onboarded tenant is a platform admin by default —
+    // only a role explicitly promoted to isPlatformAdmin:true is.
+    // middlewares/authorizeBrandAccess.js is what actually enforces this.
+    isPlatformAdmin: { type: Boolean, default: false },
+
     createdBy: { type: ObjectId, ref: "UserAccount", default: null },
     updatedBy: { type: ObjectId, ref: "UserAccount" },
   },

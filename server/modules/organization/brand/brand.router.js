@@ -3,6 +3,7 @@ import express from "express";
 import brandController from "./brand.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
 import authorize from "../../../middlewares/authorize.js";
+import authorizeBrandAccess from "../../../middlewares/authorizeBrandAccess.js";
 import validate from "../../../middlewares/validate.js";
 
 import {
@@ -20,27 +21,34 @@ import {
 
 const router = express.Router();
 
-/* CREATE + LIST */
+/* CREATE + LIST — platform-admin only: creating a brand or listing every
+   brand on the platform is never a normal tenant Owner's job (see
+   authorizeBrandAccess.js). */
 router
   .route("/")
   .post(
     authenticateToken,
     authorize("Brands", "create"),
+    authorizeBrandAccess({ requirePlatformAdmin: true }),
     validate(createBrandSchema),
     brandController.create,
   )
   .get(
     authenticateToken,
     authorize("Brands", "read"),
+    authorizeBrandAccess({ requirePlatformAdmin: true }),
     validate(queryBrandSchema, "query"),
     brandController.getAll,
   );
 
-/* SEARCH */
+/* SEARCH — platform-admin only: scans every brand on the platform by
+   design (Brand is brandScoped:false), so this must never be reachable by
+   a normal tenant role. */
 router.get(
   "/search",
   authenticateToken,
   authorize("Brands", "read"),
+  authorizeBrandAccess({ requirePlatformAdmin: true }),
   brandController.search,
 );
 
@@ -50,11 +58,13 @@ router.get(
    brand.service.js#getPublicBySlug. */
 router.get("/slug/:slug", brandController.getBySlug);
 
-/* BULK */
+/* BULK — platform-admin only: bulk-touching multiple brand ids at once has
+   no legitimate "my own brand" meaning (a tenant has exactly one brand). */
 router.patch(
   "/bulk/soft-delete",
   authenticateToken,
   authorize("Brands", "delete"),
+  authorizeBrandAccess({ requirePlatformAdmin: true }),
   validate(paramsIdsSchema),
   brandController.bulkSoftDelete,
 );
@@ -63,6 +73,7 @@ router.patch(
   "/bulk/restore",
   authenticateToken,
   authorize("Brands", "update"),
+  authorizeBrandAccess({ requirePlatformAdmin: true }),
   validate(paramsIdsSchema),
   brandController.bulkRestore,
 );
@@ -72,6 +83,7 @@ router.get(
   "/:id/setup",
   authenticateToken,
   authorize("Brands", "read"),
+  authorizeBrandAccess(),
   brandController.getSetupStatus,
 );
 
@@ -80,22 +92,25 @@ router.get(
   "/:id/summary",
   authenticateToken,
   authorize("Brands", "read"),
+  authorizeBrandAccess(),
   validate(paramsBrandSchema, "params"),
   brandController.getSummary,
 );
 
-/* SINGLE */
+/* SINGLE — own-brand-only unless platform admin (authorizeBrandAccess). */
 router
   .route("/:id")
   .get(
     authenticateToken,
     authorize("Brands", "read"),
+    authorizeBrandAccess(),
     validate(paramsBrandSchema, "params"),
     brandController.getOne,
   )
   .put(
     authenticateToken,
     authorize("Brands", "update"),
+    authorizeBrandAccess(),
     validate(paramsBrandSchema, "params"),
     validate(updateBrandSchema),
     brandController.update,
@@ -105,6 +120,7 @@ router
     // dedicated /:id/hard route for irreversible platform-admin cleanup.
     authenticateToken,
     authorize("Brands", "delete"),
+    authorizeBrandAccess(),
     validate(paramsBrandSchema, "params"),
     brandController.softDelete,
   );
@@ -116,6 +132,7 @@ router.delete(
   "/:id/hard",
   authenticateToken,
   authorize("Brands", "delete"),
+  authorizeBrandAccess(),
   validate(paramsBrandSchema, "params"),
   brandController.hardDelete,
 );
@@ -125,6 +142,7 @@ router.patch(
   "/:id/restore",
   authenticateToken,
   authorize("Brands", "update"),
+  authorizeBrandAccess(),
   validate(paramsBrandSchema, "params"),
   brandController.restore,
 );
@@ -134,6 +152,7 @@ router.patch(
   "/:id/status",
   authenticateToken,
   authorize("Brands", "update"),
+  authorizeBrandAccess(),
   validate(changeStatusSchema),
   brandController.changeStatus,
 );
@@ -143,6 +162,7 @@ router.patch(
   "/:id/logo",
   authenticateToken,
   authorize("Brands", "update"),
+  authorizeBrandAccess(),
   validate(updateLogoSchema),
   brandController.updateLogo,
 );
@@ -152,6 +172,7 @@ router.patch(
   "/:id/settings",
   authenticateToken,
   authorize("Brands", "update"),
+  authorizeBrandAccess(),
   validate(updateBrandSettingsSchema),
   brandController.updateSettings,
 );
@@ -161,6 +182,7 @@ router.patch(
   "/:id/setup",
   authenticateToken,
   authorize("Brands", "update"),
+  authorizeBrandAccess(),
   validate(setupProgressSchema),
   brandController.updateSetup,
 );
@@ -170,6 +192,7 @@ router.patch(
   "/:id/owner",
   authenticateToken,
   authorize("Brands", "update"),
+  authorizeBrandAccess(),
   validate(paramsBrandSchema, "params"),
   validate(transferOwnershipSchema),
   brandController.transferOwnership,

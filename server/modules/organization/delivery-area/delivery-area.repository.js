@@ -1,5 +1,6 @@
 // Repository layer (BACKEND_FOUNDATION.md §4.3): database access ONLY for DeliveryArea.
 import BaseRepository from "../../../utils/BaseRepository.js";
+import { multilingualSearchableFields } from "../../../utils/multilingualSearch.js";
 import BranchModel from "../branch/branch.model.js";
 import DeliveryAreaModel from "./delivery-area.model.js";
 
@@ -10,7 +11,9 @@ class DeliveryAreaRepository extends BaseRepository {
       branchScoped: true,
       enableSoftDelete: true,
       defaultPopulate: ["brand", "branch", "createdBy", "updatedBy", "deletedBy"],
-      searchableFields: ["name.EN", "name.AR", "code"],
+      // Every SUPPORTED_LANGUAGES key, not just EN/AR (Organization Final
+      // Audit, M-1).
+      searchableFields: multilingualSearchableFields("name", "code"),
       defaultSort: { priority: -1, createdAt: -1 },
     });
   }

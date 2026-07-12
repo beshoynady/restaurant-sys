@@ -23,8 +23,7 @@
 
 import mongoose from "mongoose";
 import throwError from "./throwError.js";
-
-const escapeRegex = (text = "") => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+import escapeRegex from "./regex.js";
 
 class BaseRepository {
   constructor(model, options = {}) {

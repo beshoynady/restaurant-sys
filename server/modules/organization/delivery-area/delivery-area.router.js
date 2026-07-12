@@ -1,8 +1,10 @@
 import express from "express";
 import deliveryAreaController from "./delivery-area.controller.js";
+import deliveryAreaService from "./delivery-area.service.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
 import authorize from "../../../middlewares/authorize.js";
 import checkModuleEnabled from "../../../middlewares/checkModuleEnabled.js";
+import checkModuleEnabledForBranch from "../../../middlewares/checkModuleEnabledForBranch.js";
 import validate from "../../../middlewares/validate.js";
 
 import {
@@ -33,19 +35,46 @@ const deliveryAreaConfig = (req, _res, next) => {
 // another brand's delivery area/pricing data. Kept under the shared
 // "/branch/:branchId/..." prefix so it can never collide with the
 // "/:id" admin single-resource routes below.
+//
+// FEATURE TOGGLE (Organization Final Audit, H-1): these public routes
+// previously had no checkModuleEnabled at all — the original middleware
+// can't run without req.user, which doesn't exist here. A brand that
+// disabled its "delivery" module could still have every one of these
+// endpoints fully functional for customers. checkModuleEnabledForBranch
+// resolves brand from :branchId the same way the routes' own service
+// already does, never from client input.
+const resolveBrandFromBranchParam = (req) =>
+  deliveryAreaService.resolveBrandForBranch(req.params.branchId);
 
-router.get("/branch/:branchId/active", deliveryAreaController.getActiveAreasByBranch);
+router.get(
+  "/branch/:branchId/active",
+  checkModuleEnabledForBranch("delivery", resolveBrandFromBranchParam),
+  deliveryAreaController.getActiveAreasByBranch,
+);
 // Point-in-polygon resolver ("which area covers this lat/lng") — mounted
 // alongside /active at the same 2-segment depth, before any 3-segment
 // "/:areaId/..." route, so "resolve" is never mistaken for an areaId.
 router.get(
   "/branch/:branchId/resolve",
+  checkModuleEnabledForBranch("delivery", resolveBrandFromBranchParam),
   validate(resolveAreaQuerySchema, "query"),
   deliveryAreaController.resolveAreaForPoint,
 );
-router.get("/branch/:branchId/:areaId/summary", deliveryAreaController.getDeliverySummary);
-router.get("/branch/:branchId/:areaId/calculate", deliveryAreaController.calculateDeliveryFee);
-router.post("/branch/:branchId/:areaId/validate", deliveryAreaController.validateOrder);
+router.get(
+  "/branch/:branchId/:areaId/summary",
+  checkModuleEnabledForBranch("delivery", resolveBrandFromBranchParam),
+  deliveryAreaController.getDeliverySummary,
+);
+router.get(
+  "/branch/:branchId/:areaId/calculate",
+  checkModuleEnabledForBranch("delivery", resolveBrandFromBranchParam),
+  deliveryAreaController.calculateDeliveryFee,
+);
+router.post(
+  "/branch/:branchId/:areaId/validate",
+  checkModuleEnabledForBranch("delivery", resolveBrandFromBranchParam),
+  deliveryAreaController.validateOrder,
+);
 
 // =====================================================
 // ADMIN
