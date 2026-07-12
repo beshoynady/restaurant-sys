@@ -84,8 +84,17 @@ class SetupService {
       // ======================================
       // 2. CREATE BRAND
       // ======================================
+      // Brand.owner is required (PROJECT_VISION_ar.md §3), but the owner
+      // UserAccount doesn't exist yet at this point — and UserAccount
+      // itself requires `brand`, so the two can't be created in either
+      // order without breaking one's required-field validation. Resolved
+      // by creating Brand once with validation skipped, then setting
+      // `owner` and re-saving (fully validated) once the UserAccount
+      // exists below — Brand is never left ownerless once this
+      // transaction commits.
       const [brand] = await Brand.create([brandData], {
         session,
+        validateBeforeSave: false,
       });
 
       // ======================================
@@ -140,6 +149,7 @@ class SetupService {
       // ======================================
       // 8. COMPLETE SETUP
       // ======================================
+      brand.owner = user._id;
       brand.setupStatus = "complete";
 
       await brand.save({ session });

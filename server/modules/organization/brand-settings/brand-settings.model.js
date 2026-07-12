@@ -44,10 +44,13 @@ const brandSettingsSchema = new mongoose.Schema(
     seo: {
       metaTitle: multilingualString,
       metaDescription: multilingualString,
+      // Keys uppercase to match utils/languages.js's SUPPORTED_LANGUAGES
+      // casing (every other multilingual field in the project uses
+      // EN/AR) — previously lowercase here, the one inconsistent spot.
       keywords: {
         type: Map,
         of: [String],
-        default: { en: [], ar: [] },
+        default: { EN: [], AR: [] },
       },
       ogTitle: multilingualString,
       ogDescription: multilingualString,

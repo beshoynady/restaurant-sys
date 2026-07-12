@@ -67,15 +67,25 @@ export const multiLang = (
   options = {},
   required = false,
   allowedLanguages = SUPPORTED_LANGUAGES,
+  isArrayValue = false,
 ) => {
-  let valueSchema = Joi.string().trim();
+  // A Map's value can itself be an array (e.g. BrandSettings.seo.keywords:
+  // `{type: Map, of: [String]}` — per-language keyword *lists*, not single
+  // strings). Previously this branch never existed, so every Map-of-Array
+  // field was validated as if each language held one plain string —
+  // rejecting any real array payload with "must be a string".
+  let valueSchema = isArrayValue
+    ? Joi.array().items(Joi.string().trim())
+    : Joi.string().trim();
 
-  if (options.minlength) {
-    valueSchema = valueSchema.min(options.minlength);
-  }
+  if (!isArrayValue) {
+    if (options.minlength) {
+      valueSchema = valueSchema.min(options.minlength);
+    }
 
-  if (options.maxlength) {
-    valueSchema = valueSchema.max(options.maxlength);
+    if (options.maxlength) {
+      valueSchema = valueSchema.max(options.maxlength);
+    }
   }
 
   let schema = Joi.object(
@@ -235,6 +245,8 @@ const buildFieldValidator = (field, mode = "create") => {
       validator = multiLang(
         field.$__schemaType?.options || {},
         field.options.required,
+        undefined,
+        Array.isArray(field.options.of),
       );
       break;
 
@@ -358,7 +370,8 @@ export const buildJoiSchema = (
     }
 
     if (key.includes(".")) {
-      const [topLevelKey] = key.split(".");
+      const segments = key.split(".");
+      const [topLevelKey] = segments;
 
       // Whole nested object explicitly excluded (e.g. `exclude: ["brand"]`
       // would also drop a hypothetical "brand.x" path) — same semantics as
@@ -367,7 +380,26 @@ export const buildJoiSchema = (
         return;
       }
 
-      nestedEntries.push({ segments: key.split("."), field });
+      // Mongoose exposes a synthetic "<mapField>.$*" path representing a
+      // Map field's *value* schema (e.g. "name.$*" alongside "name" itself,
+      // or "seo.keywords.$*" alongside "seo.keywords") — it is not a real
+      // nested field. Left unfiltered, it corrupts grouping for the actual
+      // Map field it shadows: for a top-level Map (e.g. Brand.name), the
+      // reassembly pass below overwrites the correct multiLang() schema
+      // already built for "name" by the flat branch with a bogus
+      // `{"$*": ...}` object; for a Map nested inside a plain object (e.g.
+      // BrandSettings.seo.keywords), it inflates that field's child count
+      // past the single-leaf shortcut in buildNestedObjectValidator, so it
+      // never gets treated as a Map field at all. Either way the result
+      // silently rejects every real language key ("EN"/"AR"/...) as
+      // "not allowed" — confirmed against Brand.name and
+      // BrandSettings.seo.keywords, and generic to every Map field in the
+      // project since this factory is shared by ~90 modules.
+      if (segments.includes("$*")) {
+        return;
+      }
+
+      nestedEntries.push({ segments, field });
       return;
     }
 

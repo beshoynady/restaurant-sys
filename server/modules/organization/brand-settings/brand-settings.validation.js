@@ -11,6 +11,16 @@ import {
   paramsIdsSchema,
 } from "../../../utils/joiFactory.js";
 
+// Sourced from the schema's own `modules.*` paths so this can never
+// drift — previously a free-text string, meaning a typo'd module key
+// silently no-op'd (BrandSettingsRepository#toggleModuleForBrand writes
+// to `modules.<key>.enabled` unconditionally) instead of failing with a
+// clear 400. Each module key is its own embedded-schema path
+// ("modules.menu", "modules.sales", ...), not a single "modules" path.
+const MODULE_KEYS = Object.keys(BrandSettingsModel.schema.paths)
+  .filter((path) => /^modules\.[^.]+$/.test(path))
+  .map((path) => path.replace("modules.", ""));
+
 /* ================= CREATE ================= */
 // Nested objects (seo/socialMedia/modules/security) validate correctly via
 // utils/joiFactory.js's nested-object reassembly.
@@ -34,7 +44,9 @@ export const paramsIdsBrandSettingsSchema = paramsIdsSchema();
 
 /* ================= TOGGLE MODULE ================= */
 export const toggleModuleSchema = Joi.object({
-  module: Joi.string().required(),
+  module: Joi.string()
+    .valid(...MODULE_KEYS)
+    .required(),
   enabled: Joi.boolean().required(),
 });
 

@@ -27,6 +27,11 @@ class BrandRepository extends BaseRepository {
       ],
     });
   }
+
+  /** Slug-based lookup — resolves a tenant for unauthenticated storefront/menu clients. */
+  async findBySlug(slug) {
+    return this.model.findOne({ slug, isDeleted: false }).lean();
+  }
 }
 
 export default BrandRepository;

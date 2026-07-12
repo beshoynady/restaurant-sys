@@ -79,6 +79,25 @@ class DeliveryAreaService extends DeliveryAreaRepository {
     const brandId = await this.resolveBrandForBranch(branchId);
     return this.findActiveByBranch(branchId, brandId);
   }
+
+  // Resolves which delivery area (if any) covers a raw lat/lng — the
+  // primary real-world entry point for a checkout flow ("customer drops a
+  // pin / enters an address"). Previously every method above required the
+  // frontend to already know `areaId`, with no way to derive it from a
+  // coordinate — the polygon coverage data existed but nothing ever
+  // queried it by point. "Outside coverage" is a normal business outcome
+  // here (a legitimate "sorry, we don't deliver there"), not a 500 —
+  // returns 404 like every other not-found case in this service.
+  async resolveAreaForPoint({ branchId, lat, lng }) {
+    const brandId = await this.resolveBrandForBranch(branchId);
+    const [area] = await this.findAreaContainingPoint({ branchId, brandId, lng, lat });
+
+    if (!area) {
+      throwError("This location is outside our delivery coverage", 404);
+    }
+
+    return area;
+  }
 }
 
 export default new DeliveryAreaService();

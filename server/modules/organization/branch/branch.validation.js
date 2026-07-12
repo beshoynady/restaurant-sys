@@ -4,7 +4,12 @@ import BranchModel from "./branch.model.js";
 
 export const createBranchSchema = createSchema(BranchModel.schema);
 
-export const updateBranchSchema = updateSchema(BranchModel.schema, ["updatedBy"]);
+// `updatedBy` is already excluded by joiFactory's own default exclusion
+// list — the exclude option here was previously passed as a bare array
+// (`["updatedBy"]`) instead of `{exclude: [...]}`, which is silently a
+// no-op due to how the options object is spread. Harmless in practice
+// (updatedBy was excluded by default either way) but corrected for clarity.
+export const updateBranchSchema = updateSchema(BranchModel.schema, { exclude: ["updatedBy"] });
 
 export const paramsBranchSchema = paramsSchema();
 export const paramsBranchIdsSchema = paramsIdsSchema();

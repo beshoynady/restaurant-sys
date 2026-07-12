@@ -33,10 +33,27 @@ router.get(
   "/public/branch/:branchId/current-period",
   branchSettingsController.getCurrentPeriod,
 );
+router.get(
+  "/public/branch/:branchId/next-open",
+  branchSettingsController.getNextOpenTime,
+);
 
 // =====================================================
 // PROTECTED ROUTES (ADMIN / DASHBOARD)
 // =====================================================
+
+// Brand/branch-scoped upsert — the primary access pattern for the settings
+// dashboard screen (create-or-update in one call), same "/brand/:brandId"
+// style convention brand-settings.router.js uses for its own brand-scoped
+// routes. Mounted before "/:id" so "/branch/x" isn't swallowed by it.
+router.put(
+  "/branch/:branchId",
+  authenticateToken,
+  authorize("BranchSettings", "update"),
+  branchSettingsConfig,
+  validate(updateBranchSettingsSchema),
+  branchSettingsController.upsertForBranch,
+);
 
 router
   .route("/")

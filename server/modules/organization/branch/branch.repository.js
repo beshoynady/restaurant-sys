@@ -126,10 +126,16 @@ class BranchRepository extends BaseRepository {
   // =========================
   // BULK SOFT DELETE
   // =========================
-  async bulkSoftDelete({ ids, brandId, userId }) {
+  // `deletedBy` — not `userId` — matches BaseController.bulkSoftDelete's
+  // actual call shape ({ids, brandId, branchId, deletedBy}); a previous
+  // version of this override destructured `userId` here, which BaseController
+  // never sends, so every bulk soft-delete silently recorded no actor at all
+  // (confirmed empirically — same signature-mismatch bug class already
+  // fixed once in brand.repository.js's old hardDelete override).
+  async bulkSoftDelete({ ids, brandId, deletedBy }) {
     return this.model.updateMany(
       { _id: { $in: ids }, brand: brandId },
-      { isDeleted: true, deletedBy: userId, deletedAt: new Date() },
+      { isDeleted: true, deletedBy, deletedAt: new Date() },
     );
   }
 
@@ -144,10 +150,11 @@ class BranchRepository extends BaseRepository {
     return branch;
   }
 
-  async softDelete({ id, brandId, userId }) {
+  // See bulkSoftDelete above — same fix, same bug.
+  async softDelete({ id, brandId, deletedBy }) {
     const branch = await this.model.findOneAndUpdate(
       { _id: id, brand: brandId },
-      { isDeleted: true, deletedBy: userId, deletedAt: new Date() },
+      { isDeleted: true, deletedBy, deletedAt: new Date() },
       { new: true },
     );
     if (!branch) throwError("Branch not found", 404);

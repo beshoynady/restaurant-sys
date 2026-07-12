@@ -11,6 +11,7 @@ import {
   paramsDeliveryAreaSchema,
   paramsDeliveryAreaIdsSchema,
   queryDeliveryAreaSchema,
+  resolveAreaQuerySchema,
 } from "./delivery-area.validation.js";
 
 const router = express.Router();
@@ -34,6 +35,14 @@ const deliveryAreaConfig = (req, _res, next) => {
 // "/:id" admin single-resource routes below.
 
 router.get("/branch/:branchId/active", deliveryAreaController.getActiveAreasByBranch);
+// Point-in-polygon resolver ("which area covers this lat/lng") — mounted
+// alongside /active at the same 2-segment depth, before any 3-segment
+// "/:areaId/..." route, so "resolve" is never mistaken for an areaId.
+router.get(
+  "/branch/:branchId/resolve",
+  validate(resolveAreaQuerySchema, "query"),
+  deliveryAreaController.resolveAreaForPoint,
+);
 router.get("/branch/:branchId/:areaId/summary", deliveryAreaController.getDeliverySummary);
 router.get("/branch/:branchId/:areaId/calculate", deliveryAreaController.calculateDeliveryFee);
 router.post("/branch/:branchId/:areaId/validate", deliveryAreaController.validateOrder);

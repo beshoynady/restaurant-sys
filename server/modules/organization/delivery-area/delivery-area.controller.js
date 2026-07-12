@@ -72,6 +72,20 @@ class DeliveryAreaController extends BaseController {
 
     res.json({ success: true, valid: true });
   });
+
+  // Point-in-polygon resolver — see delivery-area.service.js#resolveAreaForPoint.
+  resolveAreaForPoint = asyncHandler(async (req, res) => {
+    const { branchId } = req.params;
+    const { lat, lng } = req.query;
+
+    const data = await deliveryAreaService.resolveAreaForPoint({
+      branchId,
+      lat: Number(lat),
+      lng: Number(lng),
+    });
+
+    res.json({ success: true, data });
+  });
 }
 
 export default new DeliveryAreaController();

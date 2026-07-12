@@ -44,12 +44,37 @@ class BranchSettingsService extends BranchSettingsRepository {
     });
   }
 
+  // Server local time — not the branch's own configured timezone — used to
+  // silently drive every "is this branch open" calculation below. For a
+  // multi-branch SaaS spanning timezones this is wrong by definition
+  // (confirmed: at 22:30 UTC, Africa/Cairo is already 01:30 the *next* day —
+  // a different weekday's operating-hours row entirely), not just an edge
+  // case near midnight. `settings.timezone` exists specifically for this
+  // and was never read by any of these calculations.
+  getLocalDayAndTime(timezone, now = new Date()) {
+    const dayName = new Intl.DateTimeFormat("en-US", {
+      timeZone: timezone,
+      weekday: "long",
+    }).format(now);
+
+    // hourCycle "h23" (not the default h24) so midnight renders "00:00", not
+    // "24:00" — matching the HH:mm strings operatingHours.periods store.
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: timezone,
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+    }).formatToParts(now);
+
+    const currentTime = `${parts.find((p) => p.type === "hour").value}:${parts.find((p) => p.type === "minute").value}`;
+
+    return { dayName, currentTime };
+  }
+
   async isBranchOpen({ branchId, brandId = null }) {
     const settings = await this.getByBranch({ branchId, brandId });
 
-    const now = new Date();
-    const dayName = now.toLocaleDateString("en-US", { weekday: "long" });
-    const currentTime = now.toTimeString().slice(0, 5);
+    const { dayName, currentTime } = this.getLocalDayAndTime(settings.timezone);
 
     const today = settings.operatingHours.find((d) => d.day === dayName);
     if (today?.status !== "open") return false;
@@ -70,9 +95,7 @@ class BranchSettingsService extends BranchSettingsRepository {
 
     const settings = await this.getByBranch({ branchId, brandId });
 
-    const now = new Date();
-    const dayName = now.toLocaleDateString("en-US", { weekday: "long" });
-    const currentTime = now.toTimeString().slice(0, 5);
+    const { dayName, currentTime } = this.getLocalDayAndTime(settings.timezone);
 
     const today = settings.operatingHours.find((d) => d.day === dayName);
     if (today?.status !== "open") return false;
@@ -96,9 +119,7 @@ class BranchSettingsService extends BranchSettingsRepository {
   async getCurrentPeriod({ branchId, brandId = null }) {
     const settings = await this.getByBranch({ branchId, brandId });
 
-    const now = new Date();
-    const dayName = now.toLocaleDateString("en-US", { weekday: "long" });
-    const currentTime = now.toTimeString().slice(0, 5);
+    const { dayName, currentTime } = this.getLocalDayAndTime(settings.timezone);
 
     const today = settings.operatingHours.find((d) => d.day === dayName);
     if (!today) return null;
@@ -109,11 +130,13 @@ class BranchSettingsService extends BranchSettingsRepository {
   async getNextOpenTime({ branchId, brandId = null }) {
     const settings = await this.getByBranch({ branchId, brandId });
     const now = new Date();
+    const oneDayMs = 24 * 60 * 60 * 1000;
 
     for (let i = 0; i < 7; i++) {
-      const date = new Date();
-      date.setDate(now.getDate() + i);
-      const dayName = date.toLocaleDateString("en-US", { weekday: "long" });
+      // Offsetting by raw milliseconds (not date.setDate, which manipulates
+      // the server's own local calendar) so this stays correct regardless of
+      // the server's timezone relative to the branch's.
+      const { dayName } = this.getLocalDayAndTime(settings.timezone, new Date(now.getTime() + i * oneDayMs));
 
       const day = settings.operatingHours.find((d) => d.day === dayName);
       if (day?.status !== "open") continue;

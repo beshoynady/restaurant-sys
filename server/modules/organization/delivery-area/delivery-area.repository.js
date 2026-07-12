@@ -56,6 +56,33 @@ class DeliveryAreaRepository extends BaseRepository {
       .sort({ priority: -1 })
       .lean();
   }
+
+  /**
+   * Point-in-polygon lookup — "which delivery area (if any) covers this
+   * lat/lng" — via $geoIntersects against the 2dsphere `coverageArea`
+   * index. Zone overlap is resolved by `priority` (highest wins); GeoJSON
+   * coordinate order is [lng, lat], not [lat, lng] — the #1 source of
+   * silent point-in-polygon bugs, so the caller-facing service method
+   * takes named `lat`/`lng` and this repository method is the one place
+   * that assembles the `[lng, lat]` GeoJSON pair.
+   */
+  async findAreaContainingPoint({ branchId, brandId, lng, lat }) {
+    return this.model
+      .find({
+        brand: brandId,
+        branch: branchId,
+        status: "active",
+        isDeleted: false,
+        coverageArea: {
+          $geoIntersects: {
+            $geometry: { type: "Point", coordinates: [lng, lat] },
+          },
+        },
+      })
+      .sort({ priority: -1 })
+      .limit(1)
+      .lean();
+  }
 }
 
 export default DeliveryAreaRepository;

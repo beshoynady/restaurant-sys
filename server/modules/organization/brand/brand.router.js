@@ -14,6 +14,8 @@ import {
   updateLogoSchema,
   updateBrandSettingsSchema,
   setupProgressSchema,
+  transferOwnershipSchema,
+  paramsIdsSchema,
 } from "./brand.validation.js";
 
 const router = express.Router();
@@ -40,6 +42,29 @@ router.get(
   authenticateToken,
   authorize("Brands", "read"),
   brandController.search,
+);
+
+/* PUBLIC SLUG LOOKUP — unauthenticated, used by storefront/menu clients to
+   resolve a tenant. Must be mounted before /:id so "/slug/x" doesn't get
+   swallowed by the :id param route. Returns only public-safe fields — see
+   brand.service.js#getPublicBySlug. */
+router.get("/slug/:slug", brandController.getBySlug);
+
+/* BULK */
+router.patch(
+  "/bulk/soft-delete",
+  authenticateToken,
+  authorize("Brands", "delete"),
+  validate(paramsIdsSchema),
+  brandController.bulkSoftDelete,
+);
+
+router.patch(
+  "/bulk/restore",
+  authenticateToken,
+  authorize("Brands", "update"),
+  validate(paramsIdsSchema),
+  brandController.bulkRestore,
 );
 
 /* SETUP STATUS */
@@ -76,11 +101,33 @@ router
     brandController.update,
   )
   .delete(
+    // Soft delete is the default "delete" for the tenant root — see the
+    // dedicated /:id/hard route for irreversible platform-admin cleanup.
     authenticateToken,
     authorize("Brands", "delete"),
     validate(paramsBrandSchema, "params"),
-    brandController.hardDelete,
+    brandController.softDelete,
   );
+
+/* HARD DELETE — irreversible, deliberately a separate route from the
+   default DELETE above so it can't be triggered by a client that only
+   intended a normal (recoverable) delete. */
+router.delete(
+  "/:id/hard",
+  authenticateToken,
+  authorize("Brands", "delete"),
+  validate(paramsBrandSchema, "params"),
+  brandController.hardDelete,
+);
+
+/* RESTORE */
+router.patch(
+  "/:id/restore",
+  authenticateToken,
+  authorize("Brands", "update"),
+  validate(paramsBrandSchema, "params"),
+  brandController.restore,
+);
 
 /* STATUS */
 router.patch(
@@ -116,6 +163,16 @@ router.patch(
   authorize("Brands", "update"),
   validate(setupProgressSchema),
   brandController.updateSetup,
+);
+
+/* OWNERSHIP TRANSFER */
+router.patch(
+  "/:id/owner",
+  authenticateToken,
+  authorize("Brands", "update"),
+  validate(paramsBrandSchema, "params"),
+  validate(transferOwnershipSchema),
+  brandController.transferOwnership,
 );
 
 export default router;

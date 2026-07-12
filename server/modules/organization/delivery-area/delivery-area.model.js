@@ -32,6 +32,12 @@ const deliveryAreaSchema = new Schema(
     acceptsOnlinePayment: { type: Boolean, default: true },
 
     // GEO COVERAGE
+    // Polygon only — GeoJSON has no native "Circle" type (MongoDB's
+    // equivalent, $centerSphere, takes legacy [lng,lat] pairs, not GeoJSON,
+    // and can't share a 2dsphere index/query path with this Polygon field).
+    // A circle-zone type would need its own separate field/index and
+    // $geoWithin query path — deferred until there's a concrete need,
+    // rather than building a parallel zone type speculatively now.
     coverageArea: {
       type: { type: String, enum: ["Polygon"], default: "Polygon" },
       coordinates: { type: [[[Number]]], required: true },

@@ -17,7 +17,11 @@ export const createBranchSettingsSchema = createSchema(BranchSettingsModel.schem
   operatingHours: Joi.array().items(
     Joi.object({
       day: Joi.string().required(),
-      status: Joi.string().valid("open", "closed", "holiday"),
+      // Matches operatingDaySchema.status's actual enum — a previous
+      // "holiday" option here didn't exist on the model, so Joi would
+      // accept it and Mongoose would then reject it with a much less
+      // clear validation error at save time (confirmed empirically).
+      status: Joi.string().valid("open", "closed"),
 
       periods: Joi.array().items(
         Joi.object({
@@ -59,7 +63,7 @@ export const createBranchSettingsSchema = createSchema(BranchSettingsModel.schem
   ),
 });
 
-export const updateBranchSettingsSchema = updateSchema(BranchSettingsModel.schema, ["updatedBy"]);
+export const updateBranchSettingsSchema = updateSchema(BranchSettingsModel.schema, { exclude: ["updatedBy"] });
 
 export const paramsBranchSettingsSchema = paramsSchema();
 export const paramsBranchSettingsIdsSchema = paramsIdsSchema();

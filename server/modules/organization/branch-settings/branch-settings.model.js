@@ -84,9 +84,26 @@ const branchSettingsSchema = new Schema(
     contact: {
       phones: { type: [phoneSchema], default: [] },
       whatsapp: { type: String, trim: true, maxlength: 20 },
-      email: { type: String, lowercase: true, trim: true, maxlength: 100 },
+      // Previously no format validation, inconsistent with Employee's
+      // equivalent contact-email field elsewhere in the project. Bare
+      // RegExp (not Mongoose's [regex, message] tuple form) — joiFactory's
+      // buildFieldValidator reads `field.options.match` directly into
+      // Joi's `.pattern()`, which requires a RegExp, not an array.
+      email: {
+        type: String,
+        lowercase: true,
+        trim: true,
+        maxlength: 100,
+        match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+      },
     },
 
+    // Duplicates Brand.timezone by design, not by accident — a multi-branch
+    // brand may legitimately span timezones. Authority rule: this branch's
+    // value is authoritative for its own operating-hours calculations
+    // (branch-settings.service.js#getLocalDayAndTime reads this field
+    // directly); Brand.timezone is only ever a creation-time default,
+    // never consulted at read time once a branch has its own settings doc.
     timezone: { type: String, trim: true, default: "Africa/Cairo", maxlength: 100 },
 
     operatingHours: { type: [operatingDaySchema], default: [] },

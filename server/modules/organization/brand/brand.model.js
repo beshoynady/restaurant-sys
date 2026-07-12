@@ -46,6 +46,7 @@ const brandSchema = new mongoose.Schema(
         "bakery",
         "food_truck",
         "cloud_kitchen",
+        "meal_prep",
         "bar",
         "other",
       ],
@@ -62,10 +63,33 @@ const brandSchema = new mongoose.Schema(
     // — see the Organization domain review for why this should eventually
     // move to a dedicated Subscription/Plan module. Not relocated here:
     // that's a schema/ownership change, out of scope for this pass.
+    // Enforced at branch-creation time (branch.service.js) — Business Rule:
+    // "A Brand cannot have more branches than its maxBranches plan limit."
     maxBranches: {
       type: Number,
       default: 1,
       min: 1,
+    },
+
+    // Reserved SaaS subscription fields — PROJECT_VISION_ar.md §3 lists
+    // "اشتراك (Subscription)" as a first-class Brand attribute. No billing
+    // logic reads/writes this yet (the platform runs single-brand today);
+    // reserved now so the field exists before any real subscription/billing
+    // module is built, avoiding a later migration across every Brand
+    // document. `plan`/`status` intentionally minimal — expand only when an
+    // actual billing integration is built, not speculatively.
+    subscription: {
+      plan: {
+        type: String,
+        enum: ["free", "starter", "professional", "enterprise"],
+        default: "free",
+      },
+      status: {
+        type: String,
+        enum: ["trialing", "active", "past_due", "canceled"],
+        default: "active",
+      },
+      trialEndsAt: { type: Date, default: null },
     },
 
     // ===============================
@@ -142,6 +166,27 @@ const brandSchema = new mongoose.Schema(
     },
 
     // ===============================
+    // OWNERSHIP
+    // ===============================
+    // PROJECT_VISION_ar.md §3 lists "Owner" as a first-class Brand
+    // attribute. Previously only inferable indirectly via
+    // UserAccount.brand + role — no explicit source of truth for "who owns
+    // this tenant." Required, but see brand.repository.js/setup.service.js:
+    // the bootstrap flow creates Brand before the owner UserAccount exists
+    // (a circular reference — UserAccount itself requires `brand`), so the
+    // very first save is done with `validateBeforeSave: false` and `owner`
+    // is set in a second save once the UserAccount is created, within the
+    // same transaction. Every other creation path (e.g. the admin
+    // `POST /organization/brand` endpoint) requires an existing owner
+    // UserAccount id up front — a Brand is never left ownerless in steady
+    // state.
+    owner: {
+      type: ObjectId,
+      ref: "UserAccount",
+      required: true,
+    },
+
+    // ===============================
     // OPERATIONAL SETTINGS
     // ===============================
     timezone: {
@@ -186,6 +231,9 @@ const brandSchema = new mongoose.Schema(
 
 // Multilingual brand name search
 brandSchema.index({ "name.$**": 1 });
+
+// Platform-admin brand list is commonly filtered by status (active/suspended).
+brandSchema.index({ status: 1 });
 
 const Brand = mongoose.model("Brand", brandSchema);
 export default Brand;

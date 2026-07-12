@@ -34,11 +34,31 @@ class BranchSettingsController extends BaseController {
     res.json({ success: true, data: period });
   });
 
+  getNextOpenTime = asyncHandler(async (req, res) => {
+    const { branchId } = req.params;
+    const next = await branchSettingsService.getNextOpenTime({ branchId });
+
+    res.json({ success: true, data: next });
+  });
+
   getPublicSettings = asyncHandler(async (req, res) => {
     const { branchId } = req.params;
     const settings = await branchSettingsService.getByBranch({ branchId });
 
     res.json({ success: true, data: settings });
+  });
+
+  // Single call for the dashboard settings screen — create-or-update in one
+  // request, instead of forcing the frontend to GET first to decide whether
+  // to POST or PUT. `upsert()` already existed in the service with no
+  // controller/route ever calling it.
+  upsertForBranch = asyncHandler(async (req, res) => {
+    const { brandId, userId } = req.user;
+    const { branchId } = req.params;
+
+    const data = await branchSettingsService.upsert({ brandId, branchId, data: req.body, userId });
+
+    res.json({ success: true, data });
   });
 }
 

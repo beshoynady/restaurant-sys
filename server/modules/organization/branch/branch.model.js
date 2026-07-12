@@ -87,12 +87,25 @@ const branchSchema = new Schema(
       default: false,
     },
 
+    openingDate: {
+      type: Date,
+      default: null,
+    },
+
     // Manager reference for branch-level management and permissions
     manager: {
       type: Schema.Types.ObjectId,
       ref: "UserAccount",
     },
 
+    // Duplicates Brand.companyRegister/Brand.taxIdNumber by design, not by
+    // accident — franchise/multi-entity chains legitimately register
+    // individual branches as separate legal entities with their own tax ID.
+    // Authority rule: if set, THIS branch's value is what invoicing/legal
+    // documents for orders at this branch must use; if unset, Brand's
+    // value applies. No code currently reads either for invoicing (Sales
+    // domain gap, not an Organization one) — recorded here so that future
+    // implementation doesn't have to rediscover which one wins.
     taxIdentificationNumber: {
       type: String,
       trim: true,
@@ -128,6 +141,13 @@ branchSchema.index({ brand: 1 });
 branchSchema.index({ slug: 1, brand: 1 }, { unique: true });
 branchSchema.index({ "name.$**": 1 });
 branchSchema.index({ status: 1 });
+// `code` is described (integration lookups) as an alternate key but had no
+// uniqueness constraint at all — sparse because most branches don't set it,
+// and this must not collide with the {slug,brand} unique index above.
+branchSchema.index(
+  { brand: 1, code: 1 },
+  { unique: true, sparse: true },
+);
 // One main branch per brand is enforced in the service layer (Mongoose can't
 // express "unique when isMainBranch=true" as a plain index without a partial
 // filter that breaks on the false case for every other branch).
