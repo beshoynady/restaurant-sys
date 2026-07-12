@@ -15,6 +15,9 @@ const cashTransferSchema = new mongoose.Schema(
     brand: { type: ObjectId, ref: "Brand", required: true },
     branch: { type: ObjectId, ref: "Branch", required: true },
 
+    // DB-011: link to the GL posting this transfer generated — previously absent.
+    journalEntry: { type: ObjectId, ref: "JournalEntry", default: null },
+
     number: {
       type: Number,
       required: true,
@@ -122,6 +125,6 @@ const cashTransferSchema = new mongoose.Schema(
 /**
  * Indexes
  */
-cashTransferSchema.index({ brand: 1, number: 1 }, { unique: true });
+cashTransferSchema.index({ brand: 1, branch: 1, number: 1 }, { unique: true }); // DB-003: was {brand,number} only
 
 export default mongoose.model("CashTransfer", cashTransferSchema);

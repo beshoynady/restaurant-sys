@@ -290,6 +290,12 @@ const payrollItemSchema = new Schema(
       default: null,
     },
 
+    deletedBy: {
+      type: ObjectId,
+      ref: "UserAccount",
+      default: null,
+    },
+
     // ======================================================
     // 🔹 Audit
     // ======================================================
@@ -315,6 +321,6 @@ const payrollItemSchema = new Schema(
 // Indexes
 // ==========================================================
 payrollItemSchema.index({ brand: 1, category: 1 });
-payrollItemSchema.index({ code: 1 }, { unique: true });
+payrollItemSchema.index({ brand: 1, code: 1 }, { unique: true }); // DB-006: was globally unique across all tenants
 
 export default mongoose.model("PayrollItem", payrollItemSchema);

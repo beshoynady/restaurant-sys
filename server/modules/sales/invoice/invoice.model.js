@@ -4,19 +4,20 @@ const { ObjectId } = mongoose.Schema;
 const invoiceSchema = mongoose.Schema(
   {
     brand: { type: ObjectId, ref: "Brand", required: true },
-    branch: { type: ObjectId, ref: "Branch", default: null }, // optional
-    // Serial number of the order (6 digits, unique)
+    // DB-003: was `default: null` (optional) — a fiscal document number must be branch-scoped, so branch cannot be absent.
+    branch: { type: ObjectId, ref: "Branch", required: true },
+    // Serial number of the order (6 digits, unique per branch — see the {brand,branch,serial} compound index below)
     cashierShift: {
       type: ObjectId,
       ref: "CashierShift",
       required: true,
     },
-    
+
     serial: {
       type: String,
       default: "000001",
       required: true,
-      unique: true,
+      // DB-003: field-level `unique: true` removed — uniqueness enforced only by the {brand,branch,serial} compound index below.
     },
     // Employee cashier for the order
     cashier: {
@@ -41,6 +42,17 @@ const invoiceSchema = mongoose.Schema(
     /* Items in the invoice */
     items: [
       {
+        // DB-017: back-reference to the specific Order.items[]._id this line bills. Needed for
+        // split-bill (one Order -> multiple Invoices) and merge (multiple Orders -> one Invoice)
+        // correctness — without it nothing prevents the same order item being billed twice, or
+        // missed, across split invoices. Left optional here (schema-layer only, per this task's
+        // scope): tightening to `required: true` is a service-layer change (the invoice-creation
+        // code must be updated to populate it), out of scope for this database-layer pass — see
+        // DATABASE_IMPLEMENTATION_PLAN.md DB-017's acceptance criteria.
+        orderItemId: {
+          type: ObjectId,
+          default: null,
+        },
         // Product ID
         product: {
           type: ObjectId,
@@ -159,13 +171,7 @@ const invoiceSchema = mongoose.Schema(
     },
     status: {
       type: String,
-      enum: [
-        "OPEN",
-        "PAID",
-        "PARTIALLY_RETURNED",
-        "FULLY_RETURNED",
-        "CANCELLED",
-      ],
+      enum: ["OPEN", "PAID", "PARTIALLY_RETURNED", "FULLY_RETURNED", "CANCELLED"],
       default: "OPEN",
       index: true,
     },
@@ -201,6 +207,13 @@ const invoiceSchema = mongoose.Schema(
     paidBy: {
       type: ObjectId,
       ref: "Employee",
+      default: null,
+    },
+    // DB-011: link to the GL posting this sale generated — previously absent even though Invoice
+    // is one of the two most central financial documents in the system.
+    journalEntry: {
+      type: ObjectId,
+      ref: "JournalEntry",
       default: null,
     },
   },

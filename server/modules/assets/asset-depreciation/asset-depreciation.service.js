@@ -5,7 +5,10 @@ import AdvancedService from "../../../utils/BaseService.js";
 const assetDepreciationService = new AdvancedService(AssetDepreciationModel, {
   brandScoped: true,
   softDelete: true,
-  defaultPopulate: ["Brand","Branch","asset","journalEntryId","createdBy","updatedBy"],
+  // DB-012 minimal compatibility update: casing fixed to match the renamed `brand`/`branch`
+  // fields (model previously had `Brand`/`Branch`, which meant `brandScoped: true` above was
+  // silently never actually filtering/populating by brand at all).
+  defaultPopulate: ["brand","branch","asset","journalEntryId","createdBy","updatedBy"],
   searchFields: [], // specify searchable fields if needed
   defaultSort: { createdAt: -1 },
 });

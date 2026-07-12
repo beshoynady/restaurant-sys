@@ -9,10 +9,9 @@ const purchaseInvoiceSchema = new mongoose.Schema(
     // Branch reference for multi-branch system
     branch: { type: ObjectId, ref: "Branch", required: true },
 
-    // Unique invoice number
+    // Invoice number, unique per branch — see the {brand,branch,invoiceNumber} compound index below (DB-003)
     invoiceNumber: {
       type: String,
-      unique: true,
       trim: true,
       maxlength: 100,
       required: true,
@@ -125,6 +124,9 @@ const purchaseInvoiceSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    // DB-011: link to the actual GL posting — `accountingPosted` alone gave no way to verify
+    // *which* JournalEntry was generated for a given invoice.
+    journalEntry: { type: ObjectId, ref: "JournalEntry", default: null },
 
     costCenter: { type: ObjectId, ref: "CostCenter" },
 
@@ -134,6 +136,9 @@ const purchaseInvoiceSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
+// DB-003: sequential document number, unique per branch
+purchaseInvoiceSchema.index({ brand: 1, branch: 1, invoiceNumber: 1 }, { unique: true });
 
 const PurchaseInvoiceModel = mongoose.model(
   "PurchaseInvoice",

@@ -9,11 +9,16 @@ const SalesReturnSchema = new mongoose.Schema(
       type: String,
       default: "000001",
       required: true,
-      unique: true,
+      // DB-003: uniqueness enforced by the {brand,branch,serial} compound index below, not globally.
     },
     // original invoice reference
     originalInvoice: { type: ObjectId, ref: "Invoice", required: true },
     order: { type: ObjectId, ref: "Order", required: true },
+    // DB-011: link to the GL posting this refund generated.
+    journalEntry: { type: ObjectId, ref: "JournalEntry", default: null },
+    // DB-011: mirrors JournalEntry's reversal pattern (Problem 2) — a refund is conceptually a
+    // reversal of the original sale's posting.
+    reversalOfJournalEntry: { type: ObjectId, ref: "JournalEntry", default: null },
     cashierShift: {
       type: ObjectId,
       ref: "CashierShift",
@@ -181,5 +186,8 @@ const SalesReturnSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
+// DB-003: sequential document number, unique per branch (this collection previously had no compound index at all)
+SalesReturnSchema.index({ brand: 1, branch: 1, serial: 1 }, { unique: true });
 
 export default mongoose.model("SalesReturn", SalesReturnSchema);

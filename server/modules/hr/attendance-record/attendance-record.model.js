@@ -59,10 +59,14 @@ const attendanceRecordSchema = new mongoose.Schema(
     },
 
     // 🔹 Clock-in / Clock-out
+    // DB-019: was unconditionally `required: true`, which blocked creating ABSENT/VACATION/
+    // SICK_LEAVE/HOLIDAY-type records (no clock-in occurs for those types). Now only required
+    // for types where the employee was actually physically present.
     arrivalTime: {
       type: Date,
-      required: true,
-      
+      required: function () {
+        return ["PRESENT", "PARTIAL", "WORK_ON_HOLIDAY", "PERMISSION"].includes(this.type);
+      },
     },
     departureTime: { type: Date, },
 

@@ -23,5 +23,10 @@
     "sourceMap": true
   },
   "include": ["./**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+  // tests/** is excluded from the main application typecheck: test files use Jest globals
+  // (describe/it/expect/...), which are intentionally only added to tsconfig.jest.json's `types`
+  // (not the main config's, to avoid Jest globals leaking into application code's type-checking
+  // scope). `npm run typecheck` checks application code; `npm test` (ts-jest, using
+  // tsconfig.jest.json) type-checks test code as part of running it.
+  "exclude": ["node_modules", "dist", "tests"]
 }

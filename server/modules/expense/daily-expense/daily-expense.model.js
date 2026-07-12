@@ -10,7 +10,8 @@ const dailyExpenseSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
-    Number: {
+    // DB-003: renamed from `Number`→`number` (casing consistency); uniqueness enforced by the {brand,branch,number} compound index below.
+    number: {
       type: Number,
       required: true,
       min: 1,
@@ -62,6 +63,16 @@ const dailyExpenseSchema = new mongoose.Schema(
       trim: true,
       maxlength: 200,
     },
+    // DB-011: previously this expense-payment record had no lifecycle state at all — it was
+    // implicitly "final" the instant it was created, with no draft/approval/cancellation states.
+    status: {
+      type: String,
+      enum: ["Draft", "Posted", "Cancelled"],
+      default: "Posted",
+    },
+    // DB-011: link to the actual GL posting — previously this real money-out event had no GL
+    // traceability at all, not even a boolean flag.
+    journalEntry: { type: ObjectId, ref: "JournalEntry", default: null },
     createdBy: { type: ObjectId, ref: "UserAccount", required: true },
     updatedBy: { type: ObjectId, ref: "UserAccount" },
   },
@@ -69,6 +80,9 @@ const dailyExpenseSchema = new mongoose.Schema(
     timestamps: true,
   },
 );
+
+// DB-003: sequential document number, unique per branch
+dailyExpenseSchema.index({ brand: 1, branch: 1, number: 1 }, { unique: true });
 
 // Create a model based on the schema
 const DailyExpenseModel = mongoose.model("DailyExpense", dailyExpenseSchema);

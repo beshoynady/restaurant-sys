@@ -49,10 +49,10 @@ const expenseSchema = new mongoose.Schema(
     code: {
       type: String,
       required: true,
-      unique: true,
       uppercase: true,
       trim: true,
       maxlength: 50,
+      // DB-002: uniqueness enforced by the {brand,branch,code} compound index below, not globally.
     },
     /**
      * Administrative classification of the expense
@@ -135,7 +135,8 @@ const expenseSchema = new mongoose.Schema(
 );
 
 expenseSchema.index(
-  { brand: 1, branch: 1, "description.en": 1 },
+  // DB-002: was incorrectly targeting "description.en" (free text) — the actual business identifier is `code`.
+  { brand: 1, branch: 1, code: 1 },
   { unique: true },
 );
 

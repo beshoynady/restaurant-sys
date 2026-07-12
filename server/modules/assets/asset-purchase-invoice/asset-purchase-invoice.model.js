@@ -11,6 +11,9 @@ const assetPurchaseInvoiceSchema = new mongoose.Schema(
     // Unique invoice number from supplier
     supplierInvoiceNumber: { type: String, trim: true, maxlength: 100 },
 
+    // DB-011: link to the actual GL posting.
+    journalEntry: { type: ObjectId, ref: "JournalEntry", default: null },
+
     date: { type: Date, default: Date.now },
     items: [
       {
@@ -89,6 +92,9 @@ const assetPurchaseInvoiceSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
+// DB-003: sequential document number, unique per branch (this collection previously had no uniqueness constraint at all)
+assetPurchaseInvoiceSchema.index({ brand: 1, branch: 1, invoiceNumber: 1 }, { unique: true });
 
 const AssetPurchaseInvoice = mongoose.model(
   "AssetPurchaseInvoice",

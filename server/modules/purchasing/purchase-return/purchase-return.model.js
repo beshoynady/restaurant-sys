@@ -7,10 +7,9 @@ const purchaseReturnInvoiceSchema = new mongoose.Schema(
     // Brand & branch & warehouse for multi-brand / multi-branch / multi-warehouse system
     brand: { type: ObjectId, ref: "Brand", required: true },
     branch: { type: ObjectId, ref: "Branch", required: true },
-    // Unique return invoice number
+    // Return invoice number, unique per branch — see the {brand,branch,invoiceNumber} compound index below (DB-003)
     invoiceNumber: {
       type: String,
-      unique: true,
       trim: true,
       maxlength: 100,
       required: true,
@@ -92,6 +91,8 @@ const purchaseReturnInvoiceSchema = new mongoose.Schema(
     },
 
     accountingPosted: { type: Boolean, default: false },
+    // DB-011: link to the actual GL posting.
+    journalEntry: { type: ObjectId, ref: "JournalEntry", default: null },
 
     // Notes for Dine-in use
     notes: { 
@@ -108,6 +109,9 @@ const purchaseReturnInvoiceSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// DB-003: sequential document number, unique per branch
+purchaseReturnInvoiceSchema.index({ brand: 1, branch: 1, invoiceNumber: 1 }, { unique: true });
 
 const PurchaseReturnInvoiceModel = mongoose.model(
   "PurchaseReturnInvoice",

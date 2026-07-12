@@ -83,6 +83,9 @@ const supplierTransactionSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
+// DB-003: sequential document number, unique per branch (this collection previously had no uniqueness constraint at all)
+supplierTransactionSchema.index({ brand: 1, branch: 1, number: 1 }, { unique: true });
+
 const SupplierTransactionModel = mongoose.model(
   "SupplierTransaction",
   supplierTransactionSchema,

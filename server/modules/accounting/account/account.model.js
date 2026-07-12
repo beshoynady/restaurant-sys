@@ -35,7 +35,12 @@ const accountSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      uppercase: true,
+      // `uppercase: true` removed: it transformed the value ("Asset" -> "ASSET") *before* the
+      // enum check ran, but the enum below only ever permitted the mixed-case originals — no
+      // value could ever satisfy this field. Discovered as a hard blocker while building the
+      // DATABASE_IMPLEMENTATION_PLAN.md DB-010/DB-014 integration test fixtures (Account is a
+      // required test dependency), out of scope for those tasks but fixed as the minimal change
+      // needed to make Account creatable at all.
       trim: true,
       enum: ["Asset", "Liability", "Equity", "Revenue", "Expense"],
       required: true,
@@ -65,6 +70,10 @@ const accountSchema = new mongoose.Schema(
         "VAT_INPUT",
         "DISCOUNT",
         "ROUNDING",
+        // `null` added: `default: null` below was failing its own enum validation on every
+        // document that didn't explicitly set this field — same class of bug as `category`
+        // above, discovered and fixed for the same reason (a hard blocker for account creation).
+        null,
       ],
       default: null,
       index: true,

@@ -29,14 +29,15 @@ const StockItemSchema = new mongoose.Schema(
     SKU: {
       type: String,
       required: true,
-      unique: true,
       uppercase: true,
       match: /^[A-Z0-9-]+$/,
+      // Uniqueness enforced by the {brand,SKU} compound index below (DB-002) — not global
     },
     barcode: {
       type: String,
-      unique: true,
       sparse: true,
+      // Uniqueness enforced by the {brand,barcode} compound index below (DB-002) — not global:
+      // two unrelated brands legitimately selling the same physical product share the same real-world barcode.
     },
     categoryId: {
       type: ObjectId,
@@ -139,7 +140,8 @@ const StockItemSchema = new mongoose.Schema(
   { timestamps: true, versionKey: false },
 );
 
-StockItemSchema.index({ SKU: 1 });
+StockItemSchema.index({ brand: 1, SKU: 1 }, { unique: true }); // DB-002
+StockItemSchema.index({ brand: 1, barcode: 1 }, { unique: true, sparse: true }); // DB-002
 StockItemSchema.index({ categoryId: 1 });
 
 const StockItemModel = mongoose.model("StockItem", StockItemSchema);

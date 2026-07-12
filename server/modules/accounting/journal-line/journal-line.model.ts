@@ -1,0 +1,107 @@
+// DATABASE_IMPLEMENTATION_PLAN.md DB-008 (DATABASE_ARCHITECTURE_REDESIGN.md, Problem 2):
+// rebuilds the structural defect at the center of the accounting review —
+// this collection was previously declared with `{ _id: false }` (an option
+// meant for embedded subdocuments) while being registered as a standalone
+// top-level Mongoose model, and had no back-reference to its parent
+// JournalEntry at all. Fixed here: a real `_id`, a mandatory `journalEntry`
+// reference, `period`/`date` denormalized for reporting-query performance
+// (matching the access pattern real ledger/trial-balance reports use —
+// "every line for account X in period Y" — which needs an indexed,
+// line-centric query path, not an aggregation across every JournalEntry
+// document), and a debit-XOR-credit validator (a line must have exactly
+// one of debit/credit set, never both, never neither).
+import mongoose, { Schema, type Document, type Model, type Types } from "mongoose";
+
+export type JournalLineSourceType =
+  | "PAYROLL_RUN"
+  | "SALES_INVOICE"
+  | "PURCHASE_INVOICE"
+  | "SALES_RETURN"
+  | "PURCHASE_RETURN"
+  | "EXPENSE_VOUCHER"
+  | "ASSET_DOCUMENT"
+  | "CASH_MOVEMENT"
+  | "MANUAL_ENTRY";
+
+export interface IJournalLine extends Document {
+  journalEntry: Types.ObjectId;
+  brand: Types.ObjectId;
+  branch: Types.ObjectId;
+  period: Types.ObjectId;
+  date: Date;
+  description: string;
+  account: Types.ObjectId;
+  sourceType: JournalLineSourceType | null;
+  sourceRef: Types.ObjectId | null;
+  debit: number;
+  credit: number;
+  currency: string;
+  exchangeRate: number;
+  convertedDebit: number;
+  convertedCredit: number;
+  costCenter: Types.ObjectId | null;
+}
+
+const journalLineSchema = new Schema<IJournalLine>(
+  {
+    // DB-008: the previously-missing back-reference — the primary traversal path from a line to its entry.
+    journalEntry: { type: Schema.Types.ObjectId, ref: "JournalEntry", required: true, index: true },
+
+    brand: { type: Schema.Types.ObjectId, ref: "Brand", required: true },
+    branch: { type: Schema.Types.ObjectId, ref: "Branch", required: true },
+    // DB-008: denormalized from the parent entry so ledger/trial-balance reports can query
+    // JournalLine directly by {account, brand, branch, period} without joining back to JournalEntry.
+    period: { type: Schema.Types.ObjectId, ref: "AccountingPeriod", required: true },
+    date: { type: Date, required: true },
+
+    description: { type: String, trim: true, required: true, maxlength: 300 },
+
+    account: { type: Schema.Types.ObjectId, ref: "Account", required: true },
+
+    sourceType: {
+      type: String,
+      enum: [
+        "PAYROLL_RUN",
+        "SALES_INVOICE",
+        "PURCHASE_INVOICE",
+        "SALES_RETURN",
+        "PURCHASE_RETURN",
+        "EXPENSE_VOUCHER",
+        "ASSET_DOCUMENT",
+        "CASH_MOVEMENT",
+        "MANUAL_ENTRY",
+      ],
+      default: null,
+    },
+    sourceRef: { type: Schema.Types.ObjectId, refPath: "sourceType", default: null },
+
+    debit: { type: Number, min: 0, default: 0 },
+    credit: { type: Number, min: 0, default: 0 },
+
+    currency: { type: String, uppercase: true, required: true },
+    exchangeRate: { type: Number, default: 1 },
+    convertedDebit: { type: Number, default: 0 },
+    convertedCredit: { type: Number, default: 0 },
+
+    costCenter: { type: Schema.Types.ObjectId, ref: "CostCenter", default: null },
+  },
+  { timestamps: true }, // DB-008: `{ _id: false }` removed
+);
+
+// DB-008: a line must have exactly one of debit/credit set — never both, never neither.
+journalLineSchema.pre("validate", function (next) {
+  const hasDebit = this.debit > 0;
+  const hasCredit = this.credit > 0;
+  if (hasDebit === hasCredit) {
+    return next(new Error("JournalLine: exactly one of debit or credit must be greater than zero."));
+  }
+  next();
+});
+
+// The dominant ledger-reporting access path: "every line for this account, in this period, at this branch."
+journalLineSchema.index({ account: 1, brand: 1, branch: 1, period: 1 });
+
+const JournalLineModel: Model<IJournalLine> =
+  mongoose.models.JournalLine || mongoose.model<IJournalLine>("JournalLine", journalLineSchema);
+
+export default JournalLineModel;

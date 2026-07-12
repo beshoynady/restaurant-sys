@@ -82,6 +82,11 @@ const assetMaintenanceSchema = new mongoose.Schema(
       index: true,
     },
 
+    // DB-011: this maintenance record previously had no GL traceability at all, despite having a
+    // clear accounting treatment decision point (Expense vs Capitalize).
+    accountingPosted: { type: Boolean, default: false },
+    journalEntry: { type: ObjectId, ref: "JournalEntry", default: null },
+
     supplier: {
       type: ObjectId,
       ref: "Supplier",

@@ -18,8 +18,11 @@ const { ObjectId } = mongoose.Schema;
  */
 const assetDepreciationSchema = new mongoose.Schema(
   {
-    Brand: { type: ObjectId, ref: "Brand", required: true },
-    Branch: { type: ObjectId, ref: "Branch", required: true },
+    // DB-012: fixed casing (`Brand`/`Branch`→`brand`/`branch`) — any shared tenant-scoping query
+    // helper filtering on the lowercase field name (the convention used by every other model)
+    // previously ignored this collection entirely.
+    brand: { type: ObjectId, ref: "Brand", required: true },
+    branch: { type: ObjectId, ref: "Branch", required: true },
     /* =========================
        Asset Reference
        ========================= */
@@ -41,16 +44,26 @@ const assetDepreciationSchema = new mongoose.Schema(
        Accounting Period
        ========================= */
 
-    /**
-     * Accounting period in YYYY-MM format
-     * Example: "2026-01"
-     * Used to prevent duplicate depreciation
-     */
-    period: {
+    // DB-012: was a free-text "YYYY-MM" string disconnected from the AccountingPeriod
+    // collection — depreciation postings could never be checked against a period's lock state.
+    // Renamed to `periodLabel` and kept (existing data preserved, not dropped); `period` below is
+    // the new authoritative reference, backfilled by
+    // scripts/migrations/DB-012-backfill-asset-depreciation-period-ref.ts.
+    periodLabel: {
       type: String,
       required: true,
       match: /^\d{4}-(0[1-9]|1[0-2])$/,
-      index: true,
+    },
+
+    /**
+     * Accounting period reference — matches the pattern used by JournalEntry/JournalLine.
+     * Used to prevent duplicate depreciation for the same asset+period, and to allow period-lock
+     * enforcement.
+     */
+    period: {
+      type: ObjectId,
+      ref: "AccountingPeriod",
+      default: null,
     },
 
     /* =========================
@@ -122,7 +135,8 @@ const assetDepreciationSchema = new mongoose.Schema(
    ========================= */
 
 // Prevent duplicate depreciation for the same asset and period
-assetDepreciationSchema.index({ asset: 1, period: 1 }, { unique: true });
+assetDepreciationSchema.index({ asset: 1, periodLabel: 1 }, { unique: true }); // DB-012: kept on the legacy label pending full migration to `period`
+assetDepreciationSchema.index({ asset: 1, period: 1 }, { unique: true, sparse: true }); // DB-012: the new authoritative constraint, sparse until every row is backfilled
 
 // Automatically set postedAt when status becomes Posted
 assetDepreciationSchema.pre("save", function (next) {

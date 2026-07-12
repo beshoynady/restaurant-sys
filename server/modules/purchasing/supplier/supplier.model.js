@@ -30,18 +30,17 @@ const SupplierSchema = new Schema(
       type: String,
       required: true,
       trim: true,
-      unique: true, // Ensures no duplicate supplier names
+      // DB-002: a display name is not a business identifier — uniqueness removed (was incorrectly global-unique).
       index: true, // Optimizes search queries
       maxlength: 255,
     },
     // Optional supplier code for internal tracking
-    Code: {
+    code: {
       type: String,
       trim: true,
-      unique: true,
       uppercase: true,
       maxlength: 50,
-      index: true,
+      // DB-002: field renamed from `Code`→`code` (casing consistency); uniqueness enforced by the {brand,code} compound index below, not globally.
     },
     // Tax Identification Number
     taxIdentificationNumber: {
@@ -202,6 +201,9 @@ const SupplierSchema = new Schema(
 );
 
 // Define the Supplier model
+// DB-002: brand-scoped code uniqueness (replaces the previous global-unique `Code`)
+SupplierSchema.index({ brand: 1, code: 1 }, { unique: true, sparse: true });
+
 const SupplierModel = mongoose.model("Supplier", SupplierSchema);
 
 // export default  the Supplier model

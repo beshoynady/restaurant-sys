@@ -115,14 +115,12 @@ const OrderSchema = new Schema(
     /** Brand & Branch context */
     brand: { type: ObjectId, ref: "Brand", required: true },
     branch: { type: ObjectId, ref: "Branch", required: true },
-    // Unique order number per branch
+    // Order number, unique per branch — see the {brand,branch,orderNum} compound index below (DB-003)
     orderNum: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
       maxlength: 30,
-      index: true,
     },
     // Reference to the cashier shift
     cashierShift: {
@@ -180,17 +178,20 @@ const OrderSchema = new Schema(
       default: null,
     },
 
-    // App user (online orders)
-    user: {
-      type: ObjectId,
-      ref: "User",
+    // DB-016: `user`/`customer` previously referenced model names "User"/"Customer",
+    // which do not exist anywhere in the codebase (the real models are "OnlineCustomer"/
+    // "OfflineCustomer") — `.populate()` on either field silently failed to resolve.
+    // Replaced with a single polymorphic reference, matching the pattern already
+    // established in crm/message/message.model.js. An order with neither field set
+    // remains a valid anonymous/walk-in order.
+    customerType: {
+      type: String,
+      enum: ["OnlineCustomer", "OfflineCustomer"],
       default: null,
     },
-
-    // Walk-in or phone customer
     customer: {
       type: ObjectId,
-      ref: "Customer",
+      refPath: "customerType",
       default: null,
     },
 
@@ -270,5 +271,8 @@ const OrderSchema = new Schema(
     timestamps: true,
   },
 );
+
+// DB-003: sequential document number, unique per branch (replaces the previous global-unique constraint)
+OrderSchema.index({ brand: 1, branch: 1, orderNum: 1 }, { unique: true });
 
 export default mongoose.model("Order", OrderSchema);

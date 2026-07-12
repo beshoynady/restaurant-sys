@@ -26,7 +26,8 @@ const paymentChannelSchema = new mongoose.Schema({
   required: true,
 },
 
-  code: { type: String, required: true, unique: true },
+  // DB-004: field-level `unique: true` removed — uniqueness enforced by the {brand,branch,code} compound index below.
+  code: { type: String, required: true },
 
   type: {
     type: String,
@@ -91,10 +92,11 @@ const paymentChannelSchema = new mongoose.Schema({
    */
   requiresSettlement: {
     type: Boolean,
+    // DB-004: was referencing `this.paymentCategory`, a field that does not exist on this schema
+    // (that field belongs to the sibling PaymentMethod model) — the default always evaluated to
+    // `false`. Fixed to reference this schema's own `type` field.
     default: function () {
-      return ["Card", "MobileWallet", "OnlineGateway"].includes(
-        this.paymentCategory,
-      );
+      return ["POS", "WALLET", "GATEWAY"].includes(this.type);
     },
   },
 
@@ -110,7 +112,7 @@ const paymentChannelSchema = new mongoose.Schema({
 
   createdBy: { type: ObjectId, ref: "UserAccount", required: true },
   updatedBy: { type: ObjectId, ref: "UserAccount" },
-});
+}, { timestamps: true }); // DB-004: this schema previously had no timestamps option at all
 
 paymentChannelSchema.index({ brand: 1, branch: 1, code: 1 }, { unique: true });
 

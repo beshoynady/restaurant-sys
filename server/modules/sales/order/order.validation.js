@@ -5,7 +5,10 @@ import OrderModel from "./order.model.js";
 /* =========================
    Create Schema
 ========================= */
-export const createOrderSchema = createSchema(OrderModel.schema);
+// DB-007: `orderNum` is now server-generated (see order.service.ts's beforeCreate hook) — excluded
+// here so a client-supplied value is silently stripped (stripUnknown: true) rather than accepted
+// or rejected, keeping old clients that still send one compatible.
+export const createOrderSchema = createSchema(OrderModel.schema, { exclude: ["orderNum"] });
 
 /* =========================
    Update Schema

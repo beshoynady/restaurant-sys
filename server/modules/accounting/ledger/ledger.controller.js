@@ -1,11 +1,20 @@
 import mongoose from "mongoose";
-import JournalEntry from "../journal-entry/journal-entry.model.js";
+import JournalLine from "../journal-line/journal-line.model.js";
 import Account from "../account/account.model.js";
 import asyncHandler from "../../../utils/asyncHandler.js";
 
 /**
  * Get ledger for a specific account
  *
+ * Compatibility fix (DATABASE_IMPLEMENTATION_PLAN.md audit, DB-010/DB-014 pass): this controller
+ * previously queried `JournalEntry` on the now-removed embedded `lines` array (`"lines.account"`,
+ * `entry.lines.find(...)`) — a leftover from before DB-008/DB-009 replaced that array with the
+ * standalone, indexed `JournalLine` collection (see journal-line.model.ts). Rewritten to query
+ * `JournalLine` directly, filtered to `journalEntry.status: "Posted"` via a populate+filter (a
+ * plain query can't filter on a populated field's condition directly in Mongoose, so entries are
+ * populated and non-Posted lines are filtered out after the query) — this is also a genuine
+ * performance improvement: an indexed `{account, brand, branch, period}` query on JournalLine
+ * directly, instead of scanning every JournalEntry and re-searching its lines array per document.
  */
 
 const ledgerController = {
@@ -23,13 +32,7 @@ const ledgerController = {
         return res.status(404).json({ message: "Account not found" });
       }
 
-      // Build query
-      const query = {
-        brand,
-        branch,
-        status: "Posted",
-        "lines.account": accountId,
-      };
+      const query = { brand, branch, account: accountId };
 
       if (startDate || endDate) {
         query.date = {};
@@ -37,18 +40,16 @@ const ledgerController = {
         if (endDate) query.date.$lte = new Date(endDate);
       }
 
-      const entries = await JournalEntry.find(query)
-        .sort({ date: 1, entryNumber: 1 })
-        .select("entryNumber date description lines");
+      const lines = await JournalLine.find(query)
+        .sort({ date: 1 })
+        .select("debit credit description date journalEntry")
+        .populate({ path: "journalEntry", select: "entryNumber status" });
 
       let runningBalance = 0;
       const ledger = [];
 
-      for (const entry of entries) {
-        const line = entry.lines.find(
-          (l) => l.account.toString() === accountId,
-        );
-        if (!line) continue;
+      for (const line of lines) {
+        if (!line.journalEntry || line.journalEntry.status !== "Posted") continue;
 
         const debit = line.debit || 0;
         const credit = line.credit || 0;
@@ -60,9 +61,9 @@ const ledgerController = {
         }
 
         ledger.push({
-          entryNumber: entry.entryNumber,
-          date: entry.date,
-          description: entry.description || line.description,
+          entryNumber: line.journalEntry.entryNumber,
+          date: line.date,
+          description: line.description,
           debit,
           credit,
           runningBalance,
@@ -96,30 +97,22 @@ const ledgerController = {
       const ledgerReport = [];
 
       for (const account of accounts) {
-        const query = {
-          brand,
-          branch,
-          status: "Posted",
-          "lines.account": account._id,
-        };
+        const query = { brand, branch, account: account._id };
         if (startDate || endDate) {
           query.date = {};
           if (startDate) query.date.$gte = new Date(startDate);
           if (endDate) query.date.$lte = new Date(endDate);
         }
 
-        const entries = await JournalEntry.find(query)
-          .sort({ date: 1, entryNumber: 1 })
-          .select("lines debit credit");
+        const lines = await JournalLine.find(query)
+          .select("debit credit journalEntry")
+          .populate({ path: "journalEntry", select: "status" });
 
         let debitTotal = 0;
         let creditTotal = 0;
 
-        entries.forEach((entry) => {
-          const line = entry.lines.find(
-            (l) => l.account.toString() === account._id.toString(),
-          );
-          if (!line) return;
+        lines.forEach((line) => {
+          if (!line.journalEntry || line.journalEntry.status !== "Posted") return;
           debitTotal += line.debit || 0;
           creditTotal += line.credit || 0;
         });
@@ -164,30 +157,22 @@ const ledgerController = {
       const trialBalance = [];
 
       for (const account of accounts) {
-        const query = {
-          brand,
-          branch,
-          status: "Posted",
-          "lines.account": account._id,
-        };
+        const query = { brand, branch, account: account._id };
         if (startDate || endDate) {
           query.date = {};
           if (startDate) query.date.$gte = new Date(startDate);
           if (endDate) query.date.$lte = new Date(endDate);
         }
 
-        const entries = await JournalEntry.find(query)
-          .sort({ date: 1, entryNumber: 1 })
-          .select("lines");
+        const lines = await JournalLine.find(query)
+          .select("debit credit journalEntry")
+          .populate({ path: "journalEntry", select: "status" });
 
         let debitSum = 0;
         let creditSum = 0;
 
-        entries.forEach((entry) => {
-          const line = entry.lines.find(
-            (l) => l.account.toString() === account._id.toString(),
-          );
-          if (!line) return;
+        lines.forEach((line) => {
+          if (!line.journalEntry || line.journalEntry.status !== "Posted") return;
           debitSum += line.debit || 0;
           creditSum += line.credit || 0;
         });

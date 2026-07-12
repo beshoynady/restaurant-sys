@@ -114,11 +114,12 @@ const InventoryCountSchema = new mongoose.Schema(
           min: 0,
         },
 
-        // Difference between counted and system quantity
+        // Difference between counted and system quantity (countedQuantity - systemQuantity) —
+        // DB-018: `min: 0` removed. Negative variance (shrinkage) is the common real-world case
+        // and must be representable; the previous constraint rejected or corrupted it.
         variance: {
           type: Number,
           required: true,
-          min: 0,
           default: 0
         },
 

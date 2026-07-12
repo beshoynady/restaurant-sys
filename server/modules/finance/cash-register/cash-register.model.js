@@ -40,7 +40,8 @@ const cashRegisterSchema = new mongoose.Schema(
       required: true,
       trim: true,
       maxlength: 50,
-      unique: true,
+      // DB-004: field-level `unique: true` removed — was conflicting with the {brand,code} compound index below
+      // (blocking two different brands from ever using the same register code).
     },
     /**
      * Cash register type

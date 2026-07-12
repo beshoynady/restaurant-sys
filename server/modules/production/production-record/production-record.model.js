@@ -10,13 +10,25 @@ const { ObjectId } = mongoose.Schema;
 
 const productionRecordSchema = new mongoose.Schema(
   {
+    // DB-003: previously absent — the most severe multi-tenancy gap found in the Production domain
+    // (this collection carried no tenant scoping at all). Backfilled from `warehouse` — see the
+    // DB-003-backfill-production-record-brand-branch migration.
+    brand: {
+      type: ObjectId,
+      ref: "Brand",
+      required: true,
+    },
+    branch: {
+      type: ObjectId,
+      ref: "Branch",
+      required: true,
+    },
     productionNumber: {
       type: Number,
       required: true,
       trim: true,
-      unique: true,
       min: 1,
-      index: true,
+      // DB-003: field-level `unique: true` removed — uniqueness enforced by the {brand,branch,productionNumber} compound index below.
     },
     productionOrder: {
       type: ObjectId,
@@ -137,5 +149,7 @@ const productionRecordSchema = new mongoose.Schema(
     timestamps: true,
   },
 );
+
+productionRecordSchema.index({ brand: 1, branch: 1, productionNumber: 1 }, { unique: true }); // DB-003
 
 export default mongoose.model("ProductionRecord", productionRecordSchema);

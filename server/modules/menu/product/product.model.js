@@ -55,8 +55,8 @@ const ProductSchema = new mongoose.Schema(
     /* =========================
        IDENTIFIERS
     ========================= */
-    sku: { type: String, unique: true, sparse: true }, // Stock Keeping Unit (optional)
-    barcode: { type: String, sparse: true }, // Barcode (optional)
+    sku: { type: String, sparse: true }, // Stock Keeping Unit (optional) — uniqueness enforced by the {brand,sku} compound index below (DB-002)
+    barcode: { type: String, sparse: true }, // Barcode (optional) — uniqueness enforced by the {brand,barcode} compound index below (DB-002)
 
     /* =========================
        CATEGORY & PREPARATION
@@ -170,6 +170,10 @@ const ProductSchema = new mongoose.Schema(
   },
   { timestamps: true }, // Automatically creates createdAt and updatedAt
 );
+
+// DB-002: brand-scoped catalog identifiers (replaces the previous global-unique `sku`)
+ProductSchema.index({ brand: 1, sku: 1 }, { unique: true, sparse: true });
+ProductSchema.index({ brand: 1, barcode: 1 }, { unique: true, sparse: true });
 
 const ProductModel = mongoose.model("Product", ProductSchema);
 export default ProductModel;
