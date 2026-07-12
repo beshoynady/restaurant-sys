@@ -3,14 +3,14 @@
 // "only one main branch per brand") are NOT decided here — they're checked in branch.service.js,
 // which composes the primitives below (`findMainBranch`, `generateSlugFor`, `insertBranch`,
 // `updateBranchDocument`, `unsetAllMainBranches`). The one exception, consistent with how
-// BaseService's own inherited methods already behave, is a plain "not found" 404 — that's
+// BaseRepository's own inherited methods already behave, is a plain "not found" 404 — that's
 // data-integrity plumbing, not a business rule, so it stays alongside the query that discovers it.
-import BaseService from "../../../utils/BaseService.js";
+import BaseRepository from "../../../utils/BaseRepository.js";
 import throwError from "../../../utils/throwError.js";
 import generateUniqueSlug from "../../../utils/generateUniqueSlug.js";
 import BranchModel from "./branch.model.js";
 
-class BranchRepository extends BaseService {
+class BranchRepository extends BaseRepository {
   constructor() {
     super(BranchModel, {
       brandScoped: true,
@@ -47,7 +47,7 @@ class BranchRepository extends BaseService {
 
   // =========================
   // GET ALL (pagination + geo + multilingual search) — a single compound
-  // query, kept here as one unit for the same reason BaseService.getAll
+  // query, kept here as one unit for the same reason BaseRepository.getAll
   // itself builds filter+sort+pagination in one method rather than splitting
   // query-param interpretation across layers.
   // =========================
@@ -136,7 +136,7 @@ class BranchRepository extends BaseService {
   // =========================
   // OVERRIDES — brand-scoped, correct object signature (see BaseController
   // contract). Plain "not found" 404s here, not business rules — same
-  // convention BaseService's own inherited methods already use.
+  // convention BaseRepository's own inherited methods already use.
   // =========================
   async hardDelete({ id, brandId }) {
     const branch = await this.model.findOneAndDelete({ _id: id, brand: brandId });

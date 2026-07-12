@@ -1,5 +1,5 @@
 import StockLedgerModel from "./stock-ledger.model.js";
-import AdvancedService from "../../../utils/BaseService.js";
+import AdvancedService from "../../../utils/BaseRepository.js";
 
 // Initialize service for stock-ledger model
 const stockLedgerService = new AdvancedService(StockLedgerModel, {

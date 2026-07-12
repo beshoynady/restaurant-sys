@@ -2,7 +2,7 @@
 
 Status of the infrastructure layer after the 2026-07-11 foundation review: what changed, why, how it works now, and the checklist every new module must follow.
 
-This document covers **infrastructure only** — bootstrap, middlewares, `BaseService`/`BaseController`, multi-tenancy, RBAC, feature toggles, DB connection. It does not cover individual business modules (see each module's own `.module.md` where one exists, e.g. `modules/hr/employee/EMPLOYEE.module.md`).
+This document covers **infrastructure only** — bootstrap, middlewares, `BaseRepository`/`BaseController`, multi-tenancy, RBAC, feature toggles, DB connection. It does not cover individual business modules (see each module's own `.module.md` where one exists, e.g. `modules/hr/employee/EMPLOYEE.module.md`).
 
 ---
 
@@ -11,13 +11,14 @@ This document covers **infrastructure only** — bootstrap, middlewares, `BaseSe
 | Area | Before | After |
 |---|---|---|
 | Request context | `authenticate.js` set `req.user` (raw Mongoose doc), `req.brandId`, `req.branchId`. Nothing set `req.user.brandId` / `req.user.userId`. | `authenticate.js`/`.ts` also sets `user.brandId`, `user.branchId`, `user.userId` directly on the attached user object. |
-| Multi-tenant query scoping | `BaseService.buildBaseQuery` only applied a `brand` filter if `brandId` was truthy — it never was (see above), so brand scoping silently never activated on any `BaseController`-driven route. | Fixed at the source; brand scoping now actually applies wherever `brandScoped: true` (the default). |
-| Branch-level isolation | No mechanism. Only `brandScoped` existed. | `branchScoped` option added to `BaseService` (opt-in, default `false`) and threaded through `BaseController`. |
+| Multi-tenant query scoping | `BaseRepository.buildBaseQuery` only applied a `brand` filter if `brandId` was truthy — it never was (see above), so brand scoping silently never activated on any `BaseController`-driven route. | Fixed at the source; brand scoping now actually applies wherever `brandScoped: true` (the default). |
+| Branch-level isolation | No mechanism. Only `brandScoped` existed. | `branchScoped` option added to `BaseRepository` (opt-in, default `false`) and threaded through `BaseController`. |
 | RBAC (`authorize()`) | Wired into exactly one router (`user-account`). Three other routers (`brand`, `branch`, `branch-settings`) called `authorize()` with a broken single-argument signature (`authorize("brand:create")`) that could never match any permission — those routes were unusable for every user, including owners. | `authorize(resource, action)` wired into all ~38 live routers (~350 call sites). The 3 broken-signature routers fixed. `RESOURCE_ENUM` (`modules/iam/role/role.model.js`) extended additively with the resources that were missing (Messages, OfflineCustomers, OnlineCustomers, CustomerLoyalty, Tables, Reservations, AccountBalances, Ledgers, AuditLogs, BrandSettings). |
 | Feature toggles | `BrandSettings.modules.<key>.enabled` existed in the schema but nothing read it. The `brand-settings` router itself was built but never mounted. | New `middlewares/checkModuleEnabled.js`, wired into every router group that maps to a `BrandSettings.modules` key. `organization/brand-settings` router now mounted at `/api/v1/organization/brand-settings`. |
 | `BaseController` contract bugs | `hardDelete` never passed `brandId` to the service (cross-tenant hard-delete-by-ID was possible). `bulkHardDelete` called `service.bulkHardDelete(ids)` with a bare array instead of `{ids, brandId, branchId}` — broken at the destructuring level. | Both fixed; `hardDelete`/`bulkHardDelete` now brand/branch-scoped like every other method. |
 | DB connection | `connectDB()` called without `await` — Express could start accepting requests before Mongo connected. Retried every 5s forever, no cap. | `await connectDB()` before `app.listen`. Retry uses capped exponential backoff (2s → 30s max), infinite but bounded. Dead Mongoose 5 options (`useNewUrlParser`, `useUnifiedTopology`) removed. |
 | `utils/BaseService.ts`, `utils/pagination.ts`, `utils/joiFactory.ts` | Independent, incomplete/incompatible reimplementations of the `.js` originals. Zero consumers (confirmed by search) — pure drift risk. | Deleted. (A re-export wrapper was tried first but TypeScript's `NodeNext` resolution treats a `.js` specifier inside a same-named `.ts` file as self-referential, causing a real circular import — confirmed by both `tsc` and a runtime `tsx` execution crash. Deletion was the safe fix since nothing imported them.) |
+| `utils/BaseService.js` naming | Named "Service" despite owning 100% of database access — a naming holdover from before the Repository/Service split existed (§4.2), confusing next to the actual `<entity>.service.ts` files that own business logic. | Renamed to `utils/BaseRepository.js` (2026-07-12), same self-contained plain-JS class, all ~90 importing modules updated, plus new `distinct`/`upsert`/`aggregate`/`startSession`/`withTransaction` methods added. Not a re-introduction of the old, separately-deleted `utils/BaseRepository.ts` split — see §4.3. |
 
 Everything above was verified by booting the server against a real MongoDB instance and smoke-testing every mounted route group (all returned the expected `401` with no token, zero `500`s, zero import errors).
 
@@ -95,14 +96,14 @@ checkModuleEnabled("accounting")
 - Reads the brand's `BrandSettings` document. **Fail-open**: if the brand has no `BrandSettings` document yet, or the specific key isn't present, the request is allowed. It only ever *restricts* once a brand has explicitly toggled a module off.
 - Not applied to core tenancy/identity routes (`organization/brand`, `organization/branch`, `iam/*`, `audit-log`) — those aren't toggleable business modules, they're the platform itself.
 
-### 3.5 `BaseService` / `BaseController` — generic CRUD
+### 3.5 `BaseRepository` / `BaseController` — generic CRUD
 
-**2026-07-12 update:** `BaseService`'s actual implementation now lives in `utils/BaseRepository.ts`; `BaseService.js` is a thin, behavior-identical subclass kept for backward compatibility (see §4.3). Everything below is still accurate for `BaseService` as observed from a consuming module — nothing about its behavior or constructor signature changed.
+**2026-07-12 update:** renamed from `BaseService.js` to `utils/BaseRepository.js` — see §4.3 for why, and for how this differs from the separately-deleted `utils/BaseRepository.ts` split. Everything below describes its current, single, self-contained implementation — nothing about its behavior or constructor signature changed from the pre-rename version.
 
-`BaseService` (`utils/BaseService.js`) constructor options:
+`BaseRepository` (`utils/BaseRepository.js`) constructor options:
 
 ```js
-new BaseService(Model, {
+new BaseRepository(Model, {
   brandScoped: true,       // default true — injects { brand: brandId } into every query/create
   branchScoped: false,      // default false — injects { branch: branchId } when true
   enableSoftDelete: true,   // default true
@@ -116,7 +117,9 @@ Set `branchScoped: true` for any entity that must never be visible/writable acro
 
 Lifecycle hooks available for override in a subclass: `beforeCreate`, `afterCreate`, `beforeUpdate`, `afterUpdate`, `beforeDelete`, `afterDelete`. Use these for module-specific side effects (e.g. writing an audit trail row, recalculating a derived field) instead of putting business logic in the controller.
 
-`BaseController` (`utils/BaseController.js`) is a thin HTTP adapter: it extracts `brandId`/`branchId`/`userId` from `req.user` and calls the matching `service` method, then formats the response as `{success, message, data, meta}`. It assumes the service exposes exactly the method signatures `BaseService` provides (`create`, `getAll`, `findById`, `update`, `softDelete`, `restore`, `hardDelete`, `bulkSoftDelete`, `bulkRestore`, `bulkHardDelete`, `count`). If a module's service doesn't implement one of these with a matching signature, that route will throw at request time, not at import time — there is no compile-time contract check (the module layer is JS).
+Beyond the CRUD/pagination primitives, `BaseRepository` also provides `distinct`, `upsert`, `aggregate` (a raw pipeline escape hatch — the caller supplies tenant scoping via an explicit `$match` stage, since pipelines don't fit `buildBaseQuery`'s filter-merging shape), and the transaction mechanics `startSession`/`withTransaction` (start/commit/abort/end lifecycle only — the service layer decides *when* to open one and what to write inside it).
+
+`BaseController` (`utils/BaseController.js`) is a thin HTTP adapter: it extracts `brandId`/`branchId`/`userId` from `req.user` and calls the matching `service` method, then formats the response as `{success, message, data, meta}`. It assumes the service exposes exactly the method signatures `BaseRepository` provides (`create`, `getAll`, `findById`, `update`, `softDelete`, `restore`, `hardDelete`, `bulkSoftDelete`, `bulkRestore`, `bulkHardDelete`, `count`). If a module's service doesn't implement one of these with a matching signature, that route will throw at request time, not at import time — there is no compile-time contract check (the module layer is JS).
 
 ### 3.6 Multi-tenancy model
 
@@ -125,7 +128,7 @@ Brand (tenant)
   └─ Branch (location, optional per-entity — null means "applies to the whole brand")
 ```
 
-Every tenant-scoped model should carry `brand: ObjectId ref "Brand"` (required) and, where the entity is branch-specific, `branch: ObjectId ref "Branch"`. `brandScoped`/`branchScoped` on `BaseService` are what actually enforce this at query time — declaring the field on the schema alone does nothing without the service option.
+Every tenant-scoped model should carry `brand: ObjectId ref "Brand"` (required) and, where the entity is branch-specific, `branch: ObjectId ref "Branch"`. `brandScoped`/`branchScoped` on `BaseRepository` are what actually enforce this at query time — declaring the field on the schema alone does nothing without the repository option.
 
 ---
 
@@ -174,13 +177,13 @@ Optional, added only when the module's actual complexity justifies it (per §6's
 
 This split is what makes a service's business logic unit-testable without a database (mock the repository) and keeps a repository swappable/reusable without carrying business assumptions.
 
-### 4.3 `BaseRepository` / `BaseService` — how the split works at the framework level
+### 4.3 `BaseRepository` — how the split works at the framework level
 
-`utils/BaseRepository.ts` (added 2026-07-12) is now the real generic Mongoose CRUD engine — pagination, populate, bulk ops, soft-delete-aware queries, the `beforeCreate`/`afterCreate`/etc. lifecycle hooks — everything that used to live in `BaseService.js` directly. `utils/BaseService.js` is now a **thin, behavior-preserving subclass** of `BaseRepository` (`class BaseService extends BaseRepository {}`, nothing else) — it exists solely so the ~85 modules not yet migrated to this standard keep working completely unchanged via `new BaseService(Model, {...})`. `BaseController`'s generic constraint was widened from `BaseService<any>` to `BaseRepository<any>` (a pure widening — every existing `BaseService`-based service still satisfies it).
+**History, so this doesn't get confused with the current design:** an earlier revision of this section described a two-class split — a real `utils/BaseRepository.ts` engine with `utils/BaseService.js` kept as a thin, behavior-preserving subclass (`class BaseService extends BaseRepository {}`) for backward compatibility. That `BaseRepository.ts` file was deleted in a later cleanup pass that misidentified it as unused (it wasn't — every module depended on it transitively through `BaseService.js`), which broke the server. The decision since then (`REPOSITORY_PATTERN_MIGRATION_PLAN.md`) has been to **not** restore a two-class split at all: **`utils/BaseRepository.js` is a single, self-contained plain-JS class** that owns the entire generic Mongoose CRUD engine directly — pagination, populate, bulk ops, soft-delete-aware queries, aggregation, transaction mechanics, the `beforeCreate`/`afterCreate`/etc. lifecycle hooks — with no other class to extend. (It was renamed from `BaseService.js` to `BaseRepository.js` on 2026-07-12, purely for naming clarity — see the table in §1 — with every importing module updated in the same pass. This rename is unrelated to, and does not reintroduce, the deleted `.ts` split described above.)
 
-**For a new or migrated module:** `<entity>.repository.ts` extends `BaseRepository<T>` directly (not `BaseService`) and adds any custom query methods. `<entity>.service.ts` extends that concrete repository class (not `BaseRepository`/`BaseService` directly) and adds business-rule methods, containing zero raw Mongoose calls of its own. See `modules/accounting/journal-entry/` and `modules/accounting/journal-line/` for the reference implementation, and `REPOSITORY_PATTERN_MIGRATION_PLAN.md` for the full rollout plan and the "why extend, not compose" tradeoff explanation.
+**For every module, migrated or not:** `<entity>.repository.ts`/`.js` extends `BaseRepository` directly and adds any custom query methods. `<entity>.service.ts`/`.js` extends that concrete repository class (not `BaseRepository` directly) and adds business-rule methods, containing zero raw Mongoose calls of its own. See `modules/accounting/journal-entry/` and `modules/accounting/journal-line/` for the reference implementation, and `REPOSITORY_PATTERN_MIGRATION_PLAN.md` for the full rollout plan and the "why extend, not compose" tradeoff explanation. Modules not yet split into a dedicated `repository.js` file still instantiate `BaseRepository` directly in their `service.js` (`new BaseRepository(Model, {...})`, sometimes still locally aliased to a legacy name like `AdvancedService` — the file path is what matters, not the local import binding).
 
-**Do not add new methods to `BaseService.js` or its `.d.ts`.** It is a compatibility shim now, not the place to extend the framework — extend `BaseRepository` instead.
+**`BaseRepository.js` is the one and only place to extend this framework's generic CRUD engine** — do not fork it or add a second base class.
 
 ### 4.4 Router middleware order (mandatory)
 
@@ -286,7 +289,7 @@ No test script was added or changed in this pass — testing infrastructure (Jes
 
 - Folder layout unchanged: `modules/<domain>/<entity>/` — the TS migration does not change directory structure, only file extensions within already-established locations.
 - Relative imports, `.js` extension on the specifier even in `.ts` source files (§5.2) — this matches the pattern already used by every existing `.ts` infrastructure file; do not deviate per-module.
-- No path aliases yet (§5.2) — use relative paths (`../../../utils/BaseService.js` etc.) exactly as the JS modules do today, for consistency until aliases are revisited.
+- No path aliases yet (§5.2) — use relative paths (`../../../utils/BaseRepository.js` etc.) exactly as the JS modules do today, for consistency until aliases are revisited.
 - Prefer real types over `any` in new TypeScript modules — `strictTypeChecked` will flag `any` usage; the existing `.ts` infra files' `any`-heavy patterns are legacy, not the standard to copy going forward.
 
 ---
@@ -298,7 +301,7 @@ Decided 2026-07-11, during the Organization module review; **amended 2026-07-12*
 Every module falls into exactly one of three tiers. The tier determines how much structure it's allowed to carry **beyond the mandatory model/validation/repository/service/controller/routes baseline** — not a ceiling to reach for its own sake, a ceiling not to exceed without a concrete reason tied to that module's own requirements.
 
 ### Tier 1 — Simple CRUD
-**Structure:** the mandatory 6-file baseline (§4.1) — `model` + `validation` + `repository` (thin: wraps the model in CRUD/query methods, nothing more) + `service` (thin `BaseService`-style orchestration, calling the repository) + `controller` (thin `BaseController` instance) + `routes`. Nothing more. No domain services, no event emission, no extra CRUD methods beyond what the repository already provides.
+**Structure:** the mandatory 6-file baseline (§4.1) — `model` + `validation` + `repository` (thin: wraps the model in CRUD/query methods, nothing more) + `service` (thin `BaseRepository`-style orchestration, calling the repository) + `controller` (thin `BaseController` instance) + `routes`. Nothing more. No domain services, no event emission, no extra CRUD methods beyond what the repository already provides.
 **Criteria:** no complex business rules, no workflow, changing it doesn't need to trigger anything elsewhere.
 **Modules:** `JobTitle`, `Department`, `MenuCategory`, `StockCategory`, `CostCenter`, `PaymentMethod`, `PaymentChannel`, every Configuration-classified settings module (all 19 from the Settings review — `accounting-settings`, `order-settings`, `loyalty-settings`, etc.), `BrandSettings`, `BranchSettings`, `DeliveryArea` (once its current field-name bugs are fixed — the bugs are Tier 1-appropriate surgical fixes, not a reason to move it up a tier).
 

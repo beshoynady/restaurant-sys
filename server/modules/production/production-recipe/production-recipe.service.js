@@ -1,5 +1,5 @@
 import ProductionRecipeModel from "./production-recipe.model.js";
-import AdvancedService from "../../../utils/BaseService.js";
+import AdvancedService from "../../../utils/BaseRepository.js";
 
 // Initialize service for production-recipe model
 const productionRecipeService = new AdvancedService(ProductionRecipeModel, {

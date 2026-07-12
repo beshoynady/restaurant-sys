@@ -46,7 +46,7 @@ const authenticateToken = async (req, res, next) => {
     }
 
     // Request context contract:
-    // BaseController/BaseService and most module controllers read
+    // BaseController/BaseRepository and most module controllers read
     // req.user.brandId / req.user.userId (not the raw Mongoose `brand`/`_id`
     // fields). Attach both aliases here, once, so every downstream consumer
     // gets a consistent context regardless of which property name it reads.

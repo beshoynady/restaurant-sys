@@ -1,5 +1,5 @@
 import WarehouseDocumentModel from "./warehouse-document.model.js";
-import AdvancedService from "../../../utils/BaseService.js";
+import AdvancedService from "../../../utils/BaseRepository.js";
 
 // Initialize service for warehouse-document model
 const warehouseDocumentService = new AdvancedService(WarehouseDocumentModel, {

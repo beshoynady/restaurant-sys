@@ -1,12 +1,12 @@
 // DATABASE_IMPLEMENTATION_PLAN.md DB-007: wires the atomic order-number generator into order
-// creation via BaseService's existing `beforeCreate` lifecycle hook — the minimal, idiomatic
+// creation via BaseRepository's existing `beforeCreate` lifecycle hook — the minimal, idiomatic
 // extension point already provided for exactly this purpose, rather than overriding `create()`
 // wholesale. `order.model.js` is intentionally left as-is (untouched, still `.js`) — converting it
 // to TypeScript is outside this task's scope (DB-007/010/014 only); this service is typed against
-// `BaseService<any>`, the same documented widening `BaseController.d.ts` already uses for the
+// `BaseRepository<any>`, the same documented widening `BaseController.d.ts` already uses for the
 // identical reason (Mongoose `Model<T>` invariance would otherwise reject a concrete document type
 // without the source model itself also being TypeScript).
-import BaseService from "../../../utils/BaseService.js";
+import BaseRepository from "../../../utils/BaseRepository.js";
 import throwErrorJs from "../../../utils/throwError.js";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 import OrderModel from "./order.model.js";
@@ -15,12 +15,12 @@ import orderSettingsService from "../order-settings/order-settings.service.js";
 const throwError = throwErrorJs as (message: string, statusCode: number) => never;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-class OrderService extends BaseService<any> {
+class OrderService extends BaseRepository<any> {
   constructor() {
     super(OrderModel, {
       brandScoped: true,
       // Corrected key name while this file was already being converted: `softDelete` is not a
-      // recognized BaseServiceOptions field (the correct name is `enableSoftDelete`, default
+      // recognized BaseRepositoryOptions field (the correct name is `enableSoftDelete`, default
       // `true`) — the original was already silently a no-op, not a behavior change here.
       enableSoftDelete: true,
       // DB-016 minimal compatibility update (retained): "user" removed (field no longer exists —

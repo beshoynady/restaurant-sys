@@ -1,5 +1,5 @@
 import MessageModel from "./message.model.js";
-import AdvancedService from "../../../utils/BaseService.js";
+import AdvancedService from "../../../utils/BaseRepository.js";
 
 // Initialize service for message model
 const messageService = new AdvancedService(MessageModel, {

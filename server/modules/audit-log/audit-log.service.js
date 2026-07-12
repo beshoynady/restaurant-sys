@@ -1,5 +1,5 @@
 import AuditLogModel from "./audit-log.model.js";
-import AdvancedService from "../../utils/BaseService.js";
+import AdvancedService from "../../utils/BaseRepository.js";
 
 const auditLogService = new AdvancedService(AuditLogModel, {
   brandScoped: true,

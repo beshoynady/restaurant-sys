@@ -1,5 +1,5 @@
 import InventorySettingsModel from "./inventory-settings.model.js";
-import AdvancedService from "../../../utils/BaseService.js";
+import AdvancedService from "../../../utils/BaseRepository.js";
 
 // Initialize service for inventory-settings model
 const inventorySettingsService = new AdvancedService(InventorySettingsModel, {

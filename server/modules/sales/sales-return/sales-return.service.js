@@ -1,5 +1,5 @@
 import SalesReturnModel from "./sales-return.model.js";
-import AdvancedService from "../../../utils/BaseService.js";
+import AdvancedService from "../../../utils/BaseRepository.js";
 
 // Initialize service for sales-return model
 const salesReturnService = new AdvancedService(SalesReturnModel, {

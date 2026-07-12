@@ -238,7 +238,7 @@ const employeeSettingSchema = new mongoose.Schema(
     createdBy: { type: ObjectId, ref: "UserAccount" },
     updatedBy: { type: ObjectId, ref: "UserAccount" },
 
-    // Soft delete (required: BaseService.softDelete()/restore() write these
+    // Soft delete (required: BaseRepository.softDelete()/restore() write these
     // fields, and getAll()'s default filter `{isDeleted:false}` never
     // matches a document where the field is entirely absent).
     isDeleted: { type: Boolean, default: false },

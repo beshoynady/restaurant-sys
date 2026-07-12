@@ -1,5 +1,5 @@
 import LoyaltyRewardModel from "./loyalty-reward.model.js";
-import AdvancedService from "../../../utils/BaseService.js";
+import AdvancedService from "../../../utils/BaseRepository.js";
 import customerLoyaltyService from "./customer-loyalty.service.js";
 
 class LoyaltyRewardService extends AdvancedService {

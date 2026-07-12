@@ -1,8 +1,8 @@
 // Repository layer (BACKEND_FOUNDATION.md §4.3): database access ONLY for BranchSettings.
-import BaseService from "../../../utils/BaseService.js";
+import BaseRepository from "../../../utils/BaseRepository.js";
 import BranchSettingsModel from "./branch-settings.model.js";
 
-class BranchSettingsRepository extends BaseService {
+class BranchSettingsRepository extends BaseRepository {
   constructor() {
     super(BranchSettingsModel, {
       brandScoped: true,
@@ -14,7 +14,7 @@ class BranchSettingsRepository extends BaseService {
     });
   }
 
-  /** BaseService has no `findOne` by arbitrary filter — this is the one real query this module needs beyond generic CRUD. */
+  /** BaseRepository has no `findOne` by arbitrary filter — this is the one real query this module needs beyond generic CRUD. */
   async findByBranch(branchId, brandId) {
     const query = { branch: branchId, isDeleted: false };
     if (brandId) query.brand = brandId;

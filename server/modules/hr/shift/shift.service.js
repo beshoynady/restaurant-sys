@@ -1,10 +1,10 @@
 import ShiftModel from "./shift.model.js";
-import AdvancedService from "../../../utils/BaseService.js";
+import AdvancedService from "../../../utils/BaseRepository.js";
 
 /**
  * Shift Service
  * Notes (EN):
- * - Uses BaseService to provide: brand scoping, pagination, soft delete, populate, search & filters.
+ * - Uses BaseRepository to provide: brand scoping, pagination, soft delete, populate, search & filters.
  * - Search uses MongoDB regex against `searchableFields`.
  * - `name` is stored as a multilang Map => search via dot-notation (name.EN / name.AR).
  */
@@ -20,7 +20,7 @@ const shiftService = new AdvancedService(ShiftModel, {
     "deletedBy",
   ],
 
-  // EN: search fields for BaseService (regex on MongoDB)
+  // EN: search fields for BaseRepository (regex on MongoDB)
   searchableFields: [
     "code",
     "status",

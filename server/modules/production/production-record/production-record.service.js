@@ -1,5 +1,5 @@
 import ProductionRecordModel from "./production-record.model.js";
-import AdvancedService from "../../../utils/BaseService.js";
+import AdvancedService from "../../../utils/BaseRepository.js";
 
 // Initialize service for production-record model
 const productionRecordService = new AdvancedService(ProductionRecordModel, {

@@ -1,5 +1,5 @@
 // DATABASE_IMPLEMENTATION_PLAN.md DB-007: atomic, branch-scoped invoice-serial generation.
-import BaseService from "../../../utils/BaseService.js";
+import BaseRepository from "../../../utils/BaseRepository.js";
 import throwErrorJs from "../../../utils/throwError.js";
 import InvoiceSettingsModel, {
   type IInvoiceSettings,
@@ -43,7 +43,7 @@ function currentPeriodStart(resetPolicy: string, date: Date): Date | null {
   return null;
 }
 
-class InvoiceSettingsService extends BaseService<IInvoiceSettings> {
+class InvoiceSettingsService extends BaseRepository<IInvoiceSettings> {
   constructor() {
     super(InvoiceSettingsModel, {
       brandScoped: true,

@@ -1,18 +1,24 @@
 /* -------------------------------------------------------------------------- */
-/*                                BaseService                                 */
+/*                               BaseRepository                               */
 /* -------------------------------------------------------------------------- */
 /*
- * Generic Mongoose data-access layer used by every module not yet migrated to
- * its own dedicated `<entity>.repository.ts` — CRUD operations, queries,
- * pagination, population, bulk operations, and transaction-session
- * *pass-through* (never the decision of when to use one).
+ * Generic Mongoose data-access layer used by every module's <entity>.repository.js
+ * (or, for modules not yet migrated to the Repository Pattern, directly by
+ * <entity>.service.js) — CRUD operations, queries, pagination, population,
+ * aggregation, transactions, and bulk operations.
  *
- * Self-contained plain JavaScript, on purpose: this used to extend a
- * `utils/BaseRepository.ts` class, but that `.ts` file was removed from the
- * project (see git history) and this project is staying on JavaScript for
- * now (TypeScript conversion deferred). Since this file is imported by
- * ~90 modules across the entire backend, it cannot depend on any `.ts`
- * source — the full CRUD engine lives directly here instead.
+ * Renamed from BaseService.js (2026-07-12) for clarity: this class owns 100%
+ * of database access per BACKEND_FOUNDATION.md §4.3's Repository/Service
+ * split, so "Repository" is the accurate name — "Service" was left over from
+ * before that split existed. This is a rename only, not a re-architecture:
+ * the class stays a single, self-contained file with no other class to
+ * extend. Do NOT confuse this with the old `utils/BaseRepository.ts`, a
+ * *different*, separate class that `BaseService.js` used to extend — that
+ * file was deleted in an earlier cleanup pass and broke ~90 modules that
+ * depended on it transitively (see REPOSITORY_PATTERN_MIGRATION_PLAN.md).
+ * This file is that incident's fix, kept in place under its new name: one
+ * plain-JS class, no `.ts` dependency, safely importable from any `.js` or
+ * `.ts` module under this project's `tsx` runtime.
  */
 
 import mongoose from "mongoose";
@@ -20,7 +26,7 @@ import throwError from "./throwError.js";
 
 const escapeRegex = (text = "") => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-class BaseService {
+class BaseRepository {
   constructor(model, options = {}) {
     const {
       brandScoped = true,
@@ -429,6 +435,102 @@ class BaseService {
 
     return this.model.countDocuments(this.buildBaseQuery({ brandId, branchId, includeDeleted, filters }));
   }
+
+  /* -------------------------------------------------------------------------- */
+  /*                                  Distinct                                  */
+  /* -------------------------------------------------------------------------- */
+
+  async distinct(field, opts = {}) {
+    const { brandId = null, branchId = null, filters = {}, includeDeleted = false } = opts;
+
+    return this.model.distinct(field, this.buildBaseQuery({ brandId, branchId, includeDeleted, filters }));
+  }
+
+  /* -------------------------------------------------------------------------- */
+  /*                                  Upsert                                    */
+  /* -------------------------------------------------------------------------- */
+
+  // Scoped by the same {brandId, branchId, filters} shape as findOne — the caller
+  // supplies the match criteria via `filters`, not just an `_id`, since "find this
+  // exact document or create it" is inherently a filter-based operation.
+  async upsert(opts) {
+    const {
+      brandId = null,
+      branchId = null,
+      filters = {},
+      data,
+      createdBy = null,
+      session = null,
+    } = opts;
+
+    let payload = { ...data };
+    if (createdBy) {
+      payload.updatedBy = createdBy;
+    }
+
+    const setOnInsert = {};
+    if (this.brandScoped && brandId) setOnInsert.brand = brandId;
+    if (this.branchScoped && branchId) setOnInsert.branch = branchId;
+    if (createdBy) setOnInsert.createdBy = createdBy;
+
+    return this.model
+      .findOneAndUpdate(
+        this.buildBaseQuery({ brandId, branchId, filters }),
+        { $set: payload, $setOnInsert: setOnInsert },
+        { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true, session: session ?? undefined },
+      )
+      .lean();
+  }
+
+  /* -------------------------------------------------------------------------- */
+  /*                                 Aggregate                                  */
+  /* -------------------------------------------------------------------------- */
+
+  // Raw aggregation escape hatch for reporting/analytics pipelines that don't fit
+  // the find()-based methods above. Tenant scoping is the caller's responsibility
+  // (via an explicit $match stage) since aggregation pipelines are inherently
+  // custom shapes — buildBaseQuery's filter merging doesn't generalize to them.
+  async aggregate(pipeline, opts = {}) {
+    const { session = null } = opts;
+
+    let query = this.model.aggregate(pipeline);
+    if (session) {
+      query = query.session(session);
+    }
+
+    return query;
+  }
+
+  /* -------------------------------------------------------------------------- */
+  /*                          Transactions (mechanics only)                     */
+  /* -------------------------------------------------------------------------- */
+  /* Database-level transaction primitives only. The DECISION of when to open a */
+  /* transaction, what to write inside it, and how to react to failure belongs  */
+  /* to the service layer — see journal-entry.service.js for the reference use. */
+
+  async startSession() {
+    return mongoose.startSession();
+  }
+
+  // Runs `fn(session)` inside a started transaction, committing on success and
+  // aborting on any thrown error; always ends the session. `fn` performs its own
+  // writes via the passed-in session — this only owns the start/commit/abort/end
+  // lifecycle, not what happens inside it.
+  async withTransaction(fn) {
+    const session = await this.startSession();
+
+    try {
+      session.startTransaction();
+      const result = await fn(session);
+      await session.commitTransaction();
+      return result;
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      session.endSession();
+    }
+  }
 }
 
-export default BaseService;
+export default BaseRepository;

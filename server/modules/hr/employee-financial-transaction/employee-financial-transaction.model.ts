@@ -1,7 +1,7 @@
 // DATABASE_IMPLEMENTATION_PLAN.md DB-005 (Phase 0 / Epic 1, highest severity
 // item in DATABASE_MODELS_REVIEW.md): this collection previously had no
 // `brand` field at all despite `employee-financial-transaction.service.js`
-// already constructing its BaseService with `brandScoped: true` — the
+// already constructing its BaseRepository with `brandScoped: true` — the
 // service layer was already trying to scope by brand; the schema simply
 // had nowhere to persist or filter on it. Adding the field here is what
 // makes that existing `brandScoped: true` option actually take effect.

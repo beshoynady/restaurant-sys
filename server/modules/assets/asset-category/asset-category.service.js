@@ -1,5 +1,5 @@
 import AssetCategoryModel from "./asset-category.model.js";
-import AdvancedService from "../../../utils/BaseService.js";
+import AdvancedService from "../../../utils/BaseRepository.js";
 
 const AssetCategoryService = new AdvancedService(AssetCategoryModel, {
   brandScoped: true,

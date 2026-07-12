@@ -1,5 +1,5 @@
 import TableModel from "./table.model.js";
-import AdvancedService from "../../../utils/BaseService.js";
+import AdvancedService from "../../../utils/BaseRepository.js";
 
 // Initialize service for table model
 const tableService = new AdvancedService(TableModel, {

@@ -1,9 +1,9 @@
 // Repository layer (BACKEND_FOUNDATION.md §4.3): database access ONLY for DeliveryArea.
-import BaseService from "../../../utils/BaseService.js";
+import BaseRepository from "../../../utils/BaseRepository.js";
 import BranchModel from "../branch/branch.model.js";
 import DeliveryAreaModel from "./delivery-area.model.js";
 
-class DeliveryAreaRepository extends BaseService {
+class DeliveryAreaRepository extends BaseRepository {
   constructor() {
     super(DeliveryAreaModel, {
       brandScoped: true,

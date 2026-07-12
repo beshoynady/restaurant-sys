@@ -1,5 +1,5 @@
 import PromotionModel from "./promotion.model.js";
-import AdvancedService from "../../../utils/BaseService.js";
+import AdvancedService from "../../../utils/BaseRepository.js";
 
 // Initialize service for promotion model
 const promotionService = new AdvancedService(PromotionModel, {

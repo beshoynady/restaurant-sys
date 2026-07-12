@@ -1,5 +1,5 @@
 import PreparationReturnModel from "./preparation-return.model.js";
-import AdvancedService from "../../../utils/BaseService.js";
+import AdvancedService from "../../../utils/BaseRepository.js";
 
 // Initialize service for preparation-return model
 const preparationReturnService = new AdvancedService(PreparationReturnModel, {

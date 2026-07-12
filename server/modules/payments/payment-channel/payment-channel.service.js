@@ -1,5 +1,5 @@
 import PaymentChannelModel from "./payment-channel.model.js";
-import AdvancedService from "../../../utils/BaseService.js";
+import AdvancedService from "../../../utils/BaseRepository.js";
 
 // Initialize service for payment-channel model
 const paymentChannelService = new AdvancedService(PaymentChannelModel, {

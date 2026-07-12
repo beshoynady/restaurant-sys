@@ -1,10 +1,10 @@
 import EmployeeModel from "./employee.model.js";
-import AdvancedService from "../../../utils/BaseService.js";
+import AdvancedService from "../../../utils/BaseRepository.js";
 
 /**
  * Employee Service
  * Notes (EN):
- * - Uses BaseService to provide: brand scoping, pagination, soft delete, populate, search & filters.
+ * - Uses BaseRepository to provide: brand scoping, pagination, soft delete, populate, search & filters.
  * - To support frontend "search" functionality, searchableFields must not be empty.
  * - Employee names are stored as multilang Maps, so we search using language keys (e.g. firstName.EN).
  */
@@ -23,7 +23,7 @@ const employeeService = new AdvancedService(EmployeeModel, {
     "deletedBy",
   ],
 
-  // EN: Search fields used by BaseService (regex on MongoDB).
+  // EN: Search fields used by BaseRepository (regex on MongoDB).
   // Important: firstName/middleName/lastName are stored as Map => use dot-notation for language keys.
   searchableFields: [
     "employeeCode",

@@ -1,5 +1,5 @@
 import LoyaltySettingsModel from "./loyalty-settings.model.js";
-import AdvancedService from "../../../utils/BaseService.js";
+import AdvancedService from "../../../utils/BaseRepository.js";
 
 class LoyaltySettingsService extends AdvancedService {
   constructor() {
@@ -15,7 +15,7 @@ class LoyaltySettingsService extends AdvancedService {
 
   /* =====================================================
      🔹 CREATE OVERRIDE (Prevent duplicate per brand)
-     Matches BaseService.create()'s object-argument signature
+     Matches BaseRepository.create()'s object-argument signature
      ({brandId, branchId, data, createdBy, session}) — BaseController
      always calls it this way, so an override with a different
      signature would silently break on every real request.

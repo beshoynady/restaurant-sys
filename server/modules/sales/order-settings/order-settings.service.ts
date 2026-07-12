@@ -1,11 +1,11 @@
 // DATABASE_IMPLEMENTATION_PLAN.md DB-007: atomic, branch-scoped order-number generation.
-import BaseService from "../../../utils/BaseService.js";
+import BaseRepository from "../../../utils/BaseRepository.js";
 import throwErrorJs from "../../../utils/throwError.js";
 import OrderSettingsModel, { type IOrderSettings } from "./order-settings.model.js";
 
 const throwError = throwErrorJs as (message: string, statusCode: number) => never;
 
-class OrderSettingsService extends BaseService<IOrderSettings> {
+class OrderSettingsService extends BaseRepository<IOrderSettings> {
   constructor() {
     super(OrderSettingsModel, {
       brandScoped: true,

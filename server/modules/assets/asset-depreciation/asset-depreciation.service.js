@@ -1,5 +1,5 @@
 import AssetDepreciationModel from "./asset-depreciation.model.js";
-import AdvancedService from "../../../utils/BaseService.js";
+import AdvancedService from "../../../utils/BaseRepository.js";
 
 // Initialize service for asset-depreciation model
 const assetDepreciationService = new AdvancedService(AssetDepreciationModel, {

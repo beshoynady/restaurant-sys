@@ -1,5 +1,5 @@
 import PayrollModel from "./payroll.model.js";
-import AdvancedService from "../../../utils/BaseService.js";
+import AdvancedService from "../../../utils/BaseRepository.js";
 
 // Initialize service for payroll model
 const payrollService = new AdvancedService(PayrollModel, {

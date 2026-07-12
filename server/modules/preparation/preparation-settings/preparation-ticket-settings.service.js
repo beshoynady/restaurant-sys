@@ -1,5 +1,5 @@
 import PreparationTicketSettingsModel from "./preparation-ticket-settings.model.js";
-import AdvancedService from "../../../utils/BaseService.js";
+import AdvancedService from "../../../utils/BaseRepository.js";
 
 // Initialize service for preparation-ticket-settings model
 const preparationTicketSettingsService = new AdvancedService(PreparationTicketSettingsModel, {

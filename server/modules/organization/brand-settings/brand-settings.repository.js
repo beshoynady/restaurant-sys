@@ -1,16 +1,12 @@
 // Repository layer (BACKEND_FOUNDATION.md §4.3): owns ALL database access for BrandSettings.
 // Previously this module had no repository layer at all — brand-settings.service.js ran raw
-// Mongoose calls directly and never extended BaseService/BaseController (see the Organization
+// Mongoose calls directly and never extended BaseRepository/BaseController (see the Organization
 // module domain review). This class + brand-settings.service.js bring it in line with every
 // other module in the Organization pass.
-//
-// Imports BaseService.js, not BaseRepository.js directly — see brand.repository.js for why
-// (BaseRepository has no `.js` file, only `.ts`; a plain `.js` file importing it directly is an
-// unreliable resolution path under `tsx`, confirmed by a real server boot failure).
-import BaseService from "../../../utils/BaseService.js";
+import BaseRepository from "../../../utils/BaseRepository.js";
 import BrandSettingsModel from "./brand-settings.model.js";
 
-class BrandSettingsRepository extends BaseService {
+class BrandSettingsRepository extends BaseRepository {
   constructor() {
     super(BrandSettingsModel, {
       brandScoped: true,

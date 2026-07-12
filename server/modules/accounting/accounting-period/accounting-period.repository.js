@@ -2,10 +2,10 @@
 // router are not migrated in this pass — this repository file exists solely so
 // journal-entry.service.js's period-lock check (DB-014) doesn't have to reach into
 // AccountingPeriodModel directly, which the mandate forbids for services.
-import BaseService from "../../../utils/BaseService.js";
+import BaseRepository from "../../../utils/BaseRepository.js";
 import AccountingPeriodModel from "./accounting-period.model.js";
 
-class AccountingPeriodRepository extends BaseService {
+class AccountingPeriodRepository extends BaseRepository {
   constructor() {
     super(AccountingPeriodModel, {
       brandScoped: true,

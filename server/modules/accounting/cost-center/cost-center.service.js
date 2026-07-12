@@ -1,5 +1,5 @@
 import CostCenterModel from "./cost-center.model.js";
-import AdvancedService from "../../../utils/BaseService.js";
+import AdvancedService from "../../../utils/BaseRepository.js";
 
 // Initialize service for cost-center model
 const costCenterService = new AdvancedService(CostCenterModel, {

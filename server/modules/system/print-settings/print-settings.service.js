@@ -1,5 +1,5 @@
 import PrintSettingsModel from "./print-settings.model.js";
-import AdvancedService from "../../../utils/BaseService.js";
+import AdvancedService from "../../../utils/BaseRepository.js";
 
 // Initialize service for print-settings model
 const printSettingsService = new AdvancedService(PrintSettingsModel, {

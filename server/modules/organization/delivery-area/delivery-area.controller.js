@@ -10,7 +10,7 @@ import deliveryAreaService from "./delivery-area.service.js";
  *   overridden here. A prior version of this file shadowed the inherited
  *   BaseController methods with broken ones that called the service with a
  *   raw id/ids array instead of the {id, brandId, branchId, deletedBy}
- *   shape BaseService expects — every one of those five endpoints always
+ *   shape BaseRepository expects — every one of those five endpoints always
  *   threw "Invalid resource ID". The inherited versions are correct.
  */
 class DeliveryAreaController extends BaseController {

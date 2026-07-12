@@ -1,8 +1,8 @@
 // DATABASE_IMPLEMENTATION_PLAN.md DB-007: wires the atomic invoice-serial generator into invoice
-// creation via BaseService's `beforeCreate` hook. `invoice.model.js` intentionally left as `.js`
-// (out of this task's scope) — typed against `BaseService<any>`, matching order.service.ts's
+// creation via BaseRepository's `beforeCreate` hook. `invoice.model.js` intentionally left as `.js`
+// (out of this task's scope) — typed against `BaseRepository<any>`, matching order.service.ts's
 // documented rationale.
-import BaseService from "../../../utils/BaseService.js";
+import BaseRepository from "../../../utils/BaseRepository.js";
 import throwErrorJs from "../../../utils/throwError.js";
 import InvoiceModel from "./invoice.model.js";
 import invoiceSettingsService from "../invoice-settings/invoice-settings.service.js";
@@ -10,7 +10,7 @@ import invoiceSettingsService from "../invoice-settings/invoice-settings.service
 const throwError = throwErrorJs as (message: string, statusCode: number) => never;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-class InvoiceService extends BaseService<any> {
+class InvoiceService extends BaseRepository<any> {
   constructor() {
     super(InvoiceModel, {
       brandScoped: true,

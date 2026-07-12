@@ -1,5 +1,5 @@
 import ShiftSettingsModel from "./shift-settings.model.js";
-import AdvancedService from "../../../utils/BaseService.js";
+import AdvancedService from "../../../utils/BaseRepository.js";
 
 // Initialize service for shift-settings model
 const shiftSettingsService = new AdvancedService(ShiftSettingsModel, {
