@@ -3,9 +3,9 @@
 // (`searchBrands`). Brand is the tenant root, so `brandScoped: false` — there is no higher-level
 // tenant id to filter by, unlike every other model in this module.
 import BaseRepository from "../../../utils/BaseRepository.js";
-import BrandModel, { type IBrand } from "./brand.model.js";
+import BrandModel from "./brand.model.js";
 
-class BrandRepository extends BaseRepository<IBrand> {
+class BrandRepository extends BaseRepository {
   constructor() {
     super(BrandModel, {
       brandScoped: false,
@@ -15,7 +15,7 @@ class BrandRepository extends BaseRepository<IBrand> {
   }
 
   /** Free-text search across name (EN/AR) and legal name — admin/platform brand lookup. */
-  async searchBrands(query: string): Promise<IBrand[]> {
+  async searchBrands(query) {
     if (!query) return [];
 
     return this.model.find({

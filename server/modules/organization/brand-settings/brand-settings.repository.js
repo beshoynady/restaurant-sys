@@ -1,15 +1,12 @@
 // Repository layer (BACKEND_FOUNDATION.md §4.3): owns ALL database access for BrandSettings.
 // Previously this module had no repository layer at all — brand-settings.service.js ran raw
 // Mongoose calls directly and never extended BaseService/BaseController (see the Organization
-// module domain review, this session, finding #4). This class + brand-settings.service.ts bring
-// it in line with every other module in this session's Organization pass.
+// module domain review). This class + brand-settings.service.js bring it in line with every
+// other module in the Organization pass.
 import BaseRepository from "../../../utils/BaseRepository.js";
-import BrandSettingsModel, {
-  type IBrandSettings,
-  type BrandModuleKey,
-} from "./brand-settings.model.js";
+import BrandSettingsModel from "./brand-settings.model.js";
 
-class BrandSettingsRepository extends BaseRepository<IBrandSettings> {
+class BrandSettingsRepository extends BaseRepository {
   constructor() {
     super(BrandSettingsModel, {
       brandScoped: true,
@@ -25,15 +22,11 @@ class BrandSettingsRepository extends BaseRepository<IBrandSettings> {
    * pattern for this model (generic `_id`-based CRUD is also available via
    * the inherited BaseRepository methods, for admin/platform tooling).
    */
-  async findByBrand(brandId: string): Promise<IBrandSettings | null> {
+  async findByBrand(brandId) {
     return this.model.findOne({ brand: brandId, isDeleted: false }).populate(this.defaultPopulate);
   }
 
-  async toggleModuleForBrand(
-    brandId: string,
-    moduleKey: BrandModuleKey,
-    enabled: boolean,
-  ): Promise<IBrandSettings | null> {
+  async toggleModuleForBrand(brandId, moduleKey, enabled) {
     return this.model.findOneAndUpdate(
       { brand: brandId },
       { [`modules.${moduleKey}.enabled`]: enabled },
@@ -41,10 +34,7 @@ class BrandSettingsRepository extends BaseRepository<IBrandSettings> {
     );
   }
 
-  async softDeleteByBrand(
-    brandId: string,
-    deletedBy?: string | null,
-  ): Promise<IBrandSettings | null> {
+  async softDeleteByBrand(brandId, deletedBy) {
     return this.model.findOneAndUpdate(
       { brand: brandId },
       { isDeleted: true, deletedAt: new Date(), deletedBy },
@@ -52,7 +42,7 @@ class BrandSettingsRepository extends BaseRepository<IBrandSettings> {
     );
   }
 
-  async restoreByBrand(brandId: string): Promise<IBrandSettings | null> {
+  async restoreByBrand(brandId) {
     return this.model.findOneAndUpdate(
       { brand: brandId },
       { isDeleted: false, deletedAt: null, deletedBy: null },

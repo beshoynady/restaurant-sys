@@ -21,7 +21,12 @@ const router = express.Router();
 /* CREATE + LIST */
 router
   .route("/")
-  .post(authenticateToken, authorize("Brands", "create"), validate(createBrandSchema), brandController.create)
+  .post(
+    authenticateToken,
+    authorize("Brands", "create"),
+    validate(createBrandSchema),
+    brandController.create,
+  )
   .get(
     authenticateToken,
     authorize("Brands", "read"),
@@ -30,7 +35,12 @@ router
   );
 
 /* SEARCH */
-router.get("/search", authenticateToken, authorize("Brands", "read"), brandController.search);
+router.get(
+  "/search",
+  authenticateToken,
+  authorize("Brands", "read"),
+  brandController.search,
+);
 
 /* SETUP STATUS */
 router.get(

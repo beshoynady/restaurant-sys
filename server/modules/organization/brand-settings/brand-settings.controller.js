@@ -1,12 +1,6 @@
-import { Request, Response } from "express";
+import asyncHandler from "../../../utils/asyncHandler.js";
 import BaseController from "../../../utils/BaseController.js";
-import asyncHandlerJs from "../../../utils/asyncHandler.js";
 import brandSettingsService from "./brand-settings.service.js";
-import { type BrandModuleKey } from "./brand-settings.model.js";
-
-const asyncHandler = asyncHandlerJs as (
-  fn: (req: Request, res: Response) => Promise<void>,
-) => (req: Request, res: Response, next: (err?: unknown) => void) => void;
 
 /**
  * notes:
@@ -14,52 +8,52 @@ const asyncHandler = asyncHandlerJs as (
  *   hardDelete/bulk*) is inherited from BaseController — admin/platform tooling.
  * - The brand-scoped methods below (`getByBrand`/`createForBrand`/etc.) are the
  *   primary access pattern for this 1-doc-per-brand settings resource, routed
- *   under `/brand/:brandId` (see brand-settings.router.ts).
+ *   under `/brand/:brandId` (see brand-settings.router.js).
  */
-class BrandSettingsController extends BaseController<typeof brandSettingsService> {
+class BrandSettingsController extends BaseController {
   constructor() {
     super(brandSettingsService);
   }
 
-  getByBrand = asyncHandler(async (req: Request, res: Response) => {
+  getByBrand = asyncHandler(async (req, res) => {
     const data = await brandSettingsService.getByBrand(req.params.brandId);
     res.json({ success: true, data });
   });
 
-  createForBrand = asyncHandler(async (req: Request, res: Response) => {
+  createForBrand = asyncHandler(async (req, res) => {
     const data = await brandSettingsService.createForBrand(
       req.params.brandId,
       req.body,
-      (req as any).user?.userId,
+      req.user?.userId,
     );
 
     res.status(201).json({ success: true, data });
   });
 
-  updateForBrand = asyncHandler(async (req: Request, res: Response) => {
+  updateForBrand = asyncHandler(async (req, res) => {
     const data = await brandSettingsService.updateForBrand(
       req.params.brandId,
       req.body,
-      (req as any).user?.userId,
+      req.user?.userId,
     );
 
     res.json({ success: true, data });
   });
 
-  toggleModule = asyncHandler(async (req: Request, res: Response) => {
-    const { module: moduleKey, enabled } = req.body as { module: BrandModuleKey; enabled: boolean };
+  toggleModule = asyncHandler(async (req, res) => {
+    const { module: moduleKey, enabled } = req.body;
 
     const data = await brandSettingsService.toggleModule(req.params.brandId, moduleKey, enabled);
 
     res.json({ success: true, data });
   });
 
-  softDeleteForBrand = asyncHandler(async (req: Request, res: Response) => {
-    await brandSettingsService.softDeleteForBrand(req.params.brandId, (req as any).user?.userId);
+  softDeleteForBrand = asyncHandler(async (req, res) => {
+    await brandSettingsService.softDeleteForBrand(req.params.brandId, req.user?.userId);
     res.json({ success: true });
   });
 
-  restoreForBrand = asyncHandler(async (req: Request, res: Response) => {
+  restoreForBrand = asyncHandler(async (req, res) => {
     await brandSettingsService.restoreForBrand(req.params.brandId);
     res.json({ success: true });
   });

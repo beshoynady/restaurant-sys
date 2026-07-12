@@ -1,24 +1,15 @@
 // Service layer (BACKEND_FOUNDATION.md §4.3): business orchestration only — every database
-// operation below delegates to a method inherited from (or added on) brand.repository.ts. Extends
+// operation below delegates to a method inherited from (or added on) brand.repository.js. Extends
 // the repository rather than composing it, for the same reason journal-entry.service.ts does: it
-// preserves compatibility with BaseController's `TService extends BaseRepository<any>` generic
-// constraint without a deeper framework change — see REPOSITORY_PATTERN_MIGRATION_PLAN.md.
-import throwErrorJs from "../../../utils/throwError.js";
+// preserves compatibility with BaseController's generic constraint without a deeper framework
+// change — see REPOSITORY_PATTERN_MIGRATION_PLAN.md.
+import throwError from "../../../utils/throwError.js";
 import BrandRepository from "./brand.repository.js";
-import { type IBrand, type BrandSetupStatus } from "./brand.model.js";
-
-const throwError = throwErrorJs as (message: string, statusCode: number) => never;
-
-interface UpdateBrandInput {
-  id: string;
-  data: Record<string, unknown>;
-  userId?: string | null;
-}
 
 class BrandService extends BrandRepository {
   /* ---------------- SAFE UPDATE ---------------- */
-  async updateBrand({ id, data, userId }: UpdateBrandInput): Promise<IBrand> {
-    if (!id) throwError("ID required", 400);
+  async updateBrand({ id, data, userId }) {
+    if (!id) throw throwError("ID required", 400);
 
     return this.update({
       id,
@@ -27,26 +18,22 @@ class BrandService extends BrandRepository {
   }
 
   /* ---------------- STATUS ---------------- */
-  async changeStatus(id: string, status: string, userId?: string | null): Promise<IBrand> {
+  async changeStatus(id, status, userId) {
     return this.updateBrand({ id, data: { status }, userId });
   }
 
   /* ---------------- LOGO ---------------- */
-  async updateLogo(id: string, logo: string | null, userId?: string | null): Promise<IBrand> {
+  async updateLogo(id, logo, userId) {
     return this.updateBrand({ id, data: { logo }, userId });
   }
 
   /* ---------------- SETTINGS ---------------- */
-  async updateSettings(
-    id: string,
-    data: Record<string, unknown>,
-    userId?: string | null,
-  ): Promise<IBrand> {
+  async updateSettings(id, data, userId) {
     return this.updateBrand({ id, data, userId });
   }
 
   /* ---------------- SUMMARY ---------------- */
-  async getSummary(id: string) {
+  async getSummary(id) {
     const brand = await this.findById({ id });
 
     return {
@@ -61,7 +48,7 @@ class BrandService extends BrandRepository {
   }
 
   /* ---------------- SETUP STATUS ---------------- */
-  async getSetupStatus(id: string) {
+  async getSetupStatus(id) {
     const brand = await this.findById({ id });
 
     return {
@@ -70,8 +57,8 @@ class BrandService extends BrandRepository {
     };
   }
 
-  async updateSetupStatus(id: string, step: number, userId?: string | null): Promise<IBrand> {
-    let setupStatus: BrandSetupStatus = "draft";
+  async updateSetupStatus(id, step, userId) {
+    let setupStatus = "draft";
 
     if (step >= 1) setupStatus = "basic";
     if (step >= 3) setupStatus = "complete";

@@ -1,54 +1,8 @@
-import mongoose, { Schema, Document, Model, Types } from "mongoose";
+import mongoose from "mongoose";
 import { SUPPORTED_LANGUAGES } from "../../../utils/languages.js";
+const { ObjectId } = mongoose.Schema.Types;
 
-export type BrandStatus = "active" | "inactive" | "suspended";
-export type BrandSetupStatus = "draft" | "basic" | "complete";
-export type BrandBusinessType =
-  | "restaurant"
-  | "cafe"
-  | "fast_food"
-  | "bakery"
-  | "food_truck"
-  | "cloud_kitchen"
-  | "bar"
-  | "other";
-export type BrandCuisineType =
-  | "arabic"
-  | "italian"
-  | "mexican"
-  | "asian"
-  | "american"
-  | "mediterranean"
-  | "fusion";
-
-export interface IBrand extends Document {
-  name: Map<string, string>;
-  slug: string;
-  logo?: string | null;
-  businessType: BrandBusinessType;
-  cuisineType: BrandCuisineType[];
-  maxBranches: number;
-  currency: string;
-  decimalPlaces: number;
-  dashboardLanguages: string[];
-  defaultDashboardLanguage: string;
-  legalName: string;
-  companyRegister?: string;
-  taxIdNumber?: string;
-  timezone: string;
-  countryCode: string;
-  setupStatus: BrandSetupStatus;
-  status: BrandStatus;
-  createdBy?: Types.ObjectId | null;
-  updatedBy?: Types.ObjectId | null;
-  isDeleted: boolean;
-  deletedBy?: Types.ObjectId | null;
-  deletedAt?: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-const brandSchema = new Schema<IBrand>(
+const brandSchema = new mongoose.Schema(
   {
     // Multilingual brand name (Map so any of the platform's supported
     // languages can be used, not just EN/AR — see utils/languages.js)
@@ -105,10 +59,9 @@ const brandSchema = new Schema<IBrand>(
     },
 
     // Subscription/plan concern living on the core identity document for now
-    // — see the Organization domain review (this session) for why this
-    // should eventually move to a dedicated Subscription/Plan module. Not
-    // relocated in this pass: that's a schema/ownership change, out of scope
-    // for a structural (Repository Pattern + TS) modernization pass.
+    // — see the Organization domain review for why this should eventually
+    // move to a dedicated Subscription/Plan module. Not relocated here:
+    // that's a schema/ownership change, out of scope for this pass.
     maxBranches: {
       type: Number,
       default: 1,
@@ -221,11 +174,11 @@ const brandSchema = new Schema<IBrand>(
     // ===============================
     // AUDIT & SOFT DELETE
     // ===============================
-    createdBy: { type: Schema.Types.ObjectId, ref: "UserAccount", default: null },
-    updatedBy: { type: Schema.Types.ObjectId, ref: "UserAccount", default: null },
+    createdBy: { type: ObjectId, ref: "UserAccount", default: null },
+    updatedBy: { type: ObjectId, ref: "UserAccount", default: null },
 
     isDeleted: { type: Boolean, default: false },
-    deletedBy: { type: Schema.Types.ObjectId, ref: "UserAccount", default: null },
+    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
     deletedAt: { type: Date, default: null },
   },
   { timestamps: true },
@@ -234,6 +187,5 @@ const brandSchema = new Schema<IBrand>(
 // Multilingual brand name search
 brandSchema.index({ "name.$**": 1 });
 
-const Brand: Model<IBrand> = mongoose.model<IBrand>("Brand", brandSchema);
-
+const Brand = mongoose.model("Brand", brandSchema);
 export default Brand;

@@ -19,12 +19,10 @@ const router = express.Router();
 // =====================================================
 // BRAND-SCOPED (primary access pattern — one settings doc per brand)
 // =====================================================
-// BREAKING CHANGE: previously mounted directly at "/:brandId" (root level),
-// which is a single-segment path param indistinguishable from the generic
-// "/:id" admin routes below — adding standard CRUD (per this module's
-// modernization) would have made the two collide. Moved under "/brand/:brandId",
-// matching the same convention branch-settings.router.ts and
-// delivery-area.router.ts already use for their branch-scoped routes.
+// Mounted at "/brand/:brandId" (not "/:brandId") — a single-segment path
+// param there would be indistinguishable from the generic "/:id" admin
+// routes below, matching the same convention branch-settings.router.js and
+// delivery-area.router.js already use for their branch-scoped routes.
 
 router.get(
   "/brand/:brandId",
@@ -72,8 +70,8 @@ router.patch(
 );
 
 // =====================================================
-// GENERIC ADMIN CRUD (new — addressed by the settings document's own _id;
-// same shape as every other module's admin routes, for platform tooling)
+// GENERIC ADMIN CRUD (addressed by the settings document's own _id; same
+// shape as every other module's admin routes, for platform tooling)
 // =====================================================
 
 router

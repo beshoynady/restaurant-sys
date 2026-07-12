@@ -1,89 +1,39 @@
-import mongoose, { Schema, Document, Model, Types } from "mongoose";
+// modules/organization/brand-settings/brand-settings.model.js
 
-export interface IModuleToggle {
-  enabled: boolean;
-}
+import mongoose from "mongoose";
+const { ObjectId } = mongoose.Schema.Types;
 
-export interface IBrandModules {
-  menu: IModuleToggle;
-  sales: IModuleToggle;
-  preparation: IModuleToggle;
-  seating: IModuleToggle;
-  payments: IModuleToggle;
-
-  delivery: IModuleToggle;
-  inventory: IModuleToggle;
-  crm: IModuleToggle;
-  loyalty: IModuleToggle;
-  hr: IModuleToggle;
-
-  financial: IModuleToggle;
-  accounting: IModuleToggle;
-  analytics: IModuleToggle;
-  purchasing: IModuleToggle;
-  production: IModuleToggle;
-  assets: IModuleToggle;
-  reservations: IModuleToggle;
-  feedback: IModuleToggle;
-}
-
-export type BrandModuleKey = keyof IBrandModules;
-
-export interface IBrandSettings extends Document {
-  brand: Types.ObjectId;
-
-  seo: {
-    metaTitle?: Map<string, string>;
-    metaDescription?: Map<string, string>;
-    keywords?: Map<string, string[]>;
-    ogTitle?: Map<string, string>;
-    ogDescription?: Map<string, string>;
-    ogImageUrl?: string | null;
-  };
-
-  socialMedia: {
-    facebook?: string;
-    instagram?: string;
-    x?: string;
-    linkedin?: string;
-    tiktok?: string;
-    youtube?: string;
-  };
-
-  modules: IBrandModules;
-
-  maintenanceMode: boolean;
-
-  security: {
-    allowMultipleSessions: boolean;
-    sessionTimeoutMinutes: number;
-  };
-
-  createdBy?: Types.ObjectId | null;
-  updatedBy?: Types.ObjectId | null;
-  deletedBy?: Types.ObjectId | null;
-  isDeleted: boolean;
-  deletedAt?: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-/** Used for enabling/disabling system modules per brand (Feature Toggle / Settings Driven Architecture). */
-const moduleSchema = new Schema<IModuleToggle>(
-  { enabled: { type: Boolean, default: false } },
+/**
+ * Module Toggle Schema
+ * Used for enabling/disabling system modules per brand
+ */
+const moduleSchema = new mongoose.Schema(
+  {
+    enabled: { type: Boolean, default: false },
+  },
   { _id: false },
 );
 
-/** Multilingual string — supports EN/AR/any language key via Map. */
+/**
+ * Multilingual string schema
+ * Supports EN/AR/any language keys
+ */
 const multilingualString = {
   type: Map,
-  of: { type: String, trim: true, maxlength: 255 },
+  of: {
+    type: String,
+    trim: true,
+    maxlength: 255,
+  },
 };
 
-const brandSettingsSchema = new Schema<IBrandSettings>(
+/**
+ * Brand Settings Schema
+ */
+const brandSettingsSchema = new mongoose.Schema(
   {
     brand: {
-      type: Schema.Types.ObjectId,
+      type: ObjectId,
       ref: "Brand",
       required: true,
       unique: true,
@@ -147,9 +97,9 @@ const brandSettingsSchema = new Schema<IBrandSettings>(
     },
 
     // ================= Audit =================
-    createdBy: { type: Schema.Types.ObjectId, ref: "UserAccount" },
-    updatedBy: { type: Schema.Types.ObjectId, ref: "UserAccount" },
-    deletedBy: { type: Schema.Types.ObjectId, ref: "UserAccount" },
+    createdBy: { type: ObjectId, ref: "UserAccount" },
+    updatedBy: { type: ObjectId, ref: "UserAccount" },
+    deletedBy: { type: ObjectId, ref: "UserAccount" },
 
     isDeleted: { type: Boolean, default: false },
     deletedAt: { type: Date, default: null },
@@ -157,9 +107,4 @@ const brandSettingsSchema = new Schema<IBrandSettings>(
   { timestamps: true },
 );
 
-const BrandSettings: Model<IBrandSettings> = mongoose.model<IBrandSettings>(
-  "BrandSettings",
-  brandSettingsSchema,
-);
-
-export default BrandSettings;
+export default mongoose.model("BrandSettings", brandSettingsSchema);
