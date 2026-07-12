@@ -1,6 +1,6 @@
 // Service layer (BACKEND_FOUNDATION.md §4.3): business rules + orchestration only. This file
 // contains zero direct Mongoose calls — every database operation is delegated to
-// journal-entry.repository.ts, journal-line.repository.ts, or accounting-period.repository.ts.
+// journal-entry.repository.js, journal-line.repository.js, or accounting-period.repository.js.
 // What stayed here on purpose: deciding *whether* an entry balances (a business rule), deciding
 // *when* to open/commit/abort a transaction (orchestration), and composing three different
 // modules' repositories into one atomic operation (cross-module integration) — all explicitly
@@ -24,58 +24,22 @@
 // This is a NEW method alongside the existing generic CRUD (`journalEntryService.create` still
 // works exactly as before, for callers that only need a header with no lines) — the existing
 // `POST /journal-entries` route and its behavior are unchanged; a new `POST /journal-entries/post`
-// route (journal-entry.router.ts) is what exposes this method.
-import throwErrorJs from "../../../utils/throwError.js";
+// route (journal-entry.router.js) is what exposes this method.
+import throwError from "../../../utils/throwError.js";
 import JournalEntryRepository from "./journal-entry.repository.js";
-import { type IJournalEntry, type JournalEntryOrigin } from "./journal-entry.model.js";
 import JournalLineRepository from "../journal-line/journal-line.repository.js";
-import { type JournalLineSourceType } from "../journal-line/journal-line.model.js";
 import { accountingPeriodRepository } from "../accounting-period/accounting-period.repository.js";
 
-const throwError = throwErrorJs as (message: string, statusCode: number) => never;
-
-export interface JournalLineInput {
-  account: string;
-  description: string;
-  debit?: number;
-  credit?: number;
-  currency: string;
-  exchangeRate?: number;
-  convertedDebit?: number;
-  convertedCredit?: number;
-  costCenter?: string | null;
-  sourceType?: JournalLineSourceType | null;
-  sourceRef?: string | null;
-}
-
-export interface CreateBalancedEntryInput {
-  brand: string;
-  branch: string;
-  period: string;
-  date?: Date;
-  entryNumber: string;
-  description: string;
-  origin?: JournalEntryOrigin;
-  baseCurrency?: string | null;
-  lines: JournalLineInput[];
-  createdBy: string;
-  /** Defaults to true: the entry is posted immediately (the common case — see class comment). */
-  autoPost?: boolean;
-  postedBy?: string;
-}
-
 // Extends the repository (rather than composing it) specifically to preserve compatibility with
-// BaseController's existing generic constraint (`TService extends BaseService<any>`) without a
-// deeper framework change — the repository/service separation is enforced by convention (this
-// file contains zero raw Mongoose calls; every DB operation below is a call to a repository
-// method) rather than by TypeScript's inheritance mechanics forbidding it. See
-// REPOSITORY_PATTERN_MIGRATION_PLAN.md for why this is the chosen tradeoff for the whole rollout.
+// BaseController's generic constraint without a deeper framework change — the repository/service
+// separation is enforced by convention (this file contains zero raw Mongoose calls; every DB
+// operation below is a call to a repository method) rather than by inheritance mechanics
+// forbidding it. See REPOSITORY_PATTERN_MIGRATION_PLAN.md for why this is the chosen tradeoff for
+// the whole rollout.
 const journalLineRepository = new JournalLineRepository();
 
 class JournalEntryService extends JournalEntryRepository {
-  async createBalancedEntry(
-    input: CreateBalancedEntryInput,
-  ): Promise<{ entry: IJournalEntry; lines: unknown[] }> {
+  async createBalancedEntry(input) {
     const {
       brand,
       branch,
@@ -124,9 +88,7 @@ class JournalEntryService extends JournalEntryRepository {
       if (!accountingPeriod) {
         throwError("Accounting period not found.", 404);
       }
-      // Non-null: throwError() above throws synchronously — asserted rather than relying on
-      // cross-boundary narrowing of the imported `.js` `never`-return type.
-      if (accountingPeriod!.isLocked) {
+      if (accountingPeriod.isLocked) {
         throwError("Cannot write a journal entry to a locked accounting period.", 423);
       }
 
@@ -147,7 +109,7 @@ class JournalEntryService extends JournalEntryRepository {
           createdBy,
           postedBy: autoPost ? postedBy || createdBy : null,
           postedAt: autoPost ? now : null,
-        } as unknown as Partial<IJournalEntry>,
+        },
         session,
       );
 
@@ -173,10 +135,7 @@ class JournalEntryService extends JournalEntryRepository {
       // DB-010: any validation/write failure here (e.g. a line missing a required field) throws,
       // which is caught below and aborts the transaction — the JournalEntry created above is
       // rolled back along with it. No partial entry-with-some-lines-missing can ever be committed.
-      const createdLines = await journalLineRepository.createMany(
-        lineDocs as unknown as Parameters<typeof journalLineRepository.createMany>[0],
-        session,
-      );
+      const createdLines = await journalLineRepository.createMany(lineDocs, session);
 
       await session.commitTransaction();
 

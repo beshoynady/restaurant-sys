@@ -1,51 +1,5 @@
-import mongoose, { Schema, Document, Model, Types } from "mongoose";
-
-export type BranchStatus = "active" | "inactive" | "under_maintenance";
-
-export interface MultilingualText {
-  EN?: string;
-  AR?: string;
-  [lang: string]: string | undefined;
-}
-
-export interface BranchAddress {
-  country?: MultilingualText;
-  city?: MultilingualText;
-  area?: MultilingualText;
-  street?: MultilingualText;
-  building?: MultilingualText;
-  floor?: MultilingualText;
-  landmark?: MultilingualText;
-}
-
-export interface BranchLocation {
-  type: "Point";
-  coordinates: [number, number];
-}
-
-export interface IBranch extends Document {
-  brand: Types.ObjectId;
-  name: Map<string, string>;
-  slug: string;
-  code?: string;
-  address?: BranchAddress;
-  // Optional: a branch without a set location must be absent from geo
-  // queries, not silently placed at [0, 0] — see the schema comment below.
-  location?: BranchLocation;
-  postalCode?: string;
-  isMainBranch: boolean;
-  manager?: Types.ObjectId;
-  taxIdentificationNumber?: string;
-  commercialRegisterNumber?: string;
-  status: BranchStatus;
-  createdBy?: Types.ObjectId;
-  updatedBy?: Types.ObjectId;
-  deletedBy?: Types.ObjectId | null;
-  isDeleted: boolean;
-  deletedAt?: Date | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import mongoose from "mongoose";
+const { Schema } = mongoose;
 
 const multilingualStringSchema = {
   type: Map,
@@ -57,7 +11,7 @@ const multilingualStringSchema = {
   },
 };
 
-const branchSchema = new Schema<IBranch>(
+const branchSchema = new Schema(
   {
     brand: {
       type: Schema.Types.ObjectId,
@@ -167,7 +121,7 @@ const branchSchema = new Schema<IBranch>(
   { timestamps: true },
 );
 
-// GEO INDEX (2dsphere) — required for $near queries in branch.service.ts
+// GEO INDEX (2dsphere) — required for $near queries in branch.service.js
 branchSchema.index({ location: "2dsphere" });
 
 branchSchema.index({ brand: 1 });
@@ -182,6 +136,6 @@ branchSchema.index(
   { unique: true, partialFilterExpression: { isMainBranch: true } },
 );
 
-const Branch: Model<IBranch> = mongoose.model<IBranch>("Branch", branchSchema);
+const Branch = mongoose.model("Branch", branchSchema);
 
 export default Branch;

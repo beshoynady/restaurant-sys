@@ -1,53 +1,29 @@
 // Service layer (BACKEND_FOUNDATION.md §4.3): business orchestration + business rules only — zero
-// raw Mongoose calls. Extends the repository (same pattern as journal-entry.service.ts) to satisfy
-// BaseController's `TService extends BaseRepository<any>` generic constraint.
+// raw Mongoose calls.
 //
 // The operating-hours calculations below (isBranchOpen/isServiceAvailable/getCurrentPeriod/
 // getNextOpenTime/isWithinTime) are genuine business logic — real invariants about what "open"
-// means for a branch — and were already correctly placed here before this module's repository
-// extraction; only the database-access parts of this class moved to branch-settings.repository.ts.
-import throwErrorJs from "../../../utils/throwError.js";
+// means for a branch.
+import throwError from "../../../utils/throwError.js";
 import BranchSettingsRepository from "./branch-settings.repository.js";
-import { type IBranchSettings, type ServiceType } from "./branch-settings.model.js";
-
-const throwError = throwErrorJs as (message: string, statusCode: number) => never;
-
-interface CreateInput {
-  brandId: string;
-  branchId: string;
-  data: Record<string, unknown> & { branch: string };
-  createdBy?: string | null;
-}
-
-interface UpsertInput {
-  brandId: string;
-  branchId: string;
-  data: Record<string, unknown>;
-  userId?: string | null;
-}
-
-interface BranchScopedInput {
-  branchId: string;
-  brandId?: string | null;
-}
 
 class BranchSettingsService extends BranchSettingsRepository {
   // Prevent duplicate settings doc per branch.
-  async create({ brandId, branchId, data, createdBy }: CreateInput): Promise<IBranchSettings> {
+  async create({ brandId, branchId, data, createdBy }) {
     const exists = await this.findByBranch(data.branch);
     if (exists) throwError("Settings already exist for this branch", 400);
 
     return super.create({ brandId, branchId, data, createdBy });
   }
 
-  async getByBranch({ branchId, brandId = null }: BranchScopedInput): Promise<IBranchSettings> {
+  async getByBranch({ branchId, brandId = null }) {
     const settings = await this.findByBranch(branchId, brandId);
     if (!settings) throwError("Branch settings not found", 404);
-    return settings as IBranchSettings;
+    return settings;
   }
 
   // Upsert — important for the frontend settings screen.
-  async upsert({ brandId, branchId, data, userId }: UpsertInput): Promise<IBranchSettings> {
+  async upsert({ brandId, branchId, data, userId }) {
     const existing = await this.findOneByBrandAndBranch(brandId, branchId);
 
     if (existing) {
@@ -68,7 +44,7 @@ class BranchSettingsService extends BranchSettingsRepository {
     });
   }
 
-  async isBranchOpen({ branchId, brandId = null }: BranchScopedInput): Promise<boolean> {
+  async isBranchOpen({ branchId, brandId = null }) {
     const settings = await this.getByBranch({ branchId, brandId });
 
     const now = new Date();
@@ -88,12 +64,8 @@ class BranchSettingsService extends BranchSettingsRepository {
     return false;
   }
 
-  async isServiceAvailable({
-    branchId,
-    brandId = null,
-    serviceType,
-  }: BranchScopedInput & { serviceType: ServiceType }): Promise<boolean> {
-    const allowed: ServiceType[] = ["dineIn", "takeaway", "delivery"];
+  async isServiceAvailable({ branchId, brandId = null, serviceType }) {
+    const allowed = ["dineIn", "takeaway", "delivery"];
     if (!allowed.includes(serviceType)) throwError("Invalid service type", 400);
 
     const settings = await this.getByBranch({ branchId, brandId });
@@ -121,7 +93,7 @@ class BranchSettingsService extends BranchSettingsRepository {
     return false;
   }
 
-  async getCurrentPeriod({ branchId, brandId = null }: BranchScopedInput) {
+  async getCurrentPeriod({ branchId, brandId = null }) {
     const settings = await this.getByBranch({ branchId, brandId });
 
     const now = new Date();
@@ -134,7 +106,7 @@ class BranchSettingsService extends BranchSettingsRepository {
     return today.periods.find((p) => this.isWithinTime(currentTime, p.openTime, p.closeTime)) ?? null;
   }
 
-  async getNextOpenTime({ branchId, brandId = null }: BranchScopedInput) {
+  async getNextOpenTime({ branchId, brandId = null }) {
     const settings = await this.getByBranch({ branchId, brandId });
     const now = new Date();
 
@@ -154,7 +126,7 @@ class BranchSettingsService extends BranchSettingsRepository {
     return null;
   }
 
-  private isWithinTime(current: string, start: string | null, end: string | null): boolean {
+  isWithinTime(current, start, end) {
     if (!start || !end) return false;
     if (start <= end) return current >= start && current <= end;
     return current >= start || current <= end;

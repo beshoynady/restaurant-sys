@@ -1,10 +1,9 @@
 // Repository layer (BACKEND_FOUNDATION.md §4.3): database access ONLY for DeliveryArea.
-// Extracted from delivery-area.service.ts (previously extended BaseService directly).
-import BaseRepository from "../../../utils/BaseRepository.js";
+import BaseService from "../../../utils/BaseService.js";
 import BranchModel from "../branch/branch.model.js";
-import DeliveryAreaModel, { type IDeliveryArea } from "./delivery-area.model.js";
+import DeliveryAreaModel from "./delivery-area.model.js";
 
-class DeliveryAreaRepository extends BaseRepository<IDeliveryArea> {
+class DeliveryAreaRepository extends BaseService {
   constructor() {
     super(DeliveryAreaModel, {
       brandScoped: true,
@@ -21,9 +20,9 @@ class DeliveryAreaRepository extends BaseRepository<IDeliveryArea> {
    * module, acceptable here since it's a plain read, not a cross-module
    * write). Needed because the public delivery-area endpoints have no
    * `req.user`, so `branch` (from the URL) is the only tenant signal
-   * available — see delivery-area.service.ts / delivery-area.controller.ts.
+   * available — see delivery-area.service.js / delivery-area.controller.js.
    */
-  async findBrandIdForBranch(branchId: string): Promise<string> {
+  async findBrandIdForBranch(branchId) {
     this.validateObjectId(branchId);
 
     const branch = await BranchModel.findOne({ _id: branchId, isDeleted: false })
@@ -32,16 +31,15 @@ class DeliveryAreaRepository extends BaseRepository<IDeliveryArea> {
 
     if (!branch) {
       // Deliberately no throwError() here: this is a pure query primitive,
-      // "not found" is the service's call to make (see class comment on
-      // repository/service split in branch.repository.ts).
+      // "not found" is the service's call to make.
       return "";
     }
 
-    return String((branch as { brand: unknown }).brand);
+    return String(branch.brand);
   }
 
   /** Always scoped by brand + branch + _id together — never by area id alone (tenant isolation). */
-  async findAreaScoped(areaId: string, brandId: string, branchId: string): Promise<IDeliveryArea | null> {
+  async findAreaScoped(areaId, brandId, branchId) {
     this.validateObjectId(areaId);
 
     return this.model.findOne({
@@ -52,7 +50,7 @@ class DeliveryAreaRepository extends BaseRepository<IDeliveryArea> {
     });
   }
 
-  async findActiveByBranch(branchId: string, brandId: string) {
+  async findActiveByBranch(branchId, brandId) {
     return this.model
       .find({ branch: branchId, brand: brandId, status: "active", isDeleted: false })
       .sort({ priority: -1 })

@@ -10,39 +10,10 @@
 // line-centric query path, not an aggregation across every JournalEntry
 // document), and a debit-XOR-credit validator (a line must have exactly
 // one of debit/credit set, never both, never neither).
-import mongoose, { Schema, type Document, type Model, type Types } from "mongoose";
+import mongoose from "mongoose";
+const { Schema } = mongoose;
 
-export type JournalLineSourceType =
-  | "PAYROLL_RUN"
-  | "SALES_INVOICE"
-  | "PURCHASE_INVOICE"
-  | "SALES_RETURN"
-  | "PURCHASE_RETURN"
-  | "EXPENSE_VOUCHER"
-  | "ASSET_DOCUMENT"
-  | "CASH_MOVEMENT"
-  | "MANUAL_ENTRY";
-
-export interface IJournalLine extends Document {
-  journalEntry: Types.ObjectId;
-  brand: Types.ObjectId;
-  branch: Types.ObjectId;
-  period: Types.ObjectId;
-  date: Date;
-  description: string;
-  account: Types.ObjectId;
-  sourceType: JournalLineSourceType | null;
-  sourceRef: Types.ObjectId | null;
-  debit: number;
-  credit: number;
-  currency: string;
-  exchangeRate: number;
-  convertedDebit: number;
-  convertedCredit: number;
-  costCenter: Types.ObjectId | null;
-}
-
-const journalLineSchema = new Schema<IJournalLine>(
+const journalLineSchema = new Schema(
   {
     // DB-008: the previously-missing back-reference — the primary traversal path from a line to its entry.
     journalEntry: { type: Schema.Types.ObjectId, ref: "JournalEntry", required: true, index: true },
@@ -101,7 +72,7 @@ journalLineSchema.pre("validate", function (next) {
 // The dominant ledger-reporting access path: "every line for this account, in this period, at this branch."
 journalLineSchema.index({ account: 1, brand: 1, branch: 1, period: 1 });
 
-const JournalLineModel: Model<IJournalLine> =
-  mongoose.models.JournalLine || mongoose.model<IJournalLine>("JournalLine", journalLineSchema);
+const JournalLineModel =
+  mongoose.models.JournalLine || mongoose.model("JournalLine", journalLineSchema);
 
 export default JournalLineModel;

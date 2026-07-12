@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction } from "express";
+import express from "express";
 import deliveryAreaController from "./delivery-area.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
 import authorize from "../../../middlewares/authorize.js";
@@ -15,10 +15,10 @@ import {
 
 const router = express.Router();
 
-const deliveryAreaConfig = (req: Request, _res: Response, next: NextFunction) => {
-  (req as any).populate = ["brand", "branch", "createdBy", "updatedBy"];
-  (req as any).uniqueFields = ["code"];
-  (req as any).fieldsWithLang = ["name"];
+const deliveryAreaConfig = (req, _res, next) => {
+  req.populate = ["brand", "branch", "createdBy", "updatedBy"];
+  req.uniqueFields = ["code"];
+  req.fieldsWithLang = ["name"];
   next();
 };
 
@@ -26,9 +26,9 @@ const deliveryAreaConfig = (req: Request, _res: Response, next: NextFunction) =>
 // PUBLIC (Customer / Checkout)
 // =====================================================
 // SECURITY: these routes have no authenticateToken by design (anonymous
-// customers). Every one of them now requires :branchId in the URL — the
-// service resolves :brand from it server-side — instead of the old
-// "areaId alone" shape, which let any caller enumerate ObjectIds and read
+// customers). Every one of them requires :branchId in the URL — the
+// service resolves :brand from it server-side — instead of an "areaId
+// alone" shape, which would let any caller enumerate ObjectIds and read
 // another brand's delivery area/pricing data. Kept under the shared
 // "/branch/:branchId/..." prefix so it can never collide with the
 // "/:id" admin single-resource routes below.

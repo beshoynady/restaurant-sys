@@ -1,5 +1,5 @@
 // DATABASE_IMPLEMENTATION_PLAN.md DB-009 (DATABASE_ARCHITECTURE_REDESIGN.md, Problem 2):
-// pairs with journal-line.model.ts (DB-008). Adds the balance-tracking
+// pairs with journal-line.model.js (DB-008). Adds the balance-tracking
 // fields computed once at transactional write time (DB-010, service layer,
 // not part of this schema pass), reversal-based correction fields (posted
 // entries are never edited in place), a maker-checker-capable
@@ -9,37 +9,10 @@
 // source of the parent/child relationship (alongside JournalLine's new
 // `journalEntry` back-reference) with no mechanism keeping the two in
 // sync; query `JournalLine.find({ journalEntry: entry._id })` instead.
-import mongoose, { Schema, type Document, type Model, type Types } from "mongoose";
+import mongoose from "mongoose";
+const { Schema } = mongoose;
 
-export type JournalEntryStatus = "Pending" | "Posted" | "Rejected" | "Reversed";
-export type JournalEntryOrigin = "System" | "Manual" | "Adjusting" | "Closing";
-
-export interface IJournalEntry extends Document {
-  brand: Types.ObjectId;
-  branch: Types.ObjectId;
-  period: Types.ObjectId;
-  date: Date;
-  entryNumber: string;
-  description: string;
-  totalDebit: number;
-  totalCredit: number;
-  isBalanced: boolean;
-  baseCurrency: string | null;
-  origin: JournalEntryOrigin;
-  status: JournalEntryStatus;
-  reversalOf: Types.ObjectId | null;
-  reversedBy: Types.ObjectId | null;
-  createdBy: Types.ObjectId;
-  approvedBy: Types.ObjectId | null;
-  approvedAt: Date | null;
-  postedBy: Types.ObjectId | null;
-  postedAt: Date | null;
-  rejectedBy: Types.ObjectId | null;
-  rejectedAt: Date | null;
-  rejectionReason: string | null;
-}
-
-const journalEntrySchema = new Schema<IJournalEntry>(
+const journalEntrySchema = new Schema(
   {
     brand: { type: Schema.Types.ObjectId, ref: "Brand", required: true },
     branch: { type: Schema.Types.ObjectId, ref: "Branch", required: true },
@@ -112,12 +85,9 @@ journalEntrySchema.index({ brand: 1, branch: 1, period: 1, entryNumber: 1 }, { u
 // DB-009: immutability — a Posted entry can never be updated directly; corrections happen only
 // via a new reversal entry (reversalOf/reversedBy above). Mirrors the pre-existing correct pattern
 // already used elsewhere in this codebase on AssetTransaction.
-async function blockPostedEntryMutation(
-  this: mongoose.Query<unknown, IJournalEntry>,
-  next: (err?: Error) => void,
-) {
+async function blockPostedEntryMutation(next) {
   const target = await this.model.findOne(this.getQuery()).select("status").lean();
-  if (target && (target as { status?: string }).status === "Posted") {
+  if (target && target.status === "Posted") {
     return next(
       new Error(
         "JournalEntry: Posted entries are immutable. Create a reversal entry (reversalOf) instead of editing.",
@@ -130,7 +100,7 @@ async function blockPostedEntryMutation(
 journalEntrySchema.pre("updateOne", { document: false, query: true }, blockPostedEntryMutation);
 journalEntrySchema.pre("findOneAndUpdate", { document: false, query: true }, blockPostedEntryMutation);
 
-const JournalEntryModel: Model<IJournalEntry> =
-  mongoose.models.JournalEntry || mongoose.model<IJournalEntry>("JournalEntry", journalEntrySchema);
+const JournalEntryModel =
+  mongoose.models.JournalEntry || mongoose.model("JournalEntry", journalEntrySchema);
 
 export default JournalEntryModel;

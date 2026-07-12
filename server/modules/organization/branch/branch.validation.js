@@ -1,28 +1,19 @@
-import Joi, { ObjectSchema } from "joi";
-import joiFactoryJs from "../../../utils/joiFactory.js";
+import Joi from "joi";
+import { createSchema, updateSchema, paramsSchema, paramsIdsSchema } from "../../../utils/joiFactory.js";
 import BranchModel from "./branch.model.js";
 
-const { createSchema, updateSchema, paramsSchema, paramsIdsSchema } = joiFactoryJs as {
-  createSchema: (schema: unknown) => ObjectSchema;
-  updateSchema: (schema: unknown, exclude?: string[]) => ObjectSchema;
-  paramsSchema: () => ObjectSchema;
-  paramsIdsSchema: () => ObjectSchema;
-};
+export const createBranchSchema = createSchema(BranchModel.schema);
 
-export const createBranchSchema: ObjectSchema = createSchema(BranchModel.schema);
+export const updateBranchSchema = updateSchema(BranchModel.schema, ["updatedBy"]);
 
-export const updateBranchSchema: ObjectSchema = updateSchema(BranchModel.schema, [
-  "updatedBy",
-]);
-
-export const paramsBranchSchema: ObjectSchema = paramsSchema();
-export const paramsBranchIdsSchema: ObjectSchema = paramsIdsSchema();
+export const paramsBranchSchema = paramsSchema();
+export const paramsBranchIdsSchema = paramsIdsSchema();
 
 // Full frontend filtering surface (list/table screen) — kept as an explicit
 // schema rather than the generic querySchema() factory output, since Branch
 // supports geo (`lat`/`lng`/`maxDistance`) and field filters (`city`,
 // `country`, `isMainBranch`) that the generic factory doesn't know about.
-export const queryBranchSchema: ObjectSchema = Joi.object({
+export const queryBranchSchema = Joi.object({
   page: Joi.number().default(1),
   limit: Joi.number().default(10),
 

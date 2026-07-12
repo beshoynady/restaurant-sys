@@ -2,22 +2,17 @@
 // journalEntryService.createBalancedEntry(). All inherited BaseController methods (create/getAll/
 // getOne/update/softDelete/restore/hardDelete/bulk*) are unchanged — the existing
 // `POST /journal-entries` header-only create endpoint keeps working exactly as before.
-import { Request, Response } from "express";
 import BaseController from "../../../utils/BaseController.js";
-import asyncHandlerJs from "../../../utils/asyncHandler.js";
+import asyncHandler from "../../../utils/asyncHandler.js";
 import journalEntryService from "./journal-entry.service.js";
 
-const asyncHandler = asyncHandlerJs as (
-  fn: (req: Request, res: Response) => Promise<void>,
-) => (req: Request, res: Response, next: (err?: unknown) => void) => void;
-
-class JournalEntryController extends BaseController<typeof journalEntryService> {
+class JournalEntryController extends BaseController {
   constructor() {
     super(journalEntryService);
   }
 
-  createWithLines = asyncHandler(async (req: Request, res: Response) => {
-    const { brandId, branchId, userId } = (req as unknown as { user: Record<string, string> }).user;
+  createWithLines = asyncHandler(async (req, res) => {
+    const { brandId, branchId, userId } = req.user;
 
     const result = await journalEntryService.createBalancedEntry({
       brand: brandId,

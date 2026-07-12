@@ -1,14 +1,14 @@
-// Repository layer (BACKEND_FOUNDATION.md §4.3, decided 2026-07-12): owns ALL database access for
-// JournalEntry — generic CRUD (inherited from BaseRepository's Mongoose engine) plus the two
+// Repository layer (BACKEND_FOUNDATION.md §4.3): owns ALL database access for
+// JournalEntry — generic CRUD (inherited from BaseService's Mongoose engine) plus the two
 // primitives DB-010's transactional write path needs: opening a session, and inserting a header
 // document within one. Deliberately minimal — "database-level transaction helpers only," per the
 // mandate; the DECISION of when to open a transaction, what to put in it, and what to do if it
-// fails belongs to journal-entry.service.ts, not here.
-import mongoose, { type ClientSession } from "mongoose";
-import BaseRepository from "../../../utils/BaseRepository.js";
-import JournalEntryModel, { type IJournalEntry } from "./journal-entry.model.js";
+// fails belongs to journal-entry.service.js, not here.
+import mongoose from "mongoose";
+import BaseService from "../../../utils/BaseService.js";
+import JournalEntryModel from "./journal-entry.model.js";
 
-class JournalEntryRepository extends BaseRepository<IJournalEntry> {
+class JournalEntryRepository extends BaseService {
   constructor() {
     super(JournalEntryModel, {
       brandScoped: true,
@@ -20,12 +20,12 @@ class JournalEntryRepository extends BaseRepository<IJournalEntry> {
   }
 
   /** Database-level transaction helper only — see class comment. */
-  async startSession(): Promise<ClientSession> {
+  async startSession() {
     return mongoose.startSession();
   }
 
   /** Insert one JournalEntry header document within an existing transaction session. */
-  async insertEntry(data: Partial<IJournalEntry>, session: ClientSession): Promise<IJournalEntry> {
+  async insertEntry(data, session) {
     const [entry] = await JournalEntryModel.create([data], { session });
     return entry;
   }

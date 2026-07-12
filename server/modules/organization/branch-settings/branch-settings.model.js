@@ -1,98 +1,7 @@
-import mongoose, { Schema, Document, Model, Types } from "mongoose";
+import mongoose from "mongoose";
+const { Schema } = mongoose;
 
-export type BranchSettingsStatus = "active" | "inactive" | "suspended";
-export type OperatingDayName =
-  | "Saturday"
-  | "Sunday"
-  | "Monday"
-  | "Tuesday"
-  | "Wednesday"
-  | "Thursday"
-  | "Friday";
-export type ServiceType = "dineIn" | "takeaway" | "delivery";
-
-export interface IPhone {
-  label?: string;
-  number: string;
-}
-
-export interface IService {
-  enabled: boolean;
-}
-
-export interface IDeliveryService extends IService {
-  minOrderAmount: number;
-  estimatedTimeMinutes: number;
-}
-
-export interface IPause {
-  from: string;
-  to: string;
-  reason?: string;
-}
-
-export interface IPeriodServiceOverride {
-  enabled: boolean;
-  openTime: string | null;
-  closeTime: string | null;
-}
-
-export interface IPeriod {
-  name?: string;
-  openTime: string;
-  closeTime: string;
-  services?: {
-    dineIn?: IPeriodServiceOverride;
-    takeaway?: IPeriodServiceOverride;
-    delivery?: IPeriodServiceOverride;
-  };
-  pauses?: IPause[];
-}
-
-export interface IOperatingDay {
-  day: OperatingDayName;
-  status: "open" | "closed";
-  periods: IPeriod[];
-}
-
-export interface IBranchSettings extends Document {
-  brand: Types.ObjectId;
-  branch: Types.ObjectId;
-  contact: {
-    phones: IPhone[];
-    whatsapp?: string;
-    email?: string;
-  };
-  timezone: string;
-  operatingHours: IOperatingDay[];
-  services: {
-    dineIn: IService;
-    takeaway: IService;
-    delivery: IDeliveryService;
-  };
-  reservation: {
-    enabled: boolean;
-    advanceBookingDays: number;
-    maxGuestsPerReservation: number;
-  };
-  features: string[];
-  policies: {
-    acceptsOnlinePayment: boolean;
-    acceptsCashOnDelivery: boolean;
-    supportsLoyaltyProgram: boolean;
-    supportsGiftCards: boolean;
-  };
-  status: BranchSettingsStatus;
-  createdBy?: Types.ObjectId | null;
-  updatedBy?: Types.ObjectId | null;
-  isDeleted: boolean;
-  deletedAt?: Date | null;
-  deletedBy?: Types.ObjectId | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-const phoneSchema = new Schema<IPhone>(
+const phoneSchema = new Schema(
   {
     label: { type: String, trim: true, maxlength: 50 },
     number: { type: String, trim: true, maxlength: 20, required: true },
@@ -100,12 +9,9 @@ const phoneSchema = new Schema<IPhone>(
   { _id: false },
 );
 
-const serviceSchema = new Schema<IService>(
-  { enabled: { type: Boolean, default: true } },
-  { _id: false },
-);
+const serviceSchema = new Schema({ enabled: { type: Boolean, default: true } }, { _id: false });
 
-const deliveryServiceSchema = new Schema<IDeliveryService>(
+const deliveryServiceSchema = new Schema(
   {
     enabled: { type: Boolean, default: false },
     minOrderAmount: { type: Number, default: 0, min: 0 },
@@ -114,7 +20,7 @@ const deliveryServiceSchema = new Schema<IDeliveryService>(
   { _id: false },
 );
 
-const pauseSchema = new Schema<IPause>(
+const pauseSchema = new Schema(
   {
     from: { type: String, trim: true, required: true },
     to: { type: String, trim: true, required: true },
@@ -123,7 +29,7 @@ const pauseSchema = new Schema<IPause>(
   { _id: false },
 );
 
-const periodServiceOverrideSchema = new Schema<IPeriodServiceOverride>(
+const periodServiceOverrideSchema = new Schema(
   {
     enabled: { type: Boolean, default: true },
     openTime: { type: String, trim: true, default: null },
@@ -132,7 +38,7 @@ const periodServiceOverrideSchema = new Schema<IPeriodServiceOverride>(
   { _id: false },
 );
 
-const periodSchema = new Schema<IPeriod>(
+const periodSchema = new Schema(
   {
     name: { type: String, trim: true, maxlength: 50 },
     openTime: { type: String, required: true, trim: true },
@@ -151,7 +57,7 @@ const periodSchema = new Schema<IPeriod>(
   { _id: false },
 );
 
-const operatingDaySchema = new Schema<IOperatingDay>(
+const operatingDaySchema = new Schema(
   {
     day: {
       type: String,
@@ -164,7 +70,7 @@ const operatingDaySchema = new Schema<IOperatingDay>(
   { _id: false },
 );
 
-const branchSettingsSchema = new Schema<IBranchSettings>(
+const branchSettingsSchema = new Schema(
   {
     brand: { type: Schema.Types.ObjectId, ref: "Brand", required: true, index: true },
     branch: {
@@ -243,9 +149,6 @@ branchSettingsSchema.index({ branch: 1 }, { unique: true });
 branchSettingsSchema.index({ brand: 1 });
 branchSettingsSchema.index({ status: 1 });
 
-const BranchSettings: Model<IBranchSettings> = mongoose.model<IBranchSettings>(
-  "BranchSettings",
-  branchSettingsSchema,
-);
+const BranchSettings = mongoose.model("BranchSettings", branchSettingsSchema);
 
 export default BranchSettings;

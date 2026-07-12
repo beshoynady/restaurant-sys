@@ -1,11 +1,6 @@
-import { Request, Response } from "express";
 import BaseController from "../../../utils/BaseController.js";
-import asyncHandlerJs from "../../../utils/asyncHandler.js";
+import asyncHandler from "../../../utils/asyncHandler.js";
 import deliveryAreaService from "./delivery-area.service.js";
-
-const asyncHandler = asyncHandlerJs as (
-  fn: (req: Request, res: Response) => Promise<void>,
-) => (req: Request, res: Response, next: (err?: unknown) => void) => void;
 
 /**
  * DeliveryAreaController
@@ -18,19 +13,19 @@ const asyncHandler = asyncHandlerJs as (
  *   shape BaseService expects — every one of those five endpoints always
  *   threw "Invalid resource ID". The inherited versions are correct.
  */
-class DeliveryAreaController extends BaseController<typeof deliveryAreaService> {
+class DeliveryAreaController extends BaseController {
   constructor() {
     super(deliveryAreaService);
   }
 
   // SECURITY: these four endpoints are intentionally unauthenticated
-  // (customer/checkout use case — see delivery-area.router.ts). `req.user`
+  // (customer/checkout use case — see delivery-area.router.js). `req.user`
   // does not exist here, so tenant must never be read from it. `branchId`
   // comes from the URL and the service resolves `brand` from it server-side
-  // (see delivery-area.service.ts `resolveBrandForBranch`) — this closes a
+  // (see delivery-area.service.js `resolveBrandForBranch`) — this closes a
   // prior bug where these routes queried by `areaId` alone and leaked
   // delivery areas across brands to anyone who could guess an ObjectId.
-  getActiveAreasByBranch = asyncHandler(async (req: Request, res: Response) => {
+  getActiveAreasByBranch = asyncHandler(async (req, res) => {
     const { branchId } = req.params;
 
     const data = await deliveryAreaService.getActiveAreasByBranch({ branchId });
@@ -38,7 +33,7 @@ class DeliveryAreaController extends BaseController<typeof deliveryAreaService> 
     res.json({ success: true, data });
   });
 
-  getDeliverySummary = asyncHandler(async (req: Request, res: Response) => {
+  getDeliverySummary = asyncHandler(async (req, res) => {
     const { branchId, areaId } = req.params;
     const { orderAmount = 0 } = req.query;
 
@@ -51,7 +46,7 @@ class DeliveryAreaController extends BaseController<typeof deliveryAreaService> 
     res.json({ success: true, data });
   });
 
-  calculateDeliveryFee = asyncHandler(async (req: Request, res: Response) => {
+  calculateDeliveryFee = asyncHandler(async (req, res) => {
     const { branchId, areaId } = req.params;
     const { orderAmount = 0 } = req.query;
 
@@ -64,7 +59,7 @@ class DeliveryAreaController extends BaseController<typeof deliveryAreaService> 
     res.json({ success: true, deliveryFee: fee });
   });
 
-  validateOrder = asyncHandler(async (req: Request, res: Response) => {
+  validateOrder = asyncHandler(async (req, res) => {
     const { branchId, areaId } = req.params;
     const { orderAmount = 0, paymentMethod } = req.body;
 

@@ -3,10 +3,14 @@
 // Mongoose calls directly and never extended BaseService/BaseController (see the Organization
 // module domain review). This class + brand-settings.service.js bring it in line with every
 // other module in the Organization pass.
-import BaseRepository from "../../../utils/BaseRepository.js";
+//
+// Imports BaseService.js, not BaseRepository.js directly — see brand.repository.js for why
+// (BaseRepository has no `.js` file, only `.ts`; a plain `.js` file importing it directly is an
+// unreliable resolution path under `tsx`, confirmed by a real server boot failure).
+import BaseService from "../../../utils/BaseService.js";
 import BrandSettingsModel from "./brand-settings.model.js";
 
-class BrandSettingsRepository extends BaseRepository {
+class BrandSettingsRepository extends BaseService {
   constructor() {
     super(BrandSettingsModel, {
       brandScoped: true,

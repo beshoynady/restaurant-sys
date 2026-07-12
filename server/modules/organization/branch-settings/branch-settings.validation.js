@@ -1,24 +1,19 @@
-import Joi, { ObjectSchema } from "joi";
-import joiFactoryJs from "../../../utils/joiFactory.js";
+import Joi from "joi";
+import {
+  createSchema,
+  updateSchema,
+  paramsSchema,
+  paramsIdsSchema,
+  querySchema,
+} from "../../../utils/joiFactory.js";
 import BranchSettingsModel from "./branch-settings.model.js";
-
-const { createSchema, updateSchema, paramsSchema, paramsIdsSchema, querySchema } =
-  joiFactoryJs as {
-    createSchema: (schema: unknown) => ObjectSchema;
-    updateSchema: (schema: unknown, exclude?: string[]) => ObjectSchema;
-    paramsSchema: () => ObjectSchema;
-    paramsIdsSchema: () => ObjectSchema;
-    querySchema: () => ObjectSchema;
-  };
 
 // Validate time format HH:mm
 const timeSchema = Joi.string()
   .pattern(/^([01]\d|2[0-3]):([0-5]\d)$/)
   .message("Time must be in HH:mm format");
 
-export const createBranchSettingsSchema: ObjectSchema = createSchema(
-  BranchSettingsModel.schema,
-).keys({
+export const createBranchSettingsSchema = createSchema(BranchSettingsModel.schema).keys({
   operatingHours: Joi.array().items(
     Joi.object({
       day: Joi.string().required(),
@@ -64,11 +59,8 @@ export const createBranchSettingsSchema: ObjectSchema = createSchema(
   ),
 });
 
-export const updateBranchSettingsSchema: ObjectSchema = updateSchema(
-  BranchSettingsModel.schema,
-  ["updatedBy"],
-);
+export const updateBranchSettingsSchema = updateSchema(BranchSettingsModel.schema, ["updatedBy"]);
 
-export const paramsBranchSettingsSchema: ObjectSchema = paramsSchema();
-export const paramsBranchSettingsIdsSchema: ObjectSchema = paramsIdsSchema();
-export const queryBranchSettingsSchema: ObjectSchema = querySchema();
+export const paramsBranchSettingsSchema = paramsSchema();
+export const paramsBranchSettingsIdsSchema = paramsIdsSchema();
+export const queryBranchSettingsSchema = querySchema();

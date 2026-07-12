@@ -1,39 +1,16 @@
 // Repository layer (BACKEND_FOUNDATION.md §4.3): database access ONLY for Branch — CRUD, queries,
 // pagination/geo/search query-building, and scoped-write primitives. Business invariants (e.g.
-// "only one main branch per brand") are NOT decided here — they're checked in branch.service.ts,
+// "only one main branch per brand") are NOT decided here — they're checked in branch.service.js,
 // which composes the primitives below (`findMainBranch`, `generateSlugFor`, `insertBranch`,
 // `updateBranchDocument`, `unsetAllMainBranches`). The one exception, consistent with how
-// BaseRepository's own inherited methods already behave, is a plain "not found" 404 — that's
+// BaseService's own inherited methods already behave, is a plain "not found" 404 — that's
 // data-integrity plumbing, not a business rule, so it stays alongside the query that discovers it.
-import BaseRepository from "../../../utils/BaseRepository.js";
-import throwErrorJs from "../../../utils/throwError.js";
-import generateUniqueSlugJs from "../../../utils/generateUniqueSlug.js";
-import BranchModel, { type IBranch } from "./branch.model.js";
+import BaseService from "../../../utils/BaseService.js";
+import throwError from "../../../utils/throwError.js";
+import generateUniqueSlug from "../../../utils/generateUniqueSlug.js";
+import BranchModel from "./branch.model.js";
 
-const throwError = throwErrorJs as (message: string, statusCode: number) => never;
-const generateUniqueSlug = generateUniqueSlugJs as (opts: {
-  name: unknown;
-  model: unknown;
-  brandId: string;
-  excludeId?: string;
-}) => Promise<string>;
-
-export interface GetAllBranchesQuery {
-  page?: number;
-  limit?: number;
-  search?: string;
-  status?: string;
-  isMainBranch?: boolean;
-  city?: string;
-  country?: string;
-  lat?: number;
-  lng?: number;
-  maxDistance?: number;
-  sortBy?: string;
-  sortOrder?: "asc" | "desc";
-}
-
-class BranchRepository extends BaseRepository<IBranch> {
+class BranchRepository extends BaseService {
   constructor() {
     super(BranchModel, {
       brandScoped: true,
@@ -45,40 +22,36 @@ class BranchRepository extends BaseRepository<IBranch> {
   }
 
   /** Uniqueness-checking DB read, wrapped for reuse by create/update in the service. */
-  async generateSlugFor(name: unknown, brandId: string, excludeId?: string): Promise<string> {
+  async generateSlugFor(name, brandId, excludeId) {
     return generateUniqueSlug({ name, model: this.model, brandId, excludeId });
   }
 
   /** Pure query — used by the service to enforce "one main branch per brand". */
-  async findMainBranch(brandId: string, excludeId?: string): Promise<IBranch | null> {
-    const filter: Record<string, unknown> = { brand: brandId, isMainBranch: true, isDeleted: false };
+  async findMainBranch(brandId, excludeId) {
+    const filter = { brand: brandId, isMainBranch: true, isDeleted: false };
     if (excludeId) filter._id = { $ne: excludeId };
     return this.model.findOne(filter);
   }
 
-  async insertBranch(payload: Record<string, unknown>): Promise<IBranch> {
+  async insertBranch(payload) {
     return this.model.create(payload);
   }
 
-  async updateBranchDocument(
-    id: string,
-    brandId: string | null | undefined,
-    payload: Record<string, unknown>,
-  ): Promise<IBranch | null> {
+  async updateBranchDocument(id, brandId, payload) {
     return this.model.findOneAndUpdate({ _id: id, brand: brandId }, { $set: payload }, { new: true });
   }
 
-  async unsetAllMainBranches(brandId: string) {
+  async unsetAllMainBranches(brandId) {
     return this.model.updateMany({ brand: brandId }, { isMainBranch: false });
   }
 
   // =========================
   // GET ALL (pagination + geo + multilingual search) — a single compound
-  // query, kept here as one unit for the same reason BaseRepository.getAll
+  // query, kept here as one unit for the same reason BaseService.getAll
   // itself builds filter+sort+pagination in one method rather than splitting
   // query-param interpretation across layers.
   // =========================
-  async getAllBranches({ brandId, query }: { brandId: string; query: GetAllBranchesQuery }) {
+  async getAllBranches({ brandId, query }) {
     const {
       page = 1,
       limit = 10,
@@ -94,7 +67,7 @@ class BranchRepository extends BaseRepository<IBranch> {
       sortOrder = "desc",
     } = query;
 
-    const filter: Record<string, unknown> = {
+    const filter = {
       brand: brandId,
       isDeleted: false,
     };
@@ -112,7 +85,7 @@ class BranchRepository extends BaseRepository<IBranch> {
       ];
     }
 
-    let geoFilter: Record<string, unknown> = {};
+    let geoFilter = {};
     if (lat && lng) {
       geoFilter = {
         location: {
@@ -125,7 +98,7 @@ class BranchRepository extends BaseRepository<IBranch> {
     }
 
     const skip = (page - 1) * limit;
-    const sort: Record<string, 1 | -1> = { [sortBy]: sortOrder === "asc" ? 1 : -1 };
+    const sort = { [sortBy]: sortOrder === "asc" ? 1 : -1 };
     const finalFilter = { ...filter, ...geoFilter };
 
     const [data, total] = await Promise.all([
@@ -153,15 +126,7 @@ class BranchRepository extends BaseRepository<IBranch> {
   // =========================
   // BULK SOFT DELETE
   // =========================
-  async bulkSoftDelete({
-    ids,
-    brandId,
-    userId,
-  }: {
-    ids: string[];
-    brandId?: string | null;
-    userId?: string | null;
-  }) {
+  async bulkSoftDelete({ ids, brandId, userId }) {
     return this.model.updateMany(
       { _id: { $in: ids }, brand: brandId },
       { isDeleted: true, deletedBy: userId, deletedAt: new Date() },
@@ -171,43 +136,32 @@ class BranchRepository extends BaseRepository<IBranch> {
   // =========================
   // OVERRIDES — brand-scoped, correct object signature (see BaseController
   // contract). Plain "not found" 404s here, not business rules — same
-  // convention BaseRepository's own inherited methods already use.
+  // convention BaseService's own inherited methods already use.
   // =========================
-  async hardDelete({ id, brandId }: { id: string; brandId?: string | null }): Promise<IBranch> {
+  async hardDelete({ id, brandId }) {
     const branch = await this.model.findOneAndDelete({ _id: id, brand: brandId });
     if (!branch) throwError("Branch not found", 404);
-    // Pre-existing Mongoose typings quirk (present before this module's
-    // repository extraction too): findOneAndDelete's return type doesn't
-    // structurally overlap IBranch enough for a direct `as` cast.
-    return branch as unknown as IBranch;
+    return branch;
   }
 
-  async softDelete({
-    id,
-    brandId,
-    userId,
-  }: {
-    id: string;
-    brandId?: string | null;
-    userId?: string | null;
-  }): Promise<IBranch> {
+  async softDelete({ id, brandId, userId }) {
     const branch = await this.model.findOneAndUpdate(
       { _id: id, brand: brandId },
       { isDeleted: true, deletedBy: userId, deletedAt: new Date() },
       { new: true },
     );
     if (!branch) throwError("Branch not found", 404);
-    return branch as IBranch;
+    return branch;
   }
 
-  async restore({ id, brandId }: { id: string; brandId?: string | null }): Promise<IBranch> {
+  async restore({ id, brandId }) {
     const branch = await this.model.findOneAndUpdate(
       { _id: id, brand: brandId },
       { isDeleted: false, deletedBy: null, deletedAt: null },
       { new: true },
     );
     if (!branch) throwError("Branch not found", 404);
-    return branch as IBranch;
+    return branch;
   }
 }
 

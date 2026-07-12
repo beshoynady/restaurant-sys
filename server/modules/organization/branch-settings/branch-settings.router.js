@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction } from "express";
+import express from "express";
 import branchSettingsController from "./branch-settings.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
 import authorize from "../../../middlewares/authorize.js";
@@ -14,8 +14,8 @@ import {
 
 const router = express.Router();
 
-const branchSettingsConfig = (req: Request, _res: Response, next: NextFunction) => {
-  (req as any).populate = ["brand", "branch", "createdBy", "updatedBy"];
+const branchSettingsConfig = (req, _res, next) => {
+  req.populate = ["brand", "branch", "createdBy", "updatedBy"];
   next();
 };
 

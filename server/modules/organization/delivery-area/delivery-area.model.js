@@ -1,62 +1,12 @@
-import mongoose, { Schema, Document, Model, Types } from "mongoose";
-
-export type DeliveryAreaStatus = "active" | "inactive" | "suspended";
-export type DeliveryPricingType = "fixed" | "distance_based";
-
-export interface MultilingualText {
-  EN?: string;
-  AR?: string;
-  [lang: string]: string | undefined;
-}
-
-export interface IGeoPolygon {
-  type: "Polygon";
-  coordinates: number[][][];
-}
-
-export interface IDeliveryArea extends Document {
-  brand: Types.ObjectId;
-  branch: Types.ObjectId;
-
-  name: MultilingualText;
-  slug?: string;
-  code?: string;
-
-  pricingType: DeliveryPricingType;
-  deliveryFee: number;
-  minimumOrderAmount: number;
-  freeDeliveryThreshold: number | null;
-
-  estimatedDeliveryTimeMinutes: number;
-  maxDeliveryDistanceKm: number | null;
-
-  acceptsCashOnDelivery: boolean;
-  acceptsOnlinePayment: boolean;
-
-  coverageArea: IGeoPolygon;
-
-  priority: number;
-  sortOrder: number;
-
-  notes?: MultilingualText;
-
-  status: DeliveryAreaStatus;
-
-  createdBy?: Types.ObjectId;
-  updatedBy?: Types.ObjectId | null;
-  isDeleted: boolean;
-  deletedAt?: Date | null;
-  deletedBy?: Types.ObjectId | null;
-  createdAt: Date;
-  updatedAt: Date;
-}
+import mongoose from "mongoose";
+const { Schema } = mongoose;
 
 const multilingualStringSchema = {
   type: Map,
   of: { type: String, trim: true, maxlength: 100 },
 };
 
-const deliveryAreaSchema = new Schema<IDeliveryArea>(
+const deliveryAreaSchema = new Schema(
   {
     // REFERENCES
     brand: { type: Schema.Types.ObjectId, ref: "Brand", required: true, index: true },
@@ -95,7 +45,7 @@ const deliveryAreaSchema = new Schema<IDeliveryArea>(
     notes: multilingualStringSchema,
 
     // STATUS — the only "is this area usable" field; there is no separate
-    // `isActive` boolean (see delivery-area.service.ts — a prior version of
+    // `isActive` boolean (see delivery-area.service.js — a prior version of
     // this service read a nonexistent `isActive` field and treated every
     // area as inactive).
     status: { type: String, enum: ["active", "inactive", "suspended"], default: "active" },
@@ -121,9 +71,6 @@ deliveryAreaSchema.index({ branch: 1, code: 1 }, { unique: true, sparse: true })
 deliveryAreaSchema.index({ "name.$**": 1 });
 deliveryAreaSchema.index({ branch: 1, slug: 1 }, { unique: true, sparse: true });
 
-const DeliveryArea: Model<IDeliveryArea> = mongoose.model<IDeliveryArea>(
-  "DeliveryArea",
-  deliveryAreaSchema,
-);
+const DeliveryArea = mongoose.model("DeliveryArea", deliveryAreaSchema);
 
 export default DeliveryArea;
