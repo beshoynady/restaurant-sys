@@ -97,6 +97,8 @@ checkModuleEnabled("accounting")
 
 ### 3.5 `BaseService` / `BaseController` — generic CRUD
 
+**2026-07-12 update:** `BaseService`'s actual implementation now lives in `utils/BaseRepository.ts`; `BaseService.js` is a thin, behavior-identical subclass kept for backward compatibility (see §4.3). Everything below is still accurate for `BaseService` as observed from a consuming module — nothing about its behavior or constructor signature changed.
+
 `BaseService` (`utils/BaseService.js`) constructor options:
 
 ```js
@@ -129,19 +131,58 @@ Every tenant-scoped model should carry `brand: ObjectId ref "Brand"` (required) 
 
 ## 4. How to build a new module on top of this
 
-Follow the existing 5-file pattern under `modules/<domain>/<entity>/`. Use any live module as a template (e.g. `modules/sales/order/`, `modules/accounting/account/`).
+**Decided 2026-07-12: Repository Pattern is now mandatory for every module, superseding the "5-file, nothing more" rule for Tier 1 in §6 below.** Database access must never be implemented directly inside a service — every module gets a `repository.ts` that owns all Mongoose queries, and the service calls the repository instead of the model. This is a structural baseline requirement independent of tier; the tiering system in §6 still governs which *optional* files (`types`, `errors`, `domain`, `workflow`) a given module needs, but `repository.ts` is no longer optional for anyone.
+
+Follow the standard 6-file pattern under `modules/<domain>/<entity>/`. Use `modules/accounting/journal-entry/` and `modules/accounting/journal-line/` as the reference implementation (first modules migrated to this standard).
 
 ### 4.1 Files
 
 ```
-<entity>.model.js        Mongoose schema. Include brand (required) and branch if entity is branch-specific.
-<entity>.service.js       new BaseService(Model, {...}) or a subclass overriding lifecycle hooks.
-<entity>.controller.js    class extends BaseController — only add methods for non-CRUD business actions.
-<entity>.router.js         wires the routes (see 4.2).
-<entity>.validation.js     createSchema/updateSchema/paramsSchema/etc. from utils/joiFactory.js.
+<entity>.model.ts         Mongoose schema. Include brand (required) and branch if entity is branch-specific.
+<entity>.validation.ts    createSchema/updateSchema/paramsSchema/etc. from utils/joiFactory.js.
+<entity>.repository.ts    ALL database access. See §4.3 for exact responsibilities.
+<entity>.service.ts       Business rules, orchestration, calls one or more repositories. See §4.3.
+<entity>.controller.ts    class extends BaseController — only add methods for non-CRUD business actions.
+<entity>.routes.ts        wires the routes (see 4.2).
 ```
 
-### 4.2 Router middleware order (mandatory)
+Optional, added only when the module's actual complexity justifies it (per §6's tiering — do not add these preemptively):
+
+```
+<entity>.types.ts         Shared interfaces/DTOs, when they'd otherwise clutter service.ts.
+<entity>.errors.ts        Named error classes (e.g. UnbalancedEntryError), when generic throwError(msg, status) stops being precise enough for callers to branch on.
+<entity>.domain.ts         Pure business-logic functions with no DB/HTTP dependency (e.g. balance computation, number formatting) — extracted from service.ts when they're complex enough to warrant isolated unit testing without a database.
+<entity>.workflow.ts       Dedicated workflow/orchestration service for Tier 3 modules whose actions have consequences outside their own collection (see §6, Tier 3).
+```
+
+**Existing modules keep their current `.router.js`/`.router.ts` filename until they're next touched** — this is a naming convention going forward, not a mass-rename task; renaming every existing router file would touch every mount point in `router/v1/index.router.ts` for zero behavioral benefit. New modules and modules undergoing a Tier 2/3 refactor use `.routes.ts`.
+
+### 4.2 Repository vs. Service responsibilities (mandatory split)
+
+**Repository owns exclusively:**
+- CRUD operations, MongoDB queries, aggregation pipelines, population, pagination, bulk operations
+- Database-level transaction helpers (opening a session, passing it through) — not the decision of *when* to use one, or what happens inside it
+- Nothing else — no business rules, no validation, no permission checks, no workflow logic, no notification logic
+
+**Service owns exclusively:**
+- Business rules and invariant enforcement (e.g. "an entry must balance," "a period must not be locked")
+- Validation orchestration beyond the Joi schema (cross-field, cross-collection)
+- Calling one or more repositories and composing their results
+- Deciding when a transaction is needed and orchestrating it (via repository-provided session helpers)
+- Integration between modules, workflow coordination
+- Must not execute a raw Mongoose query directly unless genuinely unavoidable (and if it is, that's a signal the repository is missing a method, not a license to bypass it)
+
+This split is what makes a service's business logic unit-testable without a database (mock the repository) and keeps a repository swappable/reusable without carrying business assumptions.
+
+### 4.3 `BaseRepository` / `BaseService` — how the split works at the framework level
+
+`utils/BaseRepository.ts` (added 2026-07-12) is now the real generic Mongoose CRUD engine — pagination, populate, bulk ops, soft-delete-aware queries, the `beforeCreate`/`afterCreate`/etc. lifecycle hooks — everything that used to live in `BaseService.js` directly. `utils/BaseService.js` is now a **thin, behavior-preserving subclass** of `BaseRepository` (`class BaseService extends BaseRepository {}`, nothing else) — it exists solely so the ~85 modules not yet migrated to this standard keep working completely unchanged via `new BaseService(Model, {...})`. `BaseController`'s generic constraint was widened from `BaseService<any>` to `BaseRepository<any>` (a pure widening — every existing `BaseService`-based service still satisfies it).
+
+**For a new or migrated module:** `<entity>.repository.ts` extends `BaseRepository<T>` directly (not `BaseService`) and adds any custom query methods. `<entity>.service.ts` extends that concrete repository class (not `BaseRepository`/`BaseService` directly) and adds business-rule methods, containing zero raw Mongoose calls of its own. See `modules/accounting/journal-entry/` and `modules/accounting/journal-line/` for the reference implementation, and `REPOSITORY_PATTERN_MIGRATION_PLAN.md` for the full rollout plan and the "why extend, not compose" tradeoff explanation.
+
+**Do not add new methods to `BaseService.js` or its `.d.ts`.** It is a compatibility shim now, not the place to extend the framework — extend `BaseRepository` instead.
+
+### 4.4 Router middleware order (mandatory)
 
 ```js
 import express from "express";
@@ -180,7 +221,7 @@ Checklist before opening a PR for a new module:
 3. **Decide `branchScoped`** for the service: does this entity need to be isolated per branch, or shared across the brand?
 4. **Mount the router** in `router/v1/index.router.ts`, following the existing grouped-by-domain layout with a comment header.
 5. **Don't reuse the legacy trees** (`modules/setup/*`, `modules/system/audit-log/*`) as a reference — they're dead/abandoned; use `modules/system-setup/*` and `modules/audit-log/*` instead.
-6. **Business logic goes in the service** (lifecycle hooks or custom methods), never in the controller or router.
+6. **Business logic goes in the service, database access goes in the repository** (§4.2/§4.3) — never business rules in the controller/router, never raw Mongoose queries in the service.
 7. **Write the module entirely in TypeScript.** This is now decided (see §5 below) — every new module, and every existing module when it gets rebuilt, is 100% TypeScript. Never mix `.js` and `.ts` files within the same module folder.
 8. Write module documentation as a single `<ENTITY>.module.md` in English next to the module's files, following `modules/hr/employee/EMPLOYEE.module.md` as the template (business purpose, schema reference, endpoints + required permissions, non-CRUD business logic, related settings).
 
@@ -252,27 +293,27 @@ No test script was added or changed in this pass — testing infrastructure (Jes
 
 ## 6. Module Complexity Tiering (binding rule for all refactoring/rebuild work)
 
-Decided 2026-07-11, during the Organization module review. **Do not add abstractions, layers, methods, files, or patterns unless they solve a real problem in the specific module being worked on.** Prefer the simplest architecture that satisfies current business requirements while remaining extensible. This overrides any generic "always fully rebuild with full DDD layering" instruction given for an individual task — that kind of instruction still applies, but scoped by the tier below, not applied uniformly to every module regardless of its actual complexity.
+Decided 2026-07-11, during the Organization module review; **amended 2026-07-12** to make the Repository Pattern (§4.3) a mandatory baseline at every tier, not an optional Tier-3-only addition — that was the one part of this section the 2026-07-12 architecture standard explicitly overrode. Everything else below is unchanged: **do not add abstractions, layers, methods, files, or patterns beyond the mandatory baseline unless they solve a real problem in the specific module being worked on.** Prefer the simplest architecture that satisfies current business requirements while remaining extensible.
 
-Every module falls into exactly one of three tiers. The tier determines how much structure it's allowed to carry — not a ceiling to reach for its own sake, a ceiling not to exceed without a concrete reason tied to that module's own requirements.
+Every module falls into exactly one of three tiers. The tier determines how much structure it's allowed to carry **beyond the mandatory model/validation/repository/service/controller/routes baseline** — not a ceiling to reach for its own sake, a ceiling not to exceed without a concrete reason tied to that module's own requirements.
 
 ### Tier 1 — Simple CRUD
-**Structure:** `model.ts/js` + `service.ts/js` (thin `BaseService` instance) + `controller.ts/js` (thin `BaseController` instance) + `router.ts/js` + `validation.ts/js`. Nothing more. No domain services, no event emission, no extra CRUD methods beyond what `BaseService`/`BaseController` already provide.
+**Structure:** the mandatory 6-file baseline (§4.1) — `model` + `validation` + `repository` (thin: wraps the model in CRUD/query methods, nothing more) + `service` (thin `BaseService`-style orchestration, calling the repository) + `controller` (thin `BaseController` instance) + `routes`. Nothing more. No domain services, no event emission, no extra CRUD methods beyond what the repository already provides.
 **Criteria:** no complex business rules, no workflow, changing it doesn't need to trigger anything elsewhere.
 **Modules:** `JobTitle`, `Department`, `MenuCategory`, `StockCategory`, `CostCenter`, `PaymentMethod`, `PaymentChannel`, every Configuration-classified settings module (all 19 from the Settings review — `accounting-settings`, `order-settings`, `loyalty-settings`, etc.), `BrandSettings`, `BranchSettings`, `DeliveryArea` (once its current field-name bugs are fixed — the bugs are Tier 1-appropriate surgical fixes, not a reason to move it up a tier).
 
 ### Tier 2 — Business Modules
-**Structure:** Tier 1 plus real business-rule methods on the service (lifecycle hook overrides or named methods), transactions where a single logical operation touches more than one collection, and audit-trail writes where the action is sensitive. Still no dedicated Domain/Workflow Service split, no event bus.
+**Structure:** Tier 1's baseline plus real business-rule methods on the service (lifecycle hook overrides or named methods, calling one or more repository methods), transactions where a single logical operation touches more than one collection (orchestrated by the service, session mechanics provided by the repository), and audit-trail writes where the action is sensitive. Still no dedicated Domain/Workflow Service split, no event bus.
 **Criteria:** real invariants to enforce (uniqueness beyond a DB index, cross-field validation, a state that must stay consistent), but the module's own boundary is where the consequences stop — it doesn't need to notify or trigger other modules.
 **Modules:** `Brand`, `Branch`, `Employee`, `Supplier`, `Account`, `JournalEntry`, `Asset`, `PurchaseInvoice`, `SalesReturn`, `Table`, `Reservation`.
 
 ### Tier 3 — Workflow Modules
-**Structure:** full separation per the Architecture Review's Module Interfaces (§6) and Business Events catalog (§7) — CRUD stays in the base Service, but the actual workflow lives in a dedicated Domain/Workflow Service (e.g. `OrderWorkflowService`, `KitchenQueueService`) that the CRUD service and controller call into, not the other way around. Split into Repository/Mapper/DTO/Constants only when the module actually grows large enough that a single service file becomes hard to navigate — not preemptively.
+**Structure:** full separation per the Architecture Review's Module Interfaces (§6) and Business Events catalog (§7) — CRUD stays in the repository/service pair, but the actual workflow lives in a dedicated Domain/Workflow Service (e.g. `OrderWorkflowService`, `KitchenQueueService`) that the CRUD service and controller call into, not the other way around. Add `.types.ts`/`.errors.ts`/`.domain.ts` (§4.1) only when the module actually grows large enough that a single service file becomes hard to navigate — not preemptively.
 **Criteria:** the action has consequences outside the module's own collection — matches `IMPLEMENTATION_PLAN.md`'s Phase 2–4 modules.
 **Modules:** `Order`, `Invoice`, `Preparation`/Kitchen, `Inventory` (deduction/reservation), `Payments`, `Loyalty`, `Payroll`, `CashierShift`, `Accounting` (posting).
 
 ### How to apply this
-When a module comes up for rebuild (per `IMPLEMENTATION_PLAN.md`'s module order), look it up in the table above (or classify it the same way if it's not listed — cross-reference `ARCHITECTURE_REVIEW.md` §6 Module Classification/§12 Readiness first) before writing any code, and build to that tier only. If the work reveals the module actually needs a tier higher than assigned here (a Tier 1 module turns out to need a transaction, say), that's a signal to update this table, not to quietly over-build every future Tier 1 module "just in case."
+When a module comes up for rebuild (per `IMPLEMENTATION_PLAN.md`'s module order, or `REPOSITORY_PATTERN_MIGRATION_PLAN.md`'s rollout order for the repository-extraction pass specifically), look it up in the table above (or classify it the same way if it's not listed — cross-reference `ARCHITECTURE_REVIEW.md` §6 Module Classification/§12 Readiness first) before writing any code, and build to that tier only, on top of the now-mandatory repository baseline. If the work reveals the module actually needs a tier higher than assigned here (a Tier 1 module turns out to need a transaction, say), that's a signal to update this table, not to quietly over-build every future Tier 1 module "just in case."
 
 ---
 

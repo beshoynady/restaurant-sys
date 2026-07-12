@@ -1,3 +1,11 @@
+// Service layer (BACKEND_FOUNDATION.md §4.3): business rules + orchestration only. This file
+// contains zero direct Mongoose calls — every database operation is delegated to
+// journal-entry.repository.ts, journal-line.repository.ts, or accounting-period.repository.ts.
+// What stayed here on purpose: deciding *whether* an entry balances (a business rule), deciding
+// *when* to open/commit/abort a transaction (orchestration), and composing three different
+// modules' repositories into one atomic operation (cross-module integration) — all explicitly
+// Service-layer responsibilities per §4.3, none of them Repository ones.
+//
 // DATABASE_IMPLEMENTATION_PLAN.md DB-010 + DB-014:
 //
 // DB-010 — `createBalancedEntry()` is the transactional write path the JournalEntry/JournalLine
@@ -8,21 +16,21 @@
 // lines-missing can ever exist.
 //
 // DB-014 — the accounting-period lock check lives inside this same transaction (read with
-// `.session(session)`, so it observes a consistent snapshot with the writes that follow it) rather
-// than as a duplicate schema-level hook on JournalLine: JournalLine's only write path is this
-// method, so a second lookup per line would be a real per-line DB round-trip cost for no additional
-// protection the entry-level check doesn't already provide.
+// `.session(session)` via accountingPeriodRepository, so it observes a consistent snapshot with the
+// writes that follow it) rather than as a duplicate schema-level hook on JournalLine: JournalLine's
+// only write path is this method, so a second lookup per line would be a real per-line DB
+// round-trip cost for no additional protection the entry-level check doesn't already provide.
 //
-// This is a NEW method alongside the existing generic BaseService CRUD (`journalEntryService.create`
-// still works exactly as before, for callers that only need a header with no lines) — the existing
+// This is a NEW method alongside the existing generic CRUD (`journalEntryService.create` still
+// works exactly as before, for callers that only need a header with no lines) — the existing
 // `POST /journal-entries` route and its behavior are unchanged; a new `POST /journal-entries/post`
 // route (journal-entry.router.ts) is what exposes this method.
-import mongoose from "mongoose";
-import BaseService from "../../../utils/BaseService.js";
 import throwErrorJs from "../../../utils/throwError.js";
-import JournalEntryModel, { type IJournalEntry, type JournalEntryOrigin } from "./journal-entry.model.js";
-import JournalLineModel, { type JournalLineSourceType } from "../journal-line/journal-line.model.js";
-import AccountingPeriodModel from "../accounting-period/accounting-period.model.js";
+import JournalEntryRepository from "./journal-entry.repository.js";
+import { type IJournalEntry, type JournalEntryOrigin } from "./journal-entry.model.js";
+import JournalLineRepository from "../journal-line/journal-line.repository.js";
+import { type JournalLineSourceType } from "../journal-line/journal-line.model.js";
+import { accountingPeriodRepository } from "../accounting-period/accounting-period.repository.js";
 
 const throwError = throwErrorJs as (message: string, statusCode: number) => never;
 
@@ -56,17 +64,15 @@ export interface CreateBalancedEntryInput {
   postedBy?: string;
 }
 
-class JournalEntryService extends BaseService<IJournalEntry> {
-  constructor() {
-    super(JournalEntryModel, {
-      brandScoped: true,
-      enableSoftDelete: true,
-      defaultPopulate: ["brand", "branch", "period", "createdBy", "approvedBy", "postedBy", "rejectedBy"],
-      searchableFields: [],
-      defaultSort: { createdAt: -1 },
-    });
-  }
+// Extends the repository (rather than composing it) specifically to preserve compatibility with
+// BaseController's existing generic constraint (`TService extends BaseService<any>`) without a
+// deeper framework change — the repository/service separation is enforced by convention (this
+// file contains zero raw Mongoose calls; every DB operation below is a call to a repository
+// method) rather than by TypeScript's inheritance mechanics forbidding it. See
+// REPOSITORY_PATTERN_MIGRATION_PLAN.md for why this is the chosen tradeoff for the whole rollout.
+const journalLineRepository = new JournalLineRepository();
 
+class JournalEntryService extends JournalEntryRepository {
   async createBalancedEntry(
     input: CreateBalancedEntryInput,
   ): Promise<{ entry: IJournalEntry; lines: unknown[] }> {
@@ -89,11 +95,13 @@ class JournalEntryService extends BaseService<IJournalEntry> {
       throwError("A journal entry must have at least one line.", 400);
     }
 
+    // Business rule: an entry must balance. Checked before opening a session — rejecting an
+    // obviously-unbalanced request avoids the cost of a transaction for the common
+    // "client sent bad data" case; checked again implicitly by construction below (the totals
+    // written to the entry are computed from these same lines, so a later re-check would be
+    // redundant, not additionally protective).
     const totalDebit = lines.reduce((sum, l) => sum + (l.debit || 0), 0);
     const totalCredit = lines.reduce((sum, l) => sum + (l.credit || 0), 0);
-    // DB-010: balanced-entry validation before commit — checked again inside the transaction
-    // below, but rejecting an obviously-unbalanced request before opening a session avoids the
-    // cost of a transaction for the common "client sent bad data" case.
     if (totalDebit !== totalCredit) {
       throwError(
         `Journal entry is not balanced: totalDebit (${totalDebit}) !== totalCredit (${totalCredit}).`,
@@ -101,48 +109,46 @@ class JournalEntryService extends BaseService<IJournalEntry> {
       );
     }
 
-    const session = await mongoose.startSession();
+    const session = await this.startSession();
     const now = new Date();
     const entryDate = date || now;
 
     try {
       session.startTransaction();
 
-      // DB-014: read the period's lock state inside the transaction's snapshot, so a concurrent
-      // lock/unlock cannot race between this check and the writes that follow it.
-      const accountingPeriod = await AccountingPeriodModel.findById(period)
-        .session(session)
-        .select("isLocked")
-        .lean();
+      // Business rule (DB-014): reject writes to a locked accounting period. Read inside the
+      // transaction's snapshot via the repository, so a concurrent lock/unlock cannot race between
+      // this check and the writes that follow it.
+      const accountingPeriod = await accountingPeriodRepository.findLockStatus(period, session);
 
       if (!accountingPeriod) {
         throwError("Accounting period not found.", 404);
       }
-      if (accountingPeriod.isLocked) {
+      // Non-null: throwError() above throws synchronously — asserted rather than relying on
+      // cross-boundary narrowing of the imported `.js` `never`-return type.
+      if (accountingPeriod!.isLocked) {
         throwError("Cannot write a journal entry to a locked accounting period.", 423);
       }
 
-      const [entry] = await JournalEntryModel.create(
-        [
-          {
-            brand,
-            branch,
-            period,
-            date: entryDate,
-            entryNumber,
-            description,
-            totalDebit,
-            totalCredit,
-            isBalanced: true,
-            baseCurrency,
-            origin,
-            status: autoPost ? "Posted" : "Pending",
-            createdBy,
-            postedBy: autoPost ? postedBy || createdBy : null,
-            postedAt: autoPost ? now : null,
-          },
-        ],
-        { session },
+      const entry = await this.insertEntry(
+        {
+          brand,
+          branch,
+          period,
+          date: entryDate,
+          entryNumber,
+          description,
+          totalDebit,
+          totalCredit,
+          isBalanced: true,
+          baseCurrency,
+          origin,
+          status: autoPost ? "Posted" : "Pending",
+          createdBy,
+          postedBy: autoPost ? postedBy || createdBy : null,
+          postedAt: autoPost ? now : null,
+        } as unknown as Partial<IJournalEntry>,
+        session,
       );
 
       const lineDocs = lines.map((line) => ({
@@ -167,7 +173,10 @@ class JournalEntryService extends BaseService<IJournalEntry> {
       // DB-010: any validation/write failure here (e.g. a line missing a required field) throws,
       // which is caught below and aborts the transaction — the JournalEntry created above is
       // rolled back along with it. No partial entry-with-some-lines-missing can ever be committed.
-      const createdLines = await JournalLineModel.create(lineDocs, { session });
+      const createdLines = await journalLineRepository.createMany(
+        lineDocs as unknown as Parameters<typeof journalLineRepository.createMany>[0],
+        session,
+      );
 
       await session.commitTransaction();
 

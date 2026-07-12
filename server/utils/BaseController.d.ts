@@ -2,16 +2,20 @@
 // why a `.d.ts` sibling is the safe pattern here (no self-import risk).
 
 import { Response, RequestHandler } from "express";
-import BaseService from "./BaseService.js";
+import BaseRepository from "./BaseRepository.js";
 
-// Constrained to `BaseService<any>` rather than `BaseService` (which
-// defaults its type param to `Document`) — Mongoose's `Model<T>` type is
-// invariant enough on statics/`this` typing that `BaseService<IBranch>` is
-// not structurally assignable to `BaseService<Document>`, which would make
-// every concrete subclass fail this constraint. `any` here only widens the
-// constraint check itself; controllers still get the concrete service type
-// via `typeof someService`.
-export default class BaseController<TService extends BaseService<any> = BaseService<any>> {
+// 2026-07-12: widened from `BaseService<any>` to `BaseRepository<any>` — the
+// true common ancestor after the Repository Pattern split (BaseService now
+// extends BaseRepository; new modules' `<entity>.service.ts` extends their
+// own `<entity>.repository.ts`, which extends BaseRepository directly, with
+// no BaseService in the chain at all). Every existing controller built
+// against a BaseService-based service is unaffected — BaseService<T> still
+// satisfies BaseRepository<any>, so this is a pure widening, not a breaking
+// change. Constrained to `<any>` rather than the bare class (which defaults
+// its type param to `Document`) for the same Mongoose `Model<T>` invariance
+// reason as before — `any` only widens the constraint check itself;
+// controllers still get the concrete service type via `typeof someService`.
+export default class BaseController<TService extends BaseRepository<any> = BaseRepository<any>> {
   service: TService;
 
   constructor(service: TService);
