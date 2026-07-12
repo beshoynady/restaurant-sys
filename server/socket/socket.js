@@ -8,7 +8,7 @@ export const initSocket = (server) => {
   const allowedOrigins = [
     "https://restaurant.menufy.tech",
     process.env.FRONT_END_URL,
-  ];
+  ].filter(Boolean);
 
   const io = new Server(server, {
     cors: {

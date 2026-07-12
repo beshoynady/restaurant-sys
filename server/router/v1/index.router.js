@@ -1,4 +1,4 @@
-import express, { type Request, type Response } from "express";
+import express from "express";
 const router = express.Router();
 
 
@@ -135,7 +135,7 @@ import taxSettingsRouter from "../../modules/system/tax-settings/tax-config.rout
 // ========================
 // HEALTH CHECK
 // ========================
-router.get("/health", (_req: Request, res: Response) => {
+router.get("/health", (_req, res) => {
   res.status(200).json({
     success: true,
     message: "API is running 🚀",

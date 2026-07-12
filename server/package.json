@@ -5,11 +5,11 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "tsx server.ts",
+    "start": "tsx server.js",
     "stop": "pm2 stop elbaron-bns-server",
     "restart": "pm2 restart elbaron-bns-server",
     "logs": "pm2 logs elbaron-bns-server",
-    "dev": "tsx server.ts",
+    "dev": "tsx server.js",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

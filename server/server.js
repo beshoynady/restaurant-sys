@@ -83,6 +83,10 @@ const limiter = rateLimit({
   legacyHeaders: false,
   trustProxy: false,
 });
+// server.js is now the entry point (package.json "start" script updated to point here).
+// server.ts, previously the actual entry point, has been removed as part of the project's
+// move away from TypeScript — this file already existed as a parallel JS copy that had
+// drifted slightly out of sync (was missing this trustProxy setting); merged and kept.
 app.use("/api/v1", limiter);
 
 // -------------------
