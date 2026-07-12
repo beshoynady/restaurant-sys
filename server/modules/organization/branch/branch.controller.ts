@@ -29,7 +29,7 @@ class BranchController extends BaseController<typeof branchService> {
 
     const result = await branchService.getAllBranches({
       brandId,
-      query: req.query as any,
+      query: req.query,
     });
 
     res.json(result);

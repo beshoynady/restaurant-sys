@@ -1,9 +1,57 @@
-import mongoose from "mongoose";
-const { ObjectId } = mongoose.Schema.Types;
+import mongoose, { Schema, Document, Model, Types } from "mongoose";
+import { SUPPORTED_LANGUAGES } from "../../../utils/languages.js";
 
-const brandSchema = new mongoose.Schema(
+export type BrandStatus = "active" | "inactive" | "suspended";
+export type BrandSetupStatus = "draft" | "basic" | "complete";
+export type BrandBusinessType =
+  | "restaurant"
+  | "cafe"
+  | "fast_food"
+  | "bakery"
+  | "food_truck"
+  | "cloud_kitchen"
+  | "bar"
+  | "other";
+export type BrandCuisineType =
+  | "arabic"
+  | "italian"
+  | "mexican"
+  | "asian"
+  | "american"
+  | "mediterranean"
+  | "fusion";
+
+export interface IBrand extends Document {
+  name: Map<string, string>;
+  slug: string;
+  logo?: string | null;
+  businessType: BrandBusinessType;
+  cuisineType: BrandCuisineType[];
+  maxBranches: number;
+  currency: string;
+  decimalPlaces: number;
+  dashboardLanguages: string[];
+  defaultDashboardLanguage: string;
+  legalName: string;
+  companyRegister?: string;
+  taxIdNumber?: string;
+  timezone: string;
+  countryCode: string;
+  setupStatus: BrandSetupStatus;
+  status: BrandStatus;
+  createdBy?: Types.ObjectId | null;
+  updatedBy?: Types.ObjectId | null;
+  isDeleted: boolean;
+  deletedBy?: Types.ObjectId | null;
+  deletedAt?: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const brandSchema = new Schema<IBrand>(
   {
-    // Multilingual brand name (supports English and Arabic)
+    // Multilingual brand name (Map so any of the platform's supported
+    // languages can be used, not just EN/AR — see utils/languages.js)
     name: {
       type: Map,
       of: {
@@ -14,9 +62,10 @@ const brandSchema = new mongoose.Schema(
       },
       required: true,
     },
-    /**
-     * slug for URL and internal references (auto-generated from English name)
-     */
+
+    // Slug for URL and internal references. Globally unique — Brand is the
+    // tenant root, so unlike every lower-level model in this module (Branch,
+    // DeliveryArea, ...) there is no higher scope to qualify it by.
     slug: {
       type: String,
       trim: true,
@@ -24,11 +73,9 @@ const brandSchema = new mongoose.Schema(
       unique: true,
       required: true,
       maxlength: 100,
-      match: /^[a-z0-9]+(?:-[a-z0-9]+)*$/, // allows lowercase letters and hyphens and numbers, but must start with a letter
+      match: /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
     },
-    /**
-     * Brand logo URL
-     */
+
     logo: {
       type: String,
       trim: true,
@@ -50,23 +97,18 @@ const brandSchema = new mongoose.Schema(
       ],
       default: "restaurant",
     },
-    // Cuisine types offered by the brand (supports multiple selections)
+
     cuisineType: {
       type: [String],
-      enum: [
-        "arabic",
-        "italian",
-        "mexican",
-        "asian",
-        "american",
-        "mediterranean",
-        "fusion",
-      ],
+      enum: ["arabic", "italian", "mexican", "asian", "american", "mediterranean", "fusion"],
       default: ["arabic"],
     },
-    /**
-     * Maximum number of branches allowed
-     */
+
+    // Subscription/plan concern living on the core identity document for now
+    // — see the Organization domain review (this session) for why this
+    // should eventually move to a dedicated Subscription/Plan module. Not
+    // relocated in this pass: that's a schema/ownership change, out of scope
+    // for a structural (Repository Pattern + TS) modernization pass.
     maxBranches: {
       type: Number,
       default: 1,
@@ -76,9 +118,6 @@ const brandSchema = new mongoose.Schema(
     // ===============================
     // FINANCIAL SETTINGS
     // ===============================
-    /**
-     * Default currency for the brand
-     */
     currency: {
       type: String,
       enum: [
@@ -116,13 +155,13 @@ const brandSchema = new mongoose.Schema(
     // ===============================
     dashboardLanguages: {
       type: [String],
-      enum: ["EN", "AR", "FR", "ES", "IT", "ZH", "JA", "RU"],
+      enum: SUPPORTED_LANGUAGES,
       default: ["EN", "AR"],
     },
 
     defaultDashboardLanguage: {
       type: String,
-      enum: ["EN", "AR", "FR", "ES", "IT", "ZH", "JA", "RU"],
+      enum: SUPPORTED_LANGUAGES,
       default: "EN",
       required: true,
     },
@@ -136,18 +175,13 @@ const brandSchema = new mongoose.Schema(
       maxlength: 150,
       required: true,
     },
-    /**
-     * Company registration number
-     */
+
     companyRegister: {
       type: String,
       trim: true,
       maxlength: 100,
     },
 
-    /**
-     * Tax Identification Number
-     */
     taxIdNumber: {
       type: String,
       trim: true,
@@ -157,18 +191,12 @@ const brandSchema = new mongoose.Schema(
     // ===============================
     // OPERATIONAL SETTINGS
     // ===============================
-    /**
-     * Default timezone for the brand
-     */
     timezone: {
       type: String,
       default: "Africa/Cairo",
       maxlength: 100,
     },
 
-    /**
-     * Default country code (ISO 3166-1 alpha-2)
-     */
     countryCode: {
       type: String,
       default: "EG",
@@ -178,36 +206,34 @@ const brandSchema = new mongoose.Schema(
       maxlength: 2,
     },
 
-    /**
-     * Setup progress status
-     */
     setupStatus: {
       type: String,
       enum: ["draft", "basic", "complete"],
       default: "draft",
     },
 
-    // Brand status
     status: {
       type: String,
       enum: ["active", "inactive", "suspended"],
       default: "active",
     },
+
     // ===============================
     // AUDIT & SOFT DELETE
     // ===============================
-    createdBy: { type: ObjectId, ref: "UserAccount", default: null },
-    updatedBy: { type: ObjectId, ref: "UserAccount", default: null },
+    createdBy: { type: Schema.Types.ObjectId, ref: "UserAccount", default: null },
+    updatedBy: { type: Schema.Types.ObjectId, ref: "UserAccount", default: null },
 
     isDeleted: { type: Boolean, default: false },
-    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
+    deletedBy: { type: Schema.Types.ObjectId, ref: "UserAccount", default: null },
     deletedAt: { type: Date, default: null },
   },
   { timestamps: true },
 );
 
-// 🔹 Index for multilingual brand name search
+// Multilingual brand name search
 brandSchema.index({ "name.$**": 1 });
 
-const Brand = mongoose.model("Brand", brandSchema);
+const Brand: Model<IBrand> = mongoose.model<IBrand>("Brand", brandSchema);
+
 export default Brand;

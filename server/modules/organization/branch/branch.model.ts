@@ -29,7 +29,9 @@ export interface IBranch extends Document {
   slug: string;
   code?: string;
   address?: BranchAddress;
-  location: BranchLocation;
+  // Optional: a branch without a set location must be absent from geo
+  // queries, not silently placed at [0, 0] — see the schema comment below.
+  location?: BranchLocation;
   postalCode?: string;
   isMainBranch: boolean;
   manager?: Types.ObjectId;
@@ -101,15 +103,22 @@ const branchSchema = new Schema<IBranch>(
     },
 
     // GEO LOCATION (Google Maps)
+    //
+    // No defaults on `type`/`coordinates`: a `[0, 0]` default used to be set
+    // here, which is a *valid* GeoJSON point (Gulf of Guinea) — every branch
+    // created without a real address would silently match "nearest branch"
+    // ($near) queries as if it were actually located there, corrupting
+    // delivery/geo features. Leaving both undefined means a branch with no
+    // location set simply has no `location` field at all, which the
+    // `location: "2dsphere"` index below correctly excludes from $near
+    // results — a missing location, not a fake real-world one.
     location: {
       type: {
         type: String,
         enum: ["Point"],
-        default: "Point",
       },
       coordinates: {
         type: [Number],
-        default: [0, 0],
       },
     },
 

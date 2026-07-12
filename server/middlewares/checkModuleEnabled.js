@@ -29,7 +29,12 @@ const checkModuleEnabled = (moduleKey) => {
         return next(throwError("Unauthorized", 401));
       }
 
-      const settings = await brandSettingsService.getByBrand(brandId);
+      // findByBrand (not getByBrand): getByBrand now throws a 404 when no
+      // settings doc exists (brand-settings.service.ts, this session's
+      // modernization) — this middleware's fail-open contract (documented
+      // above) requires a plain null return instead, which is what the
+      // inherited repository-level findByBrand still gives.
+      const settings = await brandSettingsService.findByBrand(brandId);
 
       if (!settings) {
         return next();

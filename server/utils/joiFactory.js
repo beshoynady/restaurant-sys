@@ -20,6 +20,7 @@
 
 import Joi from "joi";
 import mongoose from "mongoose";
+import { SUPPORTED_LANGUAGES } from "./languages.js";
 
 const { ObjectId } = mongoose.Types;
 
@@ -56,10 +57,16 @@ export const objectId = (allowNull = false) => {
 /*                          Multi Language Validator                          */
 /* -------------------------------------------------------------------------- */
 
+// Previously hardcoded to ["AR", "EN"], which rejected any other language
+// key (e.g. "FR") on a Map-typed multilingual field even when the Mongoose
+// schema itself allowed it — see utils/languages.js for the full story.
+// Widening the default to the platform's full supported-language list is
+// backward compatible: it only accepts more keys than before, it never
+// rejects a payload that validated previously.
 export const multiLang = (
   options = {},
   required = false,
-  allowedLanguages = ["AR", "EN"],
+  allowedLanguages = SUPPORTED_LANGUAGES,
 ) => {
   let valueSchema = Joi.string().trim();
 
@@ -253,6 +260,68 @@ const buildFieldValidator = (field, mode = "create") => {
 };
 
 /* -------------------------------------------------------------------------- */
+/*                    Nested Plain-Object Path Reassembly                     */
+/* -------------------------------------------------------------------------- */
+/*
+ * Mongoose flattens fields declared as plain nested objects (not
+ * `new Schema(...)` subdocuments) into dotted paths in `schema.paths` —
+ * e.g. `seo: { metaTitle: ..., ogImageUrl: ... }` shows up as
+ * "seo.metaTitle", "seo.ogImageUrl", not a single "seo" entry. These used to
+ * be dropped outright (`key.includes(".")` => skip), which meant every
+ * nested-object field (Brand Settings' seo/socialMedia/modules/security,
+ * Branch Settings' contact/services/reservation/policies, and any future
+ * module's nested settings) was silently rejected by the generated schema's
+ * `unknown(false)` the moment a client actually sent it.
+ *
+ * `groupNestedEntries` + `buildNestedObjectValidator` below reconstruct the
+ * dotted paths back into a tree and turn each branch into a real nested
+ * Joi.object(...) instead of dropping it, so any depth of plain-object
+ * nesting works without a module having to hand-write a `.keys({...})`
+ * override (see branch-settings.validation.ts's `operatingHours` override —
+ * that one is still needed because it's a DocumentArray of a real Schema,
+ * a different case this does not touch).
+ *
+ * Design choice: a nested wrapper key (e.g. "seo") is always added as
+ * `.optional()`, regardless of whether a leaf inside it is `required` in
+ * Mongoose. A `required` leaf is still enforced by `buildFieldValidator`,
+ * but only once its parent object is actually present in the payload —
+ * i.e. required-ness does not force the whole nested object to be sent.
+ * This matches how optional sub-documents are conventionally validated and
+ * avoids forcing every settings client to always send every nested block.
+ */
+
+const groupNestedEntries = (entries) => {
+  const groups = new Map();
+
+  entries.forEach(({ segments, field }) => {
+    const [head, ...rest] = segments;
+
+    if (!groups.has(head)) {
+      groups.set(head, []);
+    }
+
+    groups.get(head).push({ segments: rest, field });
+  });
+
+  return groups;
+};
+
+const buildNestedObjectValidator = (entries, mode) => {
+  const fields = {};
+
+  groupNestedEntries(entries).forEach((children, key) => {
+    if (children.length === 1 && children[0].segments.length === 0) {
+      fields[key] = buildFieldValidator(children[0].field, mode);
+      return;
+    }
+
+    fields[key] = buildNestedObjectValidator(children, mode).optional();
+  });
+
+  return Joi.object(fields).unknown(false);
+};
+
+/* -------------------------------------------------------------------------- */
 /*                         Build Joi Schema                                   */
 /* -------------------------------------------------------------------------- */
 
@@ -279,16 +348,34 @@ export const buildJoiSchema = (
     ...exclude,
   ];
 
+  // Nested dotted paths (see the block above) are collected here first and
+  // reassembled into their parent's Joi object after the flat pass below.
+  const nestedEntries = [];
+
   Object.entries(mongooseSchema.paths).forEach(([key, field]) => {
     if (excludedFields.includes(key)) {
       return;
     }
 
     if (key.includes(".")) {
+      const [topLevelKey] = key.split(".");
+
+      // Whole nested object explicitly excluded (e.g. `exclude: ["brand"]`
+      // would also drop a hypothetical "brand.x" path) — same semantics as
+      // the flat-field exclusion above.
+      if (excludedFields.includes(topLevelKey)) {
+        return;
+      }
+
+      nestedEntries.push({ segments: key.split("."), field });
       return;
     }
 
     schemaFields[key] = buildFieldValidator(field, mode);
+  });
+
+  groupNestedEntries(nestedEntries).forEach((children, key) => {
+    schemaFields[key] = buildNestedObjectValidator(children, mode).optional();
   });
 
   let schema = Joi.object(schemaFields).unknown(false).prefs({

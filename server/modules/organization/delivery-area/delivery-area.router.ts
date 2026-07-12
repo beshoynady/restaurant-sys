@@ -25,11 +25,18 @@ const deliveryAreaConfig = (req: Request, _res: Response, next: NextFunction) =>
 // =====================================================
 // PUBLIC (Customer / Checkout)
 // =====================================================
+// SECURITY: these routes have no authenticateToken by design (anonymous
+// customers). Every one of them now requires :branchId in the URL — the
+// service resolves :brand from it server-side — instead of the old
+// "areaId alone" shape, which let any caller enumerate ObjectIds and read
+// another brand's delivery area/pricing data. Kept under the shared
+// "/branch/:branchId/..." prefix so it can never collide with the
+// "/:id" admin single-resource routes below.
 
 router.get("/branch/:branchId/active", deliveryAreaController.getActiveAreasByBranch);
-router.get("/:areaId/summary", deliveryAreaController.getDeliverySummary);
-router.get("/:areaId/calculate", deliveryAreaController.calculateDeliveryFee);
-router.post("/:areaId/validate", deliveryAreaController.validateOrder);
+router.get("/branch/:branchId/:areaId/summary", deliveryAreaController.getDeliverySummary);
+router.get("/branch/:branchId/:areaId/calculate", deliveryAreaController.calculateDeliveryFee);
+router.post("/branch/:branchId/:areaId/validate", deliveryAreaController.validateOrder);
 
 // =====================================================
 // ADMIN

@@ -129,6 +129,60 @@ export interface CountOptions {
   includeDeleted?: boolean;
 }
 
+export interface FindOneOptions {
+  brandId?: string | null;
+  branchId?: string | null;
+  filters?: Record<string, unknown>;
+  select?: string | null;
+  populate?: string[];
+  includeDeleted?: boolean;
+}
+
+export interface FindByIdsOptions {
+  ids: string[];
+  brandId?: string | null;
+  branchId?: string | null;
+  select?: string | null;
+  populate?: string[];
+  includeDeleted?: boolean;
+}
+
+export interface UpdateManyOptions {
+  brandId?: string | null;
+  branchId?: string | null;
+  filters?: Record<string, unknown>;
+  data: Record<string, unknown>;
+  updatedBy?: string | null;
+  session?: mongoose.ClientSession | null;
+}
+
+export interface DeleteManyOptions {
+  brandId?: string | null;
+  branchId?: string | null;
+  filters?: Record<string, unknown>;
+  session?: mongoose.ClientSession | null;
+}
+
+export interface ExistsByOptions {
+  brandId?: string | null;
+  branchId?: string | null;
+  filters?: Record<string, unknown>;
+  includeDeleted?: boolean;
+}
+
+export interface AggregateOptions {
+  pipeline: Record<string, unknown>[];
+  session?: mongoose.ClientSession | null;
+}
+
+export interface DistinctOptions {
+  field: string;
+  brandId?: string | null;
+  branchId?: string | null;
+  filters?: Record<string, unknown>;
+  includeDeleted?: boolean;
+}
+
 export default class BaseRepository<T extends Document = Document> {
   model: Model<T>;
   brandScoped: boolean;
@@ -217,9 +271,16 @@ export default class BaseRepository<T extends Document = Document> {
   sanitizeUpdatePayload(data: Record<string, unknown> = {}): Record<string, unknown> {
     const payload = { ...data };
 
-    ["_id", "__v", "brand", "createdAt", "createdBy", "deletedAt", "deletedBy", "isDeleted"].forEach(
-      (field) => delete payload[field],
-    );
+    [
+      "_id",
+      "__v",
+      "brand",
+      "createdAt",
+      "createdBy",
+      "deletedAt",
+      "deletedBy",
+      "isDeleted",
+    ].forEach((field) => delete payload[field]);
 
     return payload;
   }
@@ -359,7 +420,14 @@ export default class BaseRepository<T extends Document = Document> {
   /* -------------------------------------------------------------------------- */
 
   async findById(opts: FindByIdOptions): Promise<T> {
-    const { id, brandId, branchId = null, select = null, populate = [], includeDeleted = false } = opts;
+    const {
+      id,
+      brandId,
+      branchId = null,
+      select = null,
+      populate = [],
+      includeDeleted = false,
+    } = opts;
     this.validateObjectId(id);
 
     // `.select()` narrows the Mongoose Query's projected-field type, which doesn't reassign
@@ -419,6 +487,39 @@ export default class BaseRepository<T extends Document = Document> {
   }
 
   /* -------------------------------------------------------------------------- */
+  /*                                  Find One                                  */
+  /* -------------------------------------------------------------------------- */
+
+  async findOne(opts: FindOneOptions): Promise<T | null> {
+    const {
+      brandId,
+      branchId = null,
+      filters = {},
+      select = null,
+      populate = [],
+      includeDeleted = false,
+    } = opts;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let query: any = this.model.findOne(
+      this.buildBaseQuery({
+        brandId,
+        branchId,
+        includeDeleted,
+        filters,
+      }),
+    );
+
+    if (select) {
+      query = query.select(select);
+    }
+
+    query = this.applyPopulate(query, populate);
+
+    return query.lean();
+  }
+
+  /* -------------------------------------------------------------------------- */
   /*                                Soft Delete                                 */
   /* -------------------------------------------------------------------------- */
 
@@ -451,7 +552,10 @@ export default class BaseRepository<T extends Document = Document> {
 
     const document = await this.model
       .findOneAndUpdate(
-        { _id: id, ...this.buildBaseQuery({ brandId, branchId, includeDeleted: true }) } as FilterQuery<T>,
+        {
+          _id: id,
+          ...this.buildBaseQuery({ brandId, branchId, includeDeleted: true }),
+        } as FilterQuery<T>,
         { $set: { isDeleted: false, deletedAt: null, deletedBy: null } },
         { new: true, session: session ?? undefined },
       )
@@ -530,7 +634,11 @@ export default class BaseRepository<T extends Document = Document> {
   /*                                   Exists                                   */
   /* -------------------------------------------------------------------------- */
 
-  async exists(opts: { id: string; brandId?: string | null; branchId?: string | null }): Promise<boolean> {
+  async exists(opts: {
+    id: string;
+    brandId?: string | null;
+    branchId?: string | null;
+  }): Promise<boolean> {
     const { id, brandId, branchId = null } = opts;
 
     return Boolean(

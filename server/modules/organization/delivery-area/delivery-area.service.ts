@@ -1,12 +1,21 @@
-import BaseService from "../../../utils/BaseService.js";
+// Service layer (BACKEND_FOUNDATION.md §4.3): business orchestration + business rules only.
+// Extends the repository (same pattern as journal-entry.service.ts) to satisfy BaseController's
+// `TService extends BaseRepository<any>` generic constraint.
 import throwErrorJs from "../../../utils/throwError.js";
-import DeliveryAreaModel, { type IDeliveryArea } from "./delivery-area.model.js";
+import DeliveryAreaRepository from "./delivery-area.repository.js";
+import { type IDeliveryArea } from "./delivery-area.model.js";
 
 const throwError = throwErrorJs as (message: string, statusCode: number) => never;
 
+// SECURITY: `areaId` alone is never sufficient to identify a delivery area for the public
+// (customer-facing) endpoints below. Those routes have no `authenticateToken`, so there is no
+// trustworthy `req.user.brandId` to scope by — `branchId`, taken from the URL, is the only tenant
+// signal available, and `brand` is derived from it server-side (never trusted from the client) so
+// every query is filtered by brand + branch + area id together. Querying by area id alone would
+// let anyone enumerate ObjectIds and read/calculate pricing for another brand's delivery areas.
 interface AreaScopedInput {
   areaId: string;
-  brandId: string;
+  branchId: string;
 }
 
 interface FeeInput extends AreaScopedInput {
@@ -18,50 +27,37 @@ interface ValidateOrderInput extends AreaScopedInput {
   paymentMethod?: "cash" | "online";
 }
 
-/**
- * DeliveryAreaService
- * -------------------------------------------------------
- * Handles:
- * - CRUD (via BaseService)
- * - Delivery pricing logic
- * - Order validation rules
- */
-class DeliveryAreaService extends BaseService<IDeliveryArea> {
-  constructor() {
-    super(DeliveryAreaModel, {
-      brandScoped: true,
-      branchScoped: true,
-      enableSoftDelete: true,
-      defaultPopulate: ["brand", "branch", "createdBy", "updatedBy", "deletedBy"],
-      searchableFields: ["name.EN", "name.AR", "code"],
-      defaultSort: { priority: -1, createdAt: -1 },
-    });
+class DeliveryAreaService extends DeliveryAreaRepository {
+  // Resolve `brand` from `branch` server-side — see class-level comment above.
+  private async resolveBrandForBranch(branchId: string): Promise<string> {
+    const brandId = await this.findBrandIdForBranch(branchId);
+    if (!brandId) throwError("Branch not found", 404);
+    return brandId;
   }
 
-  // GET AREA (SAFE)
-  //
-  // Fixed: previously checked `area.isActive`, a field that does not exist
-  // on the schema (the real field is `status`) — every area was treated as
-  // inactive regardless of its actual status, so this method (and every
-  // other method below that calls it) always threw. Now correctly checks
-  // `status === "active"`.
-  async getArea({ areaId, brandId }: AreaScopedInput): Promise<IDeliveryArea> {
-    const area = await this.findById({ id: areaId, brandId });
+  // GET AREA (SAFE) — always filters by brand + branch + _id together.
+  async getArea({ areaId, branchId }: AreaScopedInput): Promise<IDeliveryArea> {
+    const brandId = await this.resolveBrandForBranch(branchId);
+    const area = await this.findAreaScoped(areaId, brandId, branchId);
 
     if (!area) {
       throwError("Delivery area not found", 404);
     }
 
-    if (area.status !== "active") {
+    // Cast after the guard above: `throwError` is typed as returning `never`
+    // but TS's narrowing doesn't reliably follow through a variable-typed
+    // function call — same `as`-after-guard pattern used in branch.service.ts.
+    const foundArea = area as IDeliveryArea;
+
+    if (foundArea.status !== "active") {
       throwError("Delivery area is inactive", 400);
     }
 
-    return area;
+    return foundArea;
   }
 
-  // CALCULATE DELIVERY FEE
-  async calculateDeliveryFee({ areaId, brandId, orderAmount = 0 }: FeeInput): Promise<number> {
-    const area = await this.getArea({ areaId, brandId });
+  async calculateDeliveryFee({ areaId, branchId, orderAmount = 0 }: FeeInput): Promise<number> {
+    const area = await this.getArea({ areaId, branchId });
 
     if (area.freeDeliveryThreshold && orderAmount >= area.freeDeliveryThreshold) {
       return 0;
@@ -70,14 +66,13 @@ class DeliveryAreaService extends BaseService<IDeliveryArea> {
     return area.deliveryFee;
   }
 
-  // VALIDATE ORDER
   async validateOrder({
     areaId,
-    brandId,
+    branchId,
     orderAmount = 0,
     paymentMethod,
   }: ValidateOrderInput): Promise<true> {
-    const area = await this.getArea({ areaId, brandId });
+    const area = await this.getArea({ areaId, branchId });
 
     if (orderAmount < area.minimumOrderAmount) {
       throwError(`Minimum order amount is ${area.minimumOrderAmount}`, 400);
@@ -94,14 +89,9 @@ class DeliveryAreaService extends BaseService<IDeliveryArea> {
     return true;
   }
 
-  // DELIVERY SUMMARY (CHECKOUT)
-  //
-  // Fixed: previously returned `area.estimatedDeliveryTime`, a field that
-  // does not exist (real field is `estimatedDeliveryTimeMinutes`) — always
-  // returned undefined.
-  async getDeliverySummary({ areaId, brandId, orderAmount = 0 }: FeeInput) {
-    const area = await this.getArea({ areaId, brandId });
-    const deliveryFee = await this.calculateDeliveryFee({ areaId, brandId, orderAmount });
+  async getDeliverySummary({ areaId, branchId, orderAmount = 0 }: FeeInput) {
+    const area = await this.getArea({ areaId, branchId });
+    const deliveryFee = await this.calculateDeliveryFee({ areaId, branchId, orderAmount });
 
     return {
       areaId: area._id,
@@ -114,20 +104,9 @@ class DeliveryAreaService extends BaseService<IDeliveryArea> {
     };
   }
 
-  // GET ACTIVE AREAS BY BRANCH
-  //
-  // Fixed: previously queried `{isActive: true}` — the nonexistent field —
-  // and always returned an empty array regardless of real data.
-  async getActiveAreasByBranch({ branchId, brandId }: { branchId: string; brandId: string }) {
-    return this.model
-      .find({
-        branch: branchId,
-        brand: brandId,
-        status: "active",
-        isDeleted: false,
-      })
-      .sort({ priority: -1 })
-      .lean();
+  async getActiveAreasByBranch({ branchId }: { branchId: string }) {
+    const brandId = await this.resolveBrandForBranch(branchId);
+    return this.findActiveByBranch(branchId, brandId);
   }
 }
 

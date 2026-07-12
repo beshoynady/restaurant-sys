@@ -23,23 +23,28 @@ class DeliveryAreaController extends BaseController<typeof deliveryAreaService> 
     super(deliveryAreaService);
   }
 
+  // SECURITY: these four endpoints are intentionally unauthenticated
+  // (customer/checkout use case — see delivery-area.router.ts). `req.user`
+  // does not exist here, so tenant must never be read from it. `branchId`
+  // comes from the URL and the service resolves `brand` from it server-side
+  // (see delivery-area.service.ts `resolveBrandForBranch`) — this closes a
+  // prior bug where these routes queried by `areaId` alone and leaked
+  // delivery areas across brands to anyone who could guess an ObjectId.
   getActiveAreasByBranch = asyncHandler(async (req: Request, res: Response) => {
     const { branchId } = req.params;
-    const { brandId } = (req as any).user || {};
 
-    const data = await deliveryAreaService.getActiveAreasByBranch({ branchId, brandId });
+    const data = await deliveryAreaService.getActiveAreasByBranch({ branchId });
 
     res.json({ success: true, data });
   });
 
   getDeliverySummary = asyncHandler(async (req: Request, res: Response) => {
-    const { areaId } = req.params;
-    const { brandId } = (req as any).user || {};
+    const { branchId, areaId } = req.params;
     const { orderAmount = 0 } = req.query;
 
     const data = await deliveryAreaService.getDeliverySummary({
       areaId,
-      brandId,
+      branchId,
       orderAmount: Number(orderAmount),
     });
 
@@ -47,13 +52,12 @@ class DeliveryAreaController extends BaseController<typeof deliveryAreaService> 
   });
 
   calculateDeliveryFee = asyncHandler(async (req: Request, res: Response) => {
-    const { areaId } = req.params;
-    const { brandId } = (req as any).user || {};
+    const { branchId, areaId } = req.params;
     const { orderAmount = 0 } = req.query;
 
     const fee = await deliveryAreaService.calculateDeliveryFee({
       areaId,
-      brandId,
+      branchId,
       orderAmount: Number(orderAmount),
     });
 
@@ -61,13 +65,12 @@ class DeliveryAreaController extends BaseController<typeof deliveryAreaService> 
   });
 
   validateOrder = asyncHandler(async (req: Request, res: Response) => {
-    const { areaId } = req.params;
-    const { brandId } = (req as any).user || {};
+    const { branchId, areaId } = req.params;
     const { orderAmount = 0, paymentMethod } = req.body;
 
     await deliveryAreaService.validateOrder({
       areaId,
-      brandId,
+      branchId,
       orderAmount: Number(orderAmount),
       paymentMethod,
     });

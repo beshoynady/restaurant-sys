@@ -1,0 +1,32 @@
+// Repository layer (BACKEND_FOUNDATION.md §4.3): owns ALL database access for Brand — generic
+// CRUD (inherited from BaseRepository) plus the one real custom query this module needs
+// (`searchBrands`). Brand is the tenant root, so `brandScoped: false` — there is no higher-level
+// tenant id to filter by, unlike every other model in this module.
+import BaseRepository from "../../../utils/BaseRepository.js";
+import BrandModel, { type IBrand } from "./brand.model.js";
+
+class BrandRepository extends BaseRepository<IBrand> {
+  constructor() {
+    super(BrandModel, {
+      brandScoped: false,
+      enableSoftDelete: true,
+      defaultSort: { createdAt: -1 },
+    });
+  }
+
+  /** Free-text search across name (EN/AR) and legal name — admin/platform brand lookup. */
+  async searchBrands(query: string): Promise<IBrand[]> {
+    if (!query) return [];
+
+    return this.model.find({
+      isDeleted: false,
+      $or: [
+        { "name.EN": { $regex: query, $options: "i" } },
+        { "name.AR": { $regex: query, $options: "i" } },
+        { legalName: { $regex: query, $options: "i" } },
+      ],
+    });
+  }
+}
+
+export default BrandRepository;

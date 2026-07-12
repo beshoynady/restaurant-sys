@@ -1,42 +1,89 @@
-// modules/core/brand-settings/brand-settings.model.js
+import mongoose, { Schema, Document, Model, Types } from "mongoose";
 
-import mongoose from "mongoose";
-const { ObjectId } = mongoose.Schema.Types;
+export interface IModuleToggle {
+  enabled: boolean;
+}
 
-/**
- * Module Toggle Schema
- * Used for enabling/disabling system modules per brand
- */
-const moduleSchema = new mongoose.Schema(
-  {
-    enabled: { type: Boolean, default: false },
-  },
+export interface IBrandModules {
+  menu: IModuleToggle;
+  sales: IModuleToggle;
+  preparation: IModuleToggle;
+  seating: IModuleToggle;
+  payments: IModuleToggle;
+
+  delivery: IModuleToggle;
+  inventory: IModuleToggle;
+  crm: IModuleToggle;
+  loyalty: IModuleToggle;
+  hr: IModuleToggle;
+
+  financial: IModuleToggle;
+  accounting: IModuleToggle;
+  analytics: IModuleToggle;
+  purchasing: IModuleToggle;
+  production: IModuleToggle;
+  assets: IModuleToggle;
+  reservations: IModuleToggle;
+  feedback: IModuleToggle;
+}
+
+export type BrandModuleKey = keyof IBrandModules;
+
+export interface IBrandSettings extends Document {
+  brand: Types.ObjectId;
+
+  seo: {
+    metaTitle?: Map<string, string>;
+    metaDescription?: Map<string, string>;
+    keywords?: Map<string, string[]>;
+    ogTitle?: Map<string, string>;
+    ogDescription?: Map<string, string>;
+    ogImageUrl?: string | null;
+  };
+
+  socialMedia: {
+    facebook?: string;
+    instagram?: string;
+    x?: string;
+    linkedin?: string;
+    tiktok?: string;
+    youtube?: string;
+  };
+
+  modules: IBrandModules;
+
+  maintenanceMode: boolean;
+
+  security: {
+    allowMultipleSessions: boolean;
+    sessionTimeoutMinutes: number;
+  };
+
+  createdBy?: Types.ObjectId | null;
+  updatedBy?: Types.ObjectId | null;
+  deletedBy?: Types.ObjectId | null;
+  isDeleted: boolean;
+  deletedAt?: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** Used for enabling/disabling system modules per brand (Feature Toggle / Settings Driven Architecture). */
+const moduleSchema = new Schema<IModuleToggle>(
+  { enabled: { type: Boolean, default: false } },
   { _id: false },
 );
 
-/**
- * Multilingual string schema
- * Supports EN/AR/any language keys
- */
-const multilingualString = new mongoose.Schema(
-  {
-    type: Map,
-    of: {
-      type: String,
-      trim: true,
-      maxlength: 255,
-    },
-  },
-  { _id: false },
-);
+/** Multilingual string — supports EN/AR/any language key via Map. */
+const multilingualString = {
+  type: Map,
+  of: { type: String, trim: true, maxlength: 255 },
+};
 
-/**
- * Brand Settings Schema
- */
-const brandSettingsSchema = new mongoose.Schema(
+const brandSettingsSchema = new Schema<IBrandSettings>(
   {
     brand: {
-      type: ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "Brand",
       required: true,
       unique: true,
@@ -100,9 +147,9 @@ const brandSettingsSchema = new mongoose.Schema(
     },
 
     // ================= Audit =================
-    createdBy: { type: ObjectId, ref: "UserAccount" },
-    updatedBy: { type: ObjectId, ref: "UserAccount" },
-    deletedBy: { type: ObjectId, ref: "UserAccount" },
+    createdBy: { type: Schema.Types.ObjectId, ref: "UserAccount" },
+    updatedBy: { type: Schema.Types.ObjectId, ref: "UserAccount" },
+    deletedBy: { type: Schema.Types.ObjectId, ref: "UserAccount" },
 
     isDeleted: { type: Boolean, default: false },
     deletedAt: { type: Date, default: null },
@@ -110,4 +157,9 @@ const brandSettingsSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-export default mongoose.model("BrandSettings", brandSettingsSchema);
+const BrandSettings: Model<IBrandSettings> = mongoose.model<IBrandSettings>(
+  "BrandSettings",
+  brandSettingsSchema,
+);
+
+export default BrandSettings;
