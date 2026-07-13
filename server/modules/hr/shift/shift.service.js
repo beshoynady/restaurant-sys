@@ -1,35 +1,33 @@
-import ShiftModel from "./shift.model.js";
-import AdvancedService from "../../../utils/BaseRepository.js";
+// Service layer (BACKEND_FOUNDATION.md §4.3): business orchestration only — every database
+// operation delegates to a method inherited from (or added on) shift.repository.js.
+import throwError from "../../../utils/throwError.js";
+import ShiftRepository from "./shift.repository.js";
+import employeeService from "../employee/employee.service.js";
 
-/**
- * Shift Service
- * Notes (EN):
- * - Uses BaseRepository to provide: brand scoping, pagination, soft delete, populate, search & filters.
- * - Search uses MongoDB regex against `searchableFields`.
- * - `name` is stored as a multilang Map => search via dot-notation (name.EN / name.AR).
- */
-const shiftService = new AdvancedService(ShiftModel, {
-  brandScoped: true,
-  enableSoftDelete: true,
+class ShiftService extends ShiftRepository {
+  // Business rule: a shift with employees still assigned to it cannot be
+  // deleted (soft or hard) — same integrity pattern already enforced on
+  // Department and JobTitle. Previously unenforced entirely.
+  async assertNoActiveEmployees(id, brandId) {
+    const employeeCount = await employeeService.count({ brandId, filters: { shift: id } });
 
-  defaultPopulate: [
-    "brand",
-    "branch",
-    "createdBy",
-    "updatedBy",
-    "deletedBy",
-  ],
+    if (employeeCount > 0) {
+      throwError(
+        `Cannot delete this shift — ${employeeCount} employee(s) are still assigned to it`,
+        400,
+      );
+    }
+  }
 
-  // EN: search fields for BaseRepository (regex on MongoDB)
-  searchableFields: [
-    "code",
-    "status",
-    "shiftType",
-    "name.EN",
-    "name.AR",
-  ],
+  async softDelete(opts) {
+    await this.assertNoActiveEmployees(opts.id, opts.brandId);
+    return super.softDelete(opts);
+  }
 
-  defaultSort: { createdAt: -1 },
-});
+  async hardDelete(opts) {
+    await this.assertNoActiveEmployees(opts.id, opts.brandId);
+    return super.hardDelete(opts);
+  }
+}
 
-export default shiftService;
+export default new ShiftService();

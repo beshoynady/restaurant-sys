@@ -25,18 +25,34 @@ const attendanceRecordSchema = new mongoose.Schema(
       index: true,
       
     },
+    // Resolved in the service (from Employee.shift if not supplied
+    // explicitly) before this document is created — see HD-005 part 2 and
+    // attendance-record.service.js#resolveShift. Kept `required` at the
+    // schema level so a resolution bug fails loudly instead of silently
+    // saving a shiftless record.
     shift: {
       type: ObjectId,
       ref: "Shift",
       required: true,
-      
+
     },
 
     // 🔹 Date of attendance
     currentDate: {
       type: Date,
       required: true,
-      
+
+    },
+
+    // Which capture method produced this record — validated in the service
+    // against the resolved AttendanceSettings.attendanceSource policy for
+    // this branch (HD-008). "faceRecognition" is accepted at the schema
+    // level for forward-compatibility even though no capture client uses it
+    // yet, matching AttendanceSettings' own reserved flag.
+    source: {
+      type: String,
+      enum: ["manual", "pos", "mobile", "biometric", "gps", "qrCode", "faceRecognition"],
+      default: "manual",
     },
 
     // 🔹 Attendance type
@@ -70,7 +86,12 @@ const attendanceRecordSchema = new mongoose.Schema(
     },
     departureTime: { type: Date, },
 
-    // 🔹 Overtime
+    // 🔹 Overtime, lateness, worked/absent minutes below (through
+    // totalOvertimeMinutes) are ALL server-computed by
+    // attendance-record.service.js from the resolved AttendanceSettings
+    // policy (HD-008) — attendance-record.validation.js excludes them from
+    // both create/update payloads, so any value a client sends is dropped
+    // before it reaches here. Never trust/consume these as client input.
     isOvertime: {
       type: Boolean,
       default: false,
@@ -164,13 +185,25 @@ const attendanceRecordSchema = new mongoose.Schema(
       type: ObjectId,
       ref: "UserAccount",
       required: true,
-      
+
     },
     updatedBy: {
       type: ObjectId,
       ref: "UserAccount",
-      
+
     },
+
+    // 🔹 Soft delete
+    // Previously absent entirely, while attendance-record.service.js
+    // constructs its BaseRepository with soft-delete enabled (the default).
+    // BaseRepository.buildBaseQuery() unconditionally filters
+    // `{isDeleted: false}` on every read (getAll/findById/findOne/update) —
+    // a filter on a field that didn't exist on any document, which matches
+    // nothing in MongoDB. Confirmed empirically: every list/read call
+    // returned zero results / 404 for records that definitely existed.
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null },
+    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
   { timestamps: true },
 );
@@ -181,5 +214,8 @@ attendanceRecordSchema.index(
   { unique: true },
 );
 attendanceRecordSchema.index({ shift: 1, currentDate: 1 });
+// Powers monthlySummary()'s aggregation (attendance-record.repository.js) —
+// a full month of one branch's records scanned by date range.
+attendanceRecordSchema.index({ brand: 1, branch: 1, currentDate: 1 });
 
 export default mongoose.model("AttendanceRecord", attendanceRecordSchema);

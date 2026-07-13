@@ -20,6 +20,14 @@ router.route("/")
   .get(authenticateToken, authorize("EmployeeSettings", "read"), checkModuleEnabled("hr"), validate(queryEmployeeSettingsSchema), employeeSettingsController.getAll)
 ;
 
+// Effective policy summary — Frontend Readiness (module doc §7).
+router.route("/resolve").get(
+  authenticateToken,
+  authorize("EmployeeSettings", "read"),
+  checkModuleEnabled("hr"),
+  employeeSettingsController.resolve,
+);
+
 // GetOne, Update, hardDelete
 router.route("/:id")
   .get(authenticateToken, authorize("EmployeeSettings", "read"), checkModuleEnabled("hr"), validate(paramsEmployeeSettingsSchema), employeeSettingsController.getOne)

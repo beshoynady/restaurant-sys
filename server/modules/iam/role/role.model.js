@@ -23,6 +23,7 @@ export const RESOURCE_ENUM = [
   "JobTitles",
   "Shifts",
   "AttendanceRecords",
+  "AttendanceSettings",
   "CashierShifts",
   "LeaveRequests",
   "Payrolls",

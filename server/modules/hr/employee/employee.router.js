@@ -98,4 +98,15 @@ router.route("/bulk-soft-delete").patch(
   employeeController.bulkSoftDelete,
 );
 
+// --- BULK RESTORE ---
+// Previously missing despite BaseController supporting it and
+// EMPLOYEE.module.md explicitly flagging its absence.
+router.route("/bulk-restore").patch(
+  authenticateToken,
+    authorize("Employees", "update"),
+    checkModuleEnabled("hr"),
+  validate(paramsEmployeeIdsSchema),
+  employeeController.bulkRestore,
+);
+
 export default router;

@@ -36,6 +36,8 @@ const employeeSchema = new mongoose.Schema(
       required: true,
     },
 
+    // Not required — many cultures/naming conventions have no middle name;
+    // a hard requirement here blocked creating a real, valid employee.
     middleName: {
       type: Map,
       of: {
@@ -44,7 +46,6 @@ const employeeSchema = new mongoose.Schema(
         minlength: 2,
         maxlength: 100,
       },
-      required: true,
     },
 
     lastName: {
@@ -59,7 +60,21 @@ const employeeSchema = new mongoose.Schema(
     },
 
     gender: { type: String, enum: ["male", "female"], required: true },
-    dateOfBirth: { type: Date, required: true },
+    // Minimum-age floor (14) is a general sanity check, not a specific
+    // country's labor-law minimum working age — real jurisdictional rules
+    // belong in employee-settings once that policy surface exists.
+    dateOfBirth: {
+      type: Date,
+      required: true,
+      validate: {
+        validator(value) {
+          const minAgeDate = new Date();
+          minAgeDate.setFullYear(minAgeDate.getFullYear() - 14);
+          return value <= minAgeDate;
+        },
+        message: "Employee must be at least 14 years old",
+      },
+    },
     nationalID: {
       type: String,
       trim: true,
@@ -167,6 +182,9 @@ const employeeSchema = new mongoose.Schema(
     // For better HR management and reporting, we track employment details directly in the Employee model.
     department: { type: ObjectId, ref: "Department", required: true },
     jobTitle: { type: ObjectId, ref: "JobTitle", required: true },
+    // Org-chart reporting line — previously absent, no way to represent
+    // "who does this employee report to."
+    reportsTo: { type: ObjectId, ref: "Employee", default: null },
     hireDate: { type: Date, default: Date.now },
     contractType: {
       type: String,
@@ -193,7 +211,15 @@ const employeeSchema = new mongoose.Schema(
       default: [],
     },
 
-    // leave policy defaults (can be overridden in EmployeeFinancialProfile for specific employees)
+    // Leave-policy defaults, copied at creation time from
+    // EmployeeSettings.leavePolicy (brand-wide policy) — these are NOT
+    // automatically kept in sync if brand policy changes later; that's
+    // intentional once `usesCustomLeavePolicy` is explicitly set, but
+    // silent for employees who never opted out of the default. Until an
+    // employee-settings-resolution service exists (employee-settings is
+    // module 8 of this rollout), callers should treat non-overridden
+    // values here as a point-in-time snapshot, not a live policy link.
+    usesCustomLeavePolicy: { type: Boolean, default: false },
     annualLeaveDays: { type: Number, min: 0, max: 365, default: 21 },
     emergencyLeaveDays: { type: Number, min: 0, max: 30, default: 3 },
     sickLeaveDays: { type: Number, min: 0, max: 365, default: 7 },
@@ -272,6 +298,9 @@ employeeSchema.index({ brand: 1, jobTitle: 1 });
 employeeSchema.index({ employeeCode: 1, brand: 1 }, { unique: true });
 employeeSchema.index({ nationalID: 1, brand: 1 }, { unique: true });
 employeeSchema.index({ phone: 1, brand: 1 }, { unique: true });
+// Status is a common admin/dashboard list filter (e.g. "active employees").
+employeeSchema.index({ brand: 1, status: 1 });
+employeeSchema.index({ reportsTo: 1 });
 
 // model definition
 const Employee = mongoose.model("Employee", employeeSchema);

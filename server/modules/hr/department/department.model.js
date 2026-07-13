@@ -101,7 +101,16 @@ const departmentSchema = new mongoose.Schema(
   },
 );
 
-departmentSchema.index({ brand: 1, code: 1 }, { unique: true, sparse: true });
+// `sparse: true` on a COMPOUND index only excludes a document missing ALL
+// indexed fields, not just `code` — since `brand` is always present, two
+// departments in the same brand with no `code` both index as
+// {brand, code: null} and collide (confirmed empirically —
+// HR_TECHNICAL_DEBT.md HD-004). A partialFilterExpression that only
+// indexes documents where `code` actually exists is the correct pattern.
+departmentSchema.index(
+  { brand: 1, code: 1 },
+  { unique: true, partialFilterExpression: { code: { $exists: true, $type: "string" } } },
+);
 departmentSchema.index({ slug: 1, brand: 1 }, { unique: true });
 
 const Department = mongoose.model("Department", departmentSchema);

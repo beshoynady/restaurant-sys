@@ -142,11 +142,17 @@ branchSchema.index({ slug: 1, brand: 1 }, { unique: true });
 branchSchema.index({ "name.$**": 1 });
 branchSchema.index({ status: 1 });
 // `code` is described (integration lookups) as an alternate key but had no
-// uniqueness constraint at all — sparse because most branches don't set it,
-// and this must not collide with the {slug,brand} unique index above.
+// uniqueness constraint at all. `sparse: true` on a COMPOUND index only
+// excludes a document missing ALL indexed fields, not just `code` — since
+// `brand` is always present, two branches in the same brand with no `code`
+// both indexed as {brand, code: null} and collided (BACKEND_FOUNDATION_TECH_DEBT.md
+// FT-003 — flagged as a likely latent bug there, now confirmed empirically
+// while testing the HR domain's Shift module, which needs two branches to
+// exist in the same brand). partialFilterExpression is the correct fix,
+// same pattern already applied to hr/department and hr/job-title.
 branchSchema.index(
   { brand: 1, code: 1 },
-  { unique: true, sparse: true },
+  { unique: true, partialFilterExpression: { code: { $exists: true, $type: "string" } } },
 );
 // One main branch per brand is enforced in the service layer (Mongoose can't
 // express "unique when isMainBranch=true" as a plain index without a partial

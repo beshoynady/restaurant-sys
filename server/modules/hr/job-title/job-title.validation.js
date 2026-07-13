@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../../utils/joiFactory.js";
+import { createSchema, updateSchema, paramsSchema, paramsIdsSchema, querySchema } from "../../../utils/joiFactory.js";
 import JobTitleModel from "./job-title.model.js";
 
 /* =========================
@@ -10,10 +10,11 @@ export const createJobTitleSchema = createSchema(JobTitleModel.schema);
 /* =========================
    Update Schema
 ========================= */
-export const updateJobTitleSchema = updateSchema(
-  JobTitleModel.schema,
-  ["updatedBy"]
-);
+// Previously passed as a bare array instead of `{exclude:[...]}` — silently
+// a no-op (harmless, `updatedBy` is already excluded by joiFactory's own
+// default list) but corrected for clarity — same fix already applied
+// across the Organization domain and Department.
+export const updateJobTitleSchema = updateSchema(JobTitleModel.schema, { exclude: ["updatedBy"] });
 
 /* =========================
    Params Schema
@@ -25,8 +26,16 @@ export const paramsJobTitleSchema = paramsSchema();
 ========================= */
 export const paramsJobTitleIdsSchema = paramsIdsSchema();
 
-
 /* =========================
    Query Schema
 ========================= */
-export const queryJobTitleSchema = querySchema();
+// Previously had zero extra filters allow-listed — since querySchema() is
+// strict (unknown(false)), `?status=active&department=...` was rejected
+// outright.
+export const queryJobTitleSchema = querySchema({
+  department: Joi.string().optional(),
+  branch: Joi.string().optional(),
+  status: Joi.string()
+    .valid(...JobTitleModel.schema.path("status").options.enum)
+    .optional(),
+});

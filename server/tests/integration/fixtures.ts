@@ -18,11 +18,21 @@ export interface TestFixture {
 }
 
 export async function createBaseFixture(suffix: string): Promise<TestFixture> {
-  const brand = await BrandModel.create({
-    name: new Map([["en", `Test Brand ${suffix}`]]),
-    slug: `test-brand-${suffix}`.toLowerCase(),
-    legalName: `Test Brand Legal Name ${suffix}`,
-  });
+  // Brand.owner is required (see brand.model.js), but the owner UserAccount
+  // doesn't exist yet at this point and UserAccount itself requires
+  // `brand` — the same circular reference system-setup/setup.service.js
+  // resolves by saving Brand once without validation, then setting `owner`
+  // once the UserAccount exists.
+  const [brand] = await BrandModel.create(
+    [
+      {
+        name: new Map([["en", `Test Brand ${suffix}`]]),
+        slug: `test-brand-${suffix}`.toLowerCase(),
+        legalName: `Test Brand Legal Name ${suffix}`,
+      },
+    ],
+    { validateBeforeSave: false },
+  );
 
   const branch = await BranchModel.create({
     brand: brand._id,
@@ -36,6 +46,9 @@ export async function createBaseFixture(suffix: string): Promise<TestFixture> {
     username: `test_user_${suffix}`.toLowerCase(),
     password: "TestPassword123!",
   });
+
+  brand.owner = user._id;
+  await brand.save();
 
   return {
     brandId: String(brand._id),

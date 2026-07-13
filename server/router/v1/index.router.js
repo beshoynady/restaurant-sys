@@ -60,11 +60,19 @@ import cashierShiftRouter from "../../modules/finance/cashier-shift/cashier-shif
 // ========================
 import employeeRouter from "../../modules/hr/employee/employee.router.js";
 import departmentRouter from "../../modules/hr/department/department.router.js";
+import jobTitleRouter from "../../modules/hr/job-title/job-title.router.js";
 import attendanceRouter from "../../modules/hr/attendance-record/attendance-record.router.js";
 import payrollRouter from "../../modules/hr/payroll/payroll.router.js";
 import shiftRouter from "../../modules/hr/shift/shift.router.js";
 import employeeSettingsRouter from "../../modules/hr/employee-settings/employee-settings.router.js";
-import shiftSettingsRouter from "../../modules/hr/shift-settings/shift-settings.router.js";
+import attendanceSettingsRouter from "../../modules/hr/attendance-settings/attendance-settings.router.js";
+// Relocated from hr/shift-settings (HR domain rollout, module 5) — every
+// field in this settings model describes POS/cashier-till behavior, not
+// staff work-shift scheduling; it now lives next to finance/cashier-shift,
+// the module it's meant to configure. Mount path below is kept as
+// /hr/shift-settings on purpose (external API stability) — see
+// CASHIER_SHIFT_SETTINGS.module.md §13.
+import shiftSettingsRouter from "../../modules/finance/cashier-shift-settings/cashier-shift-settings.router.js";
 
 
 // ========================
@@ -193,10 +201,12 @@ router.use("/finance/cashier-shifts", cashierShiftRouter);
 // HR
 router.use("/hr/employees", employeeRouter);
 router.use("/hr/departments", departmentRouter);
+router.use("/hr/job-titles", jobTitleRouter);
 router.use("/hr/attendance", attendanceRouter);
 router.use("/hr/payroll", payrollRouter);
 router.use("/hr/shifts", shiftRouter);
 router.use("/hr/employee-settings", employeeSettingsRouter);
+router.use("/hr/attendance-settings", attendanceSettingsRouter);
 router.use("/hr/shift-settings", shiftSettingsRouter);
 
 // IAM

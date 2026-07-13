@@ -24,6 +24,14 @@ router.route("/")
     checkModuleEnabled("hr"), validate(queryAttendanceRecordSchema), attendanceRecordController.getAll)
 ;
 
+// Monthly summary — Frontend Readiness / Payroll integration (module doc §9).
+router.route("/summary/monthly").get(
+  authenticateToken,
+  authorize("AttendanceRecords", "read"),
+  checkModuleEnabled("hr"),
+  attendanceRecordController.monthlySummary,
+);
+
 // GetOne, Update, hardDelete
 router.route("/:id")
   .get(authenticateToken,

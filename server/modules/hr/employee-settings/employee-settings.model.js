@@ -1,16 +1,6 @@
 import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
 
-const WEEK_DAYS = [
-  "saturday",
-  "sunday",
-  "monday",
-  "tuesday",
-  "wednesday",
-  "thursday",
-  "friday",
-];
-
 const CONTRACT_TYPES = [
   "permanent",
   "temporary",
@@ -58,26 +48,15 @@ const employeeSettingSchema = new mongoose.Schema(
       unique: true,
     },
 
-    // ===============================
-    // Default Work Configuration
-    // ===============================
-    defaultWork: {
-      dailyWorkingHours: {
-        type: Number,
-        min: 1,
-        max: 24,
-        default: 8,
-      },
-      weeklyOffDays: {
-        type: [String],
-        enum: WEEK_DAYS,
-        default: [],
-      },
-      maxWorkingHoursPerWeek: {
-        type: Number,
-        default: 48,
-      },
-    },
+    // HD-007: `defaultWork` (dailyWorkingHours/weeklyOffDays/maxWorkingHoursPerWeek) and
+    // `attendance` (enableAttendance/allowLateCheckIn/lateToleranceMinutes/overtimeEnabled/
+    // maxOvertimeHoursPerDay/requireGeoLocation) sub-objects were REMOVED here — they duplicated
+    // `hr/attendance-settings`' workHourLimits/workCalendar.weeklyOffDays/checkInPolicy/latePolicy/
+    // overtimePolicy/geofencing scope, and confirmed (via repo-wide search) to have zero consumers
+    // anywhere, so removal is a pure Single-Source-of-Truth fix, not a breaking change to any real
+    // behavior. `hr/attendance-settings` is now the sole source of truth for attendance/work-hour
+    // policy, brand- and branch-overridable. See ATTENDANCE_SETTINGS.module.md and
+    // HR_TECHNICAL_DEBT.md HD-007.
 
     // ===============================
     // Leave Policy
@@ -106,20 +85,6 @@ const employeeSettingSchema = new mongoose.Schema(
       type: [String],
       enum: WORK_MODES,
       default: WORK_MODES,
-    },
-
-    // ===============================
-    // Attendance & Overtime Policy
-    // ===============================
-    attendance: {
-      enableAttendance: { type: Boolean, default: true },
-      allowLateCheckIn: { type: Boolean, default: true },
-      lateToleranceMinutes: { type: Number, default: 15 },
-
-      overtimeEnabled: { type: Boolean, default: true },
-      maxOvertimeHoursPerDay: { type: Number, default: 4 },
-
-      requireGeoLocation: { type: Boolean, default: false },
     },
 
     // ===============================
@@ -195,20 +160,42 @@ const employeeSettingSchema = new mongoose.Schema(
         enum: ["brand", "department", "jobTitle", "random"],
         default: "brand",
       },
+      // Supported tokens (employee-settings.service.js#generateEmployeeCode):
+      // {PREFIX}, {SEQUENCE} (zero-padded to padLength), {DEPARTMENT}/{JOBTITLE}
+      // (that entity's own `code` field, only populated when generateBasedOn
+      // matches), {RANDOM} (6 hex chars, only when generateBasedOn:"random").
       employeeCodeFormat: {
         type: String,
         default: "{PREFIX}-{SEQUENCE}",
       },
+      // Reserved: superseded by `employeeCodeFormat` (which already embeds its
+      // own separators literally, e.g. the default template's "-"). Kept for
+      // backward compatibility with any client already reading this field;
+      // the generator does not consume it. See ATTENDANCE_SETTINGS.module.md's
+      // "reserved field" convention — same pattern applied here.
       employeeCodeSeparator: {
         type: String,
         enum: ["-", "_", ""],
         default: "-",
       },
-      // If true, deleted employee codes will not be reused (important for audit and historical data integrity)
+      // Reserved — no consumer yet; the generator never re-checks soft-deleted
+      // employees' codes for reuse. See module doc §12.
       keepDeletedEmployeeCodes: { type: Boolean, default: false },
-      // If true, employee codes will reset when changing brand (useful for multi-brand setups)
+      // Reserved — no consumer yet; nothing currently transfers an employee
+      // between brands, so there is no "brand change" event to reset on. See
+      // module doc §12.
       employeeCodeResetOnBrandChange: { type: Boolean, default: false },
     },
+
+    // Server-managed generation counters, keyed by scope ("brand", or
+    // "department_<id>"/"jobTitle_<id>" depending on `employeeCode.generateBasedOn`)
+    // — a count of how many codes have been generated in that scope, NOT the
+    // literal next sequence number (see generateEmployeeCode's own comment for
+    // why). Kept as a separate top-level field rather than nested inside
+    // `employeeCode` so it can be excluded wholesale from the Joi create/update
+    // schemas (joiFactory's `exclude` option only matches top-level keys) — a
+    // client must never be able to set this directly.
+    employeeCodeSequenceCounters: { type: Map, of: Number, default: () => new Map() },
 
     // ===============================
     // Status Control

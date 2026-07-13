@@ -1,0 +1,209 @@
+# HR Domain — Technical Debt
+
+Issues that span or affect more than one HR module, discovered while working a specific module in
+the HR rollout order, but owned by (and to be fixed at) a different module's own turn — not the
+module that first surfaced them. See `BACKEND_FOUNDATION_TECH_DEBT.md` for issues affecting shared
+backend infrastructure outside HR entirely.
+
+Execution order: Employee (done) → Department (done) → JobTitle (done) → Shift (done) →
+ShiftSettings (done — relocated out of HR, see HD-006) → AttendanceSettings (done, see HD-007/HD-008)
+→ AttendanceRecord (done, see HD-002/HD-005/HD-008/HD-009) → EmployeeSettings (done, see HD-003/HD-007)
+→ EmployeeFinancialProfile → EmployeeFinancialTransaction → EmployeeAdvance → LeaveRequest →
+PayrollSettings → PayrollItem → Payroll.
+
+---
+
+## HD-009 — AttendanceRecord's lateness/overtime math ignores BranchSettings.timezone
+
+**Found while reviewing:** `hr/attendance-record` at its own scheduled turn (module 7).
+`attendance-record.domain.js#minutesFromMidnight` reads `arrivalTime`/`departureTime`'s stored UTC
+hour/minute directly — the same convention `Shift.startMinutes`/`endMinutes` already use (both are
+timezone-naive by design). This is consistent within HR, but neither actually converts through
+`BranchSettings.timezone` (the project's authoritative timezone source, per
+`branch-settings.service.js#getLocalDayAndTime`), so a brand whose server/client clocks and configured
+branch timezone disagree could see lateness computed against the wrong wall-clock time.
+
+**Not fixed here:** doing this properly requires either (a) requiring every client to send
+already-timezone-adjusted UTC instants that correctly represent the branch's local wall-clock time at
+capture time, or (b) this module converting through `BranchSettings.timezone` explicitly. Both are
+larger decisions than this module's own turn should make unilaterally, and `Shift` (module 4, already
+complete) has the identical gap — fixing only AttendanceRecord would still leave Shift's own
+start/end times timezone-naive, which is the actual root of the mismatch.
+
+**Owning module:** cross-cutting between `hr/shift` and `hr/attendance-record`; revisit once a real
+multi-timezone brand is being onboarded, or as part of a dedicated Foundation-level pass — not a
+single HR module's own turn to unilaterally redesign.
+
+**Status:** Recorded, not fixed. Documented in `ATTENDANCE_RECORD.module.md` §14 as a known limitation.
+
+---
+
+## HD-008 — AttendanceSettings' policy engine is not wired into AttendanceRecord — ✅ FIXED (AttendanceRecord module)
+
+**Found while reviewing:** `hr/attendance-settings` at its own scheduled turn (module 6), built as a
+full policy engine per the project owner's explicit instruction for this module (not a thin CRUD
+wrapper). `hr/attendance-record` computed `isLate`/`lateMinutes`/`leftEarly`/`earlyMinutes`/
+`isOvertime`/`overtimeMinutes` from whatever the client sent — it did not consult any policy at all.
+
+**Fixed while reviewing:** `hr/attendance-record` — `attendance-record.domain.js#evaluateAttendance`
+now calls `attendance-settings.domain.js`'s pure functions against the branch's resolved policy
+(`attendance-settings.service.js#resolveForBranch`), and `attendance-record.service.js`'s
+`beforeCreate`/`update` always overwrite any client-sent value for these fields — confirmed
+empirically with a test that deliberately sends `isLate:false, lateMinutes:999` and asserts the
+server-computed values win instead.
+
+**Status:** Fixed. Unit/integration-tested in `attendance-record-business-rules.test.ts`.
+
+---
+
+## HD-007 — `EmployeeSettings.attendance`/`.defaultWork` now duplicate AttendanceSettings' scope
+
+**Found while reviewing:** `hr/attendance-settings` at its own scheduled turn (module 6).
+`employee-settings.model.js` already has an `attendance: {enableAttendance, allowLateCheckIn,
+lateToleranceMinutes, overtimeEnabled, maxOvertimeHoursPerDay, requireGeoLocation}` sub-object and a
+`defaultWork: {dailyWorkingHours, weeklyOffDays, maxWorkingHoursPerWeek}` sub-object — both cover
+ground `hr/attendance-settings` is now the dedicated, more granular, branch-overridable source of
+truth for (late tolerance, overtime policy, weekly off days, geofencing/GPS attendance, working-hour
+limits).
+
+**Not fixed here:** `hr/employee-settings` has not had its own formal turn yet (module 8) — its model
+was not modified as part of this module's work, per the established Category B process (a Domain
+issue is recorded, not fixed mid-flight, unless it's actively blocking the current module — it is
+not).
+
+**Owning module:** `hr/employee-settings` — module 8.
+
+**Fixed while reviewing:** `hr/employee-settings` — chose option (a): removed `attendance` and
+`defaultWork` entirely. Confirmed safe (not merely "probably safe") by grepping the whole repo for
+any consumer of either sub-object before deleting — zero matches outside the model file itself, so
+this is a pure Single-Source-of-Truth cleanup, not a behavior change. `AttendanceSettings` is now the
+sole source of truth for attendance/work-hour policy.
+
+**Status:** Fixed. Verified with a schema-introspection test asserting both paths no longer exist.
+
+---
+
+## HD-006 — `hr/shift-settings` was never an HR module — relocated to `finance/cashier-shift-settings`
+
+**Found while reviewing:** `hr/shift-settings` at its own scheduled turn (module 5). Every field
+(`autoOpen`, `autoClose`, `allowNegativeCash`, `maxDifferenceAllowed`) describes POS/cashier-till
+behavior; the module's own router already gated on `checkModuleEnabled("financial")`, not `"hr"`,
+even before this move. Already flagged pre-session in `ARCHITECTURE_REVIEW.md` §3 and
+`IMPLEMENTATION_PLAN.md` R9.
+
+**Action taken:** relocated (model/validation/repository/service/controller/router) to
+`finance/cashier-shift-settings/`, confirmed explicitly with the project owner first (a cross-domain
+file move is a different class of change from every other fix in this rollout). Kept the external
+API path (`/api/v1/hr/shift-settings`) and the `authorize()` resource string (`"ShiftSettings"`)
+unchanged for backward compatibility. Registered Mongoose model renamed to `CashierShiftSettings`
+with `collection: "shiftsettings"` pinned explicitly — no data migration needed.
+
+**New finding surfaced by this move, NOT fixed (Finance-domain scope, not HR):**
+`finance/cashier-shift.service.js` is pure generic CRUD with **zero business logic** — no close-shift
+action, no variance computation, nothing reads these settings at all. Wiring
+`CashierShiftSettings` into an actual enforcement point requires building that workflow first — a
+substantial new piece of Finance-domain logic, explicitly out of scope for the HR rollout. See
+`finance/cashier-shift-settings/CASHIER_SHIFT_SETTINGS.module.md` §9/§12 for detail.
+
+**Status:** Relocation done. Actual consumption by `cashier-shift` remains unbuilt — Finance domain's
+own future work.
+
+---
+
+## HD-001 — JobTitle router has no `authorize()`/`checkModuleEnabled()` at all — ✅ FIXED (JobTitle module)
+
+**Found while reviewing:** `hr/employee`. **Fixed while reviewing:** `hr/job-title` — every route now
+follows the standard `authorize("JobTitles", action)` + `checkModuleEnabled("hr")` chain.
+
+**Bonus finding surfaced during the fix:** the JobTitle router was also never imported/mounted in
+`router/v1/index.router.js` at all — completely unreachable via the API. Since `Employee.jobTitle`
+is required, this meant there was no way to create a JobTitle through the generic admin API, which
+transitively blocked Employee creation. Fixed in the same pass (added the missing import + mount at
+`/hr/job-titles`).
+
+---
+
+## HD-002 — Shift/AttendanceRecord models had no `isDeleted` field despite soft-delete being enabled — ✅ FIXED
+
+**Found while reviewing:** `hr/employee`. AttendanceRecord's own instance of this defect was fixed ad
+hoc that same session, before the formal module-by-module rollout began (its own formal turn, module
+7, re-confirmed the fix was still correct and added no regression). **Fixed while reviewing:**
+`hr/shift` — `isDeleted` added, confirmed identical to `AttendanceRecord`'s defect (`buildBaseQuery()`'s
+`{isDeleted:false}` filter matched nothing since the field didn't exist, so `getAll`/`findById`
+silently returned empty/404). Verified fixed with a live `getAll()`/`findById()` test.
+
+**Bonus finding surfaced during the fix:** `shift.model.js` also had two *contradictory* unique
+indexes on `code` — a brand-wide `{brand,code}` unique index coexisting with the correct
+`{brand,branch,code}` one, making the module's own stated intent (`code` unique **per branch**)
+impossible (two branches could never share a code like "MORNING"). Removed the brand-wide one.
+
+**Bonus finding #2 — escalated FT-003 from "flagged" to "confirmed and partially fixed":** writing
+Shift's own integration test (which needs two branches in one brand) hit the exact latent bug FT-003
+predicted in `organization/branch`'s `{brand,code}` sparse index. This was no longer hypothetical —
+it was actively blocking HR module work, so it was fixed in the same pass (see
+`BACKEND_FOUNDATION_TECH_DEBT.md` FT-003 for detail). `organization/delivery-area`'s equivalent
+indexes are still unverified/unfixed — the Organization domain was not reopened beyond this one
+line.
+
+---
+
+## HD-003 — `Employee.usesCustomLeavePolicy` has no resolution logic — ✅ FIXED (EmployeeSettings module)
+
+**Found while reviewing:** `hr/employee`. The flag and the snapshot fields
+(`annualLeaveDays`/`emergencyLeaveDays`/`sickLeaveDays`) exist on Employee, but nothing read
+`EmployeeSettings.leavePolicy` at employee-creation time to populate sensible brand-policy defaults.
+
+**Fixed while reviewing:** `hr/employee-settings` — `employee-settings.service.js#resolveLeavePolicyDefaults`
+is called from `employee.service.js#beforeCreate` (via `applyToNewEmployee`), filling in any of the
+three snapshot fields the caller didn't explicitly supply, only when `usesCustomLeavePolicy` is
+falsy. Fail-open: a brand with no `EmployeeSettings` document yet is unaffected — Employee keeps its
+own schema defaults exactly as before.
+
+**Still NOT built:** re-syncing an already-created, non-overridden employee's snapshot values if
+brand policy changes *after* that employee was created — these fields remain a point-in-time
+snapshot, not a live link. Doing that properly needs a deliberate "reapply brand policy to all
+non-custom employees" operation (likely bulk, likely audit-logged), which is new scope beyond wiring
+creation-time defaults — recorded as a documented limitation in `EMPLOYEE_SETTINGS.module.md` §12,
+not built here.
+
+**Status:** Creation-time resolution fixed and integration-tested
+(`employee-settings-business-rules.test.ts`). Re-sync-on-policy-change remains a documented future
+extension.
+
+---
+
+## HD-004 — Department `{brand, code}` sparse unique index is not actually sparse for a compound index — ✅ FIXED (Department module)
+
+**Found while reviewing:** `hr/employee`. **Fixed while reviewing:** `hr/department` — replaced with
+a `partialFilterExpression`-based index; synced against the real dev database (not just the schema
+file) with explicit approval, since Mongoose doesn't auto-migrate existing indexes. Verified fixed
+with a live test creating two codeless departments in the same brand.
+
+This same pattern (naive `sparse: true` on a compound index) turned out to be more widespread — see
+`BACKEND_FOUNDATION_TECH_DEBT.md` FT-003 for the other confirmed instance (`organization/branch`,
+fixed) and the still-unverified one (`organization/delivery-area`).
+
+---
+
+## HD-005 — No Roster/ShiftAssignment module; `Employee.shift` vs `AttendanceRecord.shift` optionality mismatch — part 2 ✅ FIXED (AttendanceRecord module)
+
+**Found while reviewing:** `hr/shift`. Two related gaps:
+
+1. **No day-by-day schedule model exists.** `Employee.shift` is a single, permanent default
+   assignment — there is no way to represent "works morning Mon-Wed, evening Thu-Fri" or a one-off
+   shift swap. A real Roster/ShiftAssignment module is a legitimate gap for professional restaurant
+   HR, but is a genuinely new module, out of this rollout's fixed 14-module scope (confirmed with
+   the project owner before proceeding rather than built speculatively). **Still open** — no owner in
+   the current 14-module list; flagged for whoever scopes future HR work.
+2. **`Employee.shift` is optional (`default: null`) but `AttendanceRecord.shift` is `required`.** An
+   employee with no default shift assigned cannot get a well-formed AttendanceRecord if the field is
+   copied naively from Employee at clock-in time. **Fixed while reviewing:** `hr/attendance-record`
+   (module 7) — `attendance-record.service.js#resolveShiftId` falls back to `Employee.shift` only
+   when the caller doesn't supply one explicitly, and fails with a clear, actionable 400 ("this
+   employee has no default shift — specify one explicitly") instead of a raw Mongoose "shift is
+   required" error when neither is available. This does not build a Roster module (gap (1) above
+   remains open) — it only makes the existing single-default-shift model fail predictably instead of
+   silently.
+
+**Status:** Part 1 still open (new-module candidate, out of scope). Part 2 fixed and
+integration-tested (`attendance-record-business-rules.test.ts`).

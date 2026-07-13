@@ -72,7 +72,7 @@ const brandSchema = new mongoose.Schema(
     },
 
     // Reserved SaaS subscription fields — PROJECT_VISION_ar.md §3 lists
-    // "اشتراك (Subscription)" as a first-class Brand attribute. No billing
+    // "(Subscription)" as a first-class Brand attribute. No billing
     // logic reads/writes this yet (the platform runs single-brand today);
     // reserved now so the field exists before any real subscription/billing
     // module is built, avoiding a later migration across every Brand
@@ -231,9 +231,6 @@ const brandSchema = new mongoose.Schema(
 
 // Multilingual brand name search
 brandSchema.index({ "name.$**": 1 });
-
-// Platform-admin brand list is commonly filtered by status (active/suspended).
-brandSchema.index({ status: 1 });
 
 const Brand = mongoose.model("Brand", brandSchema);
 export default Brand;
