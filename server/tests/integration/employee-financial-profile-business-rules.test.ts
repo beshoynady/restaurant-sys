@@ -1,6 +1,6 @@
 // HR domain rollout — EmployeeFinancialProfile's formal turn (module 9), rebuilt from a
 // completely broken/never-mounted module. Verifies:
-// 1. Compensation defaults (salaryType/currency/payDay) resolve from EmployeeSettings.payroll
+// 1. Compensation defaults (salaryType/currency/payDay) resolve from PayrollSettings
 //    when not supplied.
 // 2. basicSalary is validated against JobTitle.salaryBand when a band is configured.
 // 3. costCenter defaults from JobTitle.costCenter when not supplied.
@@ -13,7 +13,7 @@ import { createBaseFixture, cleanupFixture, type TestFixture } from "./fixtures.
 import DepartmentModel from "../../modules/hr/department/department.model.js";
 import JobTitleModel from "../../modules/hr/job-title/job-title.model.js";
 import EmployeeModel from "../../modules/hr/employee/employee.model.js";
-import EmployeeSettingsModel from "../../modules/hr/employee-settings/employee-settings.model.js";
+import PayrollSettingsModel from "../../modules/hr/payroll-settings/payroll-settings.model.js";
 import EmployeeFinancialProfileModel from "../../modules/hr/employee-financial-profile/employee-financial-profile.model.js";
 import employeeFinancialProfileService from "../../modules/hr/employee-financial-profile/employee-financial-profile.service.js";
 
@@ -62,9 +62,10 @@ describe("HR: EmployeeFinancialProfile business rules", () => {
     });
     employeeId = String(employee._id);
 
-    await EmployeeSettingsModel.create({
+    await PayrollSettingsModel.create({
       brand: fixture.brandId,
-      payroll: { defaultSalaryType: "monthly", defaultCurrency: "USD", payrollCycleDay: 5 },
+      defaults: { salaryType: "monthly", currency: "USD" },
+      cycle: { payDay: 5 },
       createdBy: fixture.userId,
     });
   });
@@ -72,7 +73,7 @@ describe("HR: EmployeeFinancialProfile business rules", () => {
   afterAll(async () => {
     await Promise.all([
       EmployeeFinancialProfileModel.deleteMany({ brand: fixture.brandId }),
-      EmployeeSettingsModel.deleteMany({ brand: fixture.brandId }),
+      PayrollSettingsModel.deleteMany({ brand: fixture.brandId }),
       EmployeeModel.deleteMany({ brand: fixture.brandId }),
       JobTitleModel.deleteMany({ brand: fixture.brandId }),
       DepartmentModel.deleteMany({ brand: fixture.brandId }),
@@ -81,7 +82,7 @@ describe("HR: EmployeeFinancialProfile business rules", () => {
     await disconnectTestDb();
   });
 
-  it("resolves compensation defaults from EmployeeSettings.payroll when omitted", async () => {
+  it("resolves compensation defaults from PayrollSettings when omitted", async () => {
     const profile = await employeeFinancialProfileService.create({
       brandId: fixture.brandId,
       data: {

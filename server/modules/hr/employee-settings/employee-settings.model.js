@@ -1,5 +1,53 @@
 import mongoose from "mongoose";
-const { ObjectId } = mongoose.Schema;
+const { ObjectId, Schema } = mongoose;
+
+// HD-003 (finally settled — module 12, hr/leave-request): the full leave-type
+// catalog this platform supports. Kept as a plain enum array (additive-only
+// convention, same as RESOURCE_ENUM) rather than a separate reference
+// collection — a new top-level module for "leave types" was considered and
+// rejected as out of this rollout's fixed 14-module scope; the Map-keyed
+// `leavePolicy.policies` below is what actually makes this extensible
+// without a schema migration per new type (see below).
+export const LEAVE_TYPES = [
+  "annual",
+  "sick",
+  "emergency",
+  "casual",
+  "maternity",
+  "paternity",
+  "unpaid",
+  "official_mission",
+  "compensatory",
+  "special",
+  "study",
+  "bereavement",
+  "religious",
+  "permission",
+  "holiday_work",
+  "other",
+];
+
+const leavePolicyEntrySchema = new Schema(
+  {
+    annualDays: { type: Number, min: 0, max: 365, default: 0 },
+    isPaidByDefault: { type: Boolean, default: true },
+    requiresApproval: { type: Boolean, default: true },
+    allowCarryForward: { type: Boolean, default: false },
+    maxCarryForwardDays: { type: Number, min: 0, default: 0 },
+    allowNegativeBalance: { type: Boolean, default: false },
+    // "upfront": full annualDays available from policy-year start (or
+    // pro-rated from hire date in the hire year). "monthly": accrues
+    // annualDays/12 per completed month. "none": no automatic entitlement
+    // (e.g. unpaid leave — always available subject to allowNegativeBalance,
+    // never "runs out" the way an accrued balance does).
+    accrualMethod: { type: String, enum: ["upfront", "monthly", "none"], default: "upfront" },
+    // Months after policy-year end before an unused (non-carried-forward)
+    // balance is considered expired for encashment purposes. 0 = never
+    // computed as expired (still subject to maxCarryForwardDays capping).
+    expiryMonths: { type: Number, min: 0, default: 0 },
+  },
+  { _id: false },
+);
 
 const CONTRACT_TYPES = [
   "permanent",
@@ -59,17 +107,51 @@ const employeeSettingSchema = new mongoose.Schema(
     // HR_TECHNICAL_DEBT.md HD-007.
 
     // ===============================
-    // Leave Policy
+    // Leave Policy — Single Source of Truth (HD-003)
     // ===============================
+    // Redesigned this turn (module 12) from three hardcoded fields
+    // (annualLeaveDays/sickLeaveDays/emergencyLeaveDays) to a Map keyed by
+    // leave type — the earlier shape could only ever describe 3 of the 16
+    // leave types this platform now supports, and adding a 4th would have
+    // required a schema migration every time. A brand can override any
+    // subset of `LEAVE_TYPES`; a type with no explicit entry falls back to
+    // `defaultPolicy`. This is now the ONLY place leave-day entitlement
+    // policy is defined — `hr/leave-request`'s balance engine reads
+    // exclusively from here (via employee-settings.service.js's resolution
+    // methods), never duplicates these numbers.
     leavePolicy: {
-      annualLeaveDays: { type: Number, min: 0, max: 365, default: 21 },
-      sickLeaveDays: { type: Number, min: 0, max: 365, default: 7 },
-      emergencyLeaveDays: { type: Number, min: 0, max: 30, default: 3 },
-
-      allowCarryForward: { type: Boolean, default: false },
-      maxCarryForwardDays: { type: Number, default: 0 },
-
-      allowNegativeLeaveBalance: { type: Boolean, default: false },
+      policies: {
+        type: Map,
+        of: leavePolicyEntrySchema,
+        // Preserves the exact prior defaults (21/7/3 days) for the three
+        // types that already existed, so no brand's effective policy
+        // changes as a side effect of this redesign.
+        default: () => new Map([
+          ["annual", { annualDays: 21, isPaidByDefault: true, allowCarryForward: false, maxCarryForwardDays: 0 }],
+          ["sick", { annualDays: 7, isPaidByDefault: true }],
+          ["emergency", { annualDays: 3, isPaidByDefault: true }],
+          ["unpaid", { annualDays: 0, isPaidByDefault: false, accrualMethod: "none", allowNegativeBalance: true }],
+        ]),
+      },
+      // Fallback for any LEAVE_TYPES value with no explicit entry in `policies`.
+      defaultPolicy: { type: leavePolicyEntrySchema, default: () => ({}) },
+      // Restaurant Operations (§ user protocol): brand-wide date ranges
+      // during which new leave requests are rejected at submission — e.g.
+      // Ramadan/Eid for a restaurant chain, or a seasonal peak. Branch-level
+      // override is NOT modeled (brand-wide only) — see module doc §12.
+      blackoutPeriods: {
+        type: [
+          new Schema(
+            { startDate: { type: Date, required: true }, endDate: { type: Date, required: true }, reason: { type: String, trim: true, maxlength: 200 } },
+            { _id: false },
+          ),
+        ],
+        default: [],
+      },
+      // Minimum fraction of a department's active headcount that must
+      // remain NOT on approved leave for any overlapping date — Restaurant
+      // Operations coverage rule. 0 disables the check.
+      minimumDepartmentCoverageRatio: { type: Number, min: 0, max: 1, default: 0 },
     },
 
     // ===============================
@@ -87,23 +169,17 @@ const employeeSettingSchema = new mongoose.Schema(
       default: WORK_MODES,
     },
 
-    // ===============================
-    // Payroll Defaults
-    // ===============================
-    payroll: {
-      defaultSalaryType: {
-        type: String,
-        enum: ["monthly", "weekly", "daily", "hourly"],
-        default: "monthly",
-      },
-      defaultCurrency: {
-        type: String,
-        default: "EGP",
-      },
-
-      autoGeneratePayroll: { type: Boolean, default: false },
-      payrollCycleDay: { type: Number, min: 1, max: 31, default: 1 },
-    },
+    // HD-020 (module 13): `payroll` (defaultSalaryType/defaultCurrency/
+    // autoGeneratePayroll/payrollCycleDay) was REMOVED here — absorbed into
+    // `hr/payroll-settings`' `defaults`/`automation`/`cycle` groups, which
+    // is now the sole source of truth for payroll cycle/defaults policy.
+    // Same Single-Source-of-Truth pattern as HD-007 (attendance/defaultWork
+    // removal) and HD-016 (leavePolicy consolidation) — this field was
+    // reserved for exactly this module's turn (see the original
+    // "Reserved — Payroll's own turn" note this replaces) and had exactly
+    // one real consumer (`employee-financial-profile.service.js`), migrated
+    // in the same pass to read `PayrollSettings` instead. See
+    // HR_TECHNICAL_DEBT.md HD-020.
 
     // ===============================
     // Required Fields (Dynamic Validation)
@@ -246,10 +322,14 @@ const employeeSettingSchema = new mongoose.Schema(
 // Middleware (Important)
 // ===============================
 employeeSettingSchema.pre("save", function (next) {
-  // Validate carry forward logic
-  if (!this.leavePolicy.allowCarryForward) {
-    this.leavePolicy.maxCarryForwardDays = 0;
-  }
+  // Carry-forward consistency, now per leave-type entry (Map) rather than a
+  // single flat pair of fields.
+  const entries = [this.leavePolicy.defaultPolicy, ...(this.leavePolicy.policies?.values() || [])];
+  entries.forEach((entry) => {
+    if (entry && !entry.allowCarryForward) {
+      entry.maxCarryForwardDays = 0;
+    }
+  });
 
   next();
 });

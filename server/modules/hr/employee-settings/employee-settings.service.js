@@ -11,12 +11,45 @@ import EmployeeSettingsRepository from "./employee-settings.repository.js";
 
 class EmployeeSettingsService extends EmployeeSettingsRepository {
   /**
-   * HD-003: fills in Employee's leave-day snapshot fields from brand policy
-   * when the employee hasn't opted into a custom leave policy and the
-   * caller didn't already supply an explicit value. Fail-open (matches the
-   * convention used throughout this rollout): a brand with no
-   * EmployeeSettings document yet just keeps Employee's own schema
-   * defaults, it isn't blocked from creating employees.
+   * HD-003 (Single Source of Truth for leave policy): looks up the
+   * effective policy entry for one leave type — an explicit `policies` Map
+   * entry if the brand configured one, else `defaultPolicy`, else the
+   * schema's own bare defaults (`{}` shaped by `leavePolicyEntrySchema`'s
+   * own field defaults). This is the ONLY place leave-day policy is
+   * resolved — `hr/leave-request`'s balance/payroll engine calls this
+   * directly rather than re-reading `EmployeeSettings` fields itself.
+   */
+  resolveLeaveTypePolicy(settings, leaveType) {
+    const DEFAULTS = {
+      annualDays: 0,
+      isPaidByDefault: true,
+      requiresApproval: true,
+      allowCarryForward: false,
+      maxCarryForwardDays: 0,
+      allowNegativeBalance: false,
+      accrualMethod: "upfront",
+      expiryMonths: 0,
+    };
+
+    if (!settings?.leavePolicy) return DEFAULTS;
+
+    const policies = settings.leavePolicy.policies;
+    const entry = policies instanceof Map ? policies.get(leaveType) : policies?.[leaveType];
+
+    return { ...DEFAULTS, ...(settings.leavePolicy.defaultPolicy || {}), ...(entry || {}) };
+  }
+
+  /**
+   * HD-003: fills in Employee's leave-day snapshot fields (annual/sick/
+   * emergency only — the three legacy fields Employee itself still has)
+   * from brand policy when the employee hasn't opted into a custom leave
+   * policy and the caller didn't already supply an explicit value.
+   * Fail-open: a brand with no EmployeeSettings document yet just keeps
+   * Employee's own schema defaults, it isn't blocked from creating
+   * employees. The FULL per-leave-type policy (all 16 types, not just
+   * these 3) is resolved via `resolveLeaveTypePolicy` above, consumed
+   * directly by `hr/leave-request` — this snapshot is Employee's own
+   * narrower, legacy view, kept for backward compatibility.
    */
   async resolveLeavePolicyDefaults(data, settings = undefined) {
     if (data.usesCustomLeavePolicy) return data;
@@ -24,9 +57,9 @@ class EmployeeSettingsService extends EmployeeSettingsRepository {
     const resolved = settings === undefined ? await this.findForBrand(data.brand) : settings;
     if (!resolved) return data;
 
-    if (data.annualLeaveDays === undefined) data.annualLeaveDays = resolved.leavePolicy.annualLeaveDays;
-    if (data.emergencyLeaveDays === undefined) data.emergencyLeaveDays = resolved.leavePolicy.emergencyLeaveDays;
-    if (data.sickLeaveDays === undefined) data.sickLeaveDays = resolved.leavePolicy.sickLeaveDays;
+    if (data.annualLeaveDays === undefined) data.annualLeaveDays = this.resolveLeaveTypePolicy(resolved, "annual").annualDays;
+    if (data.emergencyLeaveDays === undefined) data.emergencyLeaveDays = this.resolveLeaveTypePolicy(resolved, "emergency").annualDays;
+    if (data.sickLeaveDays === undefined) data.sickLeaveDays = this.resolveLeaveTypePolicy(resolved, "sick").annualDays;
 
     return data;
   }

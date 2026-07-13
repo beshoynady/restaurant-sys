@@ -62,8 +62,12 @@ const attendanceRecordSchema = new mongoose.Schema(
         "PRESENT", // Full day present
         "PARTIAL", // Partial day (e.g., returned late or left early)
         "ABSENT", // Absent without leave
-        "VACATION", // Approved vacation
+        "VACATION", // Approved paid leave (any paid LeaveRequest type not covered below)
         "SICK_LEAVE", // Sick leave
+        // Added module 12 (hr/leave-request): unpaid leave was previously
+        // indistinguishable from VACATION here, which would have
+        // misrepresented it as paid in any attendance-driven report.
+        "UNPAID_LEAVE",
         "HOLIDAY", // Official holiday
         "WORK_ON_HOLIDAY", // Worked on holiday
         "PERMISSION", // Approved permission (short leave)

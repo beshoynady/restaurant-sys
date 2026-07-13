@@ -1,32 +1,64 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../../utils/joiFactory.js";
-import LeaveRequestModel from "./leave-request.model.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema, querySchema } from "../../../utils/joiFactory.js";
+import LeaveRequestModel, { LEAVE_TYPES } from "./leave-request.model.js";
 
-/* =========================
-   Create Schema
-========================= */
-export const createLeaveRequestSchema = createSchema(LeaveRequestModel.schema);
+// Server-computed/workflow fields — never client-writable. See
+// LEAVE_REQUEST.module.md §3/§5.
+const WORKFLOW_FIELDS = [
+  "status",
+  "payrollTreatment",
+  "isPaid",
+  "submittedBy",
+  "submittedAt",
+  "managerReviewedBy",
+  "managerReviewedAt",
+  "managerDecision",
+  "managerComment",
+  "hrReviewedBy",
+  "hrReviewedAt",
+  "hrDecision",
+  "hrComment",
+  "approvedBy",
+  "approvedAt",
+  "rejectedBy",
+  "rejectedAt",
+  "rejectionReason",
+  "cancelledBy",
+  "cancelledAt",
+  "cancellationReason",
+  "closedBy",
+  "closedAt",
+  "recalledBy",
+  "recalledAt",
+  "recallReason",
+  "recalledOriginalEndDate",
+  "attendanceGenerated",
+  "payrollProcessed",
+  "relatedTransaction",
+];
 
-/* =========================
-   Update Schema
-========================= */
-export const updateLeaveRequestSchema = updateSchema(
-  LeaveRequestModel.schema,
-  ["updatedBy"]
-);
+export const createLeaveRequestSchema = createSchema(LeaveRequestModel.schema, {
+  exclude: WORKFLOW_FIELDS,
+}).keys({
+  // department is resolved from the employee if omitted (beforeCreate) —
+  // required on the Mongoose schema, but not at the HTTP layer.
+  department: objectId().optional(),
+  // totalDays is auto-computed from the date range when omitted.
+  totalDays: Joi.number().min(0.5).optional(),
+});
 
-/* =========================
-   Params Schema
-========================= */
+export const updateLeaveRequestSchema = updateSchema(LeaveRequestModel.schema, {
+  exclude: ["updatedBy", "employee", "brand", ...WORKFLOW_FIELDS],
+});
+
 export const paramsLeaveRequestSchema = paramsSchema();
-
-/* =========================
-   Params Ids Schema
-========================= */
 export const paramsLeaveRequestIdsSchema = paramsIdsSchema();
 
-
-/* =========================
-   Query Schema
-========================= */
-export const queryLeaveRequestSchema = querySchema();
+export const queryLeaveRequestSchema = querySchema({
+  employee: objectId().optional(),
+  branch: objectId().optional(),
+  department: objectId().optional(),
+  leaveType: Joi.string().valid(...LEAVE_TYPES).optional(),
+  requestKind: Joi.string().valid("leave", "encashment").optional(),
+  status: Joi.string().optional(),
+});

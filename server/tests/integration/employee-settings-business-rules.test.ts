@@ -62,7 +62,13 @@ describe("HR: EmployeeSettings business rules", () => {
   it("resolveLeavePolicyDefaults() fills leave days from brand policy when not overridden", async () => {
     await EmployeeSettingsModel.create({
       brand: fixture.brandId,
-      leavePolicy: { annualLeaveDays: 30, sickLeaveDays: 10, emergencyLeaveDays: 5 },
+      leavePolicy: {
+        policies: {
+          annual: { annualDays: 30 },
+          sick: { annualDays: 10 },
+          emergency: { annualDays: 5 },
+        },
+      },
       createdBy: fixture.userId,
     });
 

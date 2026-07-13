@@ -6,20 +6,26 @@ import throwError from "../../../utils/throwError.js";
 import EmployeeFinancialProfileRepository from "./employee-financial-profile.repository.js";
 
 class EmployeeFinancialProfileService extends EmployeeFinancialProfileRepository {
-  /** Fills compensation.salaryType/currency/payDay from brand policy when the caller omitted them. */
-  resolveCompensationDefaults(data, employeeSettings) {
-    if (!employeeSettings?.payroll) return data;
+  /**
+   * Fills compensation.salaryType/currency/payDay from brand policy when the
+   * caller omitted them. Reads `hr/payroll-settings` (module 13) — HD-020:
+   * previously read `EmployeeSettings.payroll`, which was removed once
+   * PayrollSettings became the sole source of truth for payroll cycle/
+   * defaults policy.
+   */
+  resolveCompensationDefaults(data, payrollSettings) {
+    if (!payrollSettings?.defaults) return data;
 
     data.compensation = data.compensation || {};
 
     if (data.compensation.salaryType === undefined) {
-      data.compensation.salaryType = employeeSettings.payroll.defaultSalaryType;
+      data.compensation.salaryType = payrollSettings.defaults.salaryType;
     }
     if (data.compensation.currency === undefined) {
-      data.compensation.currency = employeeSettings.payroll.defaultCurrency;
+      data.compensation.currency = payrollSettings.defaults.currency;
     }
-    if (data.compensation.payDay === undefined) {
-      data.compensation.payDay = employeeSettings.payroll.payrollCycleDay;
+    if (data.compensation.payDay === undefined && payrollSettings.cycle) {
+      data.compensation.payDay = payrollSettings.cycle.payDay;
     }
 
     return data;
@@ -59,12 +65,12 @@ class EmployeeFinancialProfileService extends EmployeeFinancialProfileRepository
       throwError("Employee not found", 404);
     }
 
-    const [jobTitle, employeeSettings] = await Promise.all([
+    const [jobTitle, payrollSettings] = await Promise.all([
       employee.jobTitle ? this.findJobTitleForScope(employee.jobTitle, data.brand) : null,
-      this.findEmployeeSettingsForBrand(data.brand),
+      this.findPayrollSettingsForBrand(data.brand),
     ]);
 
-    this.resolveCompensationDefaults(data, employeeSettings);
+    this.resolveCompensationDefaults(data, payrollSettings);
     this.resolveCostCenter(data, jobTitle);
 
     if (data.compensation?.basicSalary !== undefined) {

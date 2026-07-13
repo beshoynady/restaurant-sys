@@ -4,7 +4,7 @@ import BaseRepository from "../../../utils/BaseRepository.js";
 import EmployeeFinancialProfileModel from "./employee-financial-profile.model.js";
 import EmployeeModel from "../employee/employee.model.js";
 import JobTitleModel from "../job-title/job-title.model.js";
-import EmployeeSettingsModel from "../employee-settings/employee-settings.model.js";
+import PayrollSettingsModel from "../payroll-settings/payroll-settings.model.js";
 
 class EmployeeFinancialProfileRepository extends BaseRepository {
   constructor() {
@@ -36,8 +36,10 @@ class EmployeeFinancialProfileRepository extends BaseRepository {
     return JobTitleModel.findOne({ _id: jobTitleId, brand: brandId }).select("salaryBand costCenter").lean();
   }
 
-  async findEmployeeSettingsForBrand(brandId) {
-    return EmployeeSettingsModel.findOne({ brand: brandId, isDeleted: false }).select("payroll").lean();
+  // HD-020 (module 13): compensation defaults now come from PayrollSettings,
+  // not EmployeeSettings.payroll (removed — see that model's own comment).
+  async findPayrollSettingsForBrand(brandId) {
+    return PayrollSettingsModel.findOne({ brand: brandId, isDeleted: false }).select("defaults cycle").lean();
   }
 }
 

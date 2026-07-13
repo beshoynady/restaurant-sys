@@ -7,11 +7,14 @@ backend infrastructure outside HR entirely.
 
 Execution order: Employee (done) → Department (done) → JobTitle (done) → Shift (done) →
 ShiftSettings (done — relocated out of HR, see HD-006) → AttendanceSettings (done, see HD-007/HD-008)
-→ AttendanceRecord (done, see HD-002/HD-005/HD-008/HD-009) → EmployeeSettings (done, see HD-003/HD-007)
-→ EmployeeFinancialProfile (done, see HD-010) → EmployeeFinancialTransaction (done, see HD-011/HD-014)
-→ EmployeeAdvance (done, see HD-012/HD-014) → LeaveRequest → PayrollSettings → PayrollItem →
-Payroll (formal turn must resolve HD-013, and should consume EmployeeAdvance's
-`getPayrollDeductionPreview()` — see HD-015).
+→ AttendanceRecord (done, see HD-002/HD-005/HD-008/HD-009) → EmployeeSettings (done, see
+HD-003/HD-007/HD-016/HD-020) → EmployeeFinancialProfile (done, see HD-010, updated this turn — HD-020)
+→ EmployeeFinancialTransaction (done, see HD-011/HD-014/HD-017) → EmployeeAdvance (done, see
+HD-012/HD-014) → LeaveRequest (done, see HD-016/HD-017/HD-018/HD-019) → PayrollSettings (done, see
+HD-020) → PayrollItem (final module of the fixed 14) → Payroll (pre-existing, mounted, CRUD-only —
+out of this rollout's 14-module scope; its own future turn must resolve HD-013, consume
+`PayrollSettings`'s policy, `EmployeeAdvance`'s `getPayrollDeductionPreview()`, and `LeaveRequest`'s
+payroll-affecting transactions — see HD-015/HD-018).
 
 **Also see `BACKEND_FOUNDATION_TECH_DEBT.md` FT-004 (CRITICAL, found during this module's turn, ✅
 FIXED project-wide the same session):** `validate(paramsSchema())` validated `req.body` instead of
@@ -19,6 +22,127 @@ FIXED project-wide the same session):** `validate(paramsSchema())` validated `re
 backend, not just HR. Flagged to the project owner given severity, approved for an immediate
 out-of-order fix, and resolved across all 89 affected router files (349 call sites) with full
 regression + end-to-end HTTP verification — not deferred to a later Foundation pass.
+
+---
+
+## HD-020 — `EmployeeSettings.payroll` removed — absorbed into `hr/payroll-settings` (HD-013's prerequisite, finally addressed)
+
+**Found while reviewing:** `hr/payroll-settings` at its own scheduled turn (module 13).
+`EmployeeSettings.payroll` (`defaultSalaryType`/`defaultCurrency`/`autoGeneratePayroll`/
+`payrollCycleDay`) was explicitly marked "Reserved — Payroll's own turn" since `hr/employee-settings`'
+own turn (module 8) — that turn has now arrived. Its only real consumer was
+`employee-financial-profile.service.js#resolveCompensationDefaults` (module 9).
+
+**Action taken:** removed the `payroll` sub-object from `EmployeeSettings` entirely; its four fields
+now live in `hr/payroll-settings`'s `defaults` (`salaryType`/`currency`) and `cycle` (`payDay`) groups
+— `PayrollSettings` is a purpose-built, dedicated policy engine, a better home than a sub-object on
+the general-purpose `EmployeeSettings` document. `employee-financial-profile.repository.js`/
+`.service.js` were updated in the same pass (`findEmployeeSettingsForBrand` →
+`findPayrollSettingsForBrand`, `resolveCompensationDefaults` reads `payrollSettings.defaults`/
+`.cycle.payDay` instead of `employeeSettings.payroll.*`) — same Single-Source-of-Truth pattern as
+HD-007 (attendance/defaultWork removal) and HD-016 (leavePolicy consolidation).
+
+**Verified**: `employee-financial-profile-business-rules.test.ts`'s compensation-defaults test
+updated to seed a `PayrollSettingsModel` document instead of `EmployeeSettingsModel.payroll`; full
+regression suite (18 suites / 87 tests) confirmed passing after the migration, not just the two
+directly-touched modules.
+
+**Status:** Fixed. `EmployeeSettings.payroll` no longer exists on the schema at all — not deprecated,
+removed (zero other consumers confirmed by search before deleting, same standard as HD-007/HD-010).
+
+---
+
+## HD-019 — `hr/leave-request`'s service was a hand-written class incompatible with `BaseController` — ✅ FIXED (LeaveRequest module)
+
+**Found and fixed at this module's own scheduled turn (module 12).** Same defect class as HD-012
+(`EmployeeAdvance`): `leave-request.service.js` was five hand-written methods
+(`create(data)`/`findAll(filter)`/`findById(id)`/`update(id,data)`/`delete(id)`) incompatible with
+`BaseController`'s call signatures — every route beyond create/read would have thrown; no tenant
+scoping; no `isDeleted` field despite the router exposing soft-delete actions; no
+`authorize()`/`checkModuleEnabled()` at all; never mounted in `router/v1/index.router.js`.
+
+**Action taken:** full rebuild as a Leave Management Engine — Repository Pattern (`.repository.js`),
+RBAC on every route, `isDeleted`/`deletedAt`/`deletedBy` added, mounted at `/hr/leave-requests`. See
+`LEAVE_REQUEST.module.md` for the complete redesign (state machine, balance engine, attendance/
+payroll integration).
+
+**Status:** Fixed and integration-tested (9 tests in `leave-request-business-rules.test.ts`).
+
+---
+
+## HD-018 — `Payroll` should also consume `LeaveRequest`'s payroll-affecting transactions; carry-forward across multiple years is unresolved
+
+**Found while reviewing:** `hr/leave-request` at its own scheduled turn (module 12). Unpaid-leave
+deductions and encashments both create real `EmployeeFinancialTransaction` rows
+(`type:"salary_deduction"`/`"leave_encashment"`) exactly like `EmployeeAdvance` does (HD-015) — a
+future `hr/payroll` (module 15) should sum these into a pay period the same way, not duplicate the
+unpaid-days-to-amount calculation itself.
+
+Separately, `leave-request.service.js#getLeaveBalance` deliberately does NOT compute carry-forward
+from the prior policy year — `leave-request.domain.js#computeCarryForward` exists and is unit-testable
+but is never called from the balance engine, because doing so correctly would require either (a)
+recursing backward through every prior policy year on every balance read (unbounded, slow, and still
+wrong the first time a brand's policy changes retroactively), or (b) a persisted year-end snapshot
+ledger, which is new stored state this rollout's balance engine was deliberately designed to avoid
+(see `LEAVE_REQUEST.module.md` §5's "computed live" design decision). A brand with
+`allowCarryForward: true` on any leave type currently gets `carriedForward` implicitly ignored — the
+balance is understated relative to real policy the moment a carry-forward-eligible year rolls over.
+
+**Not fixed here:** both require either `hr/payroll`'s own turn (module 15) or a deliberate new
+persisted-snapshot design for carry-forward — neither is this module's own turn to force.
+
+**Owning module:** `hr/payroll` (transaction consumption) and a future dedicated design pass for
+multi-year carry-forward (not assigned to any of the remaining 2 modules in this rollout — flagged
+for whoever picks up leave-policy work next).
+
+**Status:** Recorded, not fixed.
+
+---
+
+## HD-017 — `AttendanceRecord`/`EmployeeFinancialTransaction` needed new enum values for leave integration
+
+**Found while reviewing:** `hr/leave-request` at its own scheduled turn (module 12), while designing
+how an approved leave should affect attendance and payroll.
+
+**Action taken:**
+- `AttendanceRecord.type` gained `"UNPAID_LEAVE"` (`attendance-record.model.js`) — previously unpaid
+  leave had no distinct attendance type and would have been misrepresented as `"VACATION"` (implying
+  paid) in any attendance-driven report.
+- `EmployeeFinancialTransaction.type` gained `"leave_encashment"` (mapped to `category:"earning"` in
+  `TYPE_CATEGORY_MAP`) — the transaction type an encashment request creates on approval.
+
+Both are additive-only enum extensions (same convention as `RESOURCE_ENUM`'s "never rename/remove"
+rule) — no existing document or consumer is affected.
+
+**Status:** Fixed as part of this module's own turn; not deferred, since both were prerequisites for
+`hr/leave-request`'s own approval workflow to function at all, not independent cross-module work.
+
+---
+
+## HD-016 — `EmployeeSettings.leavePolicy` redesigned to a Map — HD-003 finally, fully settled
+
+**Found while reviewing:** `hr/leave-request` at its own scheduled turn (module 12). HD-003's earlier
+fix (module 8) resolved Employee's own 3-field leave snapshot from `EmployeeSettings.leavePolicy`,
+but that policy shape (`annualLeaveDays`/`sickLeaveDays`/`emergencyLeaveDays` as three hardcoded
+fields) could only ever describe 3 of the 16 leave types this module's protocol required supporting
+(annual/sick/emergency/casual/maternity/paternity/unpaid/official_mission/compensatory/special/study/
+bereavement/religious/permission/holiday_work/other). Adding a 4th type would have needed a schema
+migration every time — the opposite of "extensible," and a second, narrower source of truth sitting
+next to whatever `hr/leave-request` would have needed to define for the other 13 types.
+
+**Action taken:** redesigned `leavePolicy` to `{policies: Map<leaveType, entry>, defaultPolicy: entry,
+blackoutPeriods: [...], minimumDepartmentCoverageRatio}`, where `entry` is
+`{annualDays, isPaidByDefault, requiresApproval, allowCarryForward, maxCarryForwardDays,
+allowNegativeBalance, accrualMethod, expiryMonths}`. The Map's default value preserves the exact prior
+defaults (21/7/3 days for annual/sick/emergency) so no brand's effective policy changed as a side
+effect. `employee-settings.service.js#resolveLeaveTypePolicy(settings, leaveType)` is now the single
+resolution method both `hr/employee`'s snapshot-fill (via the pre-existing
+`resolveLeavePolicyDefaults`, updated to call it) and `hr/leave-request`'s entire balance/payroll
+engine call — genuinely one source of truth now, not two narrower ones.
+
+**Status:** Fixed and integration-tested (`employee-settings-business-rules.test.ts`'s
+`resolveLeavePolicyDefaults` test updated to the new shape; `leave-request-business-rules.test.ts`
+exercises `resolveLeaveTypePolicy` end-to-end through balance and payroll-treatment resolution).
 
 ---
 
@@ -331,7 +455,9 @@ not built here.
 
 **Status:** Creation-time resolution fixed and integration-tested
 (`employee-settings-business-rules.test.ts`). Re-sync-on-policy-change remains a documented future
-extension.
+extension. **See also HD-016** — this fix only covered Employee's own 3-field snapshot; the full
+16-leave-type policy engine `hr/leave-request` (module 12) needed required a further redesign of
+`EmployeeSettings.leavePolicy` itself.
 
 ---
 

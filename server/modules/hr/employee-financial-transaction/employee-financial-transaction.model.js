@@ -39,6 +39,10 @@ export const TRANSACTION_TYPES = [
   "tip",
   "service_charge",
   "manual_credit",
+  // Added module 12 (hr/leave-request) — encashing unused leave balance
+  // into a cash payout. Same "surfaced by reading a related module before
+  // designing this one" discipline as tip/service_charge above.
+  "leave_encashment",
   "salary_deduction",
   "advance_repayment",
   "penalty_late",
@@ -59,6 +63,7 @@ export const TYPE_CATEGORY_MAP = {
   tip: "earning",
   service_charge: "earning",
   manual_credit: "earning",
+  leave_encashment: "earning",
   salary_deduction: "deduction",
   advance_repayment: "deduction",
   penalty_late: "deduction",

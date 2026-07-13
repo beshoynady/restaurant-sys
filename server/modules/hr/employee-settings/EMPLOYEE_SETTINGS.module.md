@@ -25,7 +25,7 @@ One document per brand (`{brand}` unique index, already existed).
 
 | Group | Fields | Status this turn |
 |---|---|---|
-| `leavePolicy` | `annualLeaveDays`,`sickLeaveDays`,`emergencyLeaveDays`,`allowCarryForward`,`maxCarryForwardDays`,`allowNegativeLeaveBalance` | **Wired** (§5, §9) — HD-003 |
+| `leavePolicy` | `policies` (Map<leaveType,entry>), `defaultPolicy`, `blackoutPeriods[]`, `minimumDepartmentCoverageRatio` — **redesigned module 12** (`HR_TECHNICAL_DEBT.md` HD-016): the old flat `annualLeaveDays`/`sickLeaveDays`/`emergencyLeaveDays`/`allowCarryForward`/`maxCarryForwardDays`/`allowNegativeLeaveBalance` fields could only ever describe 3 leave types; now extensible to all 16 `hr/leave-request` supports without a schema migration | **Wired** (§5, §9) — HD-003, fully settled by HD-016 |
 | `contractTypes`,`workModes` | enum vocab lists | Reserved — no cross-validation against `Employee.contractType`/`.workMode` yet (§12) |
 | `payroll` | `defaultSalaryType`,`defaultCurrency`,`autoGeneratePayroll`,`payrollCycleDay` | Reserved — Payroll's own turn (module 15) |
 | `requiredFields` | `nationalID`,`email`,`address`,`profileImage`,`emergencyContact` (all Boolean) | **Wired** (§5, §9) |

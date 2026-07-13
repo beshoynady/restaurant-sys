@@ -28,6 +28,7 @@ export const RESOURCE_ENUM = [
   "LeaveRequests",
   "Payrolls",
   "PayrollItems",
+  "PayrollSettings",
   "EmployeeFinancial",
   "EmployeeTransactions",
   "EmployeeAdvances",

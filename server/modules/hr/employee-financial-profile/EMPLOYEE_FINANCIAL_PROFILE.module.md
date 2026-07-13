@@ -23,7 +23,8 @@ at calculation time. This module is that place.
 1. An `Employee` is hired and assigned a `department`/`jobTitle` (already required on Employee).
 2. HR creates this employee's Financial Profile: `basicSalary`, `salaryStartDate`, disbursement
    method, bank details if applicable. Compensation type/currency/pay-day fall back to
-   `EmployeeSettings.payroll` brand defaults if not explicitly set (§5, §9).
+   `hr/payroll-settings` (module 13) brand defaults if not explicitly set (§5, §9) — updated
+   `HR_TECHNICAL_DEBT.md` HD-020 (previously read `EmployeeSettings.payroll`, since removed).
 3. `basicSalary` is validated against `JobTitle.salaryBand` if that job title has one configured
    (§5) — the first real consumer of that field, reserved since module 3.
 4. `costCenter` defaults from `JobTitle.costCenter` if not explicitly set (§5, §9) — accounting-ready
@@ -40,7 +41,7 @@ Employee ──(1:1)──→ EmployeeFinancialProfile
                           │
 JobTitle.salaryBand ──────┼── validates basicSalary (§5)
 JobTitle.costCenter ──────┼── defaults costCenter (§5)
-EmployeeSettings.payroll ─┼── defaults salaryType/currency/payDay (§5)
+PayrollSettings.defaults/.cycle ┼── defaults salaryType/currency/payDay (§5, HD-020)
 CostCenter ────────────────┘  (accounting/, referenced directly — see §9)
 
 NOT referenced: payments/PaymentMethod, system/TaxConfig — see §13 for why.
@@ -53,9 +54,9 @@ All new this turn (the original module had zero business logic — a bare, broke
 
 1. **One profile per employee** — `{employee}` unique index (pre-existing, unchanged).
 2. **Compensation defaults**: `salaryType`/`currency`/`payDay` resolve from
-   `EmployeeSettings.payroll.defaultSalaryType`/`.defaultCurrency`/`.payrollCycleDay` for any field
-   the caller didn't explicitly supply. Fail-open: no `EmployeeSettings` doc yet → the schema's own
-   defaults apply.
+   `PayrollSettings.defaults.salaryType`/`.currency`/`.cycle.payDay` (module 13, HD-020) for any
+   field the caller didn't explicitly supply. Fail-open: no `PayrollSettings` doc yet → the schema's
+   own defaults apply.
 3. **Salary-band validation**: if the employee's `JobTitle.salaryBand.min`/`.max` is configured,
    `basicSalary` outside that range is rejected with a clear `400`. Only enforced when the job title
    actually has a band — most won't.
@@ -107,8 +108,10 @@ Base path: **`/api/v1/hr/employee-financial-profiles`**. Standard CRUD + soft-de
 
 ## 9. Integration
 
-- **`hr/employee-settings`**: `EmployeeSettings.payroll` is read (not duplicated) for compensation
-  defaults — see §5.
+- **`hr/payroll-settings`** (module 13): `PayrollSettings.defaults`/`.cycle` is read (not duplicated)
+  for compensation defaults — see §5. Updated post-hoc when module 13 absorbed this responsibility
+  from `EmployeeSettings.payroll` (HD-020) — this module's own code changed in that same pass
+  (`employee-financial-profile.repository.js#findPayrollSettingsForBrand`).
 - **`hr/job-title`**: `JobTitle.salaryBand`/`.costCenter` are read (not duplicated) — the first real
   consumers of both fields since they were reserved in module 3.
 - **`accounting/cost-center`**: `costCenter` is a direct `ref: "CostCenter"` — already an established
