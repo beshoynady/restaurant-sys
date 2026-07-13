@@ -24,22 +24,22 @@ router.route("/")
 // GetOne, Update, hardDelete
 router.route("/:id")
   .get(authenticateToken,
-    authorize("PrintSettings", "read"), validate(paramsPrintSettingsSchema), printSettingsController.getOne)
+    authorize("PrintSettings", "read"), validate(paramsPrintSettingsSchema, "params"), printSettingsController.getOne)
   .put(authenticateToken,
     authorize("PrintSettings", "update"), validate(updatePrintSettingsSchema), printSettingsController.update)
   .delete(authenticateToken,
-    authorize("PrintSettings", "delete"), validate(paramsPrintSettingsSchema), printSettingsController.hardDelete) // soft delete
+    authorize("PrintSettings", "delete"), validate(paramsPrintSettingsSchema, "params"), printSettingsController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
-    authorize("PrintSettings", "delete"), validate(paramsPrintSettingsSchema), printSettingsController.softDelete) // soft delete
+    authorize("PrintSettings", "delete"), validate(paramsPrintSettingsSchema, "params"), printSettingsController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
-    authorize("PrintSettings", "update"), validate(paramsPrintSettingsSchema), printSettingsController.restore)
+    authorize("PrintSettings", "update"), validate(paramsPrintSettingsSchema, "params"), printSettingsController.restore)
 ;
 
  // --- BULK HARD DELETE ---

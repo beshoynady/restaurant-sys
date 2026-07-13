@@ -28,26 +28,26 @@ router.route("/")
 router.route("/:id")
   .get(authenticateToken,
     authorize("OfflineCustomers", "read"),
-    checkModuleEnabled("crm"), validate(paramsOfflineCustomerSchema), offlineCustomerController.getOne)
+    checkModuleEnabled("crm"), validate(paramsOfflineCustomerSchema, "params"), offlineCustomerController.getOne)
   .put(authenticateToken,
     authorize("OfflineCustomers", "update"),
     checkModuleEnabled("crm"), validate(updateOfflineCustomerSchema), offlineCustomerController.update)
   .delete(authenticateToken,
     authorize("OfflineCustomers", "delete"),
-    checkModuleEnabled("crm"), validate(paramsOfflineCustomerSchema), offlineCustomerController.hardDelete) // soft delete
+    checkModuleEnabled("crm"), validate(paramsOfflineCustomerSchema, "params"), offlineCustomerController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
     authorize("OfflineCustomers", "delete"),
-    checkModuleEnabled("crm"), validate(paramsOfflineCustomerSchema), offlineCustomerController.softDelete) // soft delete
+    checkModuleEnabled("crm"), validate(paramsOfflineCustomerSchema, "params"), offlineCustomerController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
     authorize("OfflineCustomers", "update"),
-    checkModuleEnabled("crm"), validate(paramsOfflineCustomerSchema), offlineCustomerController.restore)
+    checkModuleEnabled("crm"), validate(paramsOfflineCustomerSchema, "params"), offlineCustomerController.restore)
 ;
 
  // --- BULK HARD DELETE ---

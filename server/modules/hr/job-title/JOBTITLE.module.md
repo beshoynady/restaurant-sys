@@ -14,14 +14,20 @@ have zero relationship with JobTitle today. This shaped which fields below were 
 **Added (reserved for future integration, not yet read by any code):**
 - `code` — integration/reporting identifier, matching Department/Shift's existing pattern.
 - `level` — job level/grade.
-- `salaryBand: {min, max}` — not validated against `EmployeeFinancialProfile.basicSalary` yet.
 - `overtimeEligible`, `maxOvertimeHoursPerMonth` — extends `PayrollItem`'s existing
   `attendanceRule`/formula design rather than inventing new overtime architecture.
 - `approvalLevel` — for a future shared Approval Framework (`LeaveRequest`/`EmployeeAdvance`/
   `EmployeeFinancialTransaction` all have an `approvedBy` actor field today with no rule
   restricting *who* may approve).
-- `costCenter` (ref `Account`'s sibling `CostCenter`) — for future expense-allocation/accounting
-  integration; no posting logic exists yet anywhere in this project (deferred by design).
+
+**No longer reserved — now consumed (as of `hr/employee-financial-profile`, module 9):**
+- `salaryBand: {min, max}` — `EmployeeFinancialProfile.compensation.basicSalary` is now validated
+  against this range when it's configured (`employee-financial-profile.service.js#assertSalaryWithinBand`).
+  See `EMPLOYEE_FINANCIAL_PROFILE.module.md` §5.
+- `costCenter` (ref `CostCenter`) — `EmployeeFinancialProfile.costCenter` now defaults from this field
+  when not explicitly supplied at profile creation. See `EMPLOYEE_FINANCIAL_PROFILE.module.md` §5/§9.
+  No posting logic exists yet anywhere in this project (Accounting integration remains deferred by
+  design) — only the reference/default is wired, not journal-entry generation.
 
 **Deliberately NOT added, with reasoning:**
 - Default shift / default attendance / default leave policy — `Employee.shift` and

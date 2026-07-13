@@ -28,26 +28,26 @@ router.route("/")
 router.route("/:id")
   .get(authenticateToken,
     authorize("Assets", "read"),
-    checkModuleEnabled("assets"), validate(paramsAssetSchema), assetController.getOne)
+    checkModuleEnabled("assets"), validate(paramsAssetSchema, "params"), assetController.getOne)
   .put(authenticateToken,
     authorize("Assets", "update"),
     checkModuleEnabled("assets"), validate(updateAssetSchema), assetController.update)
   .delete(authenticateToken,
     authorize("Assets", "delete"),
-    checkModuleEnabled("assets"), validate(paramsAssetSchema), assetController.hardDelete) // soft delete
+    checkModuleEnabled("assets"), validate(paramsAssetSchema, "params"), assetController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
     authorize("Assets", "delete"),
-    checkModuleEnabled("assets"), validate(paramsAssetSchema), assetController.softDelete) // soft delete
+    checkModuleEnabled("assets"), validate(paramsAssetSchema, "params"), assetController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
     authorize("Assets", "update"),
-    checkModuleEnabled("assets"), validate(paramsAssetSchema), assetController.restore)
+    checkModuleEnabled("assets"), validate(paramsAssetSchema, "params"), assetController.restore)
 ;
 
  // --- BULK HARD DELETE ---

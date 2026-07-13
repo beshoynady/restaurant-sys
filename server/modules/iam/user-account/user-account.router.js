@@ -40,7 +40,7 @@ router
   .get(
     authenticateToken,
     authorize("UserAccounts", "read"),
-    validate(paramsUserAccountSchema),
+    validate(paramsUserAccountSchema, "params"),
     userAccountController.getOne
   )
   .put(
@@ -52,7 +52,7 @@ router
   .delete(
     authenticateToken,
     authorize("UserAccounts", "delete"),
-    validate(paramsUserAccountSchema),
+    validate(paramsUserAccountSchema, "params"),
     userAccountController.hardDelete
   );
 
@@ -63,7 +63,7 @@ router.patch(
   "/soft-delete/:id",
   authenticateToken,
   authorize("UserAccounts", "delete"),
-  validate(paramsUserAccountSchema),
+  validate(paramsUserAccountSchema, "params"),
   userAccountController.softDelete
 );
 
@@ -71,7 +71,7 @@ router.patch(
   "/restore/:id",
   authenticateToken,
   authorize("UserAccounts", "update"),
-  validate(paramsUserAccountSchema),
+  validate(paramsUserAccountSchema, "params"),
   userAccountController.restore
 );
 

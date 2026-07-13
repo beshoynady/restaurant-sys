@@ -20,18 +20,18 @@ router.route("/")
 
 // GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, validate(paramsDailyExpenseSchema), dailyExpenseController.getOne)
+  .get(authenticateToken, validate(paramsDailyExpenseSchema, "params"), dailyExpenseController.getOne)
   .put(authenticateToken, validate(updateDailyExpenseSchema), dailyExpenseController.update)
-  .delete(authenticateToken, validate(paramsDailyExpenseSchema), dailyExpenseController.hardDelete) // soft delete
+  .delete(authenticateToken, validate(paramsDailyExpenseSchema, "params"), dailyExpenseController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsDailyExpenseSchema), dailyExpenseController.softDelete) // soft delete
+  .patch(authenticateToken, validate(paramsDailyExpenseSchema, "params"), dailyExpenseController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsDailyExpenseSchema), dailyExpenseController.restore)
+  .patch(authenticateToken, validate(paramsDailyExpenseSchema, "params"), dailyExpenseController.restore)
 ;
 
  // --- BULK HARD DELETE ---

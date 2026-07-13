@@ -51,7 +51,7 @@ router.route("/:id")
     authenticateToken,
     authorize("JobTitles", "read"),
     checkModuleEnabled("hr"),
-    validate(paramsJobTitleSchema),
+    validate(paramsJobTitleSchema, "params"),
     jobTitleController.getOne,
   )
   .put(
@@ -65,7 +65,7 @@ router.route("/:id")
     authenticateToken,
     authorize("JobTitles", "delete"),
     checkModuleEnabled("hr"),
-    validate(paramsJobTitleSchema),
+    validate(paramsJobTitleSchema, "params"),
     jobTitleController.hardDelete,
   );
 
@@ -73,7 +73,7 @@ router.route("/soft-delete/:id").patch(
   authenticateToken,
   authorize("JobTitles", "delete"),
   checkModuleEnabled("hr"),
-  validate(paramsJobTitleSchema),
+  validate(paramsJobTitleSchema, "params"),
   jobTitleController.softDelete,
 );
 
@@ -82,7 +82,7 @@ router.route("/restore/:id").patch(
   authenticateToken,
   authorize("JobTitles", "update"),
   checkModuleEnabled("hr"),
-  validate(paramsJobTitleSchema),
+  validate(paramsJobTitleSchema, "params"),
   jobTitleController.restore,
 );
 

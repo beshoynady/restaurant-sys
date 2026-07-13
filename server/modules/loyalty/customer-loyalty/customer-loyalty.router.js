@@ -44,7 +44,7 @@ router.get(
   "/admin/:id",
   authorize("CustomerLoyalty", "read"),
     checkModuleEnabled("loyalty"),
-  validate(paramsCustomerLoyaltySchema),
+  validate(paramsCustomerLoyaltySchema, "params"),
   CustomerLoyaltyController.getOne
 );
 

@@ -50,7 +50,7 @@ router.route("/count").get(
 router.route("/:id")
   .get(authenticateToken,
     authorize("Employees", "read"),
-    checkModuleEnabled("hr"), validate(paramsEmployeeSchema), employeeController.getOne)
+    checkModuleEnabled("hr"), validate(paramsEmployeeSchema, "params"), employeeController.getOne)
   .put(authenticateToken,
     authorize("Employees", "update"),
     checkModuleEnabled("hr"), validate(updateEmployeeSchema), employeeController.update)
@@ -58,7 +58,7 @@ router.route("/:id")
     authenticateToken,
     authorize("Employees", "delete"),
     checkModuleEnabled("hr"),
-    validate(paramsEmployeeSchema),
+    validate(paramsEmployeeSchema, "params"),
     employeeController.hardDelete,
   );
 
@@ -67,7 +67,7 @@ router.route("/soft-delete/:id").patch(
   authenticateToken,
     authorize("Employees", "delete"),
     checkModuleEnabled("hr"),
-  validate(paramsEmployeeSchema),
+  validate(paramsEmployeeSchema, "params"),
   employeeController.softDelete,
 );
 
@@ -76,7 +76,7 @@ router.route("/restore/:id").patch(
   authenticateToken,
     authorize("Employees", "update"),
     checkModuleEnabled("hr"),
-  validate(paramsEmployeeSchema),
+  validate(paramsEmployeeSchema, "params"),
   employeeController.restore,
 );
 

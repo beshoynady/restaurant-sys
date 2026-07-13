@@ -28,26 +28,26 @@ router.route("/")
 router.route("/:id")
   .get(authenticateToken,
     authorize("CostCenters", "read"),
-    checkModuleEnabled("accounting"), validate(paramsCostCenterSchema), costCenterController.getOne)
+    checkModuleEnabled("accounting"), validate(paramsCostCenterSchema, "params"), costCenterController.getOne)
   .put(authenticateToken,
     authorize("CostCenters", "update"),
     checkModuleEnabled("accounting"), validate(updateCostCenterSchema), costCenterController.update)
   .delete(authenticateToken,
     authorize("CostCenters", "delete"),
-    checkModuleEnabled("accounting"), validate(paramsCostCenterSchema), costCenterController.hardDelete) // soft delete
+    checkModuleEnabled("accounting"), validate(paramsCostCenterSchema, "params"), costCenterController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
     authorize("CostCenters", "delete"),
-    checkModuleEnabled("accounting"), validate(paramsCostCenterSchema), costCenterController.softDelete) // soft delete
+    checkModuleEnabled("accounting"), validate(paramsCostCenterSchema, "params"), costCenterController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
     authorize("CostCenters", "update"),
-    checkModuleEnabled("accounting"), validate(paramsCostCenterSchema), costCenterController.restore)
+    checkModuleEnabled("accounting"), validate(paramsCostCenterSchema, "params"), costCenterController.restore)
 ;
 
  // --- BULK HARD DELETE ---

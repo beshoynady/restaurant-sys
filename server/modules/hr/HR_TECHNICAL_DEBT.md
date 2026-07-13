@@ -8,8 +8,140 @@ backend infrastructure outside HR entirely.
 Execution order: Employee (done) → Department (done) → JobTitle (done) → Shift (done) →
 ShiftSettings (done — relocated out of HR, see HD-006) → AttendanceSettings (done, see HD-007/HD-008)
 → AttendanceRecord (done, see HD-002/HD-005/HD-008/HD-009) → EmployeeSettings (done, see HD-003/HD-007)
-→ EmployeeFinancialProfile → EmployeeFinancialTransaction → EmployeeAdvance → LeaveRequest →
-PayrollSettings → PayrollItem → Payroll.
+→ EmployeeFinancialProfile (done, see HD-010) → EmployeeFinancialTransaction (done, see HD-011/HD-014)
+→ EmployeeAdvance (formal turn must fix HD-012, and should reference
+EmployeeFinancialTransaction.relatedAdvance — see HD-014) → LeaveRequest → PayrollSettings →
+PayrollItem → Payroll (formal turn must resolve HD-013).
+
+**Also see `BACKEND_FOUNDATION_TECH_DEBT.md` FT-004 (CRITICAL, found during this module's turn, ✅
+FIXED project-wide the same session):** `validate(paramsSchema())` validated `req.body` instead of
+`req.params` on every `GET /:id`, `DELETE /:id`, soft-delete, and restore route across the entire
+backend, not just HR. Flagged to the project owner given severity, approved for an immediate
+out-of-order fix, and resolved across all 89 affected router files (349 call sites) with full
+regression + end-to-end HTTP verification — not deferred to a later Foundation pass.
+
+---
+
+## HD-014 — `EmployeeFinancialTransaction` had no `relatedAdvance`/`relatedPayroll` back-reference
+
+**Found while reviewing:** `hr/employee-financial-transaction` at its own scheduled turn (module 10).
+`EmployeeAdvance.disbursementTransaction`/`.payments[].transaction` already reference *this* model
+(one-directional), and `type: "advance_repayment"` already existed on this model's own `type` enum,
+but there was no way to trace a transaction back to the advance it belongs to without a reverse
+lookup — flagged in HD-011's own research pass before this module's redesign began.
+
+**Action taken:** added `relatedAdvance` (ref `EmployeeAdvance`) and `relatedPayroll` (ref `Payroll`)
+as reserved fields on this model (not populated by this module itself — `hr/employee-advance`,
+module 11, owns writing the former; `hr/payroll`, module 15, owns writing the latter). This closes
+the schema gap now so neither of those future modules needs a migration on this collection later.
+
+**Status:** Fields added, not yet populated by any writer (both owning modules haven't had their
+formal turn). Recorded as still-reserved in `EMPLOYEE_FINANCIAL_TRANSACTION.module.md` §12.
+
+---
+
+## HD-013 — `Payroll.basicSalary` is a raw snapshot, not sourced from `EmployeeFinancialProfile`
+
+**Found while reviewing:** `hr/employee-financial-profile` at its own scheduled turn (module 9), now
+the SSOT for an employee's compensation (`compensation.basicSalary`, `.salaryType`, `.currency`,
+overtime rate, eligibility flags). `hr/payroll`'s own model (`payroll.model.js`) stores its own raw
+`basicSalary`/`dailyRate`/`hourlyRate` numbers per pay period with no reference back to this module at
+all, and `payroll.service.js` is confirmed pure CRUD (`AdvancedService` instantiation, zero
+calculation logic) — so this gap has no live consumer yet, but will need resolving before Payroll can
+actually calculate anything.
+
+**Not fixed here:** `hr/payroll` has not had its own formal turn yet (module 15) — deliberately not
+modified as part of this module's work, per the established Category B process.
+
+**Owning module:** `hr/payroll` — module 15. At that turn, `Payroll` creation should read
+`EmployeeFinancialProfileService#getFinancialSummary`/`computePayrollEligibility` rather than
+requiring a raw `basicSalary` to be re-entered per pay period, and should refuse to calculate a
+payroll run for an employee whose financial profile isn't eligible (see this module's own
+`computePayrollEligibility`).
+
+**Status:** Recorded, not fixed.
+
+---
+
+## HD-012 — `hr/employee-advance`'s service is a hand-written class incompatible with `BaseController`
+
+**Found while reviewing:** `hr/employee-financial-profile` at its own scheduled turn (module 9) — read
+while mapping the employee financial data model before designing this module's schema.
+`employee-advance.service.js` is NOT built on `utils/BaseRepository.js` — it's five hand-written
+methods (`create(data)`, `findAll(filter)`, `findById(id)`, `update(id,data)`, `delete(id)`) with
+signatures that don't match what `BaseController` calls (`create({brandId,branchId,data,createdBy})`,
+`getAll({...})` — doesn't exist on this service at all, `findById({id,brandId,branchId})` — called
+with a bare id here). Every list/soft-delete/restore/bulk* route would throw
+`this.service.<method> is not a function`; `getOne` would pass a plain options object into
+`Model.findById(...)`, which will not resolve to a document. No brand/branch scoping at all — no
+tenant isolation. **Also not mounted** in `router/v1/index.router.js` — currently completely
+unreachable via the API regardless.
+
+**Not fixed here:** `hr/employee-advance` has not had its own formal turn yet (module 11) — out of
+scope for this module's own turn; noted for awareness since `EmployeeAdvance.disbursementTransaction`/
+`.payments[].transaction` reference `EmployeeFinancialTransaction` (module 10), not this module, so
+there was no direct integration need here.
+
+**Owning module:** `hr/employee-advance` — module 11. Full Repository Pattern rebuild needed (same
+class of fix as every other module's `AdvancedService`→`BaseRepository`+repository-file migration
+already done in this rollout), plus mounting the router.
+
+**Status:** Recorded, not fixed.
+
+---
+
+## HD-011 — `hr/employee-financial-transaction` imported a `.model.ts` that had no compiled sibling; router unmounted — ✅ FIXED (EmployeeFinancialTransaction module)
+
+**Found while reviewing:** `hr/employee-financial-profile` at its own scheduled turn (module 9), same
+research pass as HD-012. `employee-financial-transaction.service.js` and `.validation.js` both
+`import ... from "./employee-financial-transaction.model.js"`, but the actual file on disk was
+`employee-financial-transaction.model.ts` — no `.js` sibling existed, so this import failed at
+runtime (same defect class as employee-financial-profile's fixed cross-file naming bug, HD-010).
+
+**Fixed while reviewing:** `hr/employee-financial-transaction` at its own scheduled turn (module 10)
+— converted `.ts` to `.js` (type-stripping only, per `BACKEND_FOUNDATION.md` §5 — existing modules
+stay JS until their own rebuild turn), added `authorize()`/`checkModuleEnabled("hr")` to every route
+(previously **completely absent** — the same severity gap as HD-010), added the missing
+`isDeleted`/`deletedAt`/`deletedBy` soft-delete triple (same defect class as HD-002 — the service
+already constructs `BaseRepository` with soft-delete enabled), added a `.repository.js` (mandatory
+pattern, previously missing), and mounted at `/hr/employee-financial-transactions`. Also added real
+business logic: `type`/`category` consistency validation, server-derived `payrollEffect` (never
+client-trusted), and a dedicated `approve()`/`cancel()` workflow (previously `isApproved`/
+`isCancelled` were raw fields any generic `PUT` could flip with no guard). See
+`EMPLOYEE_FINANCIAL_TRANSACTION.module.md` for full detail.
+
+**`relatedPayroll`/`relatedAdvance` back-reference gap** — see new entry HD-014 (fixed as reserved
+fields this same turn).
+
+**Status:** Fixed and integration-tested (`employee-financial-transaction-business-rules.test.ts`).
+
+---
+
+## HD-010 — `hr/employee-financial-profile` was completely broken and never mounted — ✅ FIXED (EmployeeFinancialProfile module)
+
+**Found while reviewing:** `hr/employee-financial-profile` at its own scheduled turn (module 9). Every
+file cross-imported a nonexistent sibling stem (`./employee-financial.model.js` instead of the actual
+`./employee-financial-profile.model.js`, and likewise for `.service.js`/`.controller.js`/
+`.validation.js`) — the whole module would throw `ERR_MODULE_NOT_FOUND` at import time. The router
+also had **no `authorize()`/`checkModuleEnabled()` at all** (worse than HD-001's JobTitle gap — any
+authenticated user could read/write every employee's salary and bank details) and was **never
+mounted** in `router/v1/index.router.js`.
+
+The original model also referenced two nonexistent-or-wrong models: `ref: "InsuranceSetting"` (no
+such model exists anywhere in the codebase — a pure dangling reference) and `ref: "PaymentMethod"`/
+`ref: "TaxConfig"` (both models DO exist, but represent unrelated concepts — sales/POS payment
+channels and VAT/sales-tax configuration respectively, not payroll disbursement or income tax;
+confirmed by reading both models in full before deciding not to reuse them).
+
+**Action taken:** full redesign (not a naming fix) — see `EMPLOYEE_FINANCIAL_PROFILE.module.md` for
+the complete field-by-field rationale. Rebuilt with the Repository Pattern (new
+`employee-financial-profile.repository.js`), real business logic (salary-band validation against
+`JobTitle.salaryBand` — the first consumer of that reserved field since module 3; cost-center
+default from `JobTitle.costCenter`; compensation defaults resolved from
+`EmployeeSettings.payroll`; a `computePayrollEligibility()` readiness check), `authorize()`+
+`checkModuleEnabled("hr")` added to every route, and mounted at `/hr/employee-financial-profiles`.
+
+**Status:** Fixed and integration-tested (`employee-financial-profile-business-rules.test.ts`).
 
 ---
 

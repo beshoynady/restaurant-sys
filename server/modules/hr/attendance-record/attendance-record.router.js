@@ -36,26 +36,26 @@ router.route("/summary/monthly").get(
 router.route("/:id")
   .get(authenticateToken,
     authorize("AttendanceRecords", "read"),
-    checkModuleEnabled("hr"), validate(paramsAttendanceRecordSchema), attendanceRecordController.getOne)
+    checkModuleEnabled("hr"), validate(paramsAttendanceRecordSchema, "params"), attendanceRecordController.getOne)
   .put(authenticateToken,
     authorize("AttendanceRecords", "update"),
     checkModuleEnabled("hr"), validate(updateAttendanceRecordSchema), attendanceRecordController.update)
   .delete(authenticateToken,
     authorize("AttendanceRecords", "delete"),
-    checkModuleEnabled("hr"), validate(paramsAttendanceRecordSchema), attendanceRecordController.hardDelete) // soft delete
+    checkModuleEnabled("hr"), validate(paramsAttendanceRecordSchema, "params"), attendanceRecordController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
     authorize("AttendanceRecords", "delete"),
-    checkModuleEnabled("hr"), validate(paramsAttendanceRecordSchema), attendanceRecordController.softDelete) // soft delete
+    checkModuleEnabled("hr"), validate(paramsAttendanceRecordSchema, "params"), attendanceRecordController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
     authorize("AttendanceRecords", "update"),
-    checkModuleEnabled("hr"), validate(paramsAttendanceRecordSchema), attendanceRecordController.restore)
+    checkModuleEnabled("hr"), validate(paramsAttendanceRecordSchema, "params"), attendanceRecordController.restore)
 ;
 
  // --- BULK HARD DELETE ---

@@ -30,18 +30,18 @@ router.route("/resolve").get(
 
 // GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, authorize("EmployeeSettings", "read"), checkModuleEnabled("hr"), validate(paramsEmployeeSettingsSchema), employeeSettingsController.getOne)
+  .get(authenticateToken, authorize("EmployeeSettings", "read"), checkModuleEnabled("hr"), validate(paramsEmployeeSettingsSchema, "params"), employeeSettingsController.getOne)
   .put(authenticateToken, authorize("EmployeeSettings", "update"), checkModuleEnabled("hr"), validate(updateEmployeeSettingsSchema), employeeSettingsController.update)
-  .delete(authenticateToken, authorize("EmployeeSettings", "delete"), checkModuleEnabled("hr"), validate(paramsEmployeeSettingsSchema), employeeSettingsController.hardDelete)
+  .delete(authenticateToken, authorize("EmployeeSettings", "delete"), checkModuleEnabled("hr"), validate(paramsEmployeeSettingsSchema, "params"), employeeSettingsController.hardDelete)
 ;
 
 router.route("/soft-delete/:id")
-  .patch(authenticateToken, authorize("EmployeeSettings", "delete"), checkModuleEnabled("hr"), validate(paramsEmployeeSettingsSchema), employeeSettingsController.softDelete)
+  .patch(authenticateToken, authorize("EmployeeSettings", "delete"), checkModuleEnabled("hr"), validate(paramsEmployeeSettingsSchema, "params"), employeeSettingsController.softDelete)
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
-  .patch(authenticateToken, authorize("EmployeeSettings", "update"), checkModuleEnabled("hr"), validate(paramsEmployeeSettingsSchema), employeeSettingsController.restore)
+  .patch(authenticateToken, authorize("EmployeeSettings", "update"), checkModuleEnabled("hr"), validate(paramsEmployeeSettingsSchema, "params"), employeeSettingsController.restore)
 ;
 
  // --- BULK HARD DELETE ---

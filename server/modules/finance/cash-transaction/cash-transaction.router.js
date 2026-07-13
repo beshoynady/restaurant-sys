@@ -28,26 +28,26 @@ router.route("/")
 router.route("/:id")
   .get(authenticateToken,
     authorize("CashTransactions", "read"),
-    checkModuleEnabled("financial"), validate(paramsCashTransactionSchema), cashTransactionController.getOne)
+    checkModuleEnabled("financial"), validate(paramsCashTransactionSchema, "params"), cashTransactionController.getOne)
   .put(authenticateToken,
     authorize("CashTransactions", "update"),
     checkModuleEnabled("financial"), validate(updateCashTransactionSchema), cashTransactionController.update)
   .delete(authenticateToken,
     authorize("CashTransactions", "delete"),
-    checkModuleEnabled("financial"), validate(paramsCashTransactionSchema), cashTransactionController.hardDelete) // soft delete
+    checkModuleEnabled("financial"), validate(paramsCashTransactionSchema, "params"), cashTransactionController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
     authorize("CashTransactions", "delete"),
-    checkModuleEnabled("financial"), validate(paramsCashTransactionSchema), cashTransactionController.softDelete) // soft delete
+    checkModuleEnabled("financial"), validate(paramsCashTransactionSchema, "params"), cashTransactionController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
     authorize("CashTransactions", "update"),
-    checkModuleEnabled("financial"), validate(paramsCashTransactionSchema), cashTransactionController.restore)
+    checkModuleEnabled("financial"), validate(paramsCashTransactionSchema, "params"), cashTransactionController.restore)
 ;
 
  // --- BULK HARD DELETE ---

@@ -28,26 +28,26 @@ router.route("/")
 router.route("/:id")
   .get(authenticateToken,
     authorize("AssetPurchaseInvoices", "read"),
-    checkModuleEnabled("assets"), validate(paramsAssetPurchaseInvoiceSchema), assetPurchaseInvoiceController.getOne)
+    checkModuleEnabled("assets"), validate(paramsAssetPurchaseInvoiceSchema, "params"), assetPurchaseInvoiceController.getOne)
   .put(authenticateToken,
     authorize("AssetPurchaseInvoices", "update"),
     checkModuleEnabled("assets"), validate(updateAssetPurchaseInvoiceSchema), assetPurchaseInvoiceController.update)
   .delete(authenticateToken,
     authorize("AssetPurchaseInvoices", "delete"),
-    checkModuleEnabled("assets"), validate(paramsAssetPurchaseInvoiceSchema), assetPurchaseInvoiceController.hardDelete) // soft delete
+    checkModuleEnabled("assets"), validate(paramsAssetPurchaseInvoiceSchema, "params"), assetPurchaseInvoiceController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
     authorize("AssetPurchaseInvoices", "delete"),
-    checkModuleEnabled("assets"), validate(paramsAssetPurchaseInvoiceSchema), assetPurchaseInvoiceController.softDelete) // soft delete
+    checkModuleEnabled("assets"), validate(paramsAssetPurchaseInvoiceSchema, "params"), assetPurchaseInvoiceController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
     authorize("AssetPurchaseInvoices", "update"),
-    checkModuleEnabled("assets"), validate(paramsAssetPurchaseInvoiceSchema), assetPurchaseInvoiceController.restore)
+    checkModuleEnabled("assets"), validate(paramsAssetPurchaseInvoiceSchema, "params"), assetPurchaseInvoiceController.restore)
 ;
 
  // --- BULK HARD DELETE ---

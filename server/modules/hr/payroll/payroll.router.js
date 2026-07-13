@@ -28,26 +28,26 @@ router.route("/")
 router.route("/:id")
   .get(authenticateToken,
     authorize("Payrolls", "read"),
-    checkModuleEnabled("hr"), validate(paramsPayrollSchema), payrollController.getOne)
+    checkModuleEnabled("hr"), validate(paramsPayrollSchema, "params"), payrollController.getOne)
   .put(authenticateToken,
     authorize("Payrolls", "update"),
     checkModuleEnabled("hr"), validate(updatePayrollSchema), payrollController.update)
   .delete(authenticateToken,
     authorize("Payrolls", "delete"),
-    checkModuleEnabled("hr"), validate(paramsPayrollSchema), payrollController.hardDelete) // soft delete
+    checkModuleEnabled("hr"), validate(paramsPayrollSchema, "params"), payrollController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
     authorize("Payrolls", "delete"),
-    checkModuleEnabled("hr"), validate(paramsPayrollSchema), payrollController.softDelete) // soft delete
+    checkModuleEnabled("hr"), validate(paramsPayrollSchema, "params"), payrollController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
     authorize("Payrolls", "update"),
-    checkModuleEnabled("hr"), validate(paramsPayrollSchema), payrollController.restore)
+    checkModuleEnabled("hr"), validate(paramsPayrollSchema, "params"), payrollController.restore)
 ;
 
  // --- BULK HARD DELETE ---

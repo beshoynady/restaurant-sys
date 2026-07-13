@@ -28,26 +28,26 @@ router.route("/")
 router.route("/:id")
   .get(authenticateToken,
     authorize("InvoiceSettings", "read"),
-    checkModuleEnabled("sales"), validate(paramsInvoiceSettingsSchema), invoiceSettingsController.getOne)
+    checkModuleEnabled("sales"), validate(paramsInvoiceSettingsSchema, "params"), invoiceSettingsController.getOne)
   .put(authenticateToken,
     authorize("InvoiceSettings", "update"),
     checkModuleEnabled("sales"), validate(updateInvoiceSettingsSchema), invoiceSettingsController.update)
   .delete(authenticateToken,
     authorize("InvoiceSettings", "delete"),
-    checkModuleEnabled("sales"), validate(paramsInvoiceSettingsSchema), invoiceSettingsController.hardDelete) // soft delete
+    checkModuleEnabled("sales"), validate(paramsInvoiceSettingsSchema, "params"), invoiceSettingsController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
     authorize("InvoiceSettings", "delete"),
-    checkModuleEnabled("sales"), validate(paramsInvoiceSettingsSchema), invoiceSettingsController.softDelete) // soft delete
+    checkModuleEnabled("sales"), validate(paramsInvoiceSettingsSchema, "params"), invoiceSettingsController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
     authorize("InvoiceSettings", "update"),
-    checkModuleEnabled("sales"), validate(paramsInvoiceSettingsSchema), invoiceSettingsController.restore)
+    checkModuleEnabled("sales"), validate(paramsInvoiceSettingsSchema, "params"), invoiceSettingsController.restore)
 ;
 
  // --- BULK HARD DELETE ---

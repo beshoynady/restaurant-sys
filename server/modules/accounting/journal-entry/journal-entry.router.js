@@ -51,7 +51,7 @@ router
     authenticateToken,
     authorize("JournalEntries", "read"),
     checkModuleEnabled("accounting"),
-    validate(paramsJournalEntrySchema),
+    validate(paramsJournalEntrySchema, "params"),
     journalEntryController.getOne,
   )
   .put(
@@ -65,7 +65,7 @@ router
     authenticateToken,
     authorize("JournalEntries", "delete"),
     checkModuleEnabled("accounting"),
-    validate(paramsJournalEntrySchema),
+    validate(paramsJournalEntrySchema, "params"),
     journalEntryController.hardDelete,
   );
 
@@ -75,7 +75,7 @@ router
     authenticateToken,
     authorize("JournalEntries", "delete"),
     checkModuleEnabled("accounting"),
-    validate(paramsJournalEntrySchema),
+    validate(paramsJournalEntrySchema, "params"),
     journalEntryController.softDelete,
   );
 
@@ -86,7 +86,7 @@ router
     authenticateToken,
     authorize("JournalEntries", "update"),
     checkModuleEnabled("accounting"),
-    validate(paramsJournalEntrySchema),
+    validate(paramsJournalEntrySchema, "params"),
     journalEntryController.restore,
   );
 

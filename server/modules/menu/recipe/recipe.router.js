@@ -28,26 +28,26 @@ router.route("/")
 router.route("/:id")
   .get(authenticateToken,
     authorize("Recipes", "read"),
-    checkModuleEnabled("menu"), validate(paramsRecipeSchema), recipeController.getOne)
+    checkModuleEnabled("menu"), validate(paramsRecipeSchema, "params"), recipeController.getOne)
   .put(authenticateToken,
     authorize("Recipes", "update"),
     checkModuleEnabled("menu"), validate(updateRecipeSchema), recipeController.update)
   .delete(authenticateToken,
     authorize("Recipes", "delete"),
-    checkModuleEnabled("menu"), validate(paramsRecipeSchema), recipeController.hardDelete) // soft delete
+    checkModuleEnabled("menu"), validate(paramsRecipeSchema, "params"), recipeController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
     authorize("Recipes", "delete"),
-    checkModuleEnabled("menu"), validate(paramsRecipeSchema), recipeController.softDelete) // soft delete
+    checkModuleEnabled("menu"), validate(paramsRecipeSchema, "params"), recipeController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
     authorize("Recipes", "update"),
-    checkModuleEnabled("menu"), validate(paramsRecipeSchema), recipeController.restore)
+    checkModuleEnabled("menu"), validate(paramsRecipeSchema, "params"), recipeController.restore)
 ;
 
  // --- BULK HARD DELETE ---

@@ -43,7 +43,7 @@ router.route("/:id")
     authenticateToken,
     authorize("AttendanceSettings", "read"),
     checkModuleEnabled("hr"),
-    validate(paramsAttendanceSettingsSchema),
+    validate(paramsAttendanceSettingsSchema, "params"),
     attendanceSettingsController.getOne,
   )
   .put(
@@ -57,7 +57,7 @@ router.route("/:id")
     authenticateToken,
     authorize("AttendanceSettings", "delete"),
     checkModuleEnabled("hr"),
-    validate(paramsAttendanceSettingsSchema),
+    validate(paramsAttendanceSettingsSchema, "params"),
     attendanceSettingsController.hardDelete,
   );
 
@@ -65,7 +65,7 @@ router.route("/soft-delete/:id").patch(
   authenticateToken,
   authorize("AttendanceSettings", "delete"),
   checkModuleEnabled("hr"),
-  validate(paramsAttendanceSettingsSchema),
+  validate(paramsAttendanceSettingsSchema, "params"),
   attendanceSettingsController.softDelete,
 );
 
@@ -73,7 +73,7 @@ router.route("/restore/:id").patch(
   authenticateToken,
   authorize("AttendanceSettings", "update"),
   checkModuleEnabled("hr"),
-  validate(paramsAttendanceSettingsSchema),
+  validate(paramsAttendanceSettingsSchema, "params"),
   attendanceSettingsController.restore,
 );
 

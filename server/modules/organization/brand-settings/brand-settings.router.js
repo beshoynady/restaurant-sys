@@ -131,7 +131,7 @@ router.delete(
   "/bulk-delete",
   authenticateToken,
   authorize("BrandSettings", "delete"),
-  validate(paramsIdsBrandSettingsSchema),
+  validate(paramsIdsBrandSettingsSchema, "params"),
   controller.bulkHardDelete,
 );
 
@@ -139,7 +139,7 @@ router.patch(
   "/bulk-soft-delete",
   authenticateToken,
   authorize("BrandSettings", "delete"),
-  validate(paramsIdsBrandSettingsSchema),
+  validate(paramsIdsBrandSettingsSchema, "params"),
   controller.bulkSoftDelete,
 );
 

@@ -24,22 +24,22 @@ router.route("/")
 // GetOne, Update, hardDelete
 router.route("/:id")
   .get(authenticateToken,
-    authorize("Roles", "read"), validate(paramsRoleSchema), roleController.getOne)
+    authorize("Roles", "read"), validate(paramsRoleSchema, "params"), roleController.getOne)
   .put(authenticateToken,
     authorize("Roles", "update"), validate(updateRoleSchema), roleController.update)
   .delete(authenticateToken,
-    authorize("Roles", "delete"), validate(paramsRoleSchema), roleController.hardDelete) // soft delete
+    authorize("Roles", "delete"), validate(paramsRoleSchema, "params"), roleController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
-    authorize("Roles", "delete"), validate(paramsRoleSchema), roleController.softDelete) // soft delete
+    authorize("Roles", "delete"), validate(paramsRoleSchema, "params"), roleController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
-    authorize("Roles", "update"), validate(paramsRoleSchema), roleController.restore)
+    authorize("Roles", "update"), validate(paramsRoleSchema, "params"), roleController.restore)
 ;
 
  // --- BULK HARD DELETE ---

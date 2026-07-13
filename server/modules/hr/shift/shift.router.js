@@ -50,20 +50,20 @@ router.route("/count").get(
 router.route("/:id")
   .get(authenticateToken,
     authorize("Shifts", "read"),
-    checkModuleEnabled("hr"), validate(paramsShiftSchema), shiftController.getOne)
+    checkModuleEnabled("hr"), validate(paramsShiftSchema, "params"), shiftController.getOne)
   .put(authenticateToken,
     authorize("Shifts", "update"),
     checkModuleEnabled("hr"), validate(updateShiftSchema), shiftController.update)
   .delete(authenticateToken,
     authorize("Shifts", "delete"),
-    checkModuleEnabled("hr"), validate(paramsShiftSchema), shiftController.hardDelete);
+    checkModuleEnabled("hr"), validate(paramsShiftSchema, "params"), shiftController.hardDelete);
 
 // Soft Delete
 router.route("/soft-delete/:id").patch(
   authenticateToken,
     authorize("Shifts", "delete"),
     checkModuleEnabled("hr"),
-  validate(paramsShiftSchema),
+  validate(paramsShiftSchema, "params"),
   shiftController.softDelete,
 );
 
@@ -72,7 +72,7 @@ router.route("/restore/:id").patch(
   authenticateToken,
     authorize("Shifts", "update"),
     checkModuleEnabled("hr"),
-  validate(paramsShiftSchema),
+  validate(paramsShiftSchema, "params"),
   shiftController.restore,
 );
 

@@ -28,26 +28,26 @@ router.route("/")
 router.route("/:id")
   .get(authenticateToken,
     authorize("SalesReturnSettings", "read"),
-    checkModuleEnabled("sales"), validate(paramsSalesReturnSettingsSchema), salesReturnSettingsController.getOne)
+    checkModuleEnabled("sales"), validate(paramsSalesReturnSettingsSchema, "params"), salesReturnSettingsController.getOne)
   .put(authenticateToken,
     authorize("SalesReturnSettings", "update"),
     checkModuleEnabled("sales"), validate(updateSalesReturnSettingsSchema), salesReturnSettingsController.update)
   .delete(authenticateToken,
     authorize("SalesReturnSettings", "delete"),
-    checkModuleEnabled("sales"), validate(paramsSalesReturnSettingsSchema), salesReturnSettingsController.hardDelete) // soft delete
+    checkModuleEnabled("sales"), validate(paramsSalesReturnSettingsSchema, "params"), salesReturnSettingsController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
     authorize("SalesReturnSettings", "delete"),
-    checkModuleEnabled("sales"), validate(paramsSalesReturnSettingsSchema), salesReturnSettingsController.softDelete) // soft delete
+    checkModuleEnabled("sales"), validate(paramsSalesReturnSettingsSchema, "params"), salesReturnSettingsController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
     authorize("SalesReturnSettings", "update"),
-    checkModuleEnabled("sales"), validate(paramsSalesReturnSettingsSchema), salesReturnSettingsController.restore)
+    checkModuleEnabled("sales"), validate(paramsSalesReturnSettingsSchema, "params"), salesReturnSettingsController.restore)
 ;
 
  // --- BULK HARD DELETE ---

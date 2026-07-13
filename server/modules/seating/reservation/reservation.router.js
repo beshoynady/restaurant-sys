@@ -28,26 +28,26 @@ router.route("/")
 router.route("/:id")
   .get(authenticateToken,
     authorize("Reservations", "read"),
-    checkModuleEnabled("reservations"), validate(paramsReservationSchema), reservationController.getOne)
+    checkModuleEnabled("reservations"), validate(paramsReservationSchema, "params"), reservationController.getOne)
   .put(authenticateToken,
     authorize("Reservations", "update"),
     checkModuleEnabled("reservations"), validate(updateReservationSchema), reservationController.update)
   .delete(authenticateToken,
     authorize("Reservations", "delete"),
-    checkModuleEnabled("reservations"), validate(paramsReservationSchema), reservationController.hardDelete) // soft delete
+    checkModuleEnabled("reservations"), validate(paramsReservationSchema, "params"), reservationController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
     authorize("Reservations", "delete"),
-    checkModuleEnabled("reservations"), validate(paramsReservationSchema), reservationController.softDelete) // soft delete
+    checkModuleEnabled("reservations"), validate(paramsReservationSchema, "params"), reservationController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
     authorize("Reservations", "update"),
-    checkModuleEnabled("reservations"), validate(paramsReservationSchema), reservationController.restore)
+    checkModuleEnabled("reservations"), validate(paramsReservationSchema, "params"), reservationController.restore)
 ;
 
  // --- BULK HARD DELETE ---

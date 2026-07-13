@@ -22,18 +22,18 @@ router.route("/")
 
 // GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, authorize("InventorySettings", "read"), checkModuleEnabled("inventory"), validate(paramsInventorySettingsSchema), inventorySettingsController.getOne)
+  .get(authenticateToken, authorize("InventorySettings", "read"), checkModuleEnabled("inventory"), validate(paramsInventorySettingsSchema, "params"), inventorySettingsController.getOne)
   .put(authenticateToken, authorize("InventorySettings", "update"), checkModuleEnabled("inventory"), validate(updateInventorySettingsSchema), inventorySettingsController.update)
-  .delete(authenticateToken, authorize("InventorySettings", "delete"), checkModuleEnabled("inventory"), validate(paramsInventorySettingsSchema), inventorySettingsController.hardDelete)
+  .delete(authenticateToken, authorize("InventorySettings", "delete"), checkModuleEnabled("inventory"), validate(paramsInventorySettingsSchema, "params"), inventorySettingsController.hardDelete)
 ;
 
 router.route("/soft-delete/:id")
-  .patch(authenticateToken, authorize("InventorySettings", "delete"), checkModuleEnabled("inventory"), validate(paramsInventorySettingsSchema), inventorySettingsController.softDelete)
+  .patch(authenticateToken, authorize("InventorySettings", "delete"), checkModuleEnabled("inventory"), validate(paramsInventorySettingsSchema, "params"), inventorySettingsController.softDelete)
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
-  .patch(authenticateToken, authorize("InventorySettings", "update"), checkModuleEnabled("inventory"), validate(paramsInventorySettingsSchema), inventorySettingsController.restore)
+  .patch(authenticateToken, authorize("InventorySettings", "update"), checkModuleEnabled("inventory"), validate(paramsInventorySettingsSchema, "params"), inventorySettingsController.restore)
 ;
 
  // --- BULK HARD DELETE ---

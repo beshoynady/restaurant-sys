@@ -20,18 +20,18 @@ router.route("/")
 
 // GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, validate(paramsPayrollItemSchema), payrollItemController.getOne)
+  .get(authenticateToken, validate(paramsPayrollItemSchema, "params"), payrollItemController.getOne)
   .put(authenticateToken, validate(updatePayrollItemSchema), payrollItemController.update)
-  .delete(authenticateToken, validate(paramsPayrollItemSchema), payrollItemController.hardDelete) // soft delete
+  .delete(authenticateToken, validate(paramsPayrollItemSchema, "params"), payrollItemController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsPayrollItemSchema), payrollItemController.softDelete) // soft delete
+  .patch(authenticateToken, validate(paramsPayrollItemSchema, "params"), payrollItemController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsPayrollItemSchema), payrollItemController.restore)
+  .patch(authenticateToken, validate(paramsPayrollItemSchema, "params"), payrollItemController.restore)
 ;
 
  // --- BULK HARD DELETE ---

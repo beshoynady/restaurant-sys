@@ -28,26 +28,26 @@ router.route("/")
 router.route("/:id")
   .get(authenticateToken,
     authorize("AccountingSettings", "read"),
-    checkModuleEnabled("accounting"), validate(paramsAccountingSettingSchema), accountingSettingController.getOne)
+    checkModuleEnabled("accounting"), validate(paramsAccountingSettingSchema, "params"), accountingSettingController.getOne)
   .put(authenticateToken,
     authorize("AccountingSettings", "update"),
     checkModuleEnabled("accounting"), validate(updateAccountingSettingSchema), accountingSettingController.update)
   .delete(authenticateToken,
     authorize("AccountingSettings", "delete"),
-    checkModuleEnabled("accounting"), validate(paramsAccountingSettingSchema), accountingSettingController.hardDelete) // soft delete
+    checkModuleEnabled("accounting"), validate(paramsAccountingSettingSchema, "params"), accountingSettingController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
     authorize("AccountingSettings", "delete"),
-    checkModuleEnabled("accounting"), validate(paramsAccountingSettingSchema), accountingSettingController.softDelete) // soft delete
+    checkModuleEnabled("accounting"), validate(paramsAccountingSettingSchema, "params"), accountingSettingController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
     authorize("AccountingSettings", "update"),
-    checkModuleEnabled("accounting"), validate(paramsAccountingSettingSchema), accountingSettingController.restore)
+    checkModuleEnabled("accounting"), validate(paramsAccountingSettingSchema, "params"), accountingSettingController.restore)
 ;
 
  // --- BULK HARD DELETE ---

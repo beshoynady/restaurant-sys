@@ -20,18 +20,18 @@ router.route("/")
 
 // GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, validate(paramsDiningAreaSchema), diningAreaController.getOne)
+  .get(authenticateToken, validate(paramsDiningAreaSchema, "params"), diningAreaController.getOne)
   .put(authenticateToken, validate(updateDiningAreaSchema), diningAreaController.update)
-  .delete(authenticateToken, validate(paramsDiningAreaSchema), diningAreaController.hardDelete) // soft delete
+  .delete(authenticateToken, validate(paramsDiningAreaSchema, "params"), diningAreaController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsDiningAreaSchema), diningAreaController.softDelete) // soft delete
+  .patch(authenticateToken, validate(paramsDiningAreaSchema, "params"), diningAreaController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsDiningAreaSchema), diningAreaController.restore)
+  .patch(authenticateToken, validate(paramsDiningAreaSchema, "params"), diningAreaController.restore)
 ;
 
  // --- BULK HARD DELETE ---

@@ -20,18 +20,18 @@ router.route("/")
 
 // GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, validate(paramsSupplierTransactionSchema), supplierTransactionController.getOne)
+  .get(authenticateToken, validate(paramsSupplierTransactionSchema, "params"), supplierTransactionController.getOne)
   .put(authenticateToken, validate(updateSupplierTransactionSchema), supplierTransactionController.update)
-  .delete(authenticateToken, validate(paramsSupplierTransactionSchema), supplierTransactionController.hardDelete) // soft delete
+  .delete(authenticateToken, validate(paramsSupplierTransactionSchema, "params"), supplierTransactionController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsSupplierTransactionSchema), supplierTransactionController.softDelete) // soft delete
+  .patch(authenticateToken, validate(paramsSupplierTransactionSchema, "params"), supplierTransactionController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsSupplierTransactionSchema), supplierTransactionController.restore)
+  .patch(authenticateToken, validate(paramsSupplierTransactionSchema, "params"), supplierTransactionController.restore)
 ;
 
  // --- BULK HARD DELETE ---

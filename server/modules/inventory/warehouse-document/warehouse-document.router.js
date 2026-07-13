@@ -20,18 +20,18 @@ router.route("/")
 
 // GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, validate(paramsWarehouseDocumentSchema), warehouseDocumentController.getOne)
+  .get(authenticateToken, validate(paramsWarehouseDocumentSchema, "params"), warehouseDocumentController.getOne)
   .put(authenticateToken, validate(updateWarehouseDocumentSchema), warehouseDocumentController.update)
-  .delete(authenticateToken, validate(paramsWarehouseDocumentSchema), warehouseDocumentController.hardDelete) // soft delete
+  .delete(authenticateToken, validate(paramsWarehouseDocumentSchema, "params"), warehouseDocumentController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsWarehouseDocumentSchema), warehouseDocumentController.softDelete) // soft delete
+  .patch(authenticateToken, validate(paramsWarehouseDocumentSchema, "params"), warehouseDocumentController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsWarehouseDocumentSchema), warehouseDocumentController.restore)
+  .patch(authenticateToken, validate(paramsWarehouseDocumentSchema, "params"), warehouseDocumentController.restore)
 ;
 
  // --- BULK HARD DELETE ---

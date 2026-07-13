@@ -28,26 +28,26 @@ router.route("/")
 router.route("/:id")
   .get(authenticateToken,
     authorize("MenuCategories", "read"),
-    checkModuleEnabled("menu"), validate(paramsMenuCategorySchema), menuCategoryController.getOne)
+    checkModuleEnabled("menu"), validate(paramsMenuCategorySchema, "params"), menuCategoryController.getOne)
   .put(authenticateToken,
     authorize("MenuCategories", "update"),
     checkModuleEnabled("menu"), validate(updateMenuCategorySchema), menuCategoryController.update)
   .delete(authenticateToken,
     authorize("MenuCategories", "delete"),
-    checkModuleEnabled("menu"), validate(paramsMenuCategorySchema), menuCategoryController.hardDelete) // soft delete
+    checkModuleEnabled("menu"), validate(paramsMenuCategorySchema, "params"), menuCategoryController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
     authorize("MenuCategories", "delete"),
-    checkModuleEnabled("menu"), validate(paramsMenuCategorySchema), menuCategoryController.softDelete) // soft delete
+    checkModuleEnabled("menu"), validate(paramsMenuCategorySchema, "params"), menuCategoryController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
     authorize("MenuCategories", "update"),
-    checkModuleEnabled("menu"), validate(paramsMenuCategorySchema), menuCategoryController.restore)
+    checkModuleEnabled("menu"), validate(paramsMenuCategorySchema, "params"), menuCategoryController.restore)
 ;
 
  // --- BULK HARD DELETE ---

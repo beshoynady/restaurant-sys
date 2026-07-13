@@ -52,7 +52,7 @@ router.route("customer/:id")
   .get(
     authenticateCustomer,
     customerConfig,
-    validate(paramsOnlineCustomerSchema),
+    validate(paramsOnlineCustomerSchema, "params"),
     onlineCustomerController.getOne
   )
   router.route("admin/:id")
@@ -62,7 +62,7 @@ router.route("customer/:id")
     authorize("OnlineCustomers", "read"),
     checkModuleEnabled("crm"),
     customerConfig,
-    validate(paramsOnlineCustomerSchema),
+    validate(paramsOnlineCustomerSchema, "params"),
     onlineCustomerController.getOne
   )
   .put(
@@ -77,7 +77,7 @@ router.route("customer/:id")
     authenticateToken,
     authorize("OnlineCustomers", "delete"),
     checkModuleEnabled("crm"),
-    validate(paramsOnlineCustomerSchema),
+    validate(paramsOnlineCustomerSchema, "params"),
     onlineCustomerController.hardDelete
   );
 
@@ -90,7 +90,7 @@ router.patch(
   authenticateToken,
   authorize("OnlineCustomers", "delete"),
     checkModuleEnabled("crm"),
-  validate(paramsOnlineCustomerSchema),
+  validate(paramsOnlineCustomerSchema, "params"),
   onlineCustomerController.softDelete
 );
 
@@ -99,7 +99,7 @@ router.patch(
   authenticateToken,
   authorize("OnlineCustomers", "update"),
     checkModuleEnabled("crm"),
-  validate(paramsOnlineCustomerSchema),
+  validate(paramsOnlineCustomerSchema, "params"),
   onlineCustomerController.restore
 );
 

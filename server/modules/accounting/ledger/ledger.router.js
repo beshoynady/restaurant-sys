@@ -20,18 +20,18 @@ const router = express.Router();
 
 // // GetOne, Update, hardDelete
 // router.route("/:id")
-//   .get(authenticateToken, validate(paramsLedgerSchema), ledgerController.getOne)
+//   .get(authenticateToken, validate(paramsLedgerSchema, "params"), ledgerController.getOne)
 //   .put(authenticateToken, validate(updateLedgerSchema), ledgerController.update)
-//   .delete(authenticateToken, validate(paramsLedgerSchema), ledgerController.hardDelete) // soft delete
+//   .delete(authenticateToken, validate(paramsLedgerSchema, "params"), ledgerController.hardDelete) // soft delete
 // ;
 
 // router.route("/soft-delete/:id")
-//   .patch(authenticateToken, validate(paramsLedgerSchema), ledgerController.softDelete) // soft delete
+//   .patch(authenticateToken, validate(paramsLedgerSchema, "params"), ledgerController.softDelete) // soft delete
 // ;
 
 // // Restore soft-deleted item
 // router.route("/restore/:id")
-//   .patch(authenticateToken, validate(paramsLedgerSchema), ledgerController.restore)
+//   .patch(authenticateToken, validate(paramsLedgerSchema, "params"), ledgerController.restore)
 // ;
 
 //  // --- BULK HARD DELETE ---

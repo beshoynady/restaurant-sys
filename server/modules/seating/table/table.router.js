@@ -28,26 +28,26 @@ router.route("/")
 router.route("/:id")
   .get(authenticateToken,
     authorize("Tables", "read"),
-    checkModuleEnabled("seating"), validate(paramsTableSchema), tableController.getOne)
+    checkModuleEnabled("seating"), validate(paramsTableSchema, "params"), tableController.getOne)
   .put(authenticateToken,
     authorize("Tables", "update"),
     checkModuleEnabled("seating"), validate(updateTableSchema), tableController.update)
   .delete(authenticateToken,
     authorize("Tables", "delete"),
-    checkModuleEnabled("seating"), validate(paramsTableSchema), tableController.hardDelete) // soft delete
+    checkModuleEnabled("seating"), validate(paramsTableSchema, "params"), tableController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
     authorize("Tables", "delete"),
-    checkModuleEnabled("seating"), validate(paramsTableSchema), tableController.softDelete) // soft delete
+    checkModuleEnabled("seating"), validate(paramsTableSchema, "params"), tableController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
     authorize("Tables", "update"),
-    checkModuleEnabled("seating"), validate(paramsTableSchema), tableController.restore)
+    checkModuleEnabled("seating"), validate(paramsTableSchema, "params"), tableController.restore)
 ;
 
  // --- BULK HARD DELETE ---

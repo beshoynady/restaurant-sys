@@ -31,20 +31,20 @@ router.route("/")
 // GetOne, Update, hardDelete
 router.route("/:id")
   .get(authenticateToken,
-    authorize("AuditLogs", "read"), validate(paramsAuditLogSchema), auditLogController.getOne)
+    authorize("AuditLogs", "read"), validate(paramsAuditLogSchema, "params"), auditLogController.getOne)
   .put(authenticateToken,
     authorize("AuditLogs", "update"), validate(updateAuditLogSchema), auditLogController.update)
   .delete(authenticateToken,
-    authorize("AuditLogs", "delete"), validate(paramsAuditLogSchema), auditLogController.hardDelete);
+    authorize("AuditLogs", "delete"), validate(paramsAuditLogSchema, "params"), auditLogController.hardDelete);
 
 // Soft delete/restore
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
-    authorize("AuditLogs", "delete"), validate(paramsAuditLogSchema), auditLogController.softDelete);
+    authorize("AuditLogs", "delete"), validate(paramsAuditLogSchema, "params"), auditLogController.softDelete);
 
 router.route("/restore/:id")
   .patch(authenticateToken,
-    authorize("AuditLogs", "update"), validate(paramsAuditLogSchema), auditLogController.restore);
+    authorize("AuditLogs", "update"), validate(paramsAuditLogSchema, "params"), auditLogController.restore);
 
 // Bulk hard delete
 router.route("/bulk-delete")

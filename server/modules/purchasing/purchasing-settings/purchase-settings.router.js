@@ -28,26 +28,26 @@ router.route("/")
 router.route("/:id")
   .get(authenticateToken,
     authorize("PurchaseSettings", "read"),
-    checkModuleEnabled("purchasing"), validate(paramsPurchaseSettingsSchema), purchaseSettingsController.getOne)
+    checkModuleEnabled("purchasing"), validate(paramsPurchaseSettingsSchema, "params"), purchaseSettingsController.getOne)
   .put(authenticateToken,
     authorize("PurchaseSettings", "update"),
     checkModuleEnabled("purchasing"), validate(updatePurchaseSettingsSchema), purchaseSettingsController.update)
   .delete(authenticateToken,
     authorize("PurchaseSettings", "delete"),
-    checkModuleEnabled("purchasing"), validate(paramsPurchaseSettingsSchema), purchaseSettingsController.hardDelete) // soft delete
+    checkModuleEnabled("purchasing"), validate(paramsPurchaseSettingsSchema, "params"), purchaseSettingsController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
     authorize("PurchaseSettings", "delete"),
-    checkModuleEnabled("purchasing"), validate(paramsPurchaseSettingsSchema), purchaseSettingsController.softDelete) // soft delete
+    checkModuleEnabled("purchasing"), validate(paramsPurchaseSettingsSchema, "params"), purchaseSettingsController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
     authorize("PurchaseSettings", "update"),
-    checkModuleEnabled("purchasing"), validate(paramsPurchaseSettingsSchema), purchaseSettingsController.restore)
+    checkModuleEnabled("purchasing"), validate(paramsPurchaseSettingsSchema, "params"), purchaseSettingsController.restore)
 ;
 
  // --- BULK HARD DELETE ---

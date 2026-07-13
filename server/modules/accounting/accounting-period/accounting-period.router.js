@@ -28,26 +28,26 @@ router.route("/")
 router.route("/:id")
   .get(authenticateToken,
     authorize("AccountingPeriods", "read"),
-    checkModuleEnabled("accounting"), validate(paramsAccountingPeriodSchema), accountingPeriodController.getOne)
+    checkModuleEnabled("accounting"), validate(paramsAccountingPeriodSchema, "params"), accountingPeriodController.getOne)
   .put(authenticateToken,
     authorize("AccountingPeriods", "update"),
     checkModuleEnabled("accounting"), validate(updateAccountingPeriodSchema), accountingPeriodController.update)
   .delete(authenticateToken,
     authorize("AccountingPeriods", "delete"),
-    checkModuleEnabled("accounting"), validate(paramsAccountingPeriodSchema), accountingPeriodController.hardDelete) // soft delete
+    checkModuleEnabled("accounting"), validate(paramsAccountingPeriodSchema, "params"), accountingPeriodController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
     authorize("AccountingPeriods", "delete"),
-    checkModuleEnabled("accounting"), validate(paramsAccountingPeriodSchema), accountingPeriodController.softDelete) // soft delete
+    checkModuleEnabled("accounting"), validate(paramsAccountingPeriodSchema, "params"), accountingPeriodController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
     authorize("AccountingPeriods", "update"),
-    checkModuleEnabled("accounting"), validate(paramsAccountingPeriodSchema), accountingPeriodController.restore)
+    checkModuleEnabled("accounting"), validate(paramsAccountingPeriodSchema, "params"), accountingPeriodController.restore)
 ;
 
  // --- BULK HARD DELETE ---

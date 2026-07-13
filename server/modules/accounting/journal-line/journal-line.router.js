@@ -28,26 +28,26 @@ router.route("/")
 router.route("/:id")
   .get(authenticateToken,
     authorize("JournalLines", "read"),
-    checkModuleEnabled("accounting"), validate(paramsJournalLineSchema), journalLineController.getOne)
+    checkModuleEnabled("accounting"), validate(paramsJournalLineSchema, "params"), journalLineController.getOne)
   .put(authenticateToken,
     authorize("JournalLines", "update"),
     checkModuleEnabled("accounting"), validate(updateJournalLineSchema), journalLineController.update)
   .delete(authenticateToken,
     authorize("JournalLines", "delete"),
-    checkModuleEnabled("accounting"), validate(paramsJournalLineSchema), journalLineController.hardDelete) // soft delete
+    checkModuleEnabled("accounting"), validate(paramsJournalLineSchema, "params"), journalLineController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
     authorize("JournalLines", "delete"),
-    checkModuleEnabled("accounting"), validate(paramsJournalLineSchema), journalLineController.softDelete) // soft delete
+    checkModuleEnabled("accounting"), validate(paramsJournalLineSchema, "params"), journalLineController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
     authorize("JournalLines", "update"),
-    checkModuleEnabled("accounting"), validate(paramsJournalLineSchema), journalLineController.restore)
+    checkModuleEnabled("accounting"), validate(paramsJournalLineSchema, "params"), journalLineController.restore)
 ;
 
  // --- BULK HARD DELETE ---

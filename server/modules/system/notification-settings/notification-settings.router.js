@@ -24,22 +24,22 @@ router.route("/")
 // GetOne, Update, hardDelete
 router.route("/:id")
   .get(authenticateToken,
-    authorize("NotificationSettings", "read"), validate(paramsNotificationSettingsSchema), notificationSettingsController.getOne)
+    authorize("NotificationSettings", "read"), validate(paramsNotificationSettingsSchema, "params"), notificationSettingsController.getOne)
   .put(authenticateToken,
     authorize("NotificationSettings", "update"), validate(updateNotificationSettingsSchema), notificationSettingsController.update)
   .delete(authenticateToken,
-    authorize("NotificationSettings", "delete"), validate(paramsNotificationSettingsSchema), notificationSettingsController.hardDelete) // soft delete
+    authorize("NotificationSettings", "delete"), validate(paramsNotificationSettingsSchema, "params"), notificationSettingsController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
-    authorize("NotificationSettings", "delete"), validate(paramsNotificationSettingsSchema), notificationSettingsController.softDelete) // soft delete
+    authorize("NotificationSettings", "delete"), validate(paramsNotificationSettingsSchema, "params"), notificationSettingsController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
-    authorize("NotificationSettings", "update"), validate(paramsNotificationSettingsSchema), notificationSettingsController.restore)
+    authorize("NotificationSettings", "update"), validate(paramsNotificationSettingsSchema, "params"), notificationSettingsController.restore)
 ;
 
  // --- BULK HARD DELETE ---

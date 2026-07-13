@@ -24,22 +24,22 @@ router.route("/")
 // GetOne, Update, hardDelete
 router.route("/:id")
   .get(authenticateToken,
-    authorize("TaxConfigs", "read"), validate(paramsTaxConfigSchema), taxConfigController.getOne)
+    authorize("TaxConfigs", "read"), validate(paramsTaxConfigSchema, "params"), taxConfigController.getOne)
   .put(authenticateToken,
     authorize("TaxConfigs", "update"), validate(updateTaxConfigSchema), taxConfigController.update)
   .delete(authenticateToken,
-    authorize("TaxConfigs", "delete"), validate(paramsTaxConfigSchema), taxConfigController.hardDelete) // soft delete
+    authorize("TaxConfigs", "delete"), validate(paramsTaxConfigSchema, "params"), taxConfigController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
-    authorize("TaxConfigs", "delete"), validate(paramsTaxConfigSchema), taxConfigController.softDelete) // soft delete
+    authorize("TaxConfigs", "delete"), validate(paramsTaxConfigSchema, "params"), taxConfigController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
-    authorize("TaxConfigs", "update"), validate(paramsTaxConfigSchema), taxConfigController.restore)
+    authorize("TaxConfigs", "update"), validate(paramsTaxConfigSchema, "params"), taxConfigController.restore)
 ;
 
  // --- BULK HARD DELETE ---

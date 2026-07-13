@@ -1,47 +1,121 @@
 import express from "express";
-import employeeFinancialController from "./employee-financial.controller.js";
+import employeeFinancialProfileController from "./employee-financial-profile.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
+import authorize from "../../../middlewares/authorize.js";
+import checkModuleEnabled from "../../../middlewares/checkModuleEnabled.js";
 import validate from "../../../middlewares/validate.js";
-import { 
-  createEmployeeFinancialSchema, 
-  updateEmployeeFinancialSchema, 
-  paramsEmployeeFinancialSchema, 
-  paramsEmployeeFinancialIdsSchema,
-  queryEmployeeFinancialSchema 
-} from "./employee-financial.validation.js";
+import {
+  createEmployeeFinancialProfileSchema,
+  updateEmployeeFinancialProfileSchema,
+  paramsEmployeeFinancialProfileSchema,
+  paramsEmployeeFinancialProfileIdsSchema,
+  queryEmployeeFinancialProfileSchema,
+} from "./employee-financial-profile.validation.js";
 
 const router = express.Router();
 
-// Create & GetAll
+// Previously this router had NO authorize()/checkModuleEnabled() at all —
+// worse than HD-001 (JobTitle had the same gap, fixed at that module's own
+// turn) — any authenticated user, regardless of role, could read/write
+// every employee's salary and bank details. Every route below now follows
+// the standard chain every other HR router uses.
+
 router.route("/")
-  .post(authenticateToken, validate(createEmployeeFinancialSchema), employeeFinancialController.create)
-  .get(authenticateToken, validate(queryEmployeeFinancialSchema), employeeFinancialController.getAll)
-;
+  .post(
+    authenticateToken,
+    authorize("EmployeeFinancial", "create"),
+    checkModuleEnabled("hr"),
+    validate(createEmployeeFinancialProfileSchema),
+    employeeFinancialProfileController.create,
+  )
+  .get(
+    authenticateToken,
+    authorize("EmployeeFinancial", "read"),
+    checkModuleEnabled("hr"),
+    validate(queryEmployeeFinancialProfileSchema),
+    employeeFinancialProfileController.getAll,
+  );
 
-// GetOne, Update, hardDelete
+// Employee-keyed lookups — the profile is 1:1 with Employee, and the
+// frontend virtually always has an employee id in context, not the
+// profile's own id.
+router.route("/employee/:employeeId").get(
+  authenticateToken,
+  authorize("EmployeeFinancial", "read"),
+  checkModuleEnabled("hr"),
+  employeeFinancialProfileController.getByEmployee,
+);
+
+router.route("/employee/:employeeId/eligibility").get(
+  authenticateToken,
+  authorize("EmployeeFinancial", "read"),
+  checkModuleEnabled("hr"),
+  employeeFinancialProfileController.eligibility,
+);
+
+router.route("/employee/:employeeId/summary").get(
+  authenticateToken,
+  authorize("EmployeeFinancial", "read"),
+  checkModuleEnabled("hr"),
+  employeeFinancialProfileController.summary,
+);
+
 router.route("/:id")
-  .get(authenticateToken, validate(paramsEmployeeFinancialSchema), employeeFinancialController.getOne)
-  .put(authenticateToken, validate(updateEmployeeFinancialSchema), employeeFinancialController.update)
-  .delete(authenticateToken, validate(paramsEmployeeFinancialSchema), employeeFinancialController.hardDelete) // soft delete
-;
+  .get(
+    authenticateToken,
+    authorize("EmployeeFinancial", "read"),
+    checkModuleEnabled("hr"),
+    validate(paramsEmployeeFinancialProfileSchema, "params"),
+    employeeFinancialProfileController.getOne,
+  )
+  .put(
+    authenticateToken,
+    authorize("EmployeeFinancial", "update"),
+    checkModuleEnabled("hr"),
+    validate(updateEmployeeFinancialProfileSchema),
+    employeeFinancialProfileController.update,
+  )
+  .delete(
+    authenticateToken,
+    authorize("EmployeeFinancial", "delete"),
+    checkModuleEnabled("hr"),
+    validate(paramsEmployeeFinancialProfileSchema, "params"),
+    employeeFinancialProfileController.hardDelete,
+  );
 
-router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsEmployeeFinancialSchema), employeeFinancialController.softDelete) // soft delete
-;
+router.route("/soft-delete/:id").patch(
+  authenticateToken,
+  authorize("EmployeeFinancial", "delete"),
+  checkModuleEnabled("hr"),
+  validate(paramsEmployeeFinancialProfileSchema, "params"),
+  employeeFinancialProfileController.softDelete,
+);
 
-// Restore soft-deleted item
-router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsEmployeeFinancialSchema), employeeFinancialController.restore)
-;
+router.route("/restore/:id").patch(
+  authenticateToken,
+  authorize("EmployeeFinancial", "update"),
+  checkModuleEnabled("hr"),
+  validate(paramsEmployeeFinancialProfileSchema, "params"),
+  employeeFinancialProfileController.restore,
+);
 
- // --- BULK HARD DELETE ---
-  router.route("/bulk-delete")
-    .delete(authenticateToken, validate(paramsEmployeeFinancialIdsSchema), employeeFinancialController.bulkHardDelete);
+// NOTE (BACKEND_FOUNDATION_TECH_DEBT.md FT-001): shadowed by "/:id" DELETE
+// above — left broken for consistency with every other HR router pending
+// the dedicated Foundation pass, not fixed here.
+router.route("/bulk-delete").delete(
+  authenticateToken,
+  authorize("EmployeeFinancial", "delete"),
+  checkModuleEnabled("hr"),
+  validate(paramsEmployeeFinancialProfileIdsSchema),
+  employeeFinancialProfileController.bulkHardDelete,
+);
 
-
-  // --- BULK SOFT DELETE ---
-  router.route("/bulk-soft-delete")
-    .patch(authenticateToken,validate(paramsEmployeeFinancialIdsSchema), employeeFinancialController.bulkSoftDelete);
-
+router.route("/bulk-soft-delete").patch(
+  authenticateToken,
+  authorize("EmployeeFinancial", "delete"),
+  checkModuleEnabled("hr"),
+  validate(paramsEmployeeFinancialProfileIdsSchema),
+  employeeFinancialProfileController.bulkSoftDelete,
+);
 
 export default router;

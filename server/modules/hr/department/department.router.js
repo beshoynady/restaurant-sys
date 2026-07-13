@@ -28,26 +28,26 @@ router.route("/")
 router.route("/:id")
   .get(authenticateToken,
     authorize("Departments", "read"),
-    checkModuleEnabled("hr"), validate(paramsDepartmentSchema), departmentController.getOne)
+    checkModuleEnabled("hr"), validate(paramsDepartmentSchema, "params"), departmentController.getOne)
   .put(authenticateToken,
     authorize("Departments", "update"),
     checkModuleEnabled("hr"), validate(updateDepartmentSchema), departmentController.update)
   .delete(authenticateToken,
     authorize("Departments", "delete"),
-    checkModuleEnabled("hr"), validate(paramsDepartmentSchema), departmentController.hardDelete) // soft delete
+    checkModuleEnabled("hr"), validate(paramsDepartmentSchema, "params"), departmentController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
     authorize("Departments", "delete"),
-    checkModuleEnabled("hr"), validate(paramsDepartmentSchema), departmentController.softDelete) // soft delete
+    checkModuleEnabled("hr"), validate(paramsDepartmentSchema, "params"), departmentController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
     authorize("Departments", "update"),
-    checkModuleEnabled("hr"), validate(paramsDepartmentSchema), departmentController.restore)
+    checkModuleEnabled("hr"), validate(paramsDepartmentSchema, "params"), departmentController.restore)
 ;
 
  // --- BULK HARD DELETE ---

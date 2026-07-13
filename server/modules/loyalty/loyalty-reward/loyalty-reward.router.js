@@ -37,7 +37,7 @@ router.route("/admin")
 router.route("/admin/:id")
   .get(
     authorize("loyalty_reward_view"),
-    validate(paramsLoyaltyRewardSchema),
+    validate(paramsLoyaltyRewardSchema, "params"),
     LoyaltyRewardController.getOne
   )
   .put(
@@ -47,7 +47,7 @@ router.route("/admin/:id")
   )
   .delete(
     authorize("loyalty_reward_delete"),
-    validate(paramsLoyaltyRewardSchema),
+    validate(paramsLoyaltyRewardSchema, "params"),
     LoyaltyRewardController.hardDelete
   );
 

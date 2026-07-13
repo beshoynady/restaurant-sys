@@ -57,7 +57,7 @@ router.get(
 router.get(
   "/admin/:id",
   authorize("loyalty_transaction_view"),
-  validate(paramsLoyaltyTransactionSchema),
+  validate(paramsLoyaltyTransactionSchema, "params"),
   LoyaltyTransactionController.getOne
 );
 

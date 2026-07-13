@@ -28,26 +28,26 @@ router.route("/")
 router.route("/:id")
   .get(authenticateToken,
     authorize("StockItems", "read"),
-    checkModuleEnabled("inventory"), validate(paramsStockItemSchema), stockItemController.getOne)
+    checkModuleEnabled("inventory"), validate(paramsStockItemSchema, "params"), stockItemController.getOne)
   .put(authenticateToken,
     authorize("StockItems", "update"),
     checkModuleEnabled("inventory"), validate(updateStockItemSchema), stockItemController.update)
   .delete(authenticateToken,
     authorize("StockItems", "delete"),
-    checkModuleEnabled("inventory"), validate(paramsStockItemSchema), stockItemController.hardDelete) // soft delete
+    checkModuleEnabled("inventory"), validate(paramsStockItemSchema, "params"), stockItemController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
     authorize("StockItems", "delete"),
-    checkModuleEnabled("inventory"), validate(paramsStockItemSchema), stockItemController.softDelete) // soft delete
+    checkModuleEnabled("inventory"), validate(paramsStockItemSchema, "params"), stockItemController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
     authorize("StockItems", "update"),
-    checkModuleEnabled("inventory"), validate(paramsStockItemSchema), stockItemController.restore)
+    checkModuleEnabled("inventory"), validate(paramsStockItemSchema, "params"), stockItemController.restore)
 ;
 
  // --- BULK HARD DELETE ---

@@ -28,26 +28,26 @@ router.route("/")
 router.route("/:id")
   .get(authenticateToken,
     authorize("AssetDepreciations", "read"),
-    checkModuleEnabled("assets"), validate(paramsAssetDepreciationSchema), assetDepreciationController.getOne)
+    checkModuleEnabled("assets"), validate(paramsAssetDepreciationSchema, "params"), assetDepreciationController.getOne)
   .put(authenticateToken,
     authorize("AssetDepreciations", "update"),
     checkModuleEnabled("assets"), validate(updateAssetDepreciationSchema), assetDepreciationController.update)
   .delete(authenticateToken,
     authorize("AssetDepreciations", "delete"),
-    checkModuleEnabled("assets"), validate(paramsAssetDepreciationSchema), assetDepreciationController.hardDelete) // soft delete
+    checkModuleEnabled("assets"), validate(paramsAssetDepreciationSchema, "params"), assetDepreciationController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
     authorize("AssetDepreciations", "delete"),
-    checkModuleEnabled("assets"), validate(paramsAssetDepreciationSchema), assetDepreciationController.softDelete) // soft delete
+    checkModuleEnabled("assets"), validate(paramsAssetDepreciationSchema, "params"), assetDepreciationController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
     authorize("AssetDepreciations", "update"),
-    checkModuleEnabled("assets"), validate(paramsAssetDepreciationSchema), assetDepreciationController.restore)
+    checkModuleEnabled("assets"), validate(paramsAssetDepreciationSchema, "params"), assetDepreciationController.restore)
 ;
 
  // --- BULK HARD DELETE ---

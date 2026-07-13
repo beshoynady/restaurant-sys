@@ -22,18 +22,18 @@ router.route("/")
 
 // GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, authorize("PreparationTicketSettings", "read"), checkModuleEnabled("preparation"), validate(paramsPreparationTicketSettingsSchema), preparationTicketSettingsController.getOne)
+  .get(authenticateToken, authorize("PreparationTicketSettings", "read"), checkModuleEnabled("preparation"), validate(paramsPreparationTicketSettingsSchema, "params"), preparationTicketSettingsController.getOne)
   .put(authenticateToken, authorize("PreparationTicketSettings", "update"), checkModuleEnabled("preparation"), validate(updatePreparationTicketSettingsSchema), preparationTicketSettingsController.update)
-  .delete(authenticateToken, authorize("PreparationTicketSettings", "delete"), checkModuleEnabled("preparation"), validate(paramsPreparationTicketSettingsSchema), preparationTicketSettingsController.hardDelete)
+  .delete(authenticateToken, authorize("PreparationTicketSettings", "delete"), checkModuleEnabled("preparation"), validate(paramsPreparationTicketSettingsSchema, "params"), preparationTicketSettingsController.hardDelete)
 ;
 
 router.route("/soft-delete/:id")
-  .patch(authenticateToken, authorize("PreparationTicketSettings", "delete"), checkModuleEnabled("preparation"), validate(paramsPreparationTicketSettingsSchema), preparationTicketSettingsController.softDelete)
+  .patch(authenticateToken, authorize("PreparationTicketSettings", "delete"), checkModuleEnabled("preparation"), validate(paramsPreparationTicketSettingsSchema, "params"), preparationTicketSettingsController.softDelete)
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
-  .patch(authenticateToken, authorize("PreparationTicketSettings", "update"), checkModuleEnabled("preparation"), validate(paramsPreparationTicketSettingsSchema), preparationTicketSettingsController.restore)
+  .patch(authenticateToken, authorize("PreparationTicketSettings", "update"), checkModuleEnabled("preparation"), validate(paramsPreparationTicketSettingsSchema, "params"), preparationTicketSettingsController.restore)
 ;
 
  // --- BULK HARD DELETE ---

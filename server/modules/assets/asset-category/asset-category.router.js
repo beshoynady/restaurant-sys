@@ -28,26 +28,26 @@ router.route("/")
 router.route("/:id")
   .get(authenticateToken,
     authorize("AssetCategories", "read"),
-    checkModuleEnabled("assets"), validate(paramsAssetCategorySchema), assetCategoryController.getOne)
+    checkModuleEnabled("assets"), validate(paramsAssetCategorySchema, "params"), assetCategoryController.getOne)
   .put(authenticateToken,
     authorize("AssetCategories", "update"),
     checkModuleEnabled("assets"), validate(updateAssetCategorySchema), assetCategoryController.update)
   .delete(authenticateToken,
     authorize("AssetCategories", "delete"),
-    checkModuleEnabled("assets"), validate(paramsAssetCategorySchema), assetCategoryController.hardDelete) // soft delete
+    checkModuleEnabled("assets"), validate(paramsAssetCategorySchema, "params"), assetCategoryController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
     authorize("AssetCategories", "delete"),
-    checkModuleEnabled("assets"), validate(paramsAssetCategorySchema), assetCategoryController.softDelete) // soft delete
+    checkModuleEnabled("assets"), validate(paramsAssetCategorySchema, "params"), assetCategoryController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
     authorize("AssetCategories", "update"),
-    checkModuleEnabled("assets"), validate(paramsAssetCategorySchema), assetCategoryController.restore)
+    checkModuleEnabled("assets"), validate(paramsAssetCategorySchema, "params"), assetCategoryController.restore)
 ;
 
  // --- BULK HARD DELETE ---

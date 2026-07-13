@@ -20,18 +20,18 @@ router.route("/")
 
 // GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, validate(paramsPaymentChannelSchema), paymentChannelController.getOne)
+  .get(authenticateToken, validate(paramsPaymentChannelSchema, "params"), paymentChannelController.getOne)
   .put(authenticateToken, validate(updatePaymentChannelSchema), paymentChannelController.update)
-  .delete(authenticateToken, validate(paramsPaymentChannelSchema), paymentChannelController.hardDelete) // soft delete
+  .delete(authenticateToken, validate(paramsPaymentChannelSchema, "params"), paymentChannelController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsPaymentChannelSchema), paymentChannelController.softDelete) // soft delete
+  .patch(authenticateToken, validate(paramsPaymentChannelSchema, "params"), paymentChannelController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsPaymentChannelSchema), paymentChannelController.restore)
+  .patch(authenticateToken, validate(paramsPaymentChannelSchema, "params"), paymentChannelController.restore)
 ;
 
  // --- BULK HARD DELETE ---

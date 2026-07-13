@@ -28,26 +28,26 @@ router.route("/")
 router.route("/:id")
   .get(authenticateToken,
     authorize("CashierShifts", "read"),
-    checkModuleEnabled("financial"), validate(paramsCashierShiftSchema), cashierShiftController.getOne)
+    checkModuleEnabled("financial"), validate(paramsCashierShiftSchema, "params"), cashierShiftController.getOne)
   .put(authenticateToken,
     authorize("CashierShifts", "update"),
     checkModuleEnabled("financial"), validate(updateCashierShiftSchema), cashierShiftController.update)
   .delete(authenticateToken,
     authorize("CashierShifts", "delete"),
-    checkModuleEnabled("financial"), validate(paramsCashierShiftSchema), cashierShiftController.hardDelete) // soft delete
+    checkModuleEnabled("financial"), validate(paramsCashierShiftSchema, "params"), cashierShiftController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
     authorize("CashierShifts", "delete"),
-    checkModuleEnabled("financial"), validate(paramsCashierShiftSchema), cashierShiftController.softDelete) // soft delete
+    checkModuleEnabled("financial"), validate(paramsCashierShiftSchema, "params"), cashierShiftController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
     authorize("CashierShifts", "update"),
-    checkModuleEnabled("financial"), validate(paramsCashierShiftSchema), cashierShiftController.restore)
+    checkModuleEnabled("financial"), validate(paramsCashierShiftSchema, "params"), cashierShiftController.restore)
 ;
 
  // --- BULK HARD DELETE ---

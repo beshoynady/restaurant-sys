@@ -78,7 +78,7 @@ router
     authenticateToken,
     authorize("BranchSettings", "read"),
     branchSettingsConfig,
-    validate(paramsBranchSettingsSchema),
+    validate(paramsBranchSettingsSchema, "params"),
     branchSettingsController.getOne,
   )
   .put(
@@ -91,7 +91,7 @@ router
   .delete(
     authenticateToken,
     authorize("BranchSettings", "delete"),
-    validate(paramsBranchSettingsSchema),
+    validate(paramsBranchSettingsSchema, "params"),
     branchSettingsController.hardDelete,
   );
 
@@ -103,7 +103,7 @@ router.patch(
   "/soft-delete/:id",
   authenticateToken,
   authorize("BranchSettings", "delete"),
-  validate(paramsBranchSettingsSchema),
+  validate(paramsBranchSettingsSchema, "params"),
   branchSettingsController.softDelete,
 );
 
@@ -111,7 +111,7 @@ router.patch(
   "/restore/:id",
   authenticateToken,
   authorize("BranchSettings", "update"),
-  validate(paramsBranchSettingsSchema),
+  validate(paramsBranchSettingsSchema, "params"),
   branchSettingsController.restore,
 );
 

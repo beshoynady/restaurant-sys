@@ -12,6 +12,80 @@ the module that found it.
 
 ---
 
+## FT-004 — `validate(paramsSchema())` validated `req.body`, not `req.params` — every `GET /:id`, `DELETE /:id`, soft-delete, and restore route in the entire backend rejected every request — ✅ FIXED (project-wide, emergency out-of-rollout-order pass)
+
+**Severity: CRITICAL.** Unlike every other entry in this file, this was fixed immediately rather than
+queued — the project owner made an explicit call given the blast radius (see below) rather than
+waiting for a dedicated Foundation pass.
+
+**Found while reviewing:** `hr/employee-financial-transaction` (module 10), while adding
+`authorize()`/`checkModuleEnabled()` to its router and double-checking every `validate(...)` call
+against the middleware it invokes.
+
+**The bug:** `middlewares/validate.js` is `export default (schema, property = "body") => ...` —
+without an explicit second argument, it always validates `req.body`. Every router in this codebase
+(confirmed: Employee, Department, JobTitle, Shift, AttendanceRecord, AttendanceSettings,
+EmployeeSettings, EmployeeFinancialProfile, EmployeeFinancialTransaction, CashierShiftSettings — i.e.
+every module built or touched in this HR rollout, and by inspection every other module following the
+same router template project-wide) calls `validate(paramsXSchema)` on `GET /:id`, `DELETE /:id`,
+`PATCH /soft-delete/:id`, and `PATCH /restore/:id` with **no second argument** — so `paramsXSchema`
+(`Joi.object({id: objectId().required()})`) validates `req.body`, not `req.params`, on every one of
+those routes.
+
+**Confirmed empirically** (not inferred): a plain Node script running
+`paramsSchema().validate({})` — the shape `req.body` takes on a typical bodyless GET/DELETE
+request — returns `error: '"id" is required'`; the same schema validated against
+`{id: "<a real ObjectId>"}` (the actual shape of `req.params`) passes cleanly. `express.json()`
+sets `req.body = {}` for a request with no body, so **every** `GET /:id` / `DELETE /:id` /
+`PATCH /soft-delete/:id` / `PATCH /restore/:id` request from a normal REST client (fetch/axios with
+no body on these verbs) hits this `validate()` call, fails with `400 "id" is required`, and never
+reaches the controller — regardless of whether the URL's `:id` segment is itself valid.
+
+**Not affected:** `PUT /:id` (validates the update-body schema, not `paramsSchema`, so unaffected)
+and any route validating a real request body. `BaseRepository.validateObjectId()` (called inside
+`findById`/`update`/etc.) already independently guards against a malformed id reaching Mongoose —
+that part of the safety net is fine; the Joi `params` layer in front of it is the broken one.
+
+**Impact:** if this is live in production as deployed, retrieving a single resource by id, hard-
+deleting, soft-deleting, and restoring a single resource are broken across the **entire** platform,
+not just HR — every module built on this router template. This needs empirical confirmation against
+a real running server with a valid auth token before treating it as certainly broken in production
+(this session confirmed the Joi-schema-level bug in isolation, not a full HTTP round-trip against a
+live server, since every HTTP smoke-test performed during this rollout stopped at `authenticateToken`
+returning `401` before `validate()` ever ran) — but the schema-level behavior leaves no reasonable
+doubt about what happens once a valid token is presented.
+
+**Fix applied:** option (a) — `validate(paramsXSchema, "params")` at every call site. Applied via a
+verified mechanical script (not hand-edited): scanned every `.js`/`.ts` file under `modules/` for
+`validate(params<Name>Schema)`, and for every match whose schema name does **not** end in
+`IdsSchema` (those correctly validate a `{ids:[...]}` body for bulk routes and must stay untouched),
+appended `, "params"`. **349 call sites across 89 router files** fixed in one pass — every module in
+the codebase, not just HR. Re-grepped afterward for any remaining unfixed `validate(params...Schema)`
+without a second argument: zero remaining.
+
+Option (b) (removing the redundant Joi layer entirely in favor of
+`BaseRepository.validateObjectId()`) was considered but not chosen — (a) is more conservative
+(preserves the existing intended validation layering exactly as originally designed, just makes it
+actually run against the right request property) and has a mechanically-verifiable diff.
+
+**Verification performed:**
+1. Full Jest integration suite (15 suites / 60 tests) — all passing, no regressions.
+2. `npm run typecheck` — same 52-error baseline as before this fix (unrelated pre-existing errors).
+3. `eslint` on all 89 changed router files — zero new errors (two pre-existing unused-import warnings
+   in unrelated files, confirmed not caused by this change).
+4. Full server boot — zero syntax/import errors across all ~90 modules.
+5. **Real end-to-end HTTP verification** (not just schema-level): created a live Brand/Branch/Role/
+   UserAccount fixture, signed a real JWT via `utils/jwt.utils.js#signAccessToken`, and called the
+   running server directly. Before this fix, `GET /hr/departments/:id` returned `400 "id" is
+   required"`; after the fix, the identical request sequence returns `200` for `GET /:id`,
+   `PATCH /restore/:id`, `PATCH /soft-delete/:id`, and `DELETE /:id` in order, each producing the
+   correct business response. This closes the "not empirically confirmed against a live server"
+   caveat from this entry's original discovery.
+
+**Status:** Fixed and verified end-to-end. No known remaining instances.
+
+---
+
 ## FT-001 — Router convention: a literal-path bulk route placed after `/:id` is unreachable
 
 **Found while reviewing:** `hr/employee` (Employee module, post-implementation review).

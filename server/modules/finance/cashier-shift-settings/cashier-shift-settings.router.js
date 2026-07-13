@@ -27,15 +27,15 @@ router.route("/")
   .get(authenticateToken, authorize("ShiftSettings", "read"), checkModuleEnabled("financial"), validate(queryShiftSettingsSchema), shiftSettingsController.getAll);
 
 router.route("/:id")
-  .get(authenticateToken, authorize("ShiftSettings", "read"), checkModuleEnabled("financial"), validate(paramsShiftSettingsSchema), shiftSettingsController.getOne)
+  .get(authenticateToken, authorize("ShiftSettings", "read"), checkModuleEnabled("financial"), validate(paramsShiftSettingsSchema, "params"), shiftSettingsController.getOne)
   .put(authenticateToken, authorize("ShiftSettings", "update"), checkModuleEnabled("financial"), validate(updateShiftSettingsSchema), shiftSettingsController.update)
-  .delete(authenticateToken, authorize("ShiftSettings", "delete"), checkModuleEnabled("financial"), validate(paramsShiftSettingsSchema), shiftSettingsController.hardDelete);
+  .delete(authenticateToken, authorize("ShiftSettings", "delete"), checkModuleEnabled("financial"), validate(paramsShiftSettingsSchema, "params"), shiftSettingsController.hardDelete);
 
 router.route("/soft-delete/:id")
-  .patch(authenticateToken, authorize("ShiftSettings", "delete"), checkModuleEnabled("financial"), validate(paramsShiftSettingsSchema), shiftSettingsController.softDelete);
+  .patch(authenticateToken, authorize("ShiftSettings", "delete"), checkModuleEnabled("financial"), validate(paramsShiftSettingsSchema, "params"), shiftSettingsController.softDelete);
 
 router.route("/restore/:id")
-  .patch(authenticateToken, authorize("ShiftSettings", "update"), checkModuleEnabled("financial"), validate(paramsShiftSettingsSchema), shiftSettingsController.restore);
+  .patch(authenticateToken, authorize("ShiftSettings", "update"), checkModuleEnabled("financial"), validate(paramsShiftSettingsSchema, "params"), shiftSettingsController.restore);
 
 router.route("/bulk-delete")
   .delete(authenticateToken, authorize("ShiftSettings", "delete"), checkModuleEnabled("financial"), validate(paramsShiftSettingsIdsSchema), shiftSettingsController.bulkHardDelete);

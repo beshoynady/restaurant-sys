@@ -28,26 +28,26 @@ router.route("/")
 router.route("/:id")
   .get(authenticateToken,
     authorize("Messages", "read"),
-    checkModuleEnabled("crm"), validate(paramsMessageSchema), messageController.getOne)
+    checkModuleEnabled("crm"), validate(paramsMessageSchema, "params"), messageController.getOne)
   .put(authenticateToken,
     authorize("Messages", "update"),
     checkModuleEnabled("crm"), validate(updateMessageSchema), messageController.update)
   .delete(authenticateToken,
     authorize("Messages", "delete"),
-    checkModuleEnabled("crm"), validate(paramsMessageSchema), messageController.hardDelete) // soft delete
+    checkModuleEnabled("crm"), validate(paramsMessageSchema, "params"), messageController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
   .patch(authenticateToken,
     authorize("Messages", "delete"),
-    checkModuleEnabled("crm"), validate(paramsMessageSchema), messageController.softDelete) // soft delete
+    checkModuleEnabled("crm"), validate(paramsMessageSchema, "params"), messageController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
   .patch(authenticateToken,
     authorize("Messages", "update"),
-    checkModuleEnabled("crm"), validate(paramsMessageSchema), messageController.restore)
+    checkModuleEnabled("crm"), validate(paramsMessageSchema, "params"), messageController.restore)
 ;
 
  // --- BULK HARD DELETE ---

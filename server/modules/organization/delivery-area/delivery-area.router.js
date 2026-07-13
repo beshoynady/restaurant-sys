@@ -106,7 +106,7 @@ router
     authorize("DeliveryAreas", "read"),
     checkModuleEnabled("delivery"),
     deliveryAreaConfig,
-    validate(paramsDeliveryAreaSchema),
+    validate(paramsDeliveryAreaSchema, "params"),
     deliveryAreaController.getOne,
   )
   .put(
@@ -121,7 +121,7 @@ router
     authenticateToken,
     authorize("DeliveryAreas", "delete"),
     checkModuleEnabled("delivery"),
-    validate(paramsDeliveryAreaSchema),
+    validate(paramsDeliveryAreaSchema, "params"),
     deliveryAreaController.hardDelete,
   );
 
@@ -131,7 +131,7 @@ router.patch(
   authenticateToken,
   authorize("DeliveryAreas", "delete"),
   checkModuleEnabled("delivery"),
-  validate(paramsDeliveryAreaSchema),
+  validate(paramsDeliveryAreaSchema, "params"),
   deliveryAreaController.softDelete,
 );
 
@@ -141,7 +141,7 @@ router.patch(
   authenticateToken,
   authorize("DeliveryAreas", "update"),
   checkModuleEnabled("delivery"),
-  validate(paramsDeliveryAreaSchema),
+  validate(paramsDeliveryAreaSchema, "params"),
   deliveryAreaController.restore,
 );
 

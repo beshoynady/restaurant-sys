@@ -22,18 +22,18 @@ router.route("/")
 
 // GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, authorize("PreparationReturnSettings", "read"), checkModuleEnabled("preparation"), validate(paramsPreparationReturnSettingsSchema), preparationReturnSettingsController.getOne)
+  .get(authenticateToken, authorize("PreparationReturnSettings", "read"), checkModuleEnabled("preparation"), validate(paramsPreparationReturnSettingsSchema, "params"), preparationReturnSettingsController.getOne)
   .put(authenticateToken, authorize("PreparationReturnSettings", "update"), checkModuleEnabled("preparation"), validate(updatePreparationReturnSettingsSchema), preparationReturnSettingsController.update)
-  .delete(authenticateToken, authorize("PreparationReturnSettings", "delete"), checkModuleEnabled("preparation"), validate(paramsPreparationReturnSettingsSchema), preparationReturnSettingsController.hardDelete)
+  .delete(authenticateToken, authorize("PreparationReturnSettings", "delete"), checkModuleEnabled("preparation"), validate(paramsPreparationReturnSettingsSchema, "params"), preparationReturnSettingsController.hardDelete)
 ;
 
 router.route("/soft-delete/:id")
-  .patch(authenticateToken, authorize("PreparationReturnSettings", "delete"), checkModuleEnabled("preparation"), validate(paramsPreparationReturnSettingsSchema), preparationReturnSettingsController.softDelete)
+  .patch(authenticateToken, authorize("PreparationReturnSettings", "delete"), checkModuleEnabled("preparation"), validate(paramsPreparationReturnSettingsSchema, "params"), preparationReturnSettingsController.softDelete)
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
-  .patch(authenticateToken, authorize("PreparationReturnSettings", "update"), checkModuleEnabled("preparation"), validate(paramsPreparationReturnSettingsSchema), preparationReturnSettingsController.restore)
+  .patch(authenticateToken, authorize("PreparationReturnSettings", "update"), checkModuleEnabled("preparation"), validate(paramsPreparationReturnSettingsSchema, "params"), preparationReturnSettingsController.restore)
 ;
 
  // --- BULK HARD DELETE ---
