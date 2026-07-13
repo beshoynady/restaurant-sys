@@ -26,6 +26,7 @@ class LoyaltyTransactionController extends BaseController {
     try {
       const result = await service.earn({
         ...req.body,
+        brand: req.user.brandId,
         userId: req.user.id,
       });
 
@@ -39,6 +40,25 @@ class LoyaltyTransactionController extends BaseController {
     try {
       const result = await service.redeem({
         ...req.body,
+        brand: req.user.brandId,
+        userId: req.user.id,
+      });
+
+      res.json({ success: true, data: result });
+    } catch (e) {
+      res.status(400).json({ success: false, message: e.message });
+    }
+  };
+
+  // Cross-domain final audit finding: loyalty-transaction.router.js already
+  // wired a POST /admin/adjust route to this method, but it was never
+  // implemented — route registration with an undefined handler throws at
+  // import time, so this router could not even load.
+  adjust = async (req, res) => {
+    try {
+      const result = await service.adjust({
+        ...req.body,
+        brand: req.user.brandId,
         userId: req.user.id,
       });
 

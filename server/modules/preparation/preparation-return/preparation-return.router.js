@@ -1,5 +1,8 @@
 import express from "express";
-import preparationReturnController from "./kitchen/preparation-return.controller.js";
+// Cross-domain final audit finding — same broken-path defect as
+// preparation-ticket.router.js (see that file's comment); fixed for the
+// same reason, still unmounted.
+import preparationReturnController from "./preparation-return.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
 import validate from "../../../middlewares/validate.js";
 import { 

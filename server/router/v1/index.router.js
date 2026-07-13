@@ -71,6 +71,7 @@ import employeeFinancialTransactionRouter from "../../modules/hr/employee-financ
 import employeeAdvanceRouter from "../../modules/hr/employee-advance/employee-advance.router.js";
 import leaveRequestRouter from "../../modules/hr/leave-request/leave-request.router.js";
 import payrollSettingsRouter from "../../modules/hr/payroll-settings/payroll-settings.router.js";
+import payrollItemRouter from "../../modules/hr/payroll-item/payroll-item.router.js";
 // Relocated from hr/shift-settings (HR domain rollout, module 5) — every
 // field in this settings model describes POS/cashier-till behavior, not
 // staff work-shift scheduling; it now lives next to finance/cashier-shift,
@@ -217,6 +218,7 @@ router.use("/hr/employee-financial-transactions", employeeFinancialTransactionRo
 router.use("/hr/employee-advances", employeeAdvanceRouter);
 router.use("/hr/leave-requests", leaveRequestRouter);
 router.use("/hr/payroll-settings", payrollSettingsRouter);
+router.use("/hr/payroll-items", payrollItemRouter);
 router.use("/hr/shift-settings", shiftSettingsRouter);
 
 // IAM

@@ -48,16 +48,26 @@ router.route("/")
     onlineCustomerController.getAll
   );
 
-router.route("customer/:id")
-  .get(
-    authenticateCustomer,
-    customerConfig,
-    validate(paramsOnlineCustomerSchema, "params"),
-    onlineCustomerController.getOne
-  )
-  router.route("admin/:id")
+// Cross-domain final audit finding (HR_DOMAIN_FINAL_AUDIT.md): this was
+// previously a single malformed statement — `router.route("customer/:id")`
+// (missing leading "/") followed immediately by `router.route("admin/:id")`
+// with no operator between them, relying on JS's automatic-semicolon-
+// insertion to silently split it into two statements, the second of which
+// then absorbed the `.get(...)` chain meant for the first route. The
+// customer-facing route also reused `onlineCustomerController.getOne`,
+// which crashes on the customer-auth path (see that method's own removal
+// above) and let any authenticated customer fetch ANY OTHER customer's
+// profile via an attacker-supplied `:id` (IDOR) — fixed by never accepting
+// a client-supplied id on the customer-facing route at all.
+router.get(
+  "/customer/me",
+  authenticateCustomer,
+  customerConfig,
+  onlineCustomerController.getMyProfile,
+);
 
-.get(
+router.route("/admin/:id")
+  .get(
     authenticateToken,
     authorize("OnlineCustomers", "read"),
     checkModuleEnabled("crm"),

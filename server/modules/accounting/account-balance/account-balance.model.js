@@ -17,6 +17,11 @@ const accountBalanceSchema = new mongoose.Schema(
 
     closingDebit: { type: Number, default: 0 },
     closingCredit: { type: Number, default: 0 },
+
+    // PLATFORM_FINAL_AUDIT.md PA-01
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null },
+    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
   { timestamps: true },
 );

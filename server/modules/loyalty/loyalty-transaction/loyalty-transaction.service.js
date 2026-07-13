@@ -1,6 +1,9 @@
 import LoyaltyTransactionModel from "./loyalty-transaction.model.js";
 import AdvancedService from "../../../utils/BaseRepository.js";
-import customerLoyaltyService from "./customer-loyalty.service.js";
+// Cross-domain final audit finding: same broken-path defect as
+// loyalty-reward.service.js — the file lives in ../customer-loyalty/, not
+// in this folder.
+import customerLoyaltyService from "../customer-loyalty/customer-loyalty.service.js";
 
 class LoyaltyTransactionService extends AdvancedService {
   constructor() {

@@ -1,5 +1,13 @@
 import express from "express";
-import preparationTicketController from "./kitchen/preparation-ticket.controller.js";
+// Cross-domain final audit finding: this import previously pointed at
+// "./kitchen/preparation-ticket.controller.js", a subdirectory that does
+// not exist — the controller file has always lived directly in this
+// entity's own folder. This router would have thrown `Cannot find module`
+// at import time; masked only because it was never mounted in
+// router/v1/index.router.js (confirmed by a fresh audit — see
+// HR_DOMAIN_FINAL_AUDIT.md). Fixed as a zero-risk path correction; still
+// not mounted, so no live behavior changes as a result of this fix alone.
+import preparationTicketController from "./preparation-ticket.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
 import validate from "../../../middlewares/validate.js";
 import { 

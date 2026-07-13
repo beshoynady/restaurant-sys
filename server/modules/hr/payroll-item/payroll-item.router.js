@@ -1,47 +1,114 @@
 import express from "express";
 import payrollItemController from "./payroll-item.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
+import authorize from "../../../middlewares/authorize.js";
+import checkModuleEnabled from "../../../middlewares/checkModuleEnabled.js";
 import validate from "../../../middlewares/validate.js";
-import { 
-  createPayrollItemSchema, 
-  updatePayrollItemSchema, 
-  paramsPayrollItemSchema, 
+import {
+  createPayrollItemSchema,
+  updatePayrollItemSchema,
+  paramsPayrollItemSchema,
   paramsPayrollItemIdsSchema,
-  queryPayrollItemSchema 
+  queryPayrollItemSchema,
+  evaluatePayrollItemSchema,
 } from "./payroll-item.validation.js";
 
 const router = express.Router();
 
-// Create & GetAll
+// Previously this router had NO authorize()/checkModuleEnabled() at all,
+// AND its service was a hand-written class incompatible with BaseController
+// (same defect class as HD-012/HD-019) — every route below is both newly
+// secured and newly functional.
+
 router.route("/")
-  .post(authenticateToken, validate(createPayrollItemSchema), payrollItemController.create)
-  .get(authenticateToken, validate(queryPayrollItemSchema), payrollItemController.getAll)
-;
+  .post(
+    authenticateToken,
+    authorize("PayrollItems", "create"),
+    checkModuleEnabled("hr"),
+    validate(createPayrollItemSchema),
+    payrollItemController.create,
+  )
+  .get(
+    authenticateToken,
+    authorize("PayrollItems", "read"),
+    checkModuleEnabled("hr"),
+    validate(queryPayrollItemSchema),
+    payrollItemController.getAll,
+  );
 
-// GetOne, Update, hardDelete
+// Frontend Readiness (registered before "/:id" to avoid FT-001-style shadowing).
+router.route("/variables").get(
+  authenticateToken,
+  authorize("PayrollItems", "read"),
+  checkModuleEnabled("hr"),
+  payrollItemController.variables,
+);
+
 router.route("/:id")
-  .get(authenticateToken, validate(paramsPayrollItemSchema, "params"), payrollItemController.getOne)
-  .put(authenticateToken, validate(updatePayrollItemSchema), payrollItemController.update)
-  .delete(authenticateToken, validate(paramsPayrollItemSchema, "params"), payrollItemController.hardDelete) // soft delete
-;
+  .get(
+    authenticateToken,
+    authorize("PayrollItems", "read"),
+    checkModuleEnabled("hr"),
+    validate(paramsPayrollItemSchema, "params"),
+    payrollItemController.getOne,
+  )
+  .put(
+    authenticateToken,
+    authorize("PayrollItems", "update"),
+    checkModuleEnabled("hr"),
+    validate(updatePayrollItemSchema),
+    payrollItemController.update,
+  )
+  .delete(
+    authenticateToken,
+    authorize("PayrollItems", "delete"),
+    checkModuleEnabled("hr"),
+    validate(paramsPayrollItemSchema, "params"),
+    payrollItemController.hardDelete,
+  );
 
-router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsPayrollItemSchema, "params"), payrollItemController.softDelete) // soft delete
-;
+router.route("/:id/evaluate").post(
+  authenticateToken,
+  authorize("PayrollItems", "read"),
+  checkModuleEnabled("hr"),
+  validate(paramsPayrollItemSchema, "params"),
+  validate(evaluatePayrollItemSchema),
+  payrollItemController.evaluate,
+);
 
-// Restore soft-deleted item
-router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsPayrollItemSchema, "params"), payrollItemController.restore)
-;
+router.route("/soft-delete/:id").patch(
+  authenticateToken,
+  authorize("PayrollItems", "delete"),
+  checkModuleEnabled("hr"),
+  validate(paramsPayrollItemSchema, "params"),
+  payrollItemController.softDelete,
+);
 
- // --- BULK HARD DELETE ---
-  router.route("/bulk-delete")
-    .delete(authenticateToken, validate(paramsPayrollItemIdsSchema), payrollItemController.bulkHardDelete);
+router.route("/restore/:id").patch(
+  authenticateToken,
+  authorize("PayrollItems", "update"),
+  checkModuleEnabled("hr"),
+  validate(paramsPayrollItemSchema, "params"),
+  payrollItemController.restore,
+);
 
+// NOTE (BACKEND_FOUNDATION_TECH_DEBT.md FT-001): shadowed by "/:id" DELETE
+// above — left broken for consistency with every other HR router pending
+// the dedicated Foundation pass, not fixed here.
+router.route("/bulk-delete").delete(
+  authenticateToken,
+  authorize("PayrollItems", "delete"),
+  checkModuleEnabled("hr"),
+  validate(paramsPayrollItemIdsSchema),
+  payrollItemController.bulkHardDelete,
+);
 
-  // --- BULK SOFT DELETE ---
-  router.route("/bulk-soft-delete")
-    .patch(authenticateToken,validate(paramsPayrollItemIdsSchema), payrollItemController.bulkSoftDelete);
-
+router.route("/bulk-soft-delete").patch(
+  authenticateToken,
+  authorize("PayrollItems", "delete"),
+  checkModuleEnabled("hr"),
+  validate(paramsPayrollItemIdsSchema),
+  payrollItemController.bulkSoftDelete,
+);
 
 export default router;

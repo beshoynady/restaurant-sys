@@ -1,6 +1,10 @@
 import LoyaltyRewardModel from "./loyalty-reward.model.js";
 import AdvancedService from "../../../utils/BaseRepository.js";
-import customerLoyaltyService from "./customer-loyalty.service.js";
+// Cross-domain final audit finding: pointed at a nonexistent sibling file —
+// customer-loyalty.service.js actually lives in the ../customer-loyalty/
+// folder, not inside loyalty-reward/. Would throw "Cannot find module" on
+// load (masked because this router was never mounted).
+import customerLoyaltyService from "../customer-loyalty/customer-loyalty.service.js";
 
 class LoyaltyRewardService extends AdvancedService {
   constructor() {

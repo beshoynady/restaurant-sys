@@ -76,6 +76,16 @@ const journalEntrySchema = new Schema(
     rejectedAt: { type: Date, default: null },
 
     rejectionReason: { type: String, trim: true, maxlength: 300, default: null },
+
+    // PLATFORM_FINAL_AUDIT.md PA-01: BaseRepository filters every query on
+    // {isDeleted:false} whenever softDelete:true (the repository default);
+    // this model never had the fields, so every list/read call silently
+    // returned empty. Added, not backfilled by a migration — Mongoose
+    // treats an absent field as matching {$ne:true}/{isDeleted:false} on
+    // existing documents, so this is a safe, non-breaking addition.
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null },
+    deletedBy: { type: Schema.Types.ObjectId, ref: "UserAccount", default: null },
   },
   { timestamps: true },
 );

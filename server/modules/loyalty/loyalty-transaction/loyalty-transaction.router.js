@@ -1,11 +1,16 @@
 // routes/loyalty/loyalty-transaction.routes.js
 
 import express from "express";
-import LoyaltyTransactionController from "./loyalty/loyalty-transaction.controller.js";
+// Cross-domain final audit finding: same broken-path defect as
+// loyalty-reward.router.js — the controller lives directly in this folder,
+// not under a nonexistent "./loyalty/" subdirectory. Never mounted in
+// index.router.js, so this was dead code.
+import LoyaltyTransactionController from "./loyalty-transaction.controller.js";
 
 import authenticateToken from "../../../middlewares/authenticate.js";
 import authorize from "../../../middlewares/authorize.js";
 import validate from "../../../middlewares/validate.js";
+import checkModuleEnabled from "../../../middlewares/checkModuleEnabled.js";
 
 import {
   earnPointsSchema,
@@ -19,12 +24,16 @@ const router = express.Router();
 
 /* ================= ADMIN ================= */
 
-router.use("/admin", authenticateToken);
+router.use("/admin", authenticateToken, checkModuleEnabled("loyalty"));
 
 // Earn
 router.post(
   "/admin/earn",
-  authorize("loyalty_transaction_create"),
+  // Was a single-arg authorize("loyalty_transaction_create") call — always
+  // denied every role (see loyalty-reward.router.js for the root cause).
+  // Fixed to the 2-arg form against the new RESOURCE_ENUM entry
+  // "LoyaltyTransactions".
+  authorize("LoyaltyTransactions", "create"),
   validate(earnPointsSchema),
   LoyaltyTransactionController.earn
 );
@@ -32,7 +41,7 @@ router.post(
 // Redeem
 router.post(
   "/admin/redeem",
-  authorize("loyalty_transaction_create"),
+  authorize("LoyaltyTransactions", "create"),
   validate(redeemPointsSchema),
   LoyaltyTransactionController.redeem
 );
@@ -40,7 +49,7 @@ router.post(
 // Adjust
 router.post(
   "/admin/adjust",
-  authorize("loyalty_transaction_create"),
+  authorize("LoyaltyTransactions", "create"),
   validate(adjustPointsSchema),
   LoyaltyTransactionController.adjust
 );
@@ -49,14 +58,14 @@ router.post(
 
 router.get(
   "/admin",
-  authorize("loyalty_transaction_view"),
+  authorize("LoyaltyTransactions", "read"),
   validate(queryLoyaltyTransactionSchema),
   LoyaltyTransactionController.getAll
 );
 
 router.get(
   "/admin/:id",
-  authorize("loyalty_transaction_view"),
+  authorize("LoyaltyTransactions", "read"),
   validate(paramsLoyaltyTransactionSchema, "params"),
   LoyaltyTransactionController.getOne
 );

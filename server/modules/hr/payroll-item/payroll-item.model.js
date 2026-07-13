@@ -106,19 +106,60 @@ const payrollItemSchema = new Schema(
       required: true,
     },
 
-    account: {
-      type: ObjectId,
-      ref: "Account",
-      default: null,
-      // Optional link to accounting system
-    },
-
     // Defines whether this item increases or decreases salary
     payrollEffect: {
       type: String,
       enum: ["credit", "debit"],
       required: true,
     },
+
+    // ======================================================
+    // 🔹 Accounting Integration (architecture only — no journal
+    // generation exists anywhere in this project; see module doc §7)
+    // ======================================================
+    // Redesigned this turn from a single flat `account` field (confirmed
+    // by repo-wide search to have zero consumers — this whole module was
+    // pure unused CRUD before this turn) into a real double-entry-ready
+    // shape: every payroll item that eventually posts to accounting needs
+    // BOTH sides of the entry, not one account.
+    accounting: {
+      debitAccount: { type: ObjectId, ref: "Account", default: null },
+      creditAccount: { type: ObjectId, ref: "Account", default: null },
+      costCenter: { type: ObjectId, ref: "CostCenter", default: null },
+      // Reserved — no posting engine exists yet to act on this.
+      postingStrategy: { type: String, enum: ["immediate", "batched", "manual"], default: "manual" },
+    },
+
+    // ======================================================
+    // 🔹 Dependencies
+    // ======================================================
+    // Other PayrollItems this one's formula/condition may reference via an
+    // `ITEM:<code>` VAR token (payroll-item.domain.js). Validated for
+    // circular references in the service — see §Business Rules.
+    dependsOn: { type: [{ type: ObjectId, ref: "PayrollItem" }], default: [] },
+
+    // ======================================================
+    // 🔹 Employer vs. Employee Cost
+    // ======================================================
+    // true for the EMPLOYER's own tax/insurance contribution (a company
+    // expense, does not reduce the employee's net pay) — distinct from
+    // `category:"TAX"`/`"INSURANCE"` items that ARE employee deductions.
+    // PayrollSettings.taxDefaults.employerContributionRatePercentage
+    // (module 13) is exactly the rate an employer-cost item like this
+    // would use.
+    isEmployerCost: { type: Boolean, default: false },
+
+    // Whether every eligible employee gets this item automatically
+    // (mandatory) vs. requiring explicit per-employee assignment (optional)
+    // — reserved: no assignment mechanism exists yet (see module doc §12).
+    isMandatory: { type: Boolean, default: false },
+
+    recurrence: { type: String, enum: ["recurring", "oneTime"], default: "recurring" },
+
+    // Whether the computed amount should be pro-rated by worked days/
+    // attendance in the period (e.g. a mid-month hire's housing allowance)
+    // — reserved: no calculation engine exists yet to apply this.
+    isProrated: { type: Boolean, default: false },
 
     // ======================================================
     // 🔹 Calculation Strategy
@@ -165,6 +206,11 @@ const payrollItemSchema = new Schema(
 
     rateBase: {
       type: String,
+      // Mongoose's enum validator rejects `null` unless it's explicitly
+      // listed, even with `default: null` set — the exact same latent bug
+      // already found and fixed in EmployeeAdvance (module 11). Never
+      // triggered here before this turn because this whole module was
+      // unused CRUD until now.
       enum: [
         "BASIC_SALARY",
         "GROSS_EARNINGS",
@@ -174,6 +220,7 @@ const payrollItemSchema = new Schema(
         "HOURLY_RATE",
         "DAILY_RATE",
         "SALES_TOTAL",
+        null,
       ],
       default: null,
     },
@@ -212,9 +259,13 @@ const payrollItemSchema = new Schema(
         "ABSENT",
         "VACATION",
         "SICK_LEAVE",
+        // Added module 12 (HD-017) — was missing here even though
+        // AttendanceRecord.type gained it that same turn.
+        "UNPAID_LEAVE",
         "HOLIDAY",
         "WORK_ON_HOLIDAY",
         "PERMISSION",
+        null,
       ],
       default: null,
     },
@@ -235,6 +286,7 @@ const payrollItemSchema = new Schema(
         "penalty_absence",
         "manual_credit",
         "manual_debit",
+        null,
       ],
       default: null,
     },

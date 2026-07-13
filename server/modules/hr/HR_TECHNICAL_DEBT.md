@@ -11,10 +11,14 @@ ShiftSettings (done — relocated out of HR, see HD-006) → AttendanceSettings 
 HD-003/HD-007/HD-016/HD-020) → EmployeeFinancialProfile (done, see HD-010, updated this turn — HD-020)
 → EmployeeFinancialTransaction (done, see HD-011/HD-014/HD-017) → EmployeeAdvance (done, see
 HD-012/HD-014) → LeaveRequest (done, see HD-016/HD-017/HD-018/HD-019) → PayrollSettings (done, see
-HD-020) → PayrollItem (final module of the fixed 14) → Payroll (pre-existing, mounted, CRUD-only —
-out of this rollout's 14-module scope; its own future turn must resolve HD-013, consume
-`PayrollSettings`'s policy, `EmployeeAdvance`'s `getPayrollDeductionPreview()`, and `LeaveRequest`'s
-payroll-affecting transactions — see HD-015/HD-018).
+HD-020) → PayrollItem (done, see HD-021 — **all 14 fixed modules complete**) → Payroll (pre-existing,
+mounted, CRUD-only — out of this rollout's 14-module scope; its own future turn must resolve HD-013,
+consume `PayrollSettings`'s policy, `PayrollItem`'s formula engine, `EmployeeAdvance`'s
+`getPayrollDeductionPreview()`, and `LeaveRequest`'s payroll-affecting transactions — see
+HD-015/HD-018/HD-021).
+
+**HR domain rollout status: all 14 fixed modules complete as of this turn.** See
+`HR_DOMAIN_FINAL_AUDIT.md` for the end-of-rollout production-readiness assessment.
 
 **Also see `BACKEND_FOUNDATION_TECH_DEBT.md` FT-004 (CRITICAL, found during this module's turn, ✅
 FIXED project-wide the same session):** `validate(paramsSchema())` validated `req.body` instead of
@@ -22,6 +26,37 @@ FIXED project-wide the same session):** `validate(paramsSchema())` validated `re
 backend, not just HR. Flagged to the project owner given severity, approved for an immediate
 out-of-order fix, and resolved across all 89 affected router files (349 call sites) with full
 regression + end-to-end HTTP verification — not deferred to a later Foundation pass.
+
+---
+
+## HD-021 — `hr/payroll-item`'s Formula Token Engine was stored but never evaluated anywhere — ✅ FIXED (PayrollItem module)
+
+**Found and fixed at this module's own scheduled turn (module 14, final of the fixed 14).** The
+model itself (`formula.tokens`/`executionCondition.tokens`, a safe VAR/OP/NUMBER/PERCENT/LPAREN/
+RPAREN token schema) was reasonably designed already, but `payroll-item.service.js` was the same
+hand-written CRUD class as every other broken module this rollout fixed (HD-012/HD-019 defect
+class) — meaning the tokens were stored and **never evaluated by any code in this project**. A
+formula field with no evaluator is a UI input with no backend, not a feature.
+
+**Also found**: `rateBase`/`attendanceRule`/`financialtransactionType` all had `enum` + `default:
+null` without `null` explicitly listed in the enum array — the exact same latent Mongoose validation
+bug already found and fixed in `EmployeeAdvance` (module 11). Never triggered before this turn
+because the whole module was unused.
+
+**Action taken:** full rebuild — Repository Pattern, RBAC, and (the real work) a genuine Formula
+Engine (`payroll-item.domain.js`): `validateTokenSequence` (structural fail-fast validation —
+balanced parens, no adjacent operators, known variables only), `evaluateFormula` (a real
+shunting-yard-based infix evaluator supporting arithmetic and comparison operators), and
+`detectCircularDependency` (DFS cycle detection across a new `dependsOn` graph). Also added real
+double-entry-ready accounting fields (`accounting.debitAccount`/`.creditAccount`/`.costCenter`,
+redesigned from a single unused `account` field), `isEmployerCost`/`isMandatory`/`recurrence`/
+`isProrated` classification fields, and fail-fast validation for category/payrollEffect coherence,
+employer-cost/category coherence, duplicate codes, invalid accounting references, and circular
+dependencies.
+
+**Status:** Fixed and integration-tested — 10 tests in `payroll-item-business-rules.test.ts`
+covering the formula engine (arithmetic, comparison, percent, circular dependency detection) and
+every new validation rule.
 
 ---
 

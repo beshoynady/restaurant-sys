@@ -123,6 +123,14 @@ export const RESOURCE_ENUM = [
   // ================= LOYALTY =================
   "CustomerLoyalty",
   "LoyaltySettings",
+  // Added — cross-domain final audit finding: loyalty-reward.router.js/
+  // loyalty-transaction.router.js called `authorize("loyalty_reward_create")`
+  // (a single-arg call, which `authorize.js` always evaluates as
+  // `perm[undefined]` — silently denying everyone) with no matching
+  // RESOURCE_ENUM entry to correct it to. Additive-only, per this project's
+  // standing RESOURCE_ENUM convention.
+  "LoyaltyRewards",
+  "LoyaltyTransactions",
 
   // ================= SEATING =================
   "Tables",
