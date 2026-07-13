@@ -113,6 +113,14 @@ import preparationTicketSettingsRouter from "../../modules/preparation/preparati
 // PURCHASING
 // ========================
 import purchaseSettingsRouter from "../../modules/purchasing/purchasing-settings/purchase-settings.router.js";
+// PLATFORM_FINAL_AUDIT.md PA-05: these 4 routers were fully coded but never
+// mounted — there was no HTTP path to record a purchase at all. Mounted
+// here after adding the missing authorize()/checkModuleEnabled() chain
+// (they previously had authenticateToken only).
+import purchaseInvoiceRouter from "../../modules/purchasing/purchase-invoice/purchase-invoice.router.js";
+import purchaseReturnRouter from "../../modules/purchasing/purchase-return/purchase-return.router.js";
+import supplierRouter from "../../modules/purchasing/supplier/supplier.router.js";
+import supplierTransactionRouter from "../../modules/purchasing/supplier-transaction/supplier-transaction.router.js";
 
 // ========================
 // SALES
@@ -243,6 +251,10 @@ router.use("/preparation/ticket-settings", preparationTicketSettingsRouter);
 
 // Purchasing
 router.use("/purchasing/settings", purchaseSettingsRouter);
+router.use("/purchasing/purchase-invoices", purchaseInvoiceRouter);
+router.use("/purchasing/purchase-returns", purchaseReturnRouter);
+router.use("/purchasing/suppliers", supplierRouter);
+router.use("/purchasing/supplier-transactions", supplierTransactionRouter);
 
 // Sales
 router.use("/sales/orders", orderRouter);

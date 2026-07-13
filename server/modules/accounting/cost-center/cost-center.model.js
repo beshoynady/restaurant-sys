@@ -40,6 +40,11 @@ const costCenterSchema = new Schema(
     isActive: { type: Boolean, default: true },
     createdBy: { type: ObjectId, ref: "UserAccount", required: true },
     updatedBy: { type: ObjectId, ref: "UserAccount", default: null },
+
+    // PLATFORM_FINAL_AUDIT.md PA-01
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null },
+    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
   { timestamps: true },
 );

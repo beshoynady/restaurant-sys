@@ -79,6 +79,11 @@ const supplierTransactionSchema = new mongoose.Schema(
       enum: ["Pending", "Approved", "Completed", "Cancelled"],
       default: "Completed",
     },
+
+    // PLATFORM_FINAL_AUDIT.md PA-05
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null },
+    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
   { timestamps: true },
 );

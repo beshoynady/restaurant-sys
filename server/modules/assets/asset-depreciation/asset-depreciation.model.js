@@ -124,6 +124,11 @@ const assetDepreciationSchema = new mongoose.Schema(
       type: ObjectId,
       ref: "UserAccount",
     },
+
+    // PLATFORM_FINAL_AUDIT.md PA-02
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null },
+    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
   {
     timestamps: true, // createdAt & updatedAt

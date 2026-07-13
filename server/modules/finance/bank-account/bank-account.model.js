@@ -118,6 +118,11 @@ const bankAccountSchema = new mongoose.Schema(
       ref: "UserAccount",
     },
 
+    // PLATFORM_FINAL_AUDIT.md PA-02: deletedBy/deletedAt existed but isDeleted
+    // did not — BaseRepository's softDelete filter is {isDeleted:false}, so an
+    // absent field never matched and every list/read call silently returned
+    // empty regardless of these two fields being present.
+    isDeleted: { type: Boolean, default: false },
     deletedBy: { type: ObjectId, ref: "UserAccount" },
 
     deletedAt: {

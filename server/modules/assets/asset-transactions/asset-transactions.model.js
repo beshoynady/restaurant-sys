@@ -156,6 +156,16 @@ const assetTransactionSchema = new mongoose.Schema(
       ref: "UserAccount",
       required: true,
     },
+
+    // PLATFORM_FINAL_AUDIT.md PA-02: required so BaseRepository's default
+    // softDelete read-filter ({isDeleted:false}) doesn't silently return
+    // empty result sets. This model's own findOneAndUpdate/updateOne guard
+    // below already blocks any actual soft-delete write, by design (an
+    // immutable audit log) — the field exists for correct reads, not to
+    // enable deletion.
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null },
+    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
   {
     timestamps: true, // createdAt & updatedAt

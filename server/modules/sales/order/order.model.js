@@ -266,6 +266,11 @@ const OrderSchema = new Schema(
       enum: ["UNPAID", "PARTIALLY_PAID", "PAID", "REFUNDED", "CANCELLED"],
       default: "UNPAID",
     },
+
+    // PLATFORM_FINAL_AUDIT.md PA-03
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null },
+    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
   {
     timestamps: true,

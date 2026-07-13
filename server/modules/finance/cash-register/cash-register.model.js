@@ -128,6 +128,9 @@ const cashRegisterSchema = new mongoose.Schema(
     createdBy: { type: ObjectId, ref: "UserAccount", required: true },
     updatedBy: { type: ObjectId, ref: "UserAccount" },
 
+    // PLATFORM_FINAL_AUDIT.md PA-02: see bank-account.model.js for the same
+    // "deletedBy/deletedAt existed, isDeleted did not" defect.
+    isDeleted: { type: Boolean, default: false },
     deletedBy: { type: ObjectId, ref: "UserAccount" },
     deletedAt: { type: Date },
   },

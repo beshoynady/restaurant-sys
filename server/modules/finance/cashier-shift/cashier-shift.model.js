@@ -116,6 +116,11 @@ const cashierShiftSchema = new mongoose.Schema(
     closedBy: { type: ObjectId, ref: "UserAccount" },
 
     notes: { type: String, trim: true },
+
+    // PLATFORM_FINAL_AUDIT.md PA-02
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null },
+    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
   { timestamps: true }
 );

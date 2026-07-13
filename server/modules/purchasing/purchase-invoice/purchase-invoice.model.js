@@ -133,6 +133,13 @@ const purchaseInvoiceSchema = new mongoose.Schema(
     // Employee who created the invoice
     createdBy: { type: ObjectId, ref: "UserAccount", required: true },
     updatedBy: { type: ObjectId, ref: "UserAccount" },
+
+    // PLATFORM_FINAL_AUDIT.md PA-05: same missing-soft-delete-field defect
+    // as PA-01/PA-02/PA-03, found while mounting this previously-unreachable
+    // router — service.js already sets softDelete:true.
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null },
+    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
   { timestamps: true },
 );

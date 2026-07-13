@@ -36,6 +36,11 @@ const accountingPeriodSchema = new mongoose.Schema(
     closedBy: { type: ObjectId, ref: "UserAccount", default: null },
     closedAt: { type: Date, default: null },
     isLocked: { type: Boolean, default: false },
+
+    // PLATFORM_FINAL_AUDIT.md PA-01
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null },
+    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
   { timestamps: true },
 );

@@ -89,6 +89,11 @@ const assetPurchaseInvoiceSchema = new mongoose.Schema(
     updatedBy: { type: ObjectId, ref: "UserAccount" },
     postedBy: { type: ObjectId, ref: "Employee" },
     postedAt: { type: Date },
+
+    // PLATFORM_FINAL_AUDIT.md PA-02
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null },
+    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
   { timestamps: true },
 );
