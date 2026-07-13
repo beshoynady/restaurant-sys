@@ -9,9 +9,9 @@ Execution order: Employee (done) → Department (done) → JobTitle (done) → S
 ShiftSettings (done — relocated out of HR, see HD-006) → AttendanceSettings (done, see HD-007/HD-008)
 → AttendanceRecord (done, see HD-002/HD-005/HD-008/HD-009) → EmployeeSettings (done, see HD-003/HD-007)
 → EmployeeFinancialProfile (done, see HD-010) → EmployeeFinancialTransaction (done, see HD-011/HD-014)
-→ EmployeeAdvance (formal turn must fix HD-012, and should reference
-EmployeeFinancialTransaction.relatedAdvance — see HD-014) → LeaveRequest → PayrollSettings →
-PayrollItem → Payroll (formal turn must resolve HD-013).
+→ EmployeeAdvance (done, see HD-012/HD-014) → LeaveRequest → PayrollSettings → PayrollItem →
+Payroll (formal turn must resolve HD-013, and should consume EmployeeAdvance's
+`getPayrollDeductionPreview()` — see HD-015).
 
 **Also see `BACKEND_FOUNDATION_TECH_DEBT.md` FT-004 (CRITICAL, found during this module's turn, ✅
 FIXED project-wide the same session):** `validate(paramsSchema())` validated `req.body` instead of
@@ -22,7 +22,29 @@ regression + end-to-end HTTP verification — not deferred to a later Foundation
 
 ---
 
-## HD-014 — `EmployeeFinancialTransaction` had no `relatedAdvance`/`relatedPayroll` back-reference
+## HD-015 — `Payroll` should consume `EmployeeAdvance#getPayrollDeductionPreview()`
+
+**Found while reviewing:** `hr/employee-advance` at its own scheduled turn (module 11). The service
+now exposes `getPayrollDeductionPreview(employeeId, brandId)` — every active advance's next unpaid
+installment, remaining balance, and overdue status, ready to feed a payroll calculation with zero
+frontend/Payroll-side math. `hr/payroll`'s own model/service (module 15, not built yet) has no
+awareness of advances at all today.
+
+**Not fixed here:** `hr/payroll` has not had its own formal turn yet — deliberately not modified, per
+the established Category B process (same as HD-013, which this pairs with — both are Payroll's own
+future-turn integration points from the financial-data modules that came before it).
+
+**Owning module:** `hr/payroll` — module 15. At that turn, payroll calculation should call
+`employeeAdvanceService.getPayrollDeductionPreview()` for each employee and include any due,
+non-paused installment as a deduction line — automatically recording the repayment via
+`employeeAdvanceService.recordRepayment()` (passing the resulting Payroll's id as `payrollId`) rather
+than duplicating advance-deduction logic inside Payroll itself.
+
+**Status:** Recorded, not fixed.
+
+---
+
+## HD-014 — `EmployeeFinancialTransaction` had no `relatedAdvance`/`relatedPayroll` back-reference — ✅ FIXED (EmployeeAdvance module)
 
 **Found while reviewing:** `hr/employee-financial-transaction` at its own scheduled turn (module 10).
 `EmployeeAdvance.disbursementTransaction`/`.payments[].transaction` already reference *this* model
@@ -30,13 +52,17 @@ regression + end-to-end HTTP verification — not deferred to a later Foundation
 but there was no way to trace a transaction back to the advance it belongs to without a reverse
 lookup — flagged in HD-011's own research pass before this module's redesign began.
 
-**Action taken:** added `relatedAdvance` (ref `EmployeeAdvance`) and `relatedPayroll` (ref `Payroll`)
-as reserved fields on this model (not populated by this module itself — `hr/employee-advance`,
-module 11, owns writing the former; `hr/payroll`, module 15, owns writing the latter). This closes
-the schema gap now so neither of those future modules needs a migration on this collection later.
+**Action taken (module 10):** added `relatedAdvance` (ref `EmployeeAdvance`) and `relatedPayroll` (ref
+`Payroll`) as reserved fields on this model.
 
-**Status:** Fields added, not yet populated by any writer (both owning modules haven't had their
-formal turn). Recorded as still-reserved in `EMPLOYEE_FINANCIAL_TRANSACTION.module.md` §12.
+**Action taken (module 11, this turn):** `employee-advance.service.js#recordRepayment` is now the
+first real writer of `relatedAdvance` — every repayment installment creates a real
+`EmployeeFinancialTransaction` (`type:"advance_repayment"`, `category:"deduction"`) with
+`relatedAdvance` set to the advance it belongs to. `relatedPayroll` is populated when a `payrollId` is
+passed through (reserved until Payroll, module 15, actually calls this — see HD-015).
+
+**Status:** Fixed and integration-tested — confirmed via a direct read-back of the created
+`EmployeeFinancialTransaction.relatedAdvance` field in `employee-advance-business-rules.test.ts`.
 
 ---
 
@@ -63,30 +89,35 @@ payroll run for an employee whose financial profile isn't eligible (see this mod
 
 ---
 
-## HD-012 — `hr/employee-advance`'s service is a hand-written class incompatible with `BaseController`
+## HD-012 — `hr/employee-advance`'s service was a hand-written class incompatible with `BaseController` — ✅ FIXED (EmployeeAdvance module)
 
 **Found while reviewing:** `hr/employee-financial-profile` at its own scheduled turn (module 9) — read
 while mapping the employee financial data model before designing this module's schema.
-`employee-advance.service.js` is NOT built on `utils/BaseRepository.js` — it's five hand-written
+`employee-advance.service.js` was NOT built on `utils/BaseRepository.js` — it was five hand-written
 methods (`create(data)`, `findAll(filter)`, `findById(id)`, `update(id,data)`, `delete(id)`) with
-signatures that don't match what `BaseController` calls (`create({brandId,branchId,data,createdBy})`,
-`getAll({...})` — doesn't exist on this service at all, `findById({id,brandId,branchId})` — called
-with a bare id here). Every list/soft-delete/restore/bulk* route would throw
-`this.service.<method> is not a function`; `getOne` would pass a plain options object into
-`Model.findById(...)`, which will not resolve to a document. No brand/branch scoping at all — no
-tenant isolation. **Also not mounted** in `router/v1/index.router.js` — currently completely
-unreachable via the API regardless.
+signatures that didn't match what `BaseController` calls. Every list/soft-delete/restore/bulk* route
+threw `this.service.<method> is not a function`; no brand/branch scoping at all — no tenant
+isolation; no `isDeleted` field despite the router exposing soft-delete actions (same defect class as
+HD-002); **also not mounted** in `router/v1/index.router.js`; the model referenced `disbursementTransaction`
+as if disbursement itself were a payroll-ledger transaction, which — on reflection during this
+module's own design pass — it isn't (see `EMPLOYEE_ADVANCE.module.md` §6 for why).
 
-**Not fixed here:** `hr/employee-advance` has not had its own formal turn yet (module 11) — out of
-scope for this module's own turn; noted for awareness since `EmployeeAdvance.disbursementTransaction`/
-`.payments[].transaction` reference `EmployeeFinancialTransaction` (module 10), not this module, so
-there was no direct integration need here.
+**Fixed while reviewing:** `hr/employee-advance` at its own scheduled turn (module 11) — full rebuild
+as an Advance Management Engine, not a CRUD wrapper: Repository Pattern (`.repository.js`, previously
+missing), `authorize()`/`checkModuleEnabled("hr")` on every route (previously **completely absent**),
+`isDeleted`/`deletedAt`/`deletedBy` added, and mounted at `/hr/employee-advances`. A full guarded
+state machine (`draft → submitted → under_review → approved → disbursed → repayment_started →
+partially_repaid → fully_repaid → closed`, with `rejected`/`cancelled` terminal branches) replaces the
+old flat `status` field any generic `PUT` could set to anything. Real business rules: one-active-
+advance-per-employee (enforced at `approve()`), a salary-cap validation against
+`EmployeeFinancialProfile.compensation.basicSalary`, currency resolved from the same profile,
+guarded repayment recording (rejects overpayment, rejects repaying a paused/non-active advance),
+end-of-service settlement (`waived` or `deductedFromFinalPay`), and a payroll-ready deduction preview
+(`getPayrollDeductionPreview`) with zero calculation required in Payroll or the frontend.
 
-**Owning module:** `hr/employee-advance` — module 11. Full Repository Pattern rebuild needed (same
-class of fix as every other module's `AdvancedService`→`BaseRepository`+repository-file migration
-already done in this rollout), plus mounting the router.
-
-**Status:** Recorded, not fixed.
+**Status:** Fixed and integration-tested — 10 tests in `employee-advance-business-rules.test.ts`
+covering the full lifecycle, invalid-transition rejection, the salary cap, overpayment rejection, the
+one-active-advance rule, and settlement.
 
 ---
 

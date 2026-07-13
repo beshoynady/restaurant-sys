@@ -1,32 +1,51 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../../utils/joiFactory.js";
+import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema, querySchema } from "../../../utils/joiFactory.js";
 import EmployeeAdvanceModel from "./employee-advance.model.js";
+import { ADVANCE_STATUSES } from "./employee-advance.model.js";
 
-/* =========================
-   Create Schema
-========================= */
-export const createEmployeeAdvanceSchema = createSchema(EmployeeAdvanceModel.schema);
+// Every workflow/server-managed field is excluded from create/update —
+// state changes only happen through the dedicated
+// submit/review/approve/reject/disburse/cancel/recordRepayment/
+// pauseDeductions/resumeDeductions/close/settleOnTermination service
+// methods, never a raw field write. See EMPLOYEE_ADVANCE.module.md §5.
+const WORKFLOW_FIELDS = [
+  "status",
+  "installmentAmount",
+  "remainingBalance",
+  "submittedBy",
+  "submittedAt",
+  "reviewedBy",
+  "reviewedAt",
+  "approvedBy",
+  "approvedAt",
+  "rejectedBy",
+  "rejectedAt",
+  "rejectionReason",
+  "disbursedBy",
+  "disbursedAt",
+  "disbursementMethod",
+  "cancelledBy",
+  "cancelledAt",
+  "cancellationReason",
+  "closedBy",
+  "closedAt",
+  "settlement",
+  "payments",
+];
 
-/* =========================
-   Update Schema
-========================= */
-export const updateEmployeeAdvanceSchema = updateSchema(
-  EmployeeAdvanceModel.schema,
-  ["updatedBy"]
-);
+export const createEmployeeAdvanceSchema = createSchema(EmployeeAdvanceModel.schema, {
+  exclude: WORKFLOW_FIELDS,
+});
 
-/* =========================
-   Params Schema
-========================= */
+export const updateEmployeeAdvanceSchema = updateSchema(EmployeeAdvanceModel.schema, {
+  exclude: ["updatedBy", "employee", "brand", ...WORKFLOW_FIELDS],
+});
+
 export const paramsEmployeeAdvanceSchema = paramsSchema();
-
-/* =========================
-   Params Ids Schema
-========================= */
 export const paramsEmployeeAdvanceIdsSchema = paramsIdsSchema();
 
-
-/* =========================
-   Query Schema
-========================= */
-export const queryEmployeeAdvanceSchema = querySchema();
+export const queryEmployeeAdvanceSchema = querySchema({
+  employee: objectId().optional(),
+  branch: objectId().optional(),
+  status: Joi.string().valid(...ADVANCE_STATUSES).optional(),
+});
