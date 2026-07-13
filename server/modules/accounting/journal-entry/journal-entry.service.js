@@ -29,6 +29,7 @@ import throwError from "../../../utils/throwError.js";
 import JournalEntryRepository from "./journal-entry.repository.js";
 import JournalLineRepository from "../journal-line/journal-line.repository.js";
 import { accountingPeriodRepository } from "../accounting-period/accounting-period.repository.js";
+import accountingSettingService from "../accounting-settings/accounting-setting.service.js";
 
 // Extends the repository (rather than composing it) specifically to preserve compatibility with
 // BaseController's generic constraint without a deeper framework change — the repository/service
@@ -140,6 +141,191 @@ class JournalEntryService extends JournalEntryRepository {
       await session.commitTransaction();
 
       return { entry, lines: createdLines };
+    } catch (err) {
+      await session.abortTransaction();
+      throw err;
+    } finally {
+      session.endSession();
+    }
+  }
+
+  /**
+   * Journal Entry Posting Engine — generic entry point for any source module (Invoice,
+   * PurchaseInvoice, SalesReturn, ...) that needs to record an accounting impact. The caller
+   * supplies already-resolved `lines` (which accounts, which amounts — that mapping is source-
+   * domain business knowledge, e.g. invoice.service.ts knows what a "sales invoice" maps to, this
+   * method does not) and this method owns everything generic: resolving the brand's
+   * AccountingSettings, resolving the open accounting period for the posting date, generating the
+   * entry number, and deciding (from `journalEntry.requireApproval`) whether the entry auto-posts
+   * or is created Pending for a maker-checker approval step.
+   *
+   * Reuses createBalancedEntry() for the actual transactional write — this method's only added
+   * responsibility is resolving the inputs createBalancedEntry needs from AccountingSettings/
+   * AccountingPeriod instead of requiring the caller to know about either.
+   */
+  async postFromSource({ sourceType, brand, branch, date, description, lines, createdBy, sourceRef }) {
+    const now = date || new Date();
+
+    const settings = await accountingSettingService.resolveForPosting(brand, branch);
+
+    const period = await accountingPeriodRepository.findOpenPeriodForDate(brand, now);
+    if (!period) {
+      throwError(
+        `No open accounting period covers ${now.toISOString().slice(0, 10)} — cannot post this ${sourceType}.`,
+        422,
+      );
+    }
+
+    const entryNumber = await accountingSettingService.getNextEntryNumber(settings._id);
+
+    const linesWithSource = lines.map((line) => ({
+      ...line,
+      sourceType: line.sourceType ?? sourceType,
+      sourceRef: line.sourceRef ?? sourceRef ?? null,
+    }));
+
+    return this.createBalancedEntry({
+      brand,
+      branch,
+      period: period._id,
+      date: now,
+      entryNumber,
+      description,
+      origin: "System",
+      baseCurrency: settings.currencySettings?.baseCurrency ?? null,
+      lines: linesWithSource,
+      createdBy,
+      autoPost: !settings.journalEntry?.requireApproval,
+      postedBy: createdBy,
+    });
+  }
+
+  /**
+   * Journal Entry Posting Engine — maker-checker approval step. Only legal from Pending (an entry
+   * created with autoPost:false because AccountingSettings.journalEntry.requireApproval is true).
+   * There is no separate "Approved" status on this schema (see journal-entry.model.js's status
+   * enum) — approving IS posting, matching how `approvedBy`/`postedBy` are both set together here
+   * rather than as two separate transitions.
+   */
+  async approveEntry({ id, brand, approvedBy }) {
+    const now = new Date();
+    const updated = await this.transitionStatus(
+      id,
+      brand,
+      "Pending",
+      { status: "Posted", approvedBy, approvedAt: now, postedBy: approvedBy, postedAt: now },
+    );
+
+    if (!updated) {
+      throwError("Journal entry not found, or is not Pending approval.", 409);
+    }
+
+    return updated;
+  }
+
+  /** Journal Entry Posting Engine — reject a Pending entry; it will never be posted. */
+  async rejectEntry({ id, brand, rejectedBy, reason }) {
+    const updated = await this.transitionStatus(
+      id,
+      brand,
+      "Pending",
+      { status: "Rejected", rejectedBy, rejectedAt: new Date(), rejectionReason: reason ?? null },
+    );
+
+    if (!updated) {
+      throwError("Journal entry not found, or is not Pending approval.", 409);
+    }
+
+    return updated;
+  }
+
+  /**
+   * Journal Entry Posting Engine — corrects a Posted entry by creating a new entry with every
+   * line's debit/credit swapped (the standard accounting reversal technique — never edit or delete
+   * a posted record). Both the new reversal entry and the original entry's status update happen in
+   * one transaction: either the correction fully exists (new entry posted + original marked
+   * Reversed) or neither change persists.
+   */
+  async reverseEntry({ id, brand, branch, reversedBy, reason }) {
+    const original = await this.findByIdScoped(id, brand, branch);
+    if (!original) {
+      throwError("Journal entry not found.", 404);
+    }
+    if (original.status !== "Posted") {
+      throwError(`Only Posted entries can be reversed (current status: ${original.status}).`, 409);
+    }
+
+    const originalLines = await journalLineRepository.findByJournalEntry(original._id);
+
+    const session = await this.startSession();
+    const now = new Date();
+
+    try {
+      session.startTransaction();
+
+      const reversalEntry = await this.insertEntry(
+        {
+          brand: original.brand,
+          branch: original.branch,
+          period: original.period,
+          date: now,
+          entryNumber: await accountingSettingService.getNextEntryNumber(
+            (await accountingSettingService.resolveForPosting(original.brand, original.branch))._id,
+          ),
+          description: reason
+            ? `Reversal of ${original.entryNumber}: ${reason}`
+            : `Reversal of ${original.entryNumber}`,
+          totalDebit: original.totalCredit,
+          totalCredit: original.totalDebit,
+          isBalanced: true,
+          baseCurrency: original.baseCurrency,
+          origin: "Adjusting",
+          status: "Posted",
+          reversalOf: original._id,
+          createdBy: reversedBy,
+          postedBy: reversedBy,
+          postedAt: now,
+        },
+        session,
+      );
+
+      const reversalLineDocs = originalLines.map((line) => ({
+        journalEntry: reversalEntry._id,
+        brand: line.brand,
+        branch: line.branch,
+        period: line.period,
+        date: now,
+        description: `Reversal: ${line.description}`,
+        account: line.account,
+        sourceType: line.sourceType,
+        sourceRef: line.sourceRef,
+        // The reversal technique: swap debit and credit on every line.
+        debit: line.credit,
+        credit: line.debit,
+        currency: line.currency,
+        exchangeRate: line.exchangeRate,
+        convertedDebit: line.convertedCredit,
+        convertedCredit: line.convertedDebit,
+        costCenter: line.costCenter,
+      }));
+
+      await journalLineRepository.createMany(reversalLineDocs, session);
+
+      const updatedOriginal = await this.transitionStatus(
+        original._id,
+        original.brand,
+        "Posted",
+        { status: "Reversed", reversedBy: reversalEntry._id },
+        session,
+      );
+
+      if (!updatedOriginal) {
+        throwError("Failed to mark the original entry as Reversed (concurrent modification).", 409);
+      }
+
+      await session.commitTransaction();
+
+      return { reversalEntry, originalEntry: updatedOriginal };
     } catch (err) {
       await session.abortTransaction();
       throw err;

@@ -13,6 +13,13 @@ import InvoiceSettingsModel from "../../modules/sales/invoice-settings/invoice-s
 import DiningAreaModel from "../../modules/seating/dining-area/dining-area.model.js";
 import TableModel from "../../modules/seating/table/table.model.js";
 import ReservationModel from "../../modules/seating/reservation/reservation.model.js";
+import AccountingSettingModel from "../../modules/accounting/accounting-settings/accounting-setting.model.js";
+import WarehouseModel from "../../modules/inventory/warehouse/warehouse.model.js";
+import StockCategoryModel from "../../modules/inventory/stock-category/stock-category.model.js";
+import StockItemModel from "../../modules/inventory/stock-item/stock-item.model.js";
+import InventoryModel from "../../modules/inventory/inventory/inventory.model.js";
+import StockLedgerModel from "../../modules/inventory/stock-ledger/stock-ledger.model.js";
+import WarehouseDocumentModel from "../../modules/inventory/warehouse-document/warehouse-document.model.js";
 
 export interface TestFixture {
   brandId: string;
@@ -146,6 +153,93 @@ export async function createTableFixture(
   });
 }
 
+/**
+ * Journal Entry Posting Engine test fixture: a fully-configured AccountingSettings document
+ * (every required control account + activity account) plus the underlying Account documents
+ * themselves, so a posting test can call journalEntryService.postFromSource /
+ * accountingSettingService.resolveForPosting without hand-assembling ~19 Account fixtures per
+ * test file.
+ */
+export async function createAccountingSettingsFixture(
+  fixture: TestFixture,
+  suffix: string,
+  overrides: Record<string, unknown> = {},
+) {
+  const account = (code: string, category: string) => createAccountFixture(fixture, `${code}-${suffix}`, category);
+
+  const [
+    cash, bank, ar, ap, inventory, inventoryAdjustment, cogs, opex, salesTaxPayable, purchaseTaxRecoverable, equity,
+    salesRevenue, salesTax, purchaseInventory, salesReturnRevenueContra, salesReturnCostContra,
+    purchaseReturnInventoryContra, expenseDefault,
+  ] = await Promise.all([
+    account("CASH", "Asset"), account("BANK", "Asset"), account("AR", "Asset"), account("AP", "Liability"),
+    account("INV", "Asset"), account("INVADJ", "Expense"), account("COGS", "Expense"), account("OPEX", "Expense"),
+    account("STP", "Liability"), account("PTR", "Asset"), account("EQ", "Equity"),
+    account("REV", "Revenue"), account("STX", "Liability"), account("PINV", "Asset"),
+    account("SRC", "Revenue"), account("SCC", "Expense"), account("PRIC", "Asset"), account("EXP", "Expense"),
+  ]);
+
+  return AccountingSettingModel.create({
+    brand: fixture.brandId,
+    branch: null,
+    createdBy: fixture.userId,
+    controlAccounts: {
+      cash: cash._id, bank: bank._id, accountsReceivable: ar._id, accountsPayable: ap._id,
+      inventory: inventory._id, inventoryAdjustment: inventoryAdjustment._id, costOfGoodsSold: cogs._id,
+      operatingExpense: opex._id, salesTaxPayable: salesTaxPayable._id, purchaseTaxRecoverable: purchaseTaxRecoverable._id,
+      equityCapital: equity._id,
+    },
+    activities: {
+      sales: { revenue: salesRevenue._id, tax: salesTax._id, costOfSales: cogs._id },
+      salesReturn: { revenueContra: salesReturnRevenueContra._id, costOfSalesContra: salesReturnCostContra._id },
+      purchase: { inventory: purchaseInventory._id },
+      purchaseReturn: { inventoryContra: purchaseReturnInventoryContra._id },
+      expense: { defaultExpense: expenseDefault._id },
+    },
+    ...overrides,
+  });
+}
+
+export async function createWarehouseFixture(fixture: TestFixture, suffix: string) {
+  return WarehouseModel.create({
+    brand: fixture.brandId,
+    branch: fixture.branchId,
+    name: new Map([["en", `Test Warehouse ${suffix}`]]),
+    code: `WH${suffix}`.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10),
+    description: new Map([["en", "test"]]),
+    address: new Map([["en", "test"]]),
+    createdBy: fixture.userId,
+  });
+}
+
+export async function createStockItemFixture(
+  fixture: TestFixture,
+  suffix: string,
+  costMethod: "FIFO" | "LIFO" | "WeightedAverage" = "WeightedAverage",
+) {
+  const category = await StockCategoryModel.create({
+    brand: fixture.brandId,
+    categoryName: new Map([["en", `Test Category ${suffix}`]]),
+    categoryCode: `CAT${suffix}`.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10),
+    description: new Map([["en", "test"]]),
+    createdBy: fixture.userId,
+  });
+
+  return StockItemModel.create({
+    brand: fixture.brandId,
+    branch: fixture.branchId,
+    itemName: new Map([["en", `Test Item ${suffix}`]]),
+    SKU: `SKU-${suffix}`.toUpperCase(),
+    categoryId: category._id,
+    storageUnit: "kg",
+    ingredientUnit: "gram",
+    parts: 1000,
+    costMethod,
+    notes: new Map([["en", "test"]]),
+    createdBy: fixture.userId,
+  });
+}
+
 export async function cleanupFixture(fixture: TestFixture): Promise<void> {
   const brandId = new mongoose.Types.ObjectId(fixture.brandId);
   await Promise.all([
@@ -159,5 +253,12 @@ export async function cleanupFixture(fixture: TestFixture): Promise<void> {
     DiningAreaModel.deleteMany({ brand: brandId }),
     TableModel.deleteMany({ brand: brandId }),
     ReservationModel.deleteMany({ brand: brandId }),
+    AccountingSettingModel.deleteMany({ brand: brandId }),
+    WarehouseModel.deleteMany({ brand: brandId }),
+    StockCategoryModel.deleteMany({ brand: brandId }),
+    StockItemModel.deleteMany({ brand: brandId }),
+    InventoryModel.deleteMany({ brand: brandId }),
+    StockLedgerModel.deleteMany({ brand: brandId }),
+    WarehouseDocumentModel.deleteMany({ brand: brandId }),
   ]);
 }

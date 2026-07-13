@@ -31,6 +31,40 @@ class JournalEntryController extends BaseController {
 
     res.status(201).json({ success: true, data: result });
   });
+
+  // Journal Entry Posting Engine — maker-checker approve/reject, and the reversal correction flow.
+  approve = asyncHandler(async (req, res) => {
+    const { brandId, userId } = req.user;
+    const updated = await journalEntryService.approveEntry({
+      id: req.params.id,
+      brand: brandId,
+      approvedBy: userId,
+    });
+    res.json({ success: true, data: updated });
+  });
+
+  reject = asyncHandler(async (req, res) => {
+    const { brandId, userId } = req.user;
+    const updated = await journalEntryService.rejectEntry({
+      id: req.params.id,
+      brand: brandId,
+      rejectedBy: userId,
+      reason: req.body.reason,
+    });
+    res.json({ success: true, data: updated });
+  });
+
+  reverse = asyncHandler(async (req, res) => {
+    const { brandId, branchId, userId } = req.user;
+    const result = await journalEntryService.reverseEntry({
+      id: req.params.id,
+      brand: brandId,
+      branch: branchId,
+      reversedBy: userId,
+      reason: req.body.reason,
+    });
+    res.json({ success: true, data: result });
+  });
 }
 
 export default new JournalEntryController();

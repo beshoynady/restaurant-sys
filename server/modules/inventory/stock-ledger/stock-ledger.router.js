@@ -1,47 +1,39 @@
 import express from "express";
 import stockLedgerController from "./stock-ledger.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
+import authorize from "../../../middlewares/authorize.js";
+import checkModuleEnabled from "../../../middlewares/checkModuleEnabled.js";
 import validate from "../../../middlewares/validate.js";
-import { 
-  createStockLedgerSchema, 
-  updateStockLedgerSchema, 
-  paramsStockLedgerSchema, 
-  paramsStockLedgerIdsSchema,
-  queryStockLedgerSchema 
+import {
+  paramsStockLedgerSchema,
+  queryStockLedgerSchema,
 } from "./stock-ledger.validation.js";
 
 const router = express.Router();
 
-// Create & GetAll
-router.route("/")
-  .post(authenticateToken, validate(createStockLedgerSchema), stockLedgerController.create)
-  .get(authenticateToken, validate(queryStockLedgerSchema), stockLedgerController.getAll)
-;
+// V4.0 Inventory Stock Movement Engine, corrected: this router had no RBAC at all
+// (authenticateToken only) and exposed full write access (create/update/delete/soft-delete) on
+// what is an immutable movement log — every row is only ever written internally by
+// warehouseDocumentService.postDocument(), inside a transaction, never directly by a client.
+// Reduced to read-only (GET) with RBAC; create/update/delete removed rather than merely
+// permission-gated, since there is no legitimate direct-write use case to gate.
 
-// GetOne, Update, hardDelete
-router.route("/:id")
-  .get(authenticateToken, validate(paramsStockLedgerSchema, "params"), stockLedgerController.getOne)
-  .put(authenticateToken, validate(updateStockLedgerSchema), stockLedgerController.update)
-  .delete(authenticateToken, validate(paramsStockLedgerSchema, "params"), stockLedgerController.hardDelete) // soft delete
-;
+router.get(
+  "/",
+  authenticateToken,
+  authorize("StockLedgers", "read"),
+  checkModuleEnabled("inventory"),
+  validate(queryStockLedgerSchema),
+  stockLedgerController.getAll,
+);
 
-router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsStockLedgerSchema, "params"), stockLedgerController.softDelete) // soft delete
-;
-
-// Restore soft-deleted item
-router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsStockLedgerSchema, "params"), stockLedgerController.restore)
-;
-
- // --- BULK HARD DELETE ---
-  router.route("/bulk-delete")
-    .delete(authenticateToken, validate(paramsStockLedgerIdsSchema), stockLedgerController.bulkHardDelete);
-
-
-  // --- BULK SOFT DELETE ---
-  router.route("/bulk-soft-delete")
-    .patch(authenticateToken,validate(paramsStockLedgerIdsSchema), stockLedgerController.bulkSoftDelete);
-
+router.get(
+  "/:id",
+  authenticateToken,
+  authorize("StockLedgers", "read"),
+  checkModuleEnabled("inventory"),
+  validate(paramsStockLedgerSchema, "params"),
+  stockLedgerController.getOne,
+);
 
 export default router;

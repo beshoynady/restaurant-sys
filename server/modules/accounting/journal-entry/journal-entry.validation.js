@@ -65,6 +65,17 @@ export const createJournalEntryWithLinesSchema = Joi.object({
 }).unknown(false);
 
 /* =========================
+   Journal Entry Posting Engine — approve/reject/reverse
+========================= */
+export const rejectJournalEntrySchema = Joi.object({
+  reason: Joi.string().trim().max(300).optional(),
+});
+
+export const reverseJournalEntrySchema = Joi.object({
+  reason: Joi.string().trim().max(300).optional(),
+});
+
+/* =========================
    Update Schema
 ========================= */
 export const updateJournalEntrySchema = updateSchema(JournalEntryModel.schema, {

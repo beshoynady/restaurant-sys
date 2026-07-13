@@ -37,31 +37,17 @@ router.route("/:id")
     checkModuleEnabled("inventory"), validate(paramsInventorySchema, "params"), inventoryController.hardDelete) // soft delete
 ;
 
-router.route("/soft-delete/:id")
-  .patch(authenticateToken,
-    authorize("Inventory", "delete"),
-    checkModuleEnabled("inventory"), validate(paramsInventorySchema, "params"), inventoryController.softDelete) // soft delete
-;
-
-// Restore soft-deleted item
-router.route("/restore/:id")
-  .patch(authenticateToken,
-    authorize("Inventory", "update"),
-    checkModuleEnabled("inventory"), validate(paramsInventorySchema, "params"), inventoryController.restore)
-;
+// V4.0 Inventory Stock Movement Engine, corrected: soft-delete/restore/bulk-soft-delete removed —
+// Inventory is a derived, system-computed balance cache (recomputed from StockLedger by the
+// posting engine), not user-managed master data. `create`/`update`/`hardDelete` above stay generic
+// but are not the intended write path either — see inventory.service.js#applyMovement, the one
+// path a posted WarehouseDocument actually uses.
 
  // --- BULK HARD DELETE ---
   router.route("/bulk-delete")
     .delete(authenticateToken,
     authorize("Inventory", "delete"),
     checkModuleEnabled("inventory"), validate(paramsInventoryIdsSchema), inventoryController.bulkHardDelete);
-
-
-  // --- BULK SOFT DELETE ---
-  router.route("/bulk-soft-delete")
-    .patch(authenticateToken,
-    authorize("Inventory", "delete"),
-    checkModuleEnabled("inventory"),validate(paramsInventoryIdsSchema), inventoryController.bulkSoftDelete);
 
 
 export default router;

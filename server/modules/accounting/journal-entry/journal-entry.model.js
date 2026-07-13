@@ -94,9 +94,31 @@ journalEntrySchema.index({ brand: 1, branch: 1, period: 1, entryNumber: 1 }, { u
 // DB-009: immutability — a Posted entry can never be updated directly; corrections happen only
 // via a new reversal entry (reversalOf/reversedBy above). Mirrors the pre-existing correct pattern
 // already used elsewhere in this codebase on AssetTransaction.
+//
+// Journal Entry Posting Engine: narrowed to carve out the one legitimate mutation of a Posted
+// entry the model's own design already calls for — journal-entry.service.js#reverseEntry marking
+// the ORIGINAL entry `status: "Reversed"` (+ `reversedBy`) once the new reversal entry exists.
+// Without this exception the guard blocked the very operation its own comment describes as the
+// correct way to correct a Posted entry. Any other field, or any other target status, is still
+// rejected exactly as before.
 async function blockPostedEntryMutation(next) {
   const target = await this.model.findOne(this.getQuery()).select("status").lean();
   if (target && target.status === "Posted") {
+    const update = this.getUpdate() || {};
+    const setFields = Object.keys(update.$set || {});
+    // "updatedAt" is allow-listed alongside status/reversedBy because Mongoose's `timestamps: true`
+    // plugin auto-injects `$set.updatedAt` into every findOneAndUpdate/updateOne call — without it
+    // here, that auto-injected field alone would fail the whitelist and block every legitimate
+    // reversal.
+    const isReversalTransition =
+      setFields.length > 0 &&
+      setFields.every((field) => field === "status" || field === "reversedBy" || field === "updatedAt") &&
+      update.$set.status === "Reversed";
+
+    if (isReversalTransition) {
+      return next();
+    }
+
     return next(
       new Error(
         "JournalEntry: Posted entries are immutable. Create a reversal entry (reversalOf) instead of editing.",

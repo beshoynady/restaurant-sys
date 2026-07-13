@@ -185,6 +185,11 @@ const roleSchema = new Schema(
         viewReports: { type: Boolean, default: false },
         approve: { type: Boolean, default: false },
         reject: { type: Boolean, default: false },
+        // Journal Entry Posting Engine: reversing a Posted entry is a distinct, more sensitive
+        // action than a normal `update` (it corrects an immutable financial record) — kept as its
+        // own permission rather than folded into `approve`, so a brand can grant approval rights
+        // without also granting reversal rights.
+        reverse: { type: Boolean, default: false },
       },
     ],
 

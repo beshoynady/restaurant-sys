@@ -95,6 +95,9 @@ import inventoryRouter from "../../modules/inventory/inventory/inventory.router.
 import stockItemRouter from "../../modules/inventory/stock-item/stock-item.router.js";
 import warehouseRouter from "../../modules/inventory/warehouse/warehouse.router.js";
 import inventorySettingsRouter from "../../modules/inventory/inventory-settings/inventory-settings.router.js";
+// V4.0 Inventory Stock Movement Engine: RBAC fixed, mounted here now that posting is real.
+import warehouseDocumentRouter from "../../modules/inventory/warehouse-document/warehouse-document.router.js";
+import stockLedgerRouter from "../../modules/inventory/stock-ledger/stock-ledger.router.js";
 
 // ========================
 // MENU
@@ -255,6 +258,8 @@ router.use("/inventory", inventoryRouter);
 router.use("/stock-items", stockItemRouter);
 router.use("/warehouses", warehouseRouter);
 router.use("/inventory-settings", inventorySettingsRouter);
+router.use("/warehouse-documents", warehouseDocumentRouter);
+router.use("/stock-ledger", stockLedgerRouter);
 
 // Menu
 router.use("/menu/products", productRouter);

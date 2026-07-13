@@ -11,6 +11,8 @@ import {
   paramsJournalEntrySchema,
   paramsJournalEntryIdsSchema,
   queryJournalEntrySchema,
+  rejectJournalEntrySchema,
+  reverseJournalEntrySchema,
 } from "./journal-entry.validation.js";
 
 const router = express.Router();
@@ -67,6 +69,40 @@ router
     checkModuleEnabled("accounting"),
     validate(paramsJournalEntrySchema, "params"),
     journalEntryController.hardDelete,
+  );
+
+// Journal Entry Posting Engine — maker-checker approve/reject (Pending -> Posted/Rejected)
+// and the reversal correction flow (Posted -> Reversed + a new offsetting entry).
+router
+  .route("/:id/approve")
+  .patch(
+    authenticateToken,
+    authorize("JournalEntries", "approve"),
+    checkModuleEnabled("accounting"),
+    validate(paramsJournalEntrySchema, "params"),
+    journalEntryController.approve,
+  );
+
+router
+  .route("/:id/reject")
+  .patch(
+    authenticateToken,
+    authorize("JournalEntries", "reject"),
+    checkModuleEnabled("accounting"),
+    validate(paramsJournalEntrySchema, "params"),
+    validate(rejectJournalEntrySchema),
+    journalEntryController.reject,
+  );
+
+router
+  .route("/:id/reverse")
+  .post(
+    authenticateToken,
+    authorize("JournalEntries", "reverse"),
+    checkModuleEnabled("accounting"),
+    validate(paramsJournalEntrySchema, "params"),
+    validate(reverseJournalEntrySchema),
+    journalEntryController.reverse,
   );
 
 // PLATFORM_FINAL_AUDIT.md PA-01, corrected: soft-delete/restore/

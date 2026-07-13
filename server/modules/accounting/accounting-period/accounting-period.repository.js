@@ -16,6 +16,26 @@ class AccountingPeriodRepository extends BaseRepository {
   async findLockStatus(periodId, session) {
     return this.model.findById(periodId).session(session ?? null).select("isLocked").lean();
   }
+
+  /**
+   * Journal Entry Posting Engine: resolves the open, unlocked AccountingPeriod that a given
+   * posting date falls within, for a brand. Used by journalEntryService.postFromSource() so
+   * source-event callers (Invoice, PurchaseInvoice, ...) never have to resolve/guess a period
+   * themselves — posting to a period that doesn't exist or isn't open is a real business error,
+   * not something a caller should silently work around.
+   */
+  async findOpenPeriodForDate(brandId, date, session) {
+    return this.model
+      .findOne({
+        brand: brandId,
+        startDate: { $lte: date },
+        endDate: { $gte: date },
+        status: "Open",
+        isLocked: { $ne: true },
+      })
+      .session(session ?? null)
+      .lean();
+  }
 }
 
 export default AccountingPeriodRepository;

@@ -27,6 +27,35 @@ class JournalEntryRepository extends BaseRepository {
     const [entry] = await JournalEntryModel.create([data], { session });
     return entry;
   }
+
+  /**
+   * Journal Entry Posting Engine: brand/branch-scoped lookup used by the
+   * approve/reject/reverse transitions below, which all need to read the
+   * entry's *current* status before deciding whether a transition is legal —
+   * a plain `findById` would skip the tenant-isolation check every other
+   * read path on this model gets via `buildBaseQuery`.
+   */
+  async findByIdScoped(id, brandId, branchId, session) {
+    return this.model
+      .findOne({ _id: id, ...this.buildBaseQuery({ brandId, branchId }) })
+      .session(session ?? null);
+  }
+
+  /**
+   * Journal Entry Posting Engine: transitions status with an optimistic
+   * precondition on the entry's current status (e.g. only Pending ->
+   * Posted), so two concurrent approve/reject/reverse calls on the same
+   * entry can't both succeed. Returns null (not an error) if the
+   * precondition didn't hold — callers translate that into a business error
+   * with a message specific to the transition being attempted.
+   */
+  async transitionStatus(id, brandId, fromStatus, updateFields, session) {
+    return this.model.findOneAndUpdate(
+      { _id: id, brand: brandId, status: fromStatus },
+      { $set: updateFields },
+      { new: true, session: session ?? undefined },
+    );
+  }
 }
 
 export default JournalEntryRepository;
