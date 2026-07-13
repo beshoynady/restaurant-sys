@@ -101,7 +101,9 @@ const cashTransferSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["DRAFT", "POSTED"],
+      // PLATFORM_FINAL_AUDIT.md PA-02: added CANCELLED — see
+      // cash-transaction.model.js.
+      enum: ["DRAFT", "POSTED", "CANCELLED"],
       default: "DRAFT",
     },
 
@@ -118,11 +120,6 @@ const cashTransferSchema = new mongoose.Schema(
       trim: true,
       maxlength: 300,
     },
-
-    // PLATFORM_FINAL_AUDIT.md PA-02
-    isDeleted: { type: Boolean, default: false },
-    deletedAt: { type: Date, default: null },
-    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
   { timestamps: true },
 );

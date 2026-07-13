@@ -37,31 +37,16 @@ router.route("/:id")
     checkModuleEnabled("reservations"), validate(paramsReservationSchema, "params"), reservationController.hardDelete) // soft delete
 ;
 
-router.route("/soft-delete/:id")
-  .patch(authenticateToken,
-    authorize("Reservations", "delete"),
-    checkModuleEnabled("reservations"), validate(paramsReservationSchema, "params"), reservationController.softDelete) // soft delete
-;
-
-// Restore soft-deleted item
-router.route("/restore/:id")
-  .patch(authenticateToken,
-    authorize("Reservations", "update"),
-    checkModuleEnabled("reservations"), validate(paramsReservationSchema, "params"), reservationController.restore)
-;
+// PLATFORM_FINAL_AUDIT.md PA-08, corrected: soft-delete/restore/
+// bulk-soft-delete removed — Reservation already has a complete lifecycle
+// status (pending/confirmed/seated/completed/cancelled/no_show); cancel via
+// PUT, not deletion.
 
  // --- BULK HARD DELETE ---
   router.route("/bulk-delete")
     .delete(authenticateToken,
     authorize("Reservations", "delete"),
     checkModuleEnabled("reservations"), validate(paramsReservationIdsSchema), reservationController.bulkHardDelete);
-
-
-  // --- BULK SOFT DELETE ---
-  router.route("/bulk-soft-delete")
-    .patch(authenticateToken,
-    authorize("Reservations", "delete"),
-    checkModuleEnabled("reservations"),validate(paramsReservationIdsSchema), reservationController.bulkSoftDelete);
 
 
 export default router;

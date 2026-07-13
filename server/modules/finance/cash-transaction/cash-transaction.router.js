@@ -37,31 +37,16 @@ router.route("/:id")
     checkModuleEnabled("financial"), validate(paramsCashTransactionSchema, "params"), cashTransactionController.hardDelete) // soft delete
 ;
 
-router.route("/soft-delete/:id")
-  .patch(authenticateToken,
-    authorize("CashTransactions", "delete"),
-    checkModuleEnabled("financial"), validate(paramsCashTransactionSchema, "params"), cashTransactionController.softDelete) // soft delete
-;
-
-// Restore soft-deleted item
-router.route("/restore/:id")
-  .patch(authenticateToken,
-    authorize("CashTransactions", "update"),
-    checkModuleEnabled("financial"), validate(paramsCashTransactionSchema, "params"), cashTransactionController.restore)
-;
+// PLATFORM_FINAL_AUDIT.md PA-02, corrected: soft-delete/restore/
+// bulk-soft-delete removed — CashTransaction is a transactional document
+// (DRAFT/POSTED/CANCELLED lifecycle), not master data; cancel via PUT
+// (status: "CANCELLED"), not deletion.
 
  // --- BULK HARD DELETE ---
   router.route("/bulk-delete")
     .delete(authenticateToken,
     authorize("CashTransactions", "delete"),
     checkModuleEnabled("financial"), validate(paramsCashTransactionIdsSchema), cashTransactionController.bulkHardDelete);
-
-
-  // --- BULK SOFT DELETE ---
-  router.route("/bulk-soft-delete")
-    .patch(authenticateToken,
-    authorize("CashTransactions", "delete"),
-    checkModuleEnabled("financial"),validate(paramsCashTransactionIdsSchema), cashTransactionController.bulkSoftDelete);
 
 
 export default router;

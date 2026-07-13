@@ -37,31 +37,15 @@ router.route("/:id")
     checkModuleEnabled("assets"), validate(paramsAssetMaintenanceSchema, "params"), assetMaintenanceController.hardDelete) // soft delete
 ;
 
-router.route("/soft-delete/:id")
-  .patch(authenticateToken,
-    authorize("AssetMaintenances", "delete"),
-    checkModuleEnabled("assets"), validate(paramsAssetMaintenanceSchema, "params"), assetMaintenanceController.softDelete) // soft delete
-;
-
-// Restore soft-deleted item
-router.route("/restore/:id")
-  .patch(authenticateToken,
-    authorize("AssetMaintenances", "update"),
-    checkModuleEnabled("assets"), validate(paramsAssetMaintenanceSchema, "params"), assetMaintenanceController.restore)
-;
+// PLATFORM_FINAL_AUDIT.md PA-02, corrected: soft-delete/restore/
+// bulk-soft-delete removed — transactional document, already has
+// Draft/Completed/Cancelled.
 
  // --- BULK HARD DELETE ---
   router.route("/bulk-delete")
     .delete(authenticateToken,
     authorize("AssetMaintenances", "delete"),
     checkModuleEnabled("assets"), validate(paramsAssetMaintenanceIdsSchema), assetMaintenanceController.bulkHardDelete);
-
-
-  // --- BULK SOFT DELETE ---
-  router.route("/bulk-soft-delete")
-    .patch(authenticateToken,
-    authorize("AssetMaintenances", "delete"),
-    checkModuleEnabled("assets"),validate(paramsAssetMaintenanceIdsSchema), assetMaintenanceController.bulkSoftDelete);
 
 
 export default router;

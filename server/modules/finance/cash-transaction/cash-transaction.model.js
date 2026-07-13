@@ -153,7 +153,12 @@ const cashTransactionSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["DRAFT", "POSTED"],
+      // PLATFORM_FINAL_AUDIT.md PA-02: added CANCELLED — this is the
+      // "proper business lifecycle" terminal state a transactional document
+      // needs instead of soft-delete (a mistaken DRAFT can now be
+      // cancelled rather than deleted, preserving the sequential `number`
+      // audit trail).
+      enum: ["DRAFT", "POSTED", "CANCELLED"],
       default: "DRAFT",
     },
     postedAt: Date,
@@ -186,11 +191,6 @@ const cashTransactionSchema = new mongoose.Schema(
       trim: true,
       maxlength: 500,
     },
-
-    // PLATFORM_FINAL_AUDIT.md PA-02
-    isDeleted: { type: Boolean, default: false },
-    deletedAt: { type: Date, default: null },
-    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
   { timestamps: true }
 );

@@ -30,23 +30,13 @@ router.route("/:id")
   .delete(authenticateToken, authorize("SupplierTransactions", "delete"), checkModuleEnabled("purchasing"), validate(paramsSupplierTransactionSchema, "params"), supplierTransactionController.hardDelete) // soft delete
 ;
 
-router.route("/soft-delete/:id")
-  .patch(authenticateToken, authorize("SupplierTransactions", "delete"), checkModuleEnabled("purchasing"), validate(paramsSupplierTransactionSchema, "params"), supplierTransactionController.softDelete) // soft delete
-;
-
-// Restore soft-deleted item
-router.route("/restore/:id")
-  .patch(authenticateToken, authorize("SupplierTransactions", "update"), checkModuleEnabled("purchasing"), validate(paramsSupplierTransactionSchema, "params"), supplierTransactionController.restore)
-;
+// PLATFORM_FINAL_AUDIT.md, corrected: soft-delete/restore/bulk-soft-delete
+// removed — SupplierTransaction already has Pending/Approved/Completed/
+// Cancelled.
 
  // --- BULK HARD DELETE ---
   router.route("/bulk-delete")
     .delete(authenticateToken, authorize("SupplierTransactions", "delete"), checkModuleEnabled("purchasing"), validate(paramsSupplierTransactionIdsSchema), supplierTransactionController.bulkHardDelete);
-
-
-  // --- BULK SOFT DELETE ---
-  router.route("/bulk-soft-delete")
-    .patch(authenticateToken, authorize("SupplierTransactions", "delete"), checkModuleEnabled("purchasing"), validate(paramsSupplierTransactionIdsSchema), supplierTransactionController.bulkSoftDelete);
 
 
 export default router;

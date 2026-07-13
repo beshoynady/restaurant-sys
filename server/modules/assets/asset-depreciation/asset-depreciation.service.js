@@ -4,7 +4,9 @@ import AdvancedService from "../../../utils/BaseRepository.js";
 // Initialize service for asset-depreciation model
 const assetDepreciationService = new AdvancedService(AssetDepreciationModel, {
   brandScoped: true,
-  softDelete: true,
+  // PLATFORM_FINAL_AUDIT.md PA-02, corrected: transactional document
+  // (Draft/Posted, linked to a JournalEntry) — see asset.service.js.
+  enableSoftDelete: false,
   // DB-012 minimal compatibility update: casing fixed to match the renamed `brand`/`branch`
   // fields (model previously had `Brand`/`Branch`, which meant `brandScoped: true` above was
   // silently never actually filtering/populating by brand at all).

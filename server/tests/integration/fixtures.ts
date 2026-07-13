@@ -10,6 +10,9 @@ import AccountModel from "../../modules/accounting/account/account.model.js";
 import AccountingPeriodModel from "../../modules/accounting/accounting-period/accounting-period.model.js";
 import OrderSettingsModel from "../../modules/sales/order-settings/order-settings.model.js";
 import InvoiceSettingsModel from "../../modules/sales/invoice-settings/invoice-settings.model.js";
+import DiningAreaModel from "../../modules/seating/dining-area/dining-area.model.js";
+import TableModel from "../../modules/seating/table/table.model.js";
+import ReservationModel from "../../modules/seating/reservation/reservation.model.js";
 
 export interface TestFixture {
   brandId: string;
@@ -117,6 +120,32 @@ export async function createAccountingPeriodFixture(
   });
 }
 
+export async function createDiningAreaFixture(fixture: TestFixture, suffix: string) {
+  return DiningAreaModel.create({
+    brand: fixture.brandId,
+    branch: fixture.branchId,
+    name: new Map([["en", `Test Dining Area ${suffix}`]]),
+    code: `DA-${suffix}`.toUpperCase(),
+    createdBy: fixture.userId,
+  });
+}
+
+export async function createTableFixture(
+  fixture: TestFixture,
+  diningAreaId: string,
+  suffix: string,
+) {
+  return TableModel.create({
+    brand: fixture.brandId,
+    branch: fixture.branchId,
+    diningArea: diningAreaId,
+    tableNumber: `T-${suffix}`,
+    tableCode: `T-${suffix}`.toUpperCase(),
+    maxCapacity: 4,
+    createdBy: fixture.userId,
+  });
+}
+
 export async function cleanupFixture(fixture: TestFixture): Promise<void> {
   const brandId = new mongoose.Types.ObjectId(fixture.brandId);
   await Promise.all([
@@ -127,5 +156,8 @@ export async function cleanupFixture(fixture: TestFixture): Promise<void> {
     AccountingPeriodModel.deleteMany({ brand: brandId }),
     OrderSettingsModel.deleteMany({ brand: brandId }),
     InvoiceSettingsModel.deleteMany({ brand: brandId }),
+    DiningAreaModel.deleteMany({ brand: brandId }),
+    TableModel.deleteMany({ brand: brandId }),
+    ReservationModel.deleteMany({ brand: brandId }),
   ]);
 }

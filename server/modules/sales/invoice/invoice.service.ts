@@ -14,8 +14,11 @@ class InvoiceService extends BaseRepository<any> {
   constructor() {
     super(InvoiceModel, {
       brandScoped: true,
-      // Corrected key name while this file was already being converted (see order.service.ts).
-      enableSoftDelete: true,
+      // PLATFORM_FINAL_AUDIT.md PA-03, corrected: Invoice is a transactional
+      // fiscal document with its own status lifecycle (OPEN/PAID/
+      // PARTIALLY_RETURNED/FULLY_RETURNED/CANCELLED) — soft-delete is not
+      // the right model for it (see order.service.ts).
+      enableSoftDelete: false,
       defaultPopulate: ["brand", "branch", "cashierShift", "cashier", "deliveryMan", "order", "paidBy"],
       searchableFields: [],
       defaultSort: { createdAt: -1 },

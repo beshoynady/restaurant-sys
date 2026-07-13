@@ -133,6 +133,10 @@ const ReservationSchema = new Schema(
       type: Date,
       default: null,
     },
+
+    // PLATFORM_FINAL_AUDIT.md PA-08, corrected: Reservation already has a
+    // complete lifecycle status (pending/confirmed/seated/completed/
+    // cancelled/no_show) — soft-delete does not apply.
   },
   {
     timestamps: true,

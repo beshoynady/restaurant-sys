@@ -186,15 +186,10 @@ const PreparationTicketSchema = new Schema(
       type: ObjectId,
       ref: "UserAccount",
     },
-    isDeleted: {
-      type: Boolean,
-      default: false,
-    },
-    deletedBy: { type: ObjectId, ref: "UserAccount",
-    },
-    deletedAt: {
-      type: Date,
-    },
+    // PLATFORM_FINAL_AUDIT.md, corrected: PreparationTicket is a
+    // transactional execution record with its own preparationStatus lifecycle
+    // (PENDING/PREPARING/READY/CANCELLED/REJECTED, guarded in
+    // preparation-ticket.service.js) — soft-delete does not apply.
   },
   { timestamps: true }
 );

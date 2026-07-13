@@ -37,31 +37,15 @@ router.route("/:id")
     checkModuleEnabled("sales"), validate(paramsOrderSchema, "params"), orderController.hardDelete) // soft delete
 ;
 
-router.route("/soft-delete/:id")
-  .patch(authenticateToken,
-    authorize("Orders", "delete"),
-    checkModuleEnabled("sales"), validate(paramsOrderSchema, "params"), orderController.softDelete) // soft delete
-;
-
-// Restore soft-deleted item
-router.route("/restore/:id")
-  .patch(authenticateToken,
-    authorize("Orders", "update"),
-    checkModuleEnabled("sales"), validate(paramsOrderSchema, "params"), orderController.restore)
-;
+// PLATFORM_FINAL_AUDIT.md PA-03, corrected: soft-delete/restore/
+// bulk-soft-delete removed — Order already has a CANCELLED status; cancel
+// via PUT, not deletion.
 
  // --- BULK HARD DELETE ---
   router.route("/bulk-delete")
     .delete(authenticateToken,
     authorize("Orders", "delete"),
     checkModuleEnabled("sales"), validate(paramsOrderIdsSchema), orderController.bulkHardDelete);
-
-
-  // --- BULK SOFT DELETE ---
-  router.route("/bulk-soft-delete")
-    .patch(authenticateToken,
-    authorize("Orders", "delete"),
-    checkModuleEnabled("sales"),validate(paramsOrderIdsSchema), orderController.bulkSoftDelete);
 
 
 export default router;

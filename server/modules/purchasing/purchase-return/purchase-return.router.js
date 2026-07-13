@@ -30,23 +30,13 @@ router.route("/:id")
   .delete(authenticateToken, authorize("PurchaseReturns", "delete"), checkModuleEnabled("purchasing"), validate(paramsPurchaseReturnSchema, "params"), purchaseReturnController.hardDelete) // soft delete
 ;
 
-router.route("/soft-delete/:id")
-  .patch(authenticateToken, authorize("PurchaseReturns", "delete"), checkModuleEnabled("purchasing"), validate(paramsPurchaseReturnSchema, "params"), purchaseReturnController.softDelete) // soft delete
-;
-
-// Restore soft-deleted item
-router.route("/restore/:id")
-  .patch(authenticateToken, authorize("PurchaseReturns", "update"), checkModuleEnabled("purchasing"), validate(paramsPurchaseReturnSchema, "params"), purchaseReturnController.restore)
-;
+// PLATFORM_FINAL_AUDIT.md, corrected: soft-delete/restore/bulk-soft-delete
+// removed — PurchaseReturn already has Draft/Review/Partially Refunded/
+// Fully Refunded/Rejected/Cancelled.
 
  // --- BULK HARD DELETE ---
   router.route("/bulk-delete")
     .delete(authenticateToken, authorize("PurchaseReturns", "delete"), checkModuleEnabled("purchasing"), validate(paramsPurchaseReturnIdsSchema), purchaseReturnController.bulkHardDelete);
-
-
-  // --- BULK SOFT DELETE ---
-  router.route("/bulk-soft-delete")
-    .patch(authenticateToken, authorize("PurchaseReturns", "delete"), checkModuleEnabled("purchasing"), validate(paramsPurchaseReturnIdsSchema), purchaseReturnController.bulkSoftDelete);
 
 
 export default router;

@@ -108,6 +108,11 @@ import recipeRouter from "../../modules/menu/recipe/recipe.router.js";
 // ========================
 import preparationReturnSettingsRouter from "../../modules/preparation/preparation-settings/preparation-return-settings.router.js";
 import preparationTicketSettingsRouter from "../../modules/preparation/preparation-settings/preparation-ticket-settings.router.js";
+// PLATFORM_FINAL_AUDIT.md PA-07: broken controller import paths fixed and
+// missing RBAC added in a prior pass; mounted here now that KDS is reachable.
+import preparationTicketRouter from "../../modules/preparation/preparation-ticket/preparation-ticket.router.js";
+import preparationSectionRouter from "../../modules/preparation/preparation-section/preparation-section.router.js";
+import preparationReturnRouter from "../../modules/preparation/preparation-return/preparation-return.router.js";
 
 // ========================
 // PURCHASING
@@ -129,6 +134,10 @@ import orderRouter from "../../modules/sales/order/order.router.js";
 import invoiceRouter from "../../modules/sales/invoice/invoice.router.js";
 import orderSettingsRouter from "../../modules/sales/order-settings/order-settings.router.js";
 import invoiceSettingsRouter from "../../modules/sales/invoice-settings/invoice-settings.router.js";
+// PLATFORM_FINAL_AUDIT.md PA-13: coded but never mounted; missing RBAC fixed
+// in these two routers before mounting here.
+import salesReturnRouter from "../../modules/sales/sales-return/sales-return.router.js";
+import promotionRouter from "../../modules/sales/promotion/promotion.router.js";
 import salesReturnSettingsRouter from "../../modules/sales/rerturn-sales-settings/sales-return-settings.router.js";
 
 // ========================
@@ -142,6 +151,13 @@ import reservationRouter from "../../modules/seating/reservation/reservation.rou
 // ========================
 import loyaltyRouter from "../../modules/loyalty/customer-loyalty/customer-loyalty.router.js";
 import loyaltySettingsRouter from "../../modules/loyalty/loyalty-settings/loyalty-settings.router.js";
+// PLATFORM_FINAL_AUDIT.md PA-11: previously dead code — wrong controller
+// import paths, a named import of a default-only export, single-arg
+// authorize() calls, a broken service-layer import, and undefined
+// validation schemas/controller method (all fixed in a prior pass of this
+// audit). Mounted here now that both routers import and run cleanly.
+import loyaltyRewardRouter from "../../modules/loyalty/loyalty-reward/loyalty-reward.router.js";
+import loyaltyTransactionRouter from "../../modules/loyalty/loyalty-transaction/loyalty-transaction.router.js";
 import auditLogRouter from "../../modules/audit-log/audit-log.router.js";
 
 // ========================
@@ -248,6 +264,9 @@ router.use("/menu/recipes", recipeRouter);
 // Preparation
 router.use("/preparation/return-settings", preparationReturnSettingsRouter);
 router.use("/preparation/ticket-settings", preparationTicketSettingsRouter);
+router.use("/preparation/tickets", preparationTicketRouter);
+router.use("/preparation/sections", preparationSectionRouter);
+router.use("/preparation/returns", preparationReturnRouter);
 
 // Purchasing
 router.use("/purchasing/settings", purchaseSettingsRouter);
@@ -262,6 +281,8 @@ router.use("/sales/invoices", invoiceRouter);
 router.use("/sales/order-settings", orderSettingsRouter);
 router.use("/sales/invoice-settings", invoiceSettingsRouter);
 router.use("/sales/return-settings", salesReturnSettingsRouter);
+router.use("/sales/returns", salesReturnRouter);
+router.use("/sales/promotions", promotionRouter);
 
 // Seating
 router.use("/seating/tables", tableRouter);
@@ -275,6 +296,8 @@ router.use("/audit-logs", auditLogRouter);
 // Loyalty
 router.use("/loyalty", loyaltyRouter);
 router.use("/loyalty-settings", loyaltySettingsRouter);
+router.use("/loyalty-rewards", loyaltyRewardRouter);
+router.use("/loyalty-transactions", loyaltyTransactionRouter);
 
 // System
 router.use("/system/discount-settings", discountSettingsRouter);

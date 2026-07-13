@@ -19,10 +19,11 @@ class OrderService extends BaseRepository<any> {
   constructor() {
     super(OrderModel, {
       brandScoped: true,
-      // Corrected key name while this file was already being converted: `softDelete` is not a
-      // recognized BaseRepositoryOptions field (the correct name is `enableSoftDelete`, default
-      // `true`) — the original was already silently a no-op, not a behavior change here.
-      enableSoftDelete: true,
+      // PLATFORM_FINAL_AUDIT.md PA-03, corrected: Order is a transactional
+      // document with its own status lifecycle (OPEN/IN_PROGRESS/READY/
+      // DELIVERED/CLOSED/CANCELLED) — soft-delete is not the right model
+      // for it; a mistaken order is cancelled via `status`, not deleted.
+      enableSoftDelete: false,
       // DB-016 minimal compatibility update (retained): "user" removed (field no longer exists —
       // Order.customer is now a single polymorphic reference, see order.model.js).
       defaultPopulate: ["brand", "branch", "cashierShift", "staffMember", "table", "orderBy", "customer"],

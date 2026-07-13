@@ -37,31 +37,15 @@ router.route("/:id")
     checkModuleEnabled("sales"), validate(paramsInvoiceSchema, "params"), invoiceController.hardDelete) // soft delete
 ;
 
-router.route("/soft-delete/:id")
-  .patch(authenticateToken,
-    authorize("Invoices", "delete"),
-    checkModuleEnabled("sales"), validate(paramsInvoiceSchema, "params"), invoiceController.softDelete) // soft delete
-;
-
-// Restore soft-deleted item
-router.route("/restore/:id")
-  .patch(authenticateToken,
-    authorize("Invoices", "update"),
-    checkModuleEnabled("sales"), validate(paramsInvoiceSchema, "params"), invoiceController.restore)
-;
+// PLATFORM_FINAL_AUDIT.md PA-03, corrected: soft-delete/restore/
+// bulk-soft-delete removed — Invoice already has a CANCELLED status; cancel
+// via PUT, not deletion.
 
  // --- BULK HARD DELETE ---
   router.route("/bulk-delete")
     .delete(authenticateToken,
     authorize("Invoices", "delete"),
     checkModuleEnabled("sales"), validate(paramsInvoiceIdsSchema), invoiceController.bulkHardDelete);
-
-
-  // --- BULK SOFT DELETE ---
-  router.route("/bulk-soft-delete")
-    .patch(authenticateToken,
-    authorize("Invoices", "delete"),
-    checkModuleEnabled("sales"),validate(paramsInvoiceIdsSchema), invoiceController.bulkSoftDelete);
 
 
 export default router;

@@ -156,16 +156,6 @@ const assetTransactionSchema = new mongoose.Schema(
       ref: "UserAccount",
       required: true,
     },
-
-    // PLATFORM_FINAL_AUDIT.md PA-02: required so BaseRepository's default
-    // softDelete read-filter ({isDeleted:false}) doesn't silently return
-    // empty result sets. This model's own findOneAndUpdate/updateOne guard
-    // below already blocks any actual soft-delete write, by design (an
-    // immutable audit log) — the field exists for correct reads, not to
-    // enable deletion.
-    isDeleted: { type: Boolean, default: false },
-    deletedAt: { type: Date, default: null },
-    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
   {
     timestamps: true, // createdAt & updatedAt
@@ -186,6 +176,14 @@ assetTransactionSchema.pre("findOneAndUpdate", function () {
 
 assetTransactionSchema.pre("updateOne", function () {
   throw new Error("Asset transactions are immutable and cannot be updated.");
+});
+
+// PLATFORM_FINAL_AUDIT.md PA-02, noted while removing this model's
+// soft-delete fields: `deleteOne` was not covered by the two guards above,
+// meaning BaseController.hardDelete could actually erase an immutable audit
+// log record. Closed with the same guard pattern already used here.
+assetTransactionSchema.pre("deleteOne", { document: false, query: true }, function () {
+  throw new Error("Asset transactions are immutable and cannot be deleted.");
 });
 
 const AssetTransactionModel = mongoose.model(

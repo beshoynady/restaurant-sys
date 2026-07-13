@@ -4,7 +4,9 @@ import AdvancedService from "../../../utils/BaseRepository.js";
 // Initialize service for asset-purchase-invoice model
 const assetPurchaseInvoiceService = new AdvancedService(AssetPurchaseInvoiceModel, {
   brandScoped: true,
-  softDelete: true,
+  // PLATFORM_FINAL_AUDIT.md PA-02, corrected: transactional document,
+  // already has Draft/Posted/Cancelled — see asset.service.js.
+  enableSoftDelete: false,
   defaultPopulate: ["brand","branch","supplier","taxes","createdBy","updatedBy","postedBy"],
   searchFields: [], // specify searchable fields if needed
   defaultSort: { createdAt: -1 },

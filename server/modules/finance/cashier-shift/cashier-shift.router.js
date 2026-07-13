@@ -37,31 +37,15 @@ router.route("/:id")
     checkModuleEnabled("financial"), validate(paramsCashierShiftSchema, "params"), cashierShiftController.hardDelete) // soft delete
 ;
 
-router.route("/soft-delete/:id")
-  .patch(authenticateToken,
-    authorize("CashierShifts", "delete"),
-    checkModuleEnabled("financial"), validate(paramsCashierShiftSchema, "params"), cashierShiftController.softDelete) // soft delete
-;
-
-// Restore soft-deleted item
-router.route("/restore/:id")
-  .patch(authenticateToken,
-    authorize("CashierShifts", "update"),
-    checkModuleEnabled("financial"), validate(paramsCashierShiftSchema, "params"), cashierShiftController.restore)
-;
+// PLATFORM_FINAL_AUDIT.md PA-02, corrected: soft-delete/restore/
+// bulk-soft-delete removed — CashierShift is a transactional document
+// (OPEN/COUNTED/CLOSED/POSTED/CANCELLED lifecycle), not master data.
 
  // --- BULK HARD DELETE ---
   router.route("/bulk-delete")
     .delete(authenticateToken,
     authorize("CashierShifts", "delete"),
     checkModuleEnabled("financial"), validate(paramsCashierShiftIdsSchema), cashierShiftController.bulkHardDelete);
-
-
-  // --- BULK SOFT DELETE ---
-  router.route("/bulk-soft-delete")
-    .patch(authenticateToken,
-    authorize("CashierShifts", "delete"),
-    checkModuleEnabled("financial"),validate(paramsCashierShiftIdsSchema), cashierShiftController.bulkSoftDelete);
 
 
 export default router;

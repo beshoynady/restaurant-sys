@@ -69,26 +69,10 @@ router
     journalEntryController.hardDelete,
   );
 
-router
-  .route("/soft-delete/:id")
-  .patch(
-    authenticateToken,
-    authorize("JournalEntries", "delete"),
-    checkModuleEnabled("accounting"),
-    validate(paramsJournalEntrySchema, "params"),
-    journalEntryController.softDelete,
-  );
-
-// Restore soft-deleted item
-router
-  .route("/restore/:id")
-  .patch(
-    authenticateToken,
-    authorize("JournalEntries", "update"),
-    checkModuleEnabled("accounting"),
-    validate(paramsJournalEntrySchema, "params"),
-    journalEntryController.restore,
-  );
+// PLATFORM_FINAL_AUDIT.md PA-01, corrected: soft-delete/restore/
+// bulk-soft-delete removed — JournalEntry is a transactional financial
+// document (Pending/Posted/Rejected/Reversed lifecycle), not master data;
+// financial records are corrected via a reversal entry, never deleted.
 
 // --- BULK HARD DELETE ---
 router
@@ -99,17 +83,6 @@ router
     checkModuleEnabled("accounting"),
     validate(paramsJournalEntryIdsSchema),
     journalEntryController.bulkHardDelete,
-  );
-
-// --- BULK SOFT DELETE ---
-router
-  .route("/bulk-soft-delete")
-  .patch(
-    authenticateToken,
-    authorize("JournalEntries", "delete"),
-    checkModuleEnabled("accounting"),
-    validate(paramsJournalEntryIdsSchema),
-    journalEntryController.bulkSoftDelete,
   );
 
 export default router;

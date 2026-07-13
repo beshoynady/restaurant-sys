@@ -76,19 +76,18 @@ const journalEntrySchema = new Schema(
     rejectedAt: { type: Date, default: null },
 
     rejectionReason: { type: String, trim: true, maxlength: 300, default: null },
-
-    // PLATFORM_FINAL_AUDIT.md PA-01: BaseRepository filters every query on
-    // {isDeleted:false} whenever softDelete:true (the repository default);
-    // this model never had the fields, so every list/read call silently
-    // returned empty. Added, not backfilled by a migration — Mongoose
-    // treats an absent field as matching {$ne:true}/{isDeleted:false} on
-    // existing documents, so this is a safe, non-breaking addition.
-    isDeleted: { type: Boolean, default: false },
-    deletedAt: { type: Date, default: null },
-    deletedBy: { type: Schema.Types.ObjectId, ref: "UserAccount", default: null },
   },
   { timestamps: true },
 );
+
+// PLATFORM_FINAL_AUDIT.md PA-01, corrected: a JournalEntry is a transactional
+// financial document, not master data — soft-delete is the wrong lifecycle
+// model for it (per ERP/GAAP practice, financial records are never erased,
+// even "softly"; corrections happen via Rejected/Reversed status, which this
+// entity already has). The original empty-reads bug (BaseRepository's
+// default softDelete filter silently matching against a non-existent field)
+// is fixed correctly below by disabling softDelete on the repository
+// entirely, not by adding delete semantics that don't belong on this entity.
 
 journalEntrySchema.index({ brand: 1, branch: 1, period: 1, entryNumber: 1 }, { unique: true });
 

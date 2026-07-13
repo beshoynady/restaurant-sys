@@ -130,6 +130,10 @@ const PromotionSchema = new mongoose.Schema(
     // Audit fields
     createdBy: { type: ObjectId, ref: "UserAccount", required: true },
     updatedBy: { type: ObjectId, ref: "UserAccount" },
+
+    // PLATFORM_FINAL_AUDIT.md PA-13: deletedBy/deletedAt existed but
+    // isDeleted did not — same "half-works" defect as bank-account.model.js.
+    isDeleted: { type: Boolean, default: false },
     deletedBy: { type: ObjectId, ref: "UserAccount" },
     deletedAt: { type: Date },
   },

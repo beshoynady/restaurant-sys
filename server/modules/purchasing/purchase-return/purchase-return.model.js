@@ -106,11 +106,6 @@ const purchaseReturnInvoiceSchema = new mongoose.Schema(
     createdBy: { type: ObjectId, ref: "UserAccount", required: true },
     updatedBy: { type: ObjectId, ref: "UserAccount" },
     isActive: { type: Boolean, default: true },
-
-    // PLATFORM_FINAL_AUDIT.md PA-05
-    isDeleted: { type: Boolean, default: false },
-    deletedAt: { type: Date, default: null },
-    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
   { timestamps: true }
 );

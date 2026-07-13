@@ -37,31 +37,15 @@ router.route("/:id")
     checkModuleEnabled("accounting"), validate(paramsAccountBalanceSchema, "params"), accountBalanceController.hardDelete) // soft delete
 ;
 
-router.route("/soft-delete/:id")
-  .patch(authenticateToken,
-    authorize("AccountBalances", "delete"),
-    checkModuleEnabled("accounting"), validate(paramsAccountBalanceSchema, "params"), accountBalanceController.softDelete) // soft delete
-;
-
-// Restore soft-deleted item
-router.route("/restore/:id")
-  .patch(authenticateToken,
-    authorize("AccountBalances", "update"),
-    checkModuleEnabled("accounting"), validate(paramsAccountBalanceSchema, "params"), accountBalanceController.restore)
-;
+// PLATFORM_FINAL_AUDIT.md PA-01, corrected: soft-delete/restore/
+// bulk-soft-delete removed — AccountBalance is a derived, system-computed
+// snapshot with no delete semantics of its own.
 
  // --- BULK HARD DELETE ---
   router.route("/bulk-delete")
     .delete(authenticateToken,
     authorize("AccountBalances", "delete"),
     checkModuleEnabled("accounting"), validate(paramsAccountBalanceIdsSchema), accountBalanceController.bulkHardDelete);
-
-
-  // --- BULK SOFT DELETE ---
-  router.route("/bulk-soft-delete")
-    .patch(authenticateToken,
-    authorize("AccountBalances", "delete"),
-    checkModuleEnabled("accounting"),validate(paramsAccountBalanceIdsSchema), accountBalanceController.bulkSoftDelete);
 
 
 export default router;

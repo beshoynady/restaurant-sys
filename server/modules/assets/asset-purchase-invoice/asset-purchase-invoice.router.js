@@ -37,31 +37,15 @@ router.route("/:id")
     checkModuleEnabled("assets"), validate(paramsAssetPurchaseInvoiceSchema, "params"), assetPurchaseInvoiceController.hardDelete) // soft delete
 ;
 
-router.route("/soft-delete/:id")
-  .patch(authenticateToken,
-    authorize("AssetPurchaseInvoices", "delete"),
-    checkModuleEnabled("assets"), validate(paramsAssetPurchaseInvoiceSchema, "params"), assetPurchaseInvoiceController.softDelete) // soft delete
-;
-
-// Restore soft-deleted item
-router.route("/restore/:id")
-  .patch(authenticateToken,
-    authorize("AssetPurchaseInvoices", "update"),
-    checkModuleEnabled("assets"), validate(paramsAssetPurchaseInvoiceSchema, "params"), assetPurchaseInvoiceController.restore)
-;
+// PLATFORM_FINAL_AUDIT.md PA-02, corrected: soft-delete/restore/
+// bulk-soft-delete removed — transactional document, already has
+// Draft/Posted/Cancelled.
 
  // --- BULK HARD DELETE ---
   router.route("/bulk-delete")
     .delete(authenticateToken,
     authorize("AssetPurchaseInvoices", "delete"),
     checkModuleEnabled("assets"), validate(paramsAssetPurchaseInvoiceIdsSchema), assetPurchaseInvoiceController.bulkHardDelete);
-
-
-  // --- BULK SOFT DELETE ---
-  router.route("/bulk-soft-delete")
-    .patch(authenticateToken,
-    authorize("AssetPurchaseInvoices", "delete"),
-    checkModuleEnabled("assets"),validate(paramsAssetPurchaseInvoiceIdsSchema), assetPurchaseInvoiceController.bulkSoftDelete);
 
 
 export default router;

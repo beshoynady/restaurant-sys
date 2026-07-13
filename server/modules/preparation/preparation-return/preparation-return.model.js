@@ -131,9 +131,6 @@ const PreparationReturnSchema = new Schema(
     /** Audit fields */
     createdBy: { type: ObjectId, ref: "UserAccount", required: true },
     updatedBy: { type: ObjectId, ref: "UserAccount", default: null },
-    isDeleted: { type: Boolean, default: false },
-    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
-    deletedAt: { type: Date, default: null },
   },
   { timestamps: true },
 );

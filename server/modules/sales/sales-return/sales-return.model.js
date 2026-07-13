@@ -154,10 +154,12 @@ const SalesReturnSchema = new mongoose.Schema(
     },
 
     refundStatus: {
-  type: String,
-  enum: ["PENDING", "REFUNDED", "PARTIALLY_REFUNDED"],
-  default: "PENDING",
-},
+      type: String,
+      // PLATFORM_FINAL_AUDIT.md PA-13: added CANCELLED — the proper
+      // business lifecycle terminal state instead of soft-delete.
+      enum: ["PENDING", "REFUNDED", "PARTIALLY_REFUNDED", "CANCELLED"],
+      default: "PENDING",
+    },
     // Refund date
     refund_date: {
       type: Date,

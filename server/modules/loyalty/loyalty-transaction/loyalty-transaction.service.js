@@ -9,7 +9,12 @@ class LoyaltyTransactionService extends AdvancedService {
   constructor() {
     super(LoyaltyTransactionModel, {
       brandScoped: true,
-      softDelete: true,
+      // PLATFORM_FINAL_AUDIT.md PA-11, corrected: this is a points ledger —
+      // deleting an entry (soft or hard) would corrupt the balanceAfter
+      // chain. The correct way to undo a mistaken entry is an offsetting
+      // adjustment via the `adjust()` method above, which already exists;
+      // no new lifecycle needed.
+      enableSoftDelete: false,
       defaultPopulate: [
         "brand",
         "branch",

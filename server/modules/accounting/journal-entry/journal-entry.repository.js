@@ -11,7 +11,11 @@ class JournalEntryRepository extends BaseRepository {
   constructor() {
     super(JournalEntryModel, {
       brandScoped: true,
-      enableSoftDelete: true,
+      // PLATFORM_FINAL_AUDIT.md PA-01, corrected: JournalEntry is a
+      // transactional financial document (Pending/Posted/Rejected/Reversed
+      // lifecycle already modeled on the schema) — soft-delete does not
+      // apply. See journal-entry.model.js for the full rationale.
+      enableSoftDelete: false,
       defaultPopulate: ["brand", "branch", "period", "createdBy", "approvedBy", "postedBy", "rejectedBy"],
       searchableFields: [],
       defaultSort: { createdAt: -1 },

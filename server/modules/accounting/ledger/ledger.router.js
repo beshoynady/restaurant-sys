@@ -1,47 +1,42 @@
 import express from "express";
 import ledgerController from "./ledger.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
-import validate from "../../../middlewares/validate.js";
-// import { 
-//   createLedgerSchema, 
-//   updateLedgerSchema, 
-//   paramsLedgerSchema, 
-//   paramsLedgerIdsSchema,
-//   queryLedgerSchema 
-// } from "./ledger.validation.js";
+import authorize from "../../../middlewares/authorize.js";
+import checkModuleEnabled from "../../../middlewares/checkModuleEnabled.js";
 
 const router = express.Router();
 
-// // Create & GetAll
-// router.route("/")
-//   .post(authenticateToken, validate(createLedgerSchema), ledgerController.create)
-//   .get(authenticateToken, validate(queryLedgerSchema), ledgerController.getAll)
-// ;
+// PLATFORM_FINAL_AUDIT.md PA-16: this router previously had every route
+// definition commented out, wired for a generic writable CRUD entity that
+// doesn't reflect what `ledger.controller.js` actually implements — the
+// ledger is a read-only report derived from JournalLine, not an entity with
+// its own create/update/delete. The controller's three real reporting
+// methods (getLedgerByAccount/getLedgerMultiAccount/getTrialBalance) were
+// never routed at all. Wired here as read-only GET endpoints; no new
+// business logic added, only routing to logic that already existed.
 
-// // GetOne, Update, hardDelete
-// router.route("/:id")
-//   .get(authenticateToken, validate(paramsLedgerSchema, "params"), ledgerController.getOne)
-//   .put(authenticateToken, validate(updateLedgerSchema), ledgerController.update)
-//   .delete(authenticateToken, validate(paramsLedgerSchema, "params"), ledgerController.hardDelete) // soft delete
-// ;
+router.get(
+  "/account/:accountId",
+  authenticateToken,
+  authorize("Ledgers", "read"),
+  checkModuleEnabled("accounting"),
+  ledgerController.getLedgerByAccount,
+);
 
-// router.route("/soft-delete/:id")
-//   .patch(authenticateToken, validate(paramsLedgerSchema, "params"), ledgerController.softDelete) // soft delete
-// ;
+router.get(
+  "/multi-account",
+  authenticateToken,
+  authorize("Ledgers", "read"),
+  checkModuleEnabled("accounting"),
+  ledgerController.getLedgerMultiAccount,
+);
 
-// // Restore soft-deleted item
-// router.route("/restore/:id")
-//   .patch(authenticateToken, validate(paramsLedgerSchema, "params"), ledgerController.restore)
-// ;
-
-//  // --- BULK HARD DELETE ---
-//   router.route("/bulk-delete")
-//     .delete(authenticateToken, validate(paramsLedgerIdsSchema), ledgerController.bulkHardDelete);
-
-
-//   // --- BULK SOFT DELETE ---
-//   router.route("/bulk-soft-delete")
-//     .patch(authenticateToken,validate(paramsLedgerIdsSchema), ledgerController.bulkSoftDelete);
-
+router.get(
+  "/trial-balance",
+  authenticateToken,
+  authorize("Ledgers", "read"),
+  checkModuleEnabled("accounting"),
+  ledgerController.getTrialBalance,
+);
 
 export default router;

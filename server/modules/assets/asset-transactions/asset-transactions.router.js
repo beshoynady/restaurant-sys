@@ -37,31 +37,19 @@ router.route("/:id")
     checkModuleEnabled("assets"), validate(paramsAssetTransactionsSchema, "params"), assetTransactionsController.hardDelete) // soft delete
 ;
 
-router.route("/soft-delete/:id")
-  .patch(authenticateToken,
-    authorize("AssetTransactions", "delete"),
-    checkModuleEnabled("assets"), validate(paramsAssetTransactionsSchema, "params"), assetTransactionsController.softDelete) // soft delete
-;
-
-// Restore soft-deleted item
-router.route("/restore/:id")
-  .patch(authenticateToken,
-    authorize("AssetTransactions", "update"),
-    checkModuleEnabled("assets"), validate(paramsAssetTransactionsSchema, "params"), assetTransactionsController.restore)
-;
+// PLATFORM_FINAL_AUDIT.md PA-02, corrected: soft-delete/restore/
+// bulk-soft-delete removed — AssetTransaction is an immutable audit log by
+// design (the model itself now blocks updateOne/findOneAndUpdate/deleteOne).
+// The remaining hardDelete/bulkHardDelete routes below stay reachable but
+// will always fail against the model's own guard — left as-is rather than
+// also removed, so the failure is explicit (from the model) instead of
+// silently absent from the API surface.
 
  // --- BULK HARD DELETE ---
   router.route("/bulk-delete")
     .delete(authenticateToken,
     authorize("AssetTransactions", "delete"),
     checkModuleEnabled("assets"), validate(paramsAssetTransactionsIdsSchema), assetTransactionsController.bulkHardDelete);
-
-
-  // --- BULK SOFT DELETE ---
-  router.route("/bulk-soft-delete")
-    .patch(authenticateToken,
-    authorize("AssetTransactions", "delete"),
-    checkModuleEnabled("assets"),validate(paramsAssetTransactionsIdsSchema), assetTransactionsController.bulkSoftDelete);
 
 
 export default router;

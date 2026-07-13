@@ -216,11 +216,6 @@ const invoiceSchema = mongoose.Schema(
       ref: "JournalEntry",
       default: null,
     },
-
-    // PLATFORM_FINAL_AUDIT.md PA-03
-    isDeleted: { type: Boolean, default: false },
-    deletedAt: { type: Date, default: null },
-    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
   { timestamps: true },
 );

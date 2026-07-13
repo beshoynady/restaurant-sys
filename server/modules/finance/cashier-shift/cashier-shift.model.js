@@ -105,7 +105,10 @@ const cashierShiftSchema = new mongoose.Schema(
     // ===============================
     status: {
       type: String,
-      enum: ["OPEN", "COUNTED", "CLOSED", "POSTED"],
+      // PLATFORM_FINAL_AUDIT.md PA-02: added CANCELLED — a shift opened by
+      // mistake, with no transactions posted against it, can now be
+      // cancelled rather than deleted.
+      enum: ["OPEN", "COUNTED", "CLOSED", "POSTED", "CANCELLED"],
       default: "OPEN",
     },
 
@@ -116,11 +119,6 @@ const cashierShiftSchema = new mongoose.Schema(
     closedBy: { type: ObjectId, ref: "UserAccount" },
 
     notes: { type: String, trim: true },
-
-    // PLATFORM_FINAL_AUDIT.md PA-02
-    isDeleted: { type: Boolean, default: false },
-    deletedAt: { type: Date, default: null },
-    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
   { timestamps: true }
 );
