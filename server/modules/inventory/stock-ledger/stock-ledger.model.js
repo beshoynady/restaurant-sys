@@ -47,9 +47,14 @@ const StockLedgerSchema = new mongoose.Schema(
 
     costMethod: {
       type: String,
-      enum: ["FIFO", "LIFO", "WeightedAverage"],
+      enum: ["FIFO", "LIFO", "WeightedAverage", "StandardCost", "LastPurchaseCost"],
       required: true,
     },
+    // Only populated on inbound StandardCost movements: (actual receipt unit cost - standardCost)
+    // * quantity. Purely informational this pass — not yet posted to a Purchase Price Variance GL
+    // account (no such control account is modeled in AccountingSettings yet); kept on the
+    // immutable ledger row so a future PPV posting can be back-filled without re-deriving it.
+    priceVariance: { type: Number, default: null },
 
     source: {
       type: String,

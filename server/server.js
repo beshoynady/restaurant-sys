@@ -15,6 +15,7 @@ import routerV1 from "./router/v1/index.router.js";
 // Import database connection
 import connectDB from "./database/connect-db.js";
 import roleTemplateService from "./modules/iam/role-template/role-template.service.js";
+import registerEventHandlers from "./utils/registerEventHandlers.js";
 
 
 // Load environment variables
@@ -29,6 +30,10 @@ await connectDB();
 // template catalog. Unlike tenant data (never auto-created), this is safe and correct to seed on
 // every boot: it's a static, versioned, non-tenant-scoped catalog every brand reads from.
 await roleTemplateService.ensureSeeded();
+
+// V5.2 Replenishment Engine (and any future Domain Event subscriber) — must be wired before the
+// app accepts traffic, so no emitted event can ever race an unregistered handler.
+registerEventHandlers();
 
 const app = express();
 const frontEnd = process.env.FRONT_END_URL;

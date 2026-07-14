@@ -219,7 +219,8 @@ export async function createWarehouseFixture(fixture: TestFixture, suffix: strin
 export async function createStockItemFixture(
   fixture: TestFixture,
   suffix: string,
-  costMethod: "FIFO" | "LIFO" | "WeightedAverage" = "WeightedAverage",
+  costMethod: "FIFO" | "LIFO" | "WeightedAverage" | "StandardCost" | "LastPurchaseCost" = "WeightedAverage",
+  overrides: Record<string, unknown> = {},
 ) {
   const category = await StockCategoryModel.create({
     brand: fixture.brandId,
@@ -241,6 +242,7 @@ export async function createStockItemFixture(
     costMethod,
     notes: new Map([["en", "test"]]),
     createdBy: fixture.userId,
+    ...overrides,
   });
 }
 

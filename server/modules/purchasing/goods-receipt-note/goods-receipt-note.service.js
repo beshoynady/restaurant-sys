@@ -5,6 +5,7 @@ import sequenceGenerator from "../../../utils/SequenceGeneratorService.js";
 import { createTransitionGuard } from "../../../utils/TransitionGuard.js";
 import purchaseSettingsService from "../purchasing-settings/purchase-settings.service.js";
 import purchaseOrderService from "../purchase-order/purchase-order.service.js";
+import PurchaseOrderModel from "../purchase-order/purchase-order.model.js";
 import warehouseDocumentService from "../../inventory/warehouse-document/warehouse-document.service.js";
 import domainEvents, { DomainEvent } from "../../../utils/domainEvents.js";
 
@@ -16,6 +17,13 @@ const transitionGuard = createTransitionGuard({
   Confirmed: [],
   Cancelled: [],
 });
+
+// V5.2 Workflow Integrity: a GRN referencing a PurchaseOrder may only be confirmed while that PO
+// is actually still open to receiving. Before this guard, `applyReceivedQuantities()`'s status
+// rollup silently no-op'd against a Cancelled/Rejected/Closed PO (canTransition returned false,
+// nothing threw) — the GRN would still confirm and post real inventory. This closes that gap at
+// the source instead of papering over the rollup's silence.
+const PO_RECEIVABLE_STATUSES = ["Approved", "PartiallyReceived"];
 
 class GoodsReceiptNoteService extends AdvancedService {
   constructor() {
@@ -76,6 +84,33 @@ class GoodsReceiptNoteService extends AdvancedService {
       throwError("No GOOD-condition items to post — every line was DAMAGED or EXPIRED.", 400);
     }
 
+    if (grn.purchaseOrder) {
+      const po = await PurchaseOrderModel.findOne({ _id: grn.purchaseOrder, brand }).select("status poNumber");
+      if (!po) throwError("The purchase order referenced by this goods receipt note no longer exists.", 404);
+      if (!PO_RECEIVABLE_STATUSES.includes(po.status)) {
+        throwError(
+          `Cannot confirm receipt against purchase order ${po.poNumber}: its status is "${po.status}", not open to receiving.`,
+          409,
+        );
+      }
+    }
+
+    // V5.2 Workflow Integrity / Auditability: atomic claim BEFORE any side effect. The previous
+    // `findOne` -> mutate -> `.save()` pattern left a real TOCTOU race open — two concurrent
+    // confirm() calls for the same GRN could both pass `transitionGuard.assertValid()` above
+    // before either saved, each posting its own WarehouseDocument: a genuine double inventory
+    // movement, exactly the "impossible business scenario" this platform's Workflow Integrity
+    // mandate calls out by name. `findOneAndUpdate` with `status: "Draft"` in the filter can only
+    // match once system-wide; a losing concurrent caller's filter simply stops matching, the same
+    // technique already proven by `Inventory.applyOutbound()`'s negative-stock guard.
+    const claimed = await this.model.findOneAndUpdate(
+      { _id: id, brand, branch, status: "Draft" },
+      { $set: { status: "Confirmed" } },
+    );
+    if (!claimed) {
+      throwError("This goods receipt note was already confirmed or cancelled by a concurrent request.", 409);
+    }
+
     const warehouseDocument = await warehouseDocumentService.create({
       brandId: brand,
       branchId: branch,
@@ -101,7 +136,7 @@ class GoodsReceiptNoteService extends AdvancedService {
 
     grn.status = "Confirmed";
     grn.warehouseDocument = warehouseDocument._id;
-    await grn.save();
+    await this.model.updateOne({ _id: id, brand, branch }, { $set: { warehouseDocument: warehouseDocument._id } });
 
     if (grn.purchaseOrder) {
       await purchaseOrderService.applyReceivedQuantities({

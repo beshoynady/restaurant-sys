@@ -1,6 +1,12 @@
 # Supply Chain & Commerce Platform — Architecture V2 (Deepened Review)
 
-Status: **design only — no code written.** This document revises and deepens `SUPPLY_CHAIN_COMMERCE_DOMAIN_REDESIGN.md` in the specific dimensions requested: Procurement as a maturity-level policy engine, a formal Inventory Deduction Policy Engine, a full Payment Platform architecture (not just an adapter contract), a real Domain Event Dispatcher, and an honest scoping pass on the Inventory/Purchasing/Sales Platform expansions. Where the prior document's design already satisfies a requirement, it's reused and cross-referenced, not rewritten.
+Status: **design only — no code written**, as of the original V2 pass. This document revises and deepens `SUPPLY_CHAIN_COMMERCE_DOMAIN_REDESIGN.md` in the specific dimensions requested: Procurement as a maturity-level policy engine, a formal Inventory Deduction Policy Engine, a full Payment Platform architecture (not just an adapter contract), a real Domain Event Dispatcher, and an honest scoping pass on the Inventory/Purchasing/Sales Platform expansions. Where the prior document's design already satisfies a requirement, it's reused and cross-referenced, not rewritten.
+
+**V5.2 update:** the Domain Event Dispatcher and Procurement Policy Engine designed here are now
+built and have real publishers/subscribers (`utils/domainEvents.js`, `utils/registerEventHandlers.js`,
+`modules/inventory/replenishment/replenishment.service.js`) — see `SUPPLY_CHAIN_FINAL_AUDIT.md` for
+the current, evidence-checked status of every capability this document describes. The Payment
+Platform and full Commerce Platform sections below remain design-only; not implemented this pass.
 
 **On scope honesty, stated up front:** this request asks for architecture comparable to SAP/Oracle/Dynamics/Odoo across procurement, inventory, payments, and a "full commerce platform" (POS/QR/online/loyalty/gift cards/subscriptions/marketplace) simultaneously. Some of this is genuinely tractable to design in depth right now (Procurement maturity levels, Payment Platform, Inventory Deduction Policy). Some of it is architecturally simple but represents a large amount of net-new transactional surface (Gift Cards, Subscriptions). Some of it is a reporting/analytics *capability layered on top of* the transactional model, not new write-side entities (ABC analysis, inventory valuation reports, purchase KPIs) — conflating those with the transactional redesign would be a real design mistake, not thoroughness, so they're explicitly separated below. Each section says which category it's in.
 

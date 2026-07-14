@@ -21,6 +21,16 @@ class StockItemService extends AdvancedService {
   async findByIdSession(id, session) {
     return this.model.findById(id).session(session ?? null);
   }
+
+  /**
+   * V5.2 Cost Engine: refreshes the `lastPurchaseCost` cache after an inbound movement.
+   * Cache only — the authoritative source of "what was the last purchase cost" is always the
+   * most recent inbound row on StockLedger; this field exists purely so the LastPurchaseCost
+   * costing strategy (and any UI) can read it in O(1) instead of querying the ledger.
+   */
+  async updateLastPurchaseCost(id, unitCost, session) {
+    return this.model.findByIdAndUpdate(id, { $set: { lastPurchaseCost: unitCost } }, { session: session ?? null });
+  }
 }
 
 export default new StockItemService();

@@ -45,4 +45,15 @@ Status: **reference document, no code.** Required before implementation per the 
 
 **One addition surfaced by building this matrix:** the previous documents modeled deduction and reservation as related but didn't fully separate their settings fields. Per this message's explicit instruction ("support at least two independent strategies"), `InventorySettings` gets **two** fields, not one: `reservationStrategy` (`CART|ORDER|KITCHEN_ACCEPTED|KITCHEN_STARTED|NONE`) and `deductionStrategy` (as already designed). A brand can reserve on order-confirm but only actually deduct once the kitchen marks an item ready, for instance — genuinely independent knobs, not one setting doing two jobs.
 
-Nothing in this document has been implemented. It is the reference every subsequent implementation phase is checked against — if a phase is about to write a second place for one of the rows above, that is the signal to stop and re-derive instead.
+**V5.2 update:** the costing and reorder rows above are now partially implemented — see
+`SUPPLY_CHAIN_FINAL_AUDIT.md` for the authoritative status. Two additions to this matrix:
+
+| Business concept | Authoritative source (SSOT) | Derived/cached elsewhere (never independently written) | Notes |
+|---|---|---|---|
+| Standard/last-purchase cost basis | `StockItem.standardCost` (manual) / `StockItem.lastPurchaseCost` (cache) | `Inventory.avgUnitCost` is pinned to `standardCost` for StandardCost items, not independently tracked | `lastPurchaseCost` is explicitly a cache — the true source of "what was last paid" is `StockLedger`'s most recent inbound row |
+| Standard-cost price variance | `StockLedger.priceVariance` (per receipt, immutable) | — | Computed once at receipt time, never recalculated; not yet posted to a GL control account (see final audit §1) |
+| Reorder trigger | `Inventory.quantity <= StockItem.minThreshold` (evaluated live, not stored) — `DomainEvent.INVENTORY_BELOW_REORDER_POINT` is the signal | The resulting `PurchaseRequest` (if `AUTO_PURCHASE_REQUEST`) is the one durable artifact, exactly as this matrix predicted before any of it was built | Confirms the prediction made in this document's original "Reorder recommendation" row |
+
+Everything else in this document remains as originally written: a reference, not a build log. It is
+the source every subsequent implementation phase is checked against — if a phase is about to write
+a second place for one of the rows above, that is the signal to stop and re-derive instead.

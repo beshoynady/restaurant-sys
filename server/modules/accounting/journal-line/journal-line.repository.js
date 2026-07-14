@@ -26,6 +26,16 @@ class JournalLineRepository extends BaseRepository {
   async findByJournalEntry(journalEntryId) {
     return this.model.find({ journalEntry: journalEntryId });
   }
+
+  /**
+   * V5.2 idempotency guard for `journalEntryService.postFromSource()`: is there already a line
+   * posted for this exact (brand, sourceType, sourceRef)? Used to reject a second posting attempt
+   * for the same source document rather than silently creating a duplicate JournalEntry.
+   */
+  async existsForSource({ brand, sourceType, sourceRef }) {
+    const line = await this.model.findOne({ brand, sourceType, sourceRef }).select("_id").lean();
+    return Boolean(line);
+  }
 }
 
 export default JournalLineRepository;

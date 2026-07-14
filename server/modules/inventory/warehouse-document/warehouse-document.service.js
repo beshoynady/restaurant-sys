@@ -5,6 +5,8 @@ import inventoryService from "../inventory/inventory.service.js";
 import stockLedgerService from "../stock-ledger/stock-ledger.service.js";
 import stockItemService from "../stock-item/stock-item.service.js";
 import inventorySettingsService from "../inventory-settings/inventory-settings.service.js";
+import inventoryCostEngine from "../cost-engine/inventory-cost-engine.service.js";
+import domainEvents, { DomainEvent } from "../../../utils/domainEvents.js";
 
 // V4.0 Inventory Stock Movement Engine.
 //
@@ -23,6 +25,12 @@ import inventorySettingsService from "../inventory-settings/inventory-settings.s
 // the Journal Entry Posting Engine (V4.0 Phase 1) has exactly the primitive
 // (`journalEntryService.postFromSource`) this would call; wiring it is the natural next step,
 // scoped separately so this phase's surface area stays reviewable.
+//
+// V5.2 Enterprise Costing Platform: the WeightedAverage/FIFO/LIFO cost-determination logic that
+// used to live inline in `postDocument()` was extracted, unchanged in behavior, into
+// `../cost-engine/inventory-cost-engine.service.js` as a strategy map, and two new strategies
+// (StandardCost, LastPurchaseCost) were added there. This file now only orchestrates: build the
+// movement plan, ask the Cost Engine what a movement costs, write the ledger row + balance.
 
 /**
  * Maps a WarehouseDocument's header (documentType/transactionType/warehouses) + its items into a
@@ -155,6 +163,9 @@ class WarehouseDocumentService extends AdvancedService {
       session.startTransaction();
 
       const ledgerRows = [];
+      // V5.2 Replenishment Engine trigger candidates — collected during the loop, emitted only
+      // after the transaction commits (never notify about a movement that ends up rolled back).
+      const reorderTriggers = [];
 
       for (const movement of movementPlan) {
         const stockItem = await stockItemService.findByIdSession(movement.stockItem, session);
@@ -167,12 +178,22 @@ class WarehouseDocumentService extends AdvancedService {
         let outbound = { quantity: 0, unitCost: 0, totalCost: 0 };
         let remainingQuantity = 0;
         let balance;
+        let priceVariance = null;
 
         if (movement.direction === "IN") {
-          unitCost = movement.unitCost;
+          unitCost = movement.unitCost; // always the actual receipt price, regardless of costMethod
           const totalCost = movement.quantity * unitCost;
           inbound = { quantity: movement.quantity, unitCost, totalCost };
           remainingQuantity = movement.quantity; // opens a new FIFO/LIFO layer
+
+          const hookResult = await inventoryCostEngine.afterInbound({ stockItem, unitCost, session });
+          priceVariance = hookResult.priceVariance;
+
+          // For StandardCost items the *balance* is valued at standard, not the actual receipt
+          // price — the delta is `priceVariance`, captured on the ledger row above, never on the
+          // balance itself (see InventoryCostEngine.resolveInboundValuationCost).
+          const valuationUnitCost = inventoryCostEngine.resolveInboundValuationCost({ stockItem, unitCost });
+          const valuationTotalCost = movement.quantity * valuationUnitCost;
 
           balance = await inventoryService.applyInbound({
             brand,
@@ -180,28 +201,24 @@ class WarehouseDocumentService extends AdvancedService {
             warehouse: movement.warehouse,
             stockItem: movement.stockItem,
             quantity: movement.quantity,
-            totalCost,
+            totalCost: valuationTotalCost,
             session,
           });
         } else {
-          // Cost determination (WeightedAverage reads the current average; FIFO/LIFO consumes
-          // layers) is independent of the negative-stock guard below, which applyOutbound enforces
-          // atomically as part of its own write — not as a separate read-then-check here.
+          // Cost determination is independent of the negative-stock guard below, which
+          // applyOutbound enforces atomically as part of its own write — not as a separate
+          // read-then-check here.
           const currentBalance = await inventoryService.findBalance(movement.warehouse, movement.stockItem, session);
           const fallbackCost = currentBalance?.avgUnitCost ?? 0;
 
-          if (stockItem.costMethod === "WeightedAverage") {
-            unitCost = fallbackCost;
-          } else {
-            unitCost = await this.consumeLayers({
-              warehouse: movement.warehouse,
-              stockItem: movement.stockItem,
-              quantity: movement.quantity,
-              costMethod: stockItem.costMethod,
-              fallbackCost,
-              session,
-            });
-          }
+          unitCost = await inventoryCostEngine.resolveOutboundCost({
+            warehouse: movement.warehouse,
+            stockItem,
+            quantity: movement.quantity,
+            currentBalance,
+            fallbackCost,
+            session,
+          });
 
           const totalCost = movement.quantity * unitCost;
           outbound = { quantity: movement.quantity, unitCost, totalCost };
@@ -214,6 +231,10 @@ class WarehouseDocumentService extends AdvancedService {
             allowNegative: settings.allowNegativeStock,
             session,
           });
+
+          if (stockItem.minThreshold > 0 && balance.quantity <= stockItem.minThreshold) {
+            reorderTriggers.push({ stockItem, warehouse: movement.warehouse, balance });
+          }
         }
 
         const row = await stockLedgerService.insertMovement(
@@ -236,6 +257,7 @@ class WarehouseDocumentService extends AdvancedService {
               totalCost: balance.totalCost,
             },
             remainingQuantity,
+            priceVariance,
             senderType: "System",
             sender: postedBy,
             receiverType: "System",
@@ -258,6 +280,21 @@ class WarehouseDocumentService extends AdvancedService {
 
       await session.commitTransaction();
 
+      // Outside the transaction on purpose — this is a side effect of a movement that already,
+      // irreversibly, happened; the Replenishment Engine subscriber catches its own errors
+      // (domainEvents.js's documented convention for best-effort handlers), so a failure here
+      // never undoes or blocks the posting that already committed.
+      for (const trigger of reorderTriggers) {
+        await domainEvents.emit(DomainEvent.INVENTORY_BELOW_REORDER_POINT, {
+          brand,
+          branch,
+          stockItem: trigger.stockItem,
+          warehouse: trigger.warehouse,
+          balance: trigger.balance,
+          postedBy,
+        });
+      }
+
       return { document, ledgerRows };
     } catch (err) {
       await session.abortTransaction();
@@ -267,35 +304,6 @@ class WarehouseDocumentService extends AdvancedService {
     }
   }
 
-  /**
-   * FIFO/LIFO cost consumption: walks the open layers (oldest-first for FIFO, newest-first for
-   * LIFO — see stockLedgerService.findOpenLayers) decrementing each until the requested quantity
-   * is satisfied, and returns the resulting blended unit cost. If the layers run out before the
-   * requested quantity is satisfied (only reachable when InventorySettings.allowNegativeStock
-   * permitted the movement despite insufficient recorded stock), the shortfall is costed at
-   * `fallbackCost` (the current weighted-average cost) — there is no real layer to attribute it
-   * to.
-   */
-  async consumeLayers({ warehouse, stockItem, quantity, costMethod, fallbackCost, session }) {
-    const layers = await stockLedgerService.findOpenLayers(warehouse, stockItem, costMethod, session);
-
-    let remaining = quantity;
-    let totalCost = 0;
-
-    for (const layer of layers) {
-      if (remaining <= 0) break;
-      const take = Math.min(remaining, layer.remainingQuantity);
-      totalCost += take * layer.inbound.unitCost;
-      await stockLedgerService.consumeLayer(layer._id, take, session);
-      remaining -= take;
-    }
-
-    if (remaining > 0) {
-      totalCost += remaining * fallbackCost;
-    }
-
-    return quantity > 0 ? totalCost / quantity : fallbackCost;
-  }
 }
 
 export default new WarehouseDocumentService();

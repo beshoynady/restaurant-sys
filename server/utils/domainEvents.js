@@ -63,4 +63,9 @@ export default new DomainEventDispatcher();
 export const DomainEvent = Object.freeze({
   PURCHASE_ORDER_APPROVED: "PurchaseOrder.Approved",
   GOODS_RECEIPT_CONFIRMED: "GoodsReceipt.Confirmed",
+  // V5.2 Replenishment Engine's trigger — emitted by warehouseDocumentService.postDocument()
+  // after any outbound movement leaves a (warehouse, stockItem) balance at or below the item's
+  // configured minThreshold. See modules/inventory/replenishment/replenishment.service.js for the
+  // only subscriber today.
+  INVENTORY_BELOW_REORDER_POINT: "Inventory.BelowReorderPoint",
 });

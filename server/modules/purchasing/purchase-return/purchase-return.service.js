@@ -8,6 +8,7 @@ import supplierTransactionService from "../supplier-transaction/supplier-transac
 import warehouseDocumentService from "../../inventory/warehouse-document/warehouse-document.service.js";
 import accountingSettingService from "../../accounting/accounting-settings/accounting-setting.service.js";
 import journalEntryService from "../../accounting/journal-entry/journal-entry.service.js";
+import PurchaseInvoiceModel from "../purchase-invoice/purchase-invoice.model.js";
 
 /**
  * SUPPLY_CHAIN_COMMERCE_DOMAIN_REDESIGN.md §5.3 — the enum has no separate "Approved" state; the
@@ -97,7 +98,57 @@ class PurchaseReturnService extends AdvancedService {
 
     const refundType = data.refundType || policy.raw?.purchaseReturn?.defaultRefundType || "cash";
 
+    await this._assertReturnedQuantitiesWithinInvoiced(data);
+
     return { ...data, invoiceNumber, refundType, balanceDue: data.balanceDue ?? data.netAmount ?? 0, status: "Draft" };
+  }
+
+  /**
+   * V5.2 Workflow Integrity: a supplier return can only give back what was actually invoiced/
+   * received in the first place. Before this guard, `approve()` would happily post an OUT
+   * WarehouseDocument for any quantity in `returnedItems`, with no comparison against the
+   * originating PurchaseInvoice's line quantities — so a return could exceed what was ever
+   * received, silently driving inventory negative (or worse, appearing to be legitimate stock
+   * loss). Sums this return's requested quantities together with every *other* non-terminal
+   * return already recorded against the same original invoice (a second, third... partial return
+   * of the same delivery is legitimate; only the cumulative total is bounded).
+   */
+  async _assertReturnedQuantitiesWithinInvoiced(data) {
+    const invoice = await PurchaseInvoiceModel.findOne({ _id: data.originalInvoice, brand: data.brand }).select("items invoiceNumber").lean();
+    if (!invoice) throwError("The original purchase invoice referenced by this return no longer exists.", 404);
+
+    const invoicedByItem = new Map();
+    for (const line of invoice.items || []) {
+      const key = String(line.itemId);
+      invoicedByItem.set(key, (invoicedByItem.get(key) || 0) + line.quantity);
+    }
+
+    const priorReturns = await this.model
+      .find({ originalInvoice: data.originalInvoice, brand: data.brand, status: { $nin: ["Rejected", "Cancelled"] } })
+      .select("returnedItems")
+      .lean();
+
+    const alreadyReturnedByItem = new Map();
+    for (const priorReturn of priorReturns) {
+      for (const line of priorReturn.returnedItems || []) {
+        const key = String(line.itemId);
+        alreadyReturnedByItem.set(key, (alreadyReturnedByItem.get(key) || 0) + line.quantity);
+      }
+    }
+
+    for (const item of data.returnedItems || []) {
+      const key = String(item.itemId);
+      const invoicedQuantity = invoicedByItem.get(key) || 0;
+      const alreadyReturned = alreadyReturnedByItem.get(key) || 0;
+      const totalAfterThisReturn = alreadyReturned + item.quantity;
+      if (totalAfterThisReturn > invoicedQuantity) {
+        throwError(
+          `Cannot return ${item.quantity} of item ${key}: only ${invoicedQuantity - alreadyReturned} remaining returnable ` +
+            `(invoiced ${invoicedQuantity}, already returned ${alreadyReturned}) on invoice ${invoice.invoiceNumber}.`,
+          409,
+        );
+      }
+    }
   }
 
   /**
@@ -113,6 +164,19 @@ class PurchaseReturnService extends AdvancedService {
     const isFullySettledOnApproval = ret.refundType === "deduct_supplier_balance";
     const targetStatus = isFullySettledOnApproval ? "Fully Refunded" : "Partially Refunded";
     transitionGuard.assertValid(ret.status, targetStatus);
+
+    // V5.2 Workflow Integrity: atomic claim BEFORE any side effect — same TOCTOU race and same
+    // fix as goods-receipt-note.service.js#confirm. Without this, two concurrent approve() calls
+    // for the same return could both pass assertValid() above and each post their own reversing
+    // WarehouseDocument/JournalEntry: a double inventory reversal and double AP credit for one
+    // physical return.
+    const claimed = await this.model.findOneAndUpdate(
+      { _id: id, brand, branch, status: ret.status },
+      { $set: { status: targetStatus, ...(isFullySettledOnApproval ? { balanceDue: 0 } : {}) } },
+    );
+    if (!claimed) {
+      throwError("This purchase return was already processed by a concurrent request.", 409);
+    }
 
     if (policy.raw?.purchaseReturn?.returnAffectsInventory !== false && ret.returnedItems?.length) {
       const warehouseDocument = await warehouseDocumentService.create({
@@ -174,6 +238,9 @@ class PurchaseReturnService extends AdvancedService {
       console.error(`[purchase-return.service] Supplier transaction not recorded for return ${ret._id}: ${err.message}`);
     }
 
+    // status/balanceDue were already atomically claimed above; only the winning caller reaches
+    // this point, so persisting them again here (alongside journalEntry/accountingPosted) is not
+    // racy — it's the same winner's own write, not a second competing one.
     ret.status = targetStatus;
     if (isFullySettledOnApproval) ret.balanceDue = 0;
     await ret.save();

@@ -166,6 +166,23 @@ class JournalEntryService extends JournalEntryRepository {
   async postFromSource({ sourceType, brand, branch, date, description, lines, createdBy, sourceRef }) {
     const now = date || new Date();
 
+    // V5.2 Workflow Integrity: without this, a retried/duplicate call (a caller re-firing after a
+    // timeout, a future event-driven consumer replaying an event) would post the same source
+    // document's accounting impact twice — invisible double-accounting, not a loud failure. Every
+    // existing caller only reaches this method once per document per TransitionGuard-enforced
+    // status change today, so this has never fired in practice, but that protection lived entirely
+    // in the *callers*, not here — this closes the gap at the source instead of trusting every
+    // future caller to reimplement it correctly.
+    if (sourceRef) {
+      const alreadyPosted = await journalLineRepository.existsForSource({ brand, sourceType, sourceRef });
+      if (alreadyPosted) {
+        throwError(
+          `A journal entry has already been posted for ${sourceType} ${sourceRef} — refusing to post a duplicate.`,
+          409,
+        );
+      }
+    }
+
     const settings = await accountingSettingService.resolveForPosting(brand, branch);
 
     const period = await accountingPeriodRepository.findOpenPeriodForDate(brand, now);

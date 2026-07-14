@@ -90,9 +90,18 @@ const StockItemSchema = new mongoose.Schema(
 
     costMethod: {
       type: String,
-      enum: ["FIFO", "LIFO", "WeightedAverage"],
+      enum: ["FIFO", "LIFO", "WeightedAverage", "StandardCost", "LastPurchaseCost"],
       required: true,
     },
+    // Only meaningful when costMethod === "StandardCost": the fixed cost every inbound and
+    // outbound movement is valued at. Set/revised manually (a standard-cost revision is itself
+    // a deliberate accounting event, never inferred from a purchase price) — see
+    // InventoryCostEngine's StandardCost strategy.
+    standardCost: { type: Number, default: 0, min: 0 },
+    // Cache only, refreshed by StockItemService.updateLastPurchaseCost() after every inbound
+    // movement. The authoritative source is StockLedger's most recent inbound row — never write
+    // this field directly from anywhere except that refresh path.
+    lastPurchaseCost: { type: Number, default: 0, min: 0 },
     hasExpiry: {
       type: Boolean,
       default: false,
@@ -101,6 +110,18 @@ const StockItemSchema = new mongoose.Schema(
     minThreshold: { type: Number, default: 0 },
     maxThreshold: { type: Number, default: 0 },
     reorderQuantity: { type: Number, default: 0 },
+    // V5.2 Replenishment Engine — optional per-item overrides. A missing preferredWarehouse means
+    // "use the warehouse the low-stock movement itself occurred in"; a missing preferredSupplier
+    // means the engine can only raise a PurchaseRequest (no supplier to pre-fill), never a PO.
+    safetyStock: { type: Number, default: 0, min: 0 },
+    leadTimeDays: { type: Number, default: 0, min: 0 },
+    preferredSupplier: { type: ObjectId, ref: "Supplier", default: null },
+    preferredWarehouse: { type: ObjectId, ref: "Warehouse", default: null },
+    replenishmentPolicy: {
+      type: String,
+      enum: ["NONE", "NOTIFY_ONLY", "AUTO_PURCHASE_REQUEST"],
+      default: "NONE",
+    },
 
     notes: {
   type: Map,
@@ -141,7 +162,14 @@ const StockItemSchema = new mongoose.Schema(
 );
 
 StockItemSchema.index({ brand: 1, SKU: 1 }, { unique: true }); // DB-002
-StockItemSchema.index({ brand: 1, barcode: 1 }, { unique: true, sparse: true }); // DB-002
+// V5.2: `sparse: true` only excludes documents missing the indexed field entirely from the whole
+// compound index — it does NOT mean "exclude documents where barcode is null", so two barcode-less
+// items in the same brand still collided on `barcode: null`. Same defect class already found and
+// fixed on Supplier/Department/JobTitle this engagement; fixed here the same way.
+StockItemSchema.index(
+  { brand: 1, barcode: 1 },
+  { unique: true, partialFilterExpression: { barcode: { $exists: true, $type: "string" } } },
+); // DB-002
 StockItemSchema.index({ categoryId: 1 });
 
 const StockItemModel = mongoose.model("StockItem", StockItemSchema);
