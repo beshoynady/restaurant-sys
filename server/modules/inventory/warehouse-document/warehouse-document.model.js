@@ -28,6 +28,18 @@ const WarehouseDocumentSchema = new mongoose.Schema(
         "InventoryCount",
         "OpeningBalance",
         "StockAdjustment",
+        // Preparation & Kitchen Operations Platform: operational consumption of non-recipe-driven
+        // materials (oil, gas, packaging, cleaning supplies) — see ManualConsumption. Distinct
+        // from "Issuance" (which already means recipe/order-driven deduction) and from
+        // "Wastage"/"Damage" (loss, not planned operational use).
+        "ManualConsumption",
+        // Enterprise Production Platform: a ProductionOrder's completion posts TWO separate
+        // WarehouseDocuments (a sequence of individually-atomic steps, the same accepted tradeoff
+        // already documented on GoodsReceiptNote/PurchaseReturn/InventoryCount — not one mixed-
+        // direction document) — "ProductionConsume" for the raw-material OUT movements, and
+        // "ProductionYield" for the produced-item IN movement.
+        "ProductionConsume",
+        "ProductionYield",
       ],
       required: true,
     },

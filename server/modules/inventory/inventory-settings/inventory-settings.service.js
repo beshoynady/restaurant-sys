@@ -35,6 +35,7 @@ class InventorySettingsService extends AdvancedService {
       settings ?? {
         allowNegativeStock: false,
         autoDeductOnOrder: true,
+        recipeConsumptionStrategy: "WAREHOUSE_DIRECT",
       }
     );
   }

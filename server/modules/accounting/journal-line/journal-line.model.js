@@ -44,6 +44,10 @@ const journalLineSchema = new Schema(
         // Supply Chain & Commerce Platform V5.1 — additive, same convention as every other entry
         // in this enum (each represents a posting engine's source document type).
         "INVENTORY_COUNT",
+        // Preparation & Kitchen Operations Platform — additive, same convention.
+        "MANUAL_CONSUMPTION",
+        "WASTE",
+        "PRODUCTION_ORDER",
       ],
       default: null,
     },

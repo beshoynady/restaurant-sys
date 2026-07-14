@@ -80,6 +80,14 @@ export const RESOURCE_ENUM = [
   "Warehouses",
   "WarehouseDocuments",
   "Consumptions",
+  "ManualConsumptions",
+  "WasteRecords",
+  "FryerOilLogs",
+
+  // ================= PRODUCTION =================
+  "ProductionOrders",
+  "ProductionRecipes",
+  "ProductionRecords",
 
   // ================= CASH =================
   "CashRegisters",

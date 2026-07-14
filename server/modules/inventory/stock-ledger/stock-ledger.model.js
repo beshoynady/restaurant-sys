@@ -70,10 +70,16 @@ const StockLedgerSchema = new mongoose.Schema(
         "TransferOut", // Transfer of stock out of warehouse
         "FreeIssue", // Free issue of stock to customers
         "SalesReturn", // Return of sold stock from customers
-        "ProductionOut", // Stock used in production process
-        "ProductionIn", // Finished goods from production
-        "ProductionOut", // Raw materials consumed in production
+        // Enterprise Production Platform: fixed the previously-duplicated "ProductionOut" entry
+        // (two lines, two conflicting comments — a confirmed schema defect named in
+        // PRODUCTION_MANUFACTURING_DOMAIN_REDESIGN.md §1.3, never actually written by any code
+        // until this milestone). "ProductionConsume"/"ProductionYield" match WarehouseDocument's
+        // transactionType values exactly (buildMovementPlan's OUT_SOURCE_BY_TRANSACTION falls
+        // back to using transactionType itself as source when no explicit mapping exists).
+        "ProductionConsume", // Raw materials consumed in production
+        "ProductionYield", // Finished/semi-finished goods produced
         "StockAdjustment", // Manual stock adjustment
+        "ManualConsumption", // Operational consumption of non-recipe-driven materials (oil, gas, packaging, cleaning supplies)
 
         "InventoryCount", // Adjustment from physical inventory count
       ],

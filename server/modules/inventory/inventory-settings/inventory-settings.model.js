@@ -42,6 +42,62 @@ const inventorySettingsSchema = new mongoose.Schema(
     // "never invent business data" — a human still reviews and submits it.
     autoGenerateReorderRequests: { type: Boolean, default: false },
 
+    // Preparation & Kitchen Operations Platform — where a Recipe's ingredients are actually
+    // deducted from. WAREHOUSE_DIRECT (the default) preserves today's exact existing behavior for
+    // every brand that hasn't configured operational/preparation inventory at all — this is a
+    // deliberate, safe default, not an arbitrary one. PREPARATION_INVENTORY requires the owning
+    // Product.preparationSection to have a `warehouse` link (PreparationSectionConfig.warehouse);
+    // HYBRID consumes from the preparation warehouse first and falls back to the main warehouse
+    // for any shortfall (mirrors the same "fallback cost" reasoning already used by
+    // InventoryCostEngine's FIFO/LIFO layer-shortfall handling — a fallback within one policy, not
+    // a second competing mechanism).
+    recipeConsumptionStrategy: {
+      type: String,
+      enum: ["WAREHOUSE_DIRECT", "PREPARATION_INVENTORY", "HYBRID"],
+      default: "WAREHOUSE_DIRECT",
+    },
+
+    // Preparation & Kitchen Operations Platform — numbering for ManualConsumption, same shared
+    // SequenceGeneratorService pattern as every other numbered document in this platform.
+    manualConsumptionSequence: {
+      prefix: { type: String, default: "MC-" },
+      startNumber: { type: Number, default: 1 },
+      currentNumber: { type: Number, default: 1 },
+      padding: { type: Number, default: 0 },
+      resetPolicy: { type: String, enum: ["NONE", "DAILY", "MONTHLY", "YEARLY"], default: "YEARLY" },
+      lastResetDate: { type: Date, default: null },
+    },
+
+    // Preparation & Kitchen Operations Platform Phase 1 — numbering for WasteRecord.
+    wasteRecordSequence: {
+      prefix: { type: String, default: "WST-" },
+      startNumber: { type: Number, default: 1 },
+      currentNumber: { type: Number, default: 1 },
+      padding: { type: Number, default: 0 },
+      resetPolicy: { type: String, enum: ["NONE", "DAILY", "MONTHLY", "YEARLY"], default: "YEARLY" },
+      lastResetDate: { type: Date, default: null },
+    },
+
+    // Enterprise Production Platform — numbering for ProductionOrder.
+    productionOrderSequence: {
+      prefix: { type: String, default: "PRD-" },
+      startNumber: { type: Number, default: 1 },
+      currentNumber: { type: Number, default: 1 },
+      padding: { type: Number, default: 0 },
+      resetPolicy: { type: String, enum: ["NONE", "DAILY", "MONTHLY", "YEARLY"], default: "YEARLY" },
+      lastResetDate: { type: Date, default: null },
+    },
+
+    // Preparation & Kitchen Operations Platform Phase 7 — numbering for FryerOilLog.
+    fryerOilLogSequence: {
+      prefix: { type: String, default: "OIL-" },
+      startNumber: { type: Number, default: 1 },
+      currentNumber: { type: Number, default: 1 },
+      padding: { type: Number, default: 0 },
+      resetPolicy: { type: String, enum: ["NONE", "DAILY", "MONTHLY", "YEARLY"], default: "YEARLY" },
+      lastResetDate: { type: Date, default: null },
+    },
+
     // Supply Chain & Commerce Platform V5.1 — numbering for InventoryCount and
     // StockTransferRequest, via the shared SequenceGeneratorService (same pattern as
     // PurchasingSettings' purchaseOrderSequence/goodsReceiptSequence).

@@ -68,4 +68,9 @@ export const DomainEvent = Object.freeze({
   // configured minThreshold. See modules/inventory/replenishment/replenishment.service.js for the
   // only subscriber today.
   INVENTORY_BELOW_REORDER_POINT: "Inventory.BelowReorderPoint",
+  // Enterprise Production Platform — no subscribers yet (mirrors PURCHASE_ORDER_APPROVED's own
+  // zero-subscriber state today); the seam a future notification/kitchen-display consumer would
+  // attach to.
+  PRODUCTION_ORDER_APPROVED: "ProductionOrder.Approved",
+  PRODUCTION_ORDER_COMPLETED: "ProductionOrder.Completed",
 });

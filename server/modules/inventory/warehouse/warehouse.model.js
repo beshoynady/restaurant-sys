@@ -38,7 +38,13 @@ const WarehouseSchema = new mongoose.Schema(
 
     type: {
       type: String,
-      enum: ["main", "kitchen", "bar", "warehouse", "outlet", "other"],
+      // "production" added for the Preparation/Kitchen Operations Platform: a preparation
+      // department's own operational inventory location (Kitchen/Bar/Bakery/etc.) is a Warehouse
+      // like any other — deliberately NOT a long hardcoded list of every possible department name
+      // (Grill/Pizza/Bakery/...), since departments themselves are already brand-configurable via
+      // PreparationSectionConfig.stationType — this enum only classifies broad warehouse *kind*,
+      // not the specific department, matching this platform's "never hardcode departments" rule.
+      enum: ["main", "kitchen", "bar", "warehouse", "outlet", "production", "other"],
       default: "main",
       required: true,
     },

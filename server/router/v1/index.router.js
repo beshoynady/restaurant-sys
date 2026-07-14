@@ -116,6 +116,21 @@ import stockLedgerRouter from "../../modules/inventory/stock-ledger/stock-ledger
 // Supply Chain & Commerce Platform V5.1: Cycle Count / Adjustment and Branch/Warehouse Transfer engines.
 import inventoryCountRouter from "../../modules/inventory/inventory-count/inventory-count.router.js";
 import stockTransferRequestRouter from "../../modules/inventory/stock-transfer-request/stock-transfer-request.router.js";
+// Preparation & Kitchen Operations Platform: operational consumption of non-recipe-driven
+// materials (oil, gas, packaging, cleaning supplies) — see manual-consumption.model.js.
+import manualConsumptionRouter from "../../modules/inventory/manual-consumption/manual-consumption.router.js";
+// Preparation & Kitchen Operations Platform Phase 1: Waste Management.
+import wasteRecordRouter from "../../modules/inventory/waste-record/waste-record.router.js";
+
+// ========================
+// PRODUCTION
+// ========================
+// Enterprise Production Platform: these three routers were previously empty stubs (no routes
+// defined at all — confirmed by direct read, not assumed) and were never mounted anywhere. Now
+// rebuilt with real business logic and mounted.
+import productionOrderRouter from "../../modules/production/production-order/production-order.router.js";
+import productionRecipeRouter from "../../modules/production/production-recipe/production-recipe.router.js";
+import productionRecordRouter from "../../modules/production/production-record/production-record.router.js";
 
 // ========================
 // MENU
@@ -135,6 +150,8 @@ import preparationTicketSettingsRouter from "../../modules/preparation/preparati
 import preparationTicketRouter from "../../modules/preparation/preparation-ticket/preparation-ticket.router.js";
 import preparationSectionRouter from "../../modules/preparation/preparation-section/preparation-section.router.js";
 import preparationReturnRouter from "../../modules/preparation/preparation-return/preparation-return.router.js";
+// Preparation & Kitchen Operations Platform Phase 7: Frying Oil Management.
+import fryerOilLogRouter from "../../modules/preparation/fryer-oil-log/fryer-oil-log.router.js";
 
 // ========================
 // PURCHASING
@@ -293,6 +310,13 @@ router.use("/warehouse-documents", warehouseDocumentRouter);
 router.use("/stock-ledger", stockLedgerRouter);
 router.use("/inventory-counts", inventoryCountRouter);
 router.use("/stock-transfer-requests", stockTransferRequestRouter);
+router.use("/manual-consumptions", manualConsumptionRouter);
+router.use("/waste-records", wasteRecordRouter);
+
+// Production
+router.use("/production/orders", productionOrderRouter);
+router.use("/production/recipes", productionRecipeRouter);
+router.use("/production/records", productionRecordRouter);
 
 // Menu
 router.use("/menu/products", productRouter);
@@ -306,6 +330,7 @@ router.use("/preparation/ticket-settings", preparationTicketSettingsRouter);
 router.use("/preparation/tickets", preparationTicketRouter);
 router.use("/preparation/sections", preparationSectionRouter);
 router.use("/preparation/returns", preparationReturnRouter);
+router.use("/preparation/fryer-oil-logs", fryerOilLogRouter);
 
 // Purchasing
 router.use("/purchasing/settings", purchaseSettingsRouter);

@@ -95,6 +95,20 @@ const accountingSettingsSchema = new mongoose.Schema(
         type: ObjectId,
         ref: "Account",
       },
+
+      // Enterprise Production Platform — not required (matches retainedEarnings' precedent):
+      // a brand that hasn't configured labor/overhead accounts still gets the raw-material portion
+      // of a ProductionOrder's cost correctly reflected in Inventory (that part nets to zero within
+      // the single `inventory` control account, since consumption and yield both post to it); only
+      // the labor/overhead value-added lines are skipped, not the whole posting.
+      accruedLabor: {
+        type: ObjectId,
+        ref: "Account", // credited when a ProductionOrder's direct labor cost posts
+      },
+      manufacturingOverhead: {
+        type: ObjectId,
+        ref: "Account", // credited when a ProductionOrder's overhead cost posts
+      },
     },
 
     // ======================================================

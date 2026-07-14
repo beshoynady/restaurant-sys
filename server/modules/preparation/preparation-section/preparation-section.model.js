@@ -37,6 +37,52 @@ const PreparationSectionConfigSchema = new mongoose.Schema(
   required: true,
 },
 
+    /**
+     * Preparation & Kitchen Operations Platform: station-type classification, additive, not a
+     * replacement for the free-text name/code above — a brand still names its own departments
+     * however it wants ("Night Grill Station"); stationType is only the structural tag reports and
+     * routing rules can rely on instead of parsing free text.
+     */
+    stationType: {
+      type: String,
+      enum: [
+        "mainKitchen", "hotKitchen", "coldKitchen", "grill", "pizza", "bakery", "pastry",
+        "dessert", "coffeeBar", "juiceBar", "cocktailBar", "seafood", "salad", "fryer",
+        "packaging", "productionKitchen", "centralKitchen", "cloudKitchen", "other",
+      ],
+      default: "other",
+    },
+
+    /**
+     * Preparation departments may nest (Department -> Area/Station), e.g. "Hot Line" (department)
+     * containing "Grill" and "Fryer" (stations) — a self-reference, not a second model, matching
+     * this platform's consistent "don't build a new model for a hierarchy a self-ref already
+     * expresses" discipline (same reasoning already applied to Product's size-group self-ref).
+     */
+    parentDepartment: { type: ObjectId, ref: "PreparationSectionConfig", default: null },
+
+    /**
+     * Operational Inventory: the Warehouse this department consumes from / produces into. A
+     * central kitchen, a branch kitchen, a bar — each is a real Warehouse (type: "kitchen"/"bar"/
+     * "production") with its own independent Inventory balance via the existing, unchanged
+     * Inventory Posting Engine; this field is the only new wiring needed, not a new balance-
+     * tracking mechanism. Nullable: a department that consumes directly from the main warehouse
+     * (no separate operational inventory tier) simply leaves this unset.
+     */
+    warehouse: { type: ObjectId, ref: "Warehouse", default: null },
+
+    /** Staffing & equipment (lightweight references, not a new HR/Assets sub-model) */
+    assignedEmployees: [{ type: ObjectId, ref: "Employee" }],
+    equipment: [{ type: String, trim: true, maxlength: 100 }], // free-text equipment tags — a full
+      // Equipment/Asset-tracking integration is Assets-domain work, out of this platform's scope;
+      // this is a lightweight operational label only, not a fabricated asset-management feature.
+
+    /** Working hours — same shape as Product Availability's daily window, for consistency */
+    workingHours: {
+      isAlwaysOpen: { type: Boolean, default: true },
+      timeWindows: [{ from: { type: String, trim: true }, to: { type: String, trim: true } }],
+    },
+
     /** Preparation logic */
     averagePreparationTime: { type: Number, default: 10, min: 0 }, // minutes
     maxParallelTickets: { type: Number, default: 5, min: 1 }, // Max tickets this section can handle simultaneously
