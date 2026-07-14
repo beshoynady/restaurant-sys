@@ -216,6 +216,23 @@ const invoiceSchema = mongoose.Schema(
       ref: "JournalEntry",
       default: null,
     },
+    // V4.0 Invoice Pricing Engine (PA-04): audit trail of who authorized a discount above
+    // DiscountSettings' approval threshold — invoice.service.ts#computeInvoicePricing rejects
+    // such a discount unless this is supplied. Optional: only meaningful/required when the
+    // computed discount actually exceeds the threshold.
+    discountApprovedBy: {
+      type: ObjectId,
+      ref: "UserAccount",
+      default: null,
+    },
+    // V4.0 Invoice Pricing Engine: persists whether `salesTax` was computed as embedded-in-
+    // subtotal (TaxConfig.pricesIncludeTax) — buildSalesInvoiceLines() needs this to avoid
+    // double-counting the tax portion in the posted journal entry (crediting the full subtotal to
+    // Revenue AND separately crediting the already-embedded tax to Tax Payable).
+    taxInclusive: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true },
 );

@@ -8,12 +8,134 @@ import InvoiceModel from "./invoice.model.js";
 import invoiceSettingsService from "../invoice-settings/invoice-settings.service.js";
 import accountingSettingServiceJs from "../../accounting/accounting-settings/accounting-setting.service.js";
 import journalEntryServiceJs from "../../accounting/journal-entry/journal-entry.service.js";
+import taxConfigServiceJs from "../../system/tax-settings/tax-config.service.js";
+import serviceChargeServiceJs from "../../system/service-charge-settings/service-charge.service.js";
+import discountSettingsServiceJs from "../../system/discount-settings/discount-settings.service.js";
 
 const throwError = throwErrorJs as (message: string, statusCode: number) => never;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const accountingSettingService = accountingSettingServiceJs as any;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const journalEntryService = journalEntryServiceJs as any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const taxConfigService = taxConfigServiceJs as any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const serviceChargeService = serviceChargeServiceJs as any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const discountSettingsService = discountSettingsServiceJs as any;
+
+function round2(value: number): number {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+function applyRounding(value: number, mode: string): number {
+  if (mode === "UP") return Math.ceil(value * 100) / 100;
+  if (mode === "DOWN") return Math.floor(value * 100) / 100;
+  return round2(value);
+}
+
+/**
+ * V4.0 Invoice Pricing Engine (PLATFORM_FINAL_AUDIT.md PA-04).
+ *
+ * Recomputes an invoice's financial aggregates server-side from its own line items + the brand's
+ * TaxConfig/ServiceCharge/DiscountSettings — the client can no longer set `subtotal`/`salesTax`/
+ * `serviceTax`/`total` directly; only `items[]` (still client-trusted at the per-line level — see
+ * the "not attempted" note below) and a proposed `discount`/`addition`/`deliveryFee` are input.
+ *
+ * Handles: tax-inclusive vs tax-exclusive pricing, tax computed before-or-after discount
+ * (`TaxConfig.calculationMethod`), service charge as a percentage or fixed amount with a
+ * before/after-tax base and 3 rounding modes, and a manual-discount policy (`DiscountSettings`)
+ * that rejects a discount above `maxManualDiscount`/`approvalThreshold` unless the caller supplies
+ * `discountApprovedBy`.
+ *
+ * NOT attempted here (documented limitation, not a silent gap): per-line `price`/`priceAfterDiscount`
+ * values are still whatever the caller sends — validating each line's price against the Product
+ * catalog would require joining Invoice's item shape to the Product/Recipe pricing system, which
+ * doesn't exist as a callable service yet. This engine closes the "arbitrary total" hole (PA-04's
+ * literal finding); catalog-price validation is a separate, larger follow-up.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function computeInvoicePricing(input: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  items: any[];
+  discount?: number;
+  addition?: number;
+  deliveryFee?: number;
+  discountApprovedBy?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  taxConfig: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  serviceChargeConfig: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  discountSettings: any;
+}) {
+  const items = input.items || [];
+  const subtotal = round2(
+    items.reduce((sum, item) => sum + (item.totalprice || 0) + (item.totalExtrasPrice || 0), 0),
+  );
+
+  const discount = round2(input.discount || 0);
+  const addition = round2(input.addition || 0);
+  const deliveryFee = round2(input.deliveryFee || 0);
+
+  if (discount > 0 && input.discountSettings) {
+    const discountPercent = subtotal > 0 ? (discount / subtotal) * 100 : 0;
+    const threshold = Math.min(
+      input.discountSettings.maxManualDiscount ?? 100,
+      input.discountSettings.approvalThreshold ?? 100,
+    );
+
+    if (discountPercent > threshold && input.discountSettings.requireManagerApproval && !input.discountApprovedBy) {
+      throwError(
+        `Discount of ${discountPercent.toFixed(2)}% exceeds the ${threshold}% manager-approval ` +
+          "threshold. Provide discountApprovedBy to proceed.",
+        403,
+      );
+    }
+    if (discountPercent > (input.discountSettings.maxManualDiscount ?? 100) && !input.discountApprovedBy) {
+      throwError(
+        `Discount of ${discountPercent.toFixed(2)}% exceeds the maximum allowed manual discount ` +
+          `(${input.discountSettings.maxManualDiscount}%).`,
+        403,
+      );
+    }
+  }
+
+  const taxConfig = input.taxConfig || {};
+  const taxableBase =
+    taxConfig.calculationMethod === "AFTER_DISCOUNT" ? Math.max(subtotal - discount, 0) : subtotal;
+
+  let salesTax = 0;
+  if (taxConfig.enabled && taxConfig.percentage > 0) {
+    salesTax = taxConfig.pricesIncludeTax
+      ? round2(taxableBase - taxableBase / (1 + taxConfig.percentage / 100))
+      : round2(taxableBase * (taxConfig.percentage / 100));
+  }
+
+  const serviceChargeConfig = input.serviceChargeConfig || {};
+  let serviceTax = 0;
+  if (serviceChargeConfig.enabled) {
+    const base = serviceChargeConfig.calculationBase === "AFTER_TAX" ? taxableBase + salesTax : taxableBase;
+    const raw = serviceChargeConfig.type === "FIXED" ? serviceChargeConfig.value : base * (serviceChargeConfig.value / 100);
+    serviceTax = applyRounding(raw, serviceChargeConfig.roundingMode);
+  }
+
+  // When prices already include tax, `salesTax` is disclosed for reporting/accounting but is
+  // already embedded in `subtotal` — adding it again here would double-count it in `total`.
+  const taxAddOn = taxConfig.pricesIncludeTax ? 0 : salesTax;
+  const total = round2(subtotal - discount + addition + taxAddOn + serviceTax + deliveryFee);
+
+  return {
+    subtotal,
+    discount,
+    addition,
+    salesTax,
+    serviceTax,
+    deliveryFee,
+    total,
+    taxInclusive: Boolean(taxConfig.pricesIncludeTax),
+  };
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function journalLine(account: any, description: string, debit: number, credit: number, currency: string) {
@@ -52,6 +174,14 @@ export function buildSalesInvoiceLines(invoice: any, settings: any) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const lines: any[] = [];
   let revenueCredit = subtotal + addition;
+
+  // When the invoice's pricing was computed with TaxConfig.pricesIncludeTax, `subtotal` already
+  // has the tax portion embedded in it — crediting the full subtotal to Revenue AND separately
+  // crediting `salesTax` to Tax Payable below would double-count that portion. Extracting it here
+  // keeps Revenue at the tax-exclusive amount, matching the separate Tax Payable credit.
+  if (invoice.taxInclusive && salesTax > 0) {
+    revenueCredit -= salesTax;
+  }
 
   if (discount > 0) {
     if (discountAccount) {
@@ -120,6 +250,12 @@ class InvoiceService extends BaseRepository<any> {
   // DB-007: server-generates `serial` instead of trusting a client-supplied value — makes the
   // {brand,branch,serial} unique index (DB-003) collision-free in practice. `invoice.validation.js`
   // now excludes `serial` from client input (stripped, not rejected — old clients stay compatible).
+  //
+  // V4.0 Invoice Pricing Engine (PA-04): also recomputes subtotal/salesTax/serviceTax/total from
+  // `items[]` + TaxConfig/ServiceCharge/DiscountSettings, replacing whatever the client sent for
+  // those four fields — see computeInvoicePricing() above for the full calculation. `discount`/
+  // `addition`/`deliveryFee` remain caller-supplied inputs (a manual discount, a delivery fee from
+  // the delivery module) but `discount` is validated against DiscountSettings' approval policy.
   async beforeCreate(data: Record<string, unknown>): Promise<Record<string, unknown>> {
     const brandId = data.brand as string | undefined;
     const branchId = data.branch as string | undefined;
@@ -130,7 +266,25 @@ class InvoiceService extends BaseRepository<any> {
 
     const serial = await invoiceSettingsService.getNextInvoiceSerial(brandId!, branchId!);
 
-    return { ...data, serial };
+    const [taxConfig, serviceChargeConfig, discountSettings] = await Promise.all([
+      taxConfigService.resolveForBrandBranch(brandId, branchId),
+      serviceChargeService.resolveForBrandBranch(brandId, branchId),
+      discountSettingsService.resolveForBrandBranch(brandId, branchId),
+    ]);
+
+    const pricing = computeInvoicePricing({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      items: (data.items as any[]) || [],
+      discount: data.discount as number | undefined,
+      addition: data.addition as number | undefined,
+      deliveryFee: data.deliveryFee as number | undefined,
+      discountApprovedBy: data.discountApprovedBy as string | undefined,
+      taxConfig,
+      serviceChargeConfig,
+      discountSettings,
+    });
+
+    return { ...data, serial, ...pricing };
   }
 
   /**
