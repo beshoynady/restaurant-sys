@@ -221,14 +221,26 @@ class PurchaseInvoiceService extends AdvancedService {
     if (!invoice) throwError("Purchase invoice not found.", 404);
 
     transitionGuard.assertValid(invoice.status, toStatus);
-    invoice.status = toStatus;
-    await invoice.save();
 
-    if (toStatus === "Completed") {
-      await this._postAccounting(invoice, actorId);
+    // V6.0 Production Hardening: atomic claim, not read-then-save — closes the same TOCTOU race
+    // already fixed on GoodsReceiptNote.confirm()/PurchaseOrder.transition(). Here specifically,
+    // two concurrent calls both reaching "Completed" would otherwise both call _postAccounting(),
+    // which posts a real AP-ledger entry — see supplierTransactionService.record()'s own
+    // idempotency guard (added alongside this fix) for the second layer of protection.
+    const claimed = await this.model.findOneAndUpdate(
+      { _id: id, brand, branch, status: invoice.status },
+      { $set: { status: toStatus } },
+      { new: true },
+    );
+    if (!claimed) {
+      throwError("This purchase invoice was already transitioned by a concurrent request.", 409);
     }
 
-    return invoice;
+    if (toStatus === "Completed") {
+      await this._postAccounting(claimed, actorId);
+    }
+
+    return claimed;
   }
 
   /**

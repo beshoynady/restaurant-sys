@@ -47,14 +47,28 @@ class StockTransferRequestService extends AdvancedService {
     return { ...data, requestNumber, status: "Draft" };
   }
 
+  // V6.0 Production Hardening: every method below claims its transition atomically
+  // (`findOneAndUpdate` filtered on the status read a moment earlier) instead of the previous
+  // read-then-save pattern, closing the TOCTOU race two concurrent calls against the same request
+  // would otherwise hit — same fix, same reasoning, as GoodsReceiptNote.confirm() and
+  // PurchaseReturnInvoice.approve().
+  async _claim(id, brand, branch, fromStatus, update) {
+    const claimed = await this.model.findOneAndUpdate(
+      { _id: id, brand, branch, status: fromStatus },
+      { $set: update },
+      { new: true },
+    );
+    if (!claimed) {
+      throwError("This stock transfer request was already transitioned by a concurrent request.", 409);
+    }
+    return claimed;
+  }
+
   async submit({ id, brand, branch }) {
     const request = await this.model.findOne({ _id: id, brand, branch });
     if (!request) throwError("Stock transfer request not found.", 404);
     transitionGuard.assertValid(request.status, "Submitted");
-    request.status = "Submitted";
-    request.submittedAt = new Date();
-    await request.save();
-    return request;
+    return this._claim(id, brand, branch, request.status, { status: "Submitted", submittedAt: new Date() });
   }
 
   async approve({ id, brand, branch, actorId, approvedQuantities = null }) {
@@ -62,28 +76,23 @@ class StockTransferRequestService extends AdvancedService {
     if (!request) throwError("Stock transfer request not found.", 404);
     transitionGuard.assertValid(request.status, "Approved");
 
-    for (const item of request.items) {
+    const items = request.items.map((item) => {
       const override = approvedQuantities?.[String(item.stockItem)];
-      item.approvedQuantity = override ?? item.approvedQuantity ?? item.requestedQuantity;
-    }
+      return { ...item.toObject(), approvedQuantity: override ?? item.approvedQuantity ?? item.requestedQuantity };
+    });
 
-    request.status = "Approved";
-    request.approvedBy = actorId;
-    request.approvedAt = new Date();
-    await request.save();
-    return request;
+    return this._claim(id, brand, branch, request.status, {
+      items, status: "Approved", approvedBy: actorId, approvedAt: new Date(),
+    });
   }
 
   async reject({ id, brand, branch, actorId, rejectionReason }) {
     const request = await this.model.findOne({ _id: id, brand, branch });
     if (!request) throwError("Stock transfer request not found.", 404);
     transitionGuard.assertValid(request.status, "Rejected");
-    request.status = "Rejected";
-    request.rejectedBy = actorId;
-    request.rejectedAt = new Date();
-    request.rejectionReason = rejectionReason || null;
-    await request.save();
-    return request;
+    return this._claim(id, brand, branch, request.status, {
+      status: "Rejected", rejectedBy: actorId, rejectedAt: new Date(), rejectionReason: rejectionReason || null,
+    });
   }
 
   async transition({ id, brand, branch, toStatus, actorId, rejectionReason = null }) {
@@ -95,9 +104,7 @@ class StockTransferRequestService extends AdvancedService {
     const request = await this.model.findOne({ _id: id, brand, branch });
     if (!request) throwError("Stock transfer request not found.", 404);
     transitionGuard.assertValid(request.status, toStatus);
-    request.status = toStatus;
-    await request.save();
-    return request;
+    return this._claim(id, brand, branch, request.status, { status: toStatus });
   }
 
   /**
@@ -113,6 +120,11 @@ class StockTransferRequestService extends AdvancedService {
     const request = await this.model.findOne({ _id: id, brand, branch });
     if (!request) throwError("Stock transfer request not found.", 404);
     transitionGuard.assertValid(request.status, "Executed");
+
+    // Atomic claim BEFORE any side effect — a losing concurrent execute() call must never reach
+    // the WarehouseDocument creation below (that would be a double stock transfer, moving the
+    // same quantity out of `fromWarehouse` twice).
+    await this._claim(id, brand, branch, request.status, { status: "Executed", executedBy: actorId, executedAt: new Date() });
 
     const balances = await InventoryModel.find({ brand, warehouse: request.fromWarehouse, stockItem: { $in: request.items.map((i) => i.stockItem) } })
       .select("stockItem avgUnitCost")
@@ -141,6 +153,8 @@ class StockTransferRequestService extends AdvancedService {
     });
     await warehouseDocumentService.postDocument({ id: warehouseDocument._id, brand, branch, postedBy: actorId });
 
+    // status/executedBy/executedAt were already atomically claimed above; this persists
+    // outDocument/inDocument on the winning caller's own write, not a second competing one.
     request.outDocument = warehouseDocument._id;
     request.inDocument = warehouseDocument._id;
     request.status = "Executed";

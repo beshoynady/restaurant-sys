@@ -54,6 +54,15 @@ const categoryStockSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    // V6.0 Production Hardening: added before this module's router could safely be mounted —
+    // BaseRepository's soft-delete methods ($set isDeleted/deletedAt/deletedBy, and getAll()'s
+    // default `{isDeleted: false}` filter) require these fields to exist on the schema; without
+    // them, Mongoose silently drops the writes and getAll() would match zero documents (`false`
+    // never matches an undefined field), the same silent-drop failure mode already found and fixed
+    // elsewhere in this domain (PurchaseSettings.sequence.lastResetDate, InventoryCount.journalEntry).
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date, default: null },
+    deletedBy: { type: ObjectId, ref: "UserAccount", default: null },
     createdBy: {
       type: ObjectId,
       ref: "UserAccount",

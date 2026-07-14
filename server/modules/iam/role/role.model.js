@@ -86,6 +86,7 @@ export const RESOURCE_ENUM = [
   "CashTransactions",
   "CashTransfers",
   "BankAccounts",
+  "PaymentMethods",
 
   // ================= ACCOUNTING =================
   "Accounts",

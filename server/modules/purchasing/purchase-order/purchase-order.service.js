@@ -70,18 +70,30 @@ class PurchaseOrderService extends AdvancedService {
 
     transitionGuard.assertValid(po.status, toStatus);
 
-    po.status = toStatus;
+    const update = { status: toStatus };
     if (toStatus === "Approved") {
-      po.approvedBy = actorId;
-      po.approvedAt = new Date();
-    }
-    await po.save();
-
-    if (toStatus === "Approved") {
-      await domainEvents.emit(DomainEvent.PURCHASE_ORDER_APPROVED, { purchaseOrder: po });
+      update.approvedBy = actorId;
+      update.approvedAt = new Date();
     }
 
-    return po;
+    // V6.0 Production Hardening: atomic claim, not read-then-save — closes the same TOCTOU race
+    // class already fixed on GoodsReceiptNote.confirm()/PurchaseReturnInvoice.approve() (a second
+    // concurrent transition() call for this PO could otherwise pass assertValid() above before
+    // either write lands, and here specifically would double-emit PURCHASE_ORDER_APPROVED).
+    const claimed = await this.model.findOneAndUpdate(
+      { _id: id, brand, branch, status: po.status },
+      { $set: update },
+      { new: true },
+    );
+    if (!claimed) {
+      throwError("This purchase order was already transitioned by a concurrent request.", 409);
+    }
+
+    if (toStatus === "Approved") {
+      await domainEvents.emit(DomainEvent.PURCHASE_ORDER_APPROVED, { purchaseOrder: claimed });
+    }
+
+    return claimed;
   }
 
   /**

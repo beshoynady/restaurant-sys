@@ -54,6 +54,11 @@ import cashRegisterRouter from "../../modules/finance/cash-register/cash-registe
 import cashTransactionRouter from "../../modules/finance/cash-transaction/cash-transaction.router.js";
 import cashTransferRouter from "../../modules/finance/cash-transfer/cash-transfer.router.js";
 import cashierShiftRouter from "../../modules/finance/cashier-shift/cashier-shift.router.js";
+// V6.0 Production Hardening: was unmountable (broken controller import path) and un-mounted —
+// see payment-method.router.js's header comment. Supply Chain's Supplier Payment/Refund workflow
+// requires this to exist (PurchaseInvoice.paymentMethod / PurchaseReturnInvoice.refundMethod are
+// both `required: true` references to it).
+import paymentMethodRouter from "../../modules/payments/payment-method/payment-method.router.js";
 
 // ========================
 // HR
@@ -99,6 +104,10 @@ import roleTemplateRouter from "../../modules/iam/role-template/role-template.ro
 // ========================
 import inventoryRouter from "../../modules/inventory/inventory/inventory.router.js";
 import stockItemRouter from "../../modules/inventory/stock-item/stock-item.router.js";
+// V6.0 Production Hardening: was an orphaned, unmounted router sitting on a broken (non-Repository-
+// Pattern) service — see stock-category.service.js's header comment. Fixed and mounted: StockItem
+// requires a categoryId, but until now there was no API path to create/list a StockCategory at all.
+import stockCategoryRouter from "../../modules/inventory/stock-category/stock-category.router.js";
 import warehouseRouter from "../../modules/inventory/warehouse/warehouse.router.js";
 import inventorySettingsRouter from "../../modules/inventory/inventory-settings/inventory-settings.router.js";
 // V4.0 Inventory Stock Movement Engine: RBAC fixed, mounted here now that posting is real.
@@ -245,6 +254,7 @@ router.use("/finance/cash-registers", cashRegisterRouter);
 router.use("/finance/cash-transactions", cashTransactionRouter);
 router.use("/finance/cash-transfers", cashTransferRouter);
 router.use("/finance/cashier-shifts", cashierShiftRouter);
+router.use("/finance/payment-methods", paymentMethodRouter);
 
 // HR
 router.use("/hr/employees", employeeRouter);
@@ -276,6 +286,7 @@ router.use("/role-templates", roleTemplateRouter);
 // Inventory
 router.use("/inventory", inventoryRouter);
 router.use("/stock-items", stockItemRouter);
+router.use("/stock-categories", stockCategoryRouter);
 router.use("/warehouses", warehouseRouter);
 router.use("/inventory-settings", inventorySettingsRouter);
 router.use("/warehouse-documents", warehouseDocumentRouter);

@@ -82,10 +82,17 @@ class InventoryCountService extends AdvancedService {
     if (!count) throwError("Inventory count not found.", 404);
     transitionGuard.assertValid(count.status, "InProgress");
 
-    count.items = await this._withSystemQuantities(brand, count.warehouse, count.items.map((i) => i.toObject()));
-    count.status = "InProgress";
-    await count.save();
-    return count;
+    const items = await this._withSystemQuantities(brand, count.warehouse, count.items.map((i) => i.toObject()));
+
+    // V6.0 Production Hardening: atomic claim (status filter), not read-then-save — closes the
+    // TOCTOU race two concurrent start() calls would otherwise hit.
+    const claimed = await this.model.findOneAndUpdate(
+      { _id: id, brand, branch, status: count.status },
+      { $set: { items, status: "InProgress" } },
+      { new: true },
+    );
+    if (!claimed) throwError("This inventory count was already transitioned by a concurrent request.", 409);
+    return claimed;
   }
 
   async transition({ id, brand, branch, toStatus, actorId }) {
@@ -96,13 +103,19 @@ class InventoryCountService extends AdvancedService {
     if (!count) throwError("Inventory count not found.", 404);
     transitionGuard.assertValid(count.status, toStatus);
 
-    count.status = toStatus;
+    const update = { status: toStatus };
     if (toStatus === "Approved") {
-      count.approvedBy = actorId;
-      count.approvedAt = new Date();
+      update.approvedBy = actorId;
+      update.approvedAt = new Date();
     }
-    await count.save();
-    return count;
+
+    const claimed = await this.model.findOneAndUpdate(
+      { _id: id, brand, branch, status: count.status },
+      { $set: update },
+      { new: true },
+    );
+    if (!claimed) throwError("This inventory count was already transitioned by a concurrent request.", 409);
+    return claimed;
   }
 
   /**
@@ -115,6 +128,18 @@ class InventoryCountService extends AdvancedService {
     const count = await this.model.findOne({ _id: id, brand, branch });
     if (!count) throwError("Inventory count not found.", 404);
     transitionGuard.assertValid(count.status, "Executed");
+
+    // V6.0 Production Hardening: atomic claim BEFORE any side effect — same pattern as
+    // GoodsReceiptNote.confirm()/PurchaseReturnInvoice.approve(). Without this, two concurrent
+    // execute() calls for the same count could both pass assertValid() above and each post their
+    // own ADJUSTMENT WarehouseDocument for the same variance — a double inventory correction.
+    const claimed = await this.model.findOneAndUpdate(
+      { _id: id, brand, branch, status: count.status },
+      { $set: { status: "Executed", executedBy: actorId, executedAt: new Date() } },
+    );
+    if (!claimed) {
+      throwError("This inventory count was already executed or cancelled by a concurrent request.", 409);
+    }
 
     const varianceItems = count.items.filter((item) => item.variance !== 0);
 
@@ -182,6 +207,9 @@ class InventoryCountService extends AdvancedService {
       }
     }
 
+    // status/executedBy/executedAt were already atomically claimed above; this persists
+    // adjustmentDocument/journalEntry set on the winning caller's own in-memory doc afterward —
+    // not a second competing write.
     count.status = "Executed";
     count.executedBy = actorId;
     count.executedAt = new Date();
