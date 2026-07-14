@@ -92,6 +92,7 @@ import authCredentialRouter from "../../modules/iam/auth-credential/auth-credent
 import authenticationSettingsRouter from "../../modules/iam/authentication-settings/authentication-settings.router.js";
 import deviceRouter from "../../modules/iam/device/device.router.js";
 import securityEventRouter from "../../modules/iam/security-event/security-event.router.js";
+import roleTemplateRouter from "../../modules/iam/role-template/role-template.router.js";
 
 // ========================
 // INVENTORY
@@ -261,6 +262,7 @@ router.use("/auth-credentials", authCredentialRouter);
 router.use("/authentication-settings", authenticationSettingsRouter);
 router.use("/devices", deviceRouter);
 router.use("/security-events", securityEventRouter);
+router.use("/role-templates", roleTemplateRouter);
 
 // Inventory
 router.use("/inventory", inventoryRouter);

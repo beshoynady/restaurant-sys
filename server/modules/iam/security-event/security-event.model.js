@@ -37,6 +37,9 @@ const securityEventSchema = new Schema(
         "QR_ISSUED", "QR_REVOKED",
         "SESSION_ROTATED", "SESSION_REVOKED",
         "DEVICE_REGISTERED", "DEVICE_TRUSTED", "DEVICE_BLOCKED",
+        // System Setup V2 — ONBOARDING_API_DESIGN.md §5: every onboarding attempt is auditable.
+        "ONBOARDING_STARTED", "ONBOARDING_STEP_COMPLETED", "ONBOARDING_FAILED",
+        "ONBOARDING_COMPLETED", "ONBOARDING_CANCELLED",
       ],
       required: true,
       index: true,

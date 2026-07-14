@@ -45,6 +45,8 @@ export const RESOURCE_ENUM = [
   "Devices",
   // IAP V2.0 Milestone 5: read-only visibility into the authentication/security audit trail.
   "SecurityEvents",
+  // DEFAULT_ROLE_ARCHITECTURE.md: the platform-owned role-template catalog (list/instantiate).
+  "RoleTemplates",
 
   // ================= MENU & SALES =================
   "MenuCategories",

@@ -14,6 +14,7 @@ import auditLogger from "./middlewares/auditLogger.js";
 import routerV1 from "./router/v1/index.router.js";
 // Import database connection
 import connectDB from "./database/connect-db.js";
+import roleTemplateService from "./modules/iam/role-template/role-template.service.js";
 
 
 // Load environment variables
@@ -23,6 +24,11 @@ dotenv.config();
 // DB connection is established, otherwise early requests race an unready
 // connection).
 await connectDB();
+
+// DEFAULT_ROLE_ARCHITECTURE.md §2 — idempotent upsert of the platform's shared, global role
+// template catalog. Unlike tenant data (never auto-created), this is safe and correct to seed on
+// every boot: it's a static, versioned, non-tenant-scoped catalog every brand reads from.
+await roleTemplateService.ensureSeeded();
 
 const app = express();
 const frontEnd = process.env.FRONT_END_URL;
