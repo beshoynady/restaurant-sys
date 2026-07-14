@@ -106,6 +106,11 @@ export const RESOURCE_ENUM = [
   // ================= PURCHASE =================
   "Suppliers",
   "SupplierTransactions",
+  // Supply Chain & Commerce Platform V5: the 3-way-match procurement chain — additive, per this
+  // file's standing RESOURCE_ENUM convention.
+  "PurchaseRequests",
+  "PurchaseOrders",
+  "GoodsReceiptNotes",
   "PurchaseInvoices",
   "PurchaseReturns",
   "PurchaseSettings",

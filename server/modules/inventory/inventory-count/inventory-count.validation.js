@@ -30,3 +30,7 @@ export const paramsInventoryCountIdsSchema = paramsIdsSchema();
    Query Schema
 ========================= */
 export const queryInventoryCountSchema = querySchema();
+
+export const transitionInventoryCountSchema = Joi.object({
+  status: Joi.string().valid("Draft", "InProgress", "Submitted", "Approved", "Executed", "Canceled").required(),
+});

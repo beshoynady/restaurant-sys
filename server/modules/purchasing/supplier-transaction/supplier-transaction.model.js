@@ -63,15 +63,25 @@ const supplierTransactionSchema = new mongoose.Schema(
     // Balance after transaction
     currentBalance: { type: Number, required: true },
 
-    // Payment method if applicable
+    // Payment method — only meaningful for Payment/Refund/AdvancePayment transaction types; a
+    // Purchase-type entry (the liability being incurred, not settled) legitimately has none.
+    // Previously `required: true` unconditionally, which made it impossible to record the
+    // Purchase-type entry itself — corrected as part of Supply Chain & Commerce Platform V5's
+    // Supplier Payment wiring.
     paymentMethod: {
       type: ObjectId,
       ref: "PaymentMethod",
-      required: true,
+      required: function () {
+        return ["Payment", "Refund", "AdvancePayment"].includes(this.transactionType);
+      },
     },
 
-    // Employee who recorded the transaction
-    recordedBy: { type: ObjectId, ref: "Employee", required: true },
+    // Who recorded the transaction. Was `ref: "Employee", required: true` — broken for any
+    // UserAccount with no linked Employee (e.g. an Owner-only account, IDENTITY_MODEL.md
+    // Scenario A), which could never satisfy this field at all. Corrected to UserAccount, matching
+    // every other actor field throughout the Purchasing domain (PurchaseInvoice.createdBy,
+    // GoodsReceiptNote.createdBy, PurchaseOrder.createdBy).
+    recordedBy: { type: ObjectId, ref: "UserAccount", required: true },
 
     // Transaction status for tracking
     status: {

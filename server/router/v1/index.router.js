@@ -104,6 +104,9 @@ import inventorySettingsRouter from "../../modules/inventory/inventory-settings/
 // V4.0 Inventory Stock Movement Engine: RBAC fixed, mounted here now that posting is real.
 import warehouseDocumentRouter from "../../modules/inventory/warehouse-document/warehouse-document.router.js";
 import stockLedgerRouter from "../../modules/inventory/stock-ledger/stock-ledger.router.js";
+// Supply Chain & Commerce Platform V5.1: Cycle Count / Adjustment and Branch/Warehouse Transfer engines.
+import inventoryCountRouter from "../../modules/inventory/inventory-count/inventory-count.router.js";
+import stockTransferRequestRouter from "../../modules/inventory/stock-transfer-request/stock-transfer-request.router.js";
 
 // ========================
 // MENU
@@ -111,6 +114,7 @@ import stockLedgerRouter from "../../modules/inventory/stock-ledger/stock-ledger
 import productRouter from "../../modules/menu/product/product.router.js";
 import menuCategoryRouter from "../../modules/menu/menu-category/menu-category.router.js";
 import recipeRouter from "../../modules/menu/recipe/recipe.router.js";
+import productReviewRouter from "../../modules/menu/product-review/product-review.router.js";
 
 // ========================
 // PREPARATION
@@ -135,6 +139,11 @@ import purchaseInvoiceRouter from "../../modules/purchasing/purchase-invoice/pur
 import purchaseReturnRouter from "../../modules/purchasing/purchase-return/purchase-return.router.js";
 import supplierRouter from "../../modules/purchasing/supplier/supplier.router.js";
 import supplierTransactionRouter from "../../modules/purchasing/supplier-transaction/supplier-transaction.router.js";
+// Supply Chain & Commerce Platform V5: the 3-way-match procurement chain.
+import purchaseOrderRouter from "../../modules/purchasing/purchase-order/purchase-order.router.js";
+import goodsReceiptNoteRouter from "../../modules/purchasing/goods-receipt-note/goods-receipt-note.router.js";
+import purchaseRequestRouter from "../../modules/purchasing/purchase-request/purchase-request.router.js";
+import vendorLedgerRouter from "../../modules/purchasing/vendor-ledger/vendor-ledger.router.js";
 
 // ========================
 // SALES
@@ -271,11 +280,14 @@ router.use("/warehouses", warehouseRouter);
 router.use("/inventory-settings", inventorySettingsRouter);
 router.use("/warehouse-documents", warehouseDocumentRouter);
 router.use("/stock-ledger", stockLedgerRouter);
+router.use("/inventory-counts", inventoryCountRouter);
+router.use("/stock-transfer-requests", stockTransferRequestRouter);
 
 // Menu
 router.use("/menu/products", productRouter);
 router.use("/menu/categories", menuCategoryRouter);
 router.use("/menu/recipes", recipeRouter);
+router.use("/menu/product-reviews", productReviewRouter);
 
 // Preparation
 router.use("/preparation/return-settings", preparationReturnSettingsRouter);
@@ -287,6 +299,10 @@ router.use("/preparation/returns", preparationReturnRouter);
 // Purchasing
 router.use("/purchasing/settings", purchaseSettingsRouter);
 router.use("/purchasing/purchase-invoices", purchaseInvoiceRouter);
+router.use("/purchasing/purchase-orders", purchaseOrderRouter);
+router.use("/purchasing/goods-receipt-notes", goodsReceiptNoteRouter);
+router.use("/purchasing/purchase-requests", purchaseRequestRouter);
+router.use("/purchasing/vendor-ledger", vendorLedgerRouter);
 router.use("/purchasing/purchase-returns", purchaseReturnRouter);
 router.use("/purchasing/suppliers", supplierRouter);
 router.use("/purchasing/supplier-transactions", supplierTransactionRouter);

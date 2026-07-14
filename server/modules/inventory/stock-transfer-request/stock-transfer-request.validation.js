@@ -30,3 +30,8 @@ export const paramsStockTransferRequestIdsSchema = paramsIdsSchema();
    Query Schema
 ========================= */
 export const queryStockTransferRequestSchema = querySchema();
+
+export const transitionStockTransferRequestSchema = Joi.object({
+  status: Joi.string().valid("Draft", "Submitted", "Approved", "Rejected", "Canceled", "Executed").required(),
+  rejectionReason: Joi.string().trim().max(300).optional(),
+});

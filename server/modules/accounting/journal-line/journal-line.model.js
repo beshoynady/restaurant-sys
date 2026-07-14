@@ -41,6 +41,9 @@ const journalLineSchema = new Schema(
         "ASSET_DOCUMENT",
         "CASH_MOVEMENT",
         "MANUAL_ENTRY",
+        // Supply Chain & Commerce Platform V5.1 — additive, same convention as every other entry
+        // in this enum (each represents a posting engine's source document type).
+        "INVENTORY_COUNT",
       ],
       default: null,
     },

@@ -1,47 +1,67 @@
 import express from "express";
 import stockCategoryController from "./stock-category.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
+import authorize from "../../../middlewares/authorize.js";
+import checkModuleEnabled from "../../../middlewares/checkModuleEnabled.js";
 import validate from "../../../middlewares/validate.js";
-import { 
-  createStockCategorySchema, 
-  updateStockCategorySchema, 
-  paramsStockCategorySchema, 
+import {
+  createStockCategorySchema,
+  updateStockCategorySchema,
+  paramsStockCategorySchema,
   paramsStockCategoryIdsSchema,
-  queryStockCategorySchema 
+  queryStockCategorySchema
 } from "./stock-category.validation.js";
 
 const router = express.Router();
 
 // Create & GetAll
 router.route("/")
-  .post(authenticateToken, validate(createStockCategorySchema), stockCategoryController.create)
-  .get(authenticateToken, validate(queryStockCategorySchema), stockCategoryController.getAll)
+  .post(authenticateToken,
+    authorize("StockCategories", "create"),
+    checkModuleEnabled("inventory"), validate(createStockCategorySchema), stockCategoryController.create)
+  .get(authenticateToken,
+    authorize("StockCategories", "read"),
+    checkModuleEnabled("inventory"), validate(queryStockCategorySchema), stockCategoryController.getAll)
 ;
 
 // GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, validate(paramsStockCategorySchema, "params"), stockCategoryController.getOne)
-  .put(authenticateToken, validate(updateStockCategorySchema), stockCategoryController.update)
-  .delete(authenticateToken, validate(paramsStockCategorySchema, "params"), stockCategoryController.hardDelete) // soft delete
+  .get(authenticateToken,
+    authorize("StockCategories", "read"),
+    checkModuleEnabled("inventory"), validate(paramsStockCategorySchema, "params"), stockCategoryController.getOne)
+  .put(authenticateToken,
+    authorize("StockCategories", "update"),
+    checkModuleEnabled("inventory"), validate(updateStockCategorySchema), stockCategoryController.update)
+  .delete(authenticateToken,
+    authorize("StockCategories", "delete"),
+    checkModuleEnabled("inventory"), validate(paramsStockCategorySchema, "params"), stockCategoryController.hardDelete) // soft delete
 ;
 
 router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsStockCategorySchema, "params"), stockCategoryController.softDelete) // soft delete
+  .patch(authenticateToken,
+    authorize("StockCategories", "delete"),
+    checkModuleEnabled("inventory"), validate(paramsStockCategorySchema, "params"), stockCategoryController.softDelete) // soft delete
 ;
 
 // Restore soft-deleted item
 router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsStockCategorySchema, "params"), stockCategoryController.restore)
+  .patch(authenticateToken,
+    authorize("StockCategories", "update"),
+    checkModuleEnabled("inventory"), validate(paramsStockCategorySchema, "params"), stockCategoryController.restore)
 ;
 
  // --- BULK HARD DELETE ---
   router.route("/bulk-delete")
-    .delete(authenticateToken, validate(paramsStockCategoryIdsSchema), stockCategoryController.bulkHardDelete);
+    .delete(authenticateToken,
+    authorize("StockCategories", "delete"),
+    checkModuleEnabled("inventory"), validate(paramsStockCategoryIdsSchema), stockCategoryController.bulkHardDelete);
 
 
   // --- BULK SOFT DELETE ---
   router.route("/bulk-soft-delete")
-    .patch(authenticateToken,validate(paramsStockCategoryIdsSchema), stockCategoryController.bulkSoftDelete);
+    .patch(authenticateToken,
+    authorize("StockCategories", "delete"),
+    checkModuleEnabled("inventory"),validate(paramsStockCategoryIdsSchema), stockCategoryController.bulkSoftDelete);
 
 
 export default router;

@@ -30,3 +30,14 @@ export const paramsPurchaseReturnIdsSchema = paramsIdsSchema();
    Query Schema
 ========================= */
 export const queryPurchaseReturnSchema = querySchema();
+
+export const transitionPurchaseReturnSchema = Joi.object({
+  status: Joi.string().valid("Draft", "Review", "Partially Refunded", "Fully Refunded", "Rejected", "Cancelled").required(),
+});
+
+export const recordPurchaseReturnRefundSchema = Joi.object({
+  amount: Joi.number().positive().required(),
+  refundMethod: objectId().required(),
+  cashRegister: objectId(true).optional(),
+  reference: Joi.string().trim().max(200).optional(),
+});

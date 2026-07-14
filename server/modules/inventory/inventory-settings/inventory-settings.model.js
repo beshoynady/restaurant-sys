@@ -37,6 +37,31 @@ const inventorySettingsSchema = new mongoose.Schema(
       default: false,
     },
 
+    // Auto-generate a draft PurchaseRequest when a StockItem's available quantity drops below its
+    // reorder threshold — Supply Chain & Commerce Platform V5.1's Reorder Engine. Draft only, per
+    // "never invent business data" — a human still reviews and submits it.
+    autoGenerateReorderRequests: { type: Boolean, default: false },
+
+    // Supply Chain & Commerce Platform V5.1 — numbering for InventoryCount and
+    // StockTransferRequest, via the shared SequenceGeneratorService (same pattern as
+    // PurchasingSettings' purchaseOrderSequence/goodsReceiptSequence).
+    countSequence: {
+      prefix: { type: String, default: "CNT-" },
+      startNumber: { type: Number, default: 1 },
+      currentNumber: { type: Number, default: 1 },
+      padding: { type: Number, default: 0 },
+      resetPolicy: { type: String, enum: ["NONE", "DAILY", "MONTHLY", "YEARLY"], default: "YEARLY" },
+      lastResetDate: { type: Date, default: null },
+    },
+    transferSequence: {
+      prefix: { type: String, default: "TRF-" },
+      startNumber: { type: Number, default: 1 },
+      currentNumber: { type: Number, default: 1 },
+      padding: { type: Number, default: 0 },
+      resetPolicy: { type: String, enum: ["NONE", "DAILY", "MONTHLY", "YEARLY"], default: "YEARLY" },
+      lastResetDate: { type: Date, default: null },
+    },
+
     createdBy: { type: ObjectId, ref: "UserAccount", default: null },
     updatedBy: { type: ObjectId, ref: "UserAccount", default: null },
 

@@ -9,7 +9,9 @@ import {
   updatePurchaseInvoiceSchema,
   paramsPurchaseInvoiceSchema,
   paramsPurchaseInvoiceIdsSchema,
-  queryPurchaseInvoiceSchema
+  queryPurchaseInvoiceSchema,
+  transitionPurchaseInvoiceSchema,
+  recordPurchaseInvoicePaymentSchema
 } from "./purchase-invoice.validation.js";
 
 const router = express.Router();
@@ -38,6 +40,16 @@ router.route("/:id")
 // PLATFORM_FINAL_AUDIT.md, corrected: soft-delete/restore/bulk-soft-delete
 // removed — PurchaseInvoice already has Draft/Review/Approved/Completed/
 // Rejected/Cancelled; a mistaken invoice is cancelled via PUT, not deleted.
+
+// Supply Chain & Commerce Platform V5 — explicit workflow/payment actions, not generic PUTs.
+router.route("/:id/transition")
+  .post(authenticateToken, authorize("PurchaseInvoices", "update"), checkModuleEnabled("purchasing"), validate(paramsPurchaseInvoiceSchema, "params"), validate(transitionPurchaseInvoiceSchema), purchaseInvoiceController.transition);
+
+router.route("/:id/payments")
+  .post(authenticateToken, authorize("PurchaseInvoices", "update"), checkModuleEnabled("purchasing"), validate(paramsPurchaseInvoiceSchema, "params"), validate(recordPurchaseInvoicePaymentSchema), purchaseInvoiceController.recordPayment);
+
+router.route("/:id/three-way-match")
+  .get(authenticateToken, authorize("PurchaseInvoices", "read"), checkModuleEnabled("purchasing"), validate(paramsPurchaseInvoiceSchema, "params"), purchaseInvoiceController.threeWayMatch);
 
  // --- BULK HARD DELETE ---
   router.route("/bulk-delete")

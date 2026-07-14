@@ -9,7 +9,9 @@ import {
   updatePurchaseReturnSchema,
   paramsPurchaseReturnSchema,
   paramsPurchaseReturnIdsSchema,
-  queryPurchaseReturnSchema
+  queryPurchaseReturnSchema,
+  transitionPurchaseReturnSchema,
+  recordPurchaseReturnRefundSchema
 } from "./purchase-return.validation.js";
 
 const router = express.Router();
@@ -33,6 +35,13 @@ router.route("/:id")
 // PLATFORM_FINAL_AUDIT.md, corrected: soft-delete/restore/bulk-soft-delete
 // removed — PurchaseReturn already has Draft/Review/Partially Refunded/
 // Fully Refunded/Rejected/Cancelled.
+
+// Supply Chain & Commerce Platform V5.1 — explicit workflow/refund actions, not generic PUTs.
+router.route("/:id/transition")
+  .post(authenticateToken, authorize("PurchaseReturns", "update"), checkModuleEnabled("purchasing"), validate(paramsPurchaseReturnSchema, "params"), validate(transitionPurchaseReturnSchema), purchaseReturnController.transition);
+
+router.route("/:id/refunds")
+  .post(authenticateToken, authorize("PurchaseReturns", "update"), checkModuleEnabled("purchasing"), validate(paramsPurchaseReturnSchema, "params"), validate(recordPurchaseReturnRefundSchema), purchaseReturnController.recordRefund);
 
  // --- BULK HARD DELETE ---
   router.route("/bulk-delete")

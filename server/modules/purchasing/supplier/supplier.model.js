@@ -202,7 +202,16 @@ const SupplierSchema = new Schema(
 
 // Define the Supplier model
 // DB-002: brand-scoped code uniqueness (replaces the previous global-unique `Code`)
-SupplierSchema.index({ brand: 1, code: 1 }, { unique: true, sparse: true });
+// `sparse: true` on a COMPOUND index only excludes a document missing ALL indexed fields, not
+// just `code` — since `brand` is always present, two suppliers in the same brand with no `code`
+// both index as {brand, code: null} and collide. Same defect class already found and fixed for
+// Department/JobTitle (HD-004) — a partialFilterExpression that only indexes documents where
+// `code` actually exists is the correct pattern, discovered here via Supply Chain & Commerce
+// Platform V5's procurement-chain integration test.
+SupplierSchema.index(
+  { brand: 1, code: 1 },
+  { unique: true, partialFilterExpression: { code: { $exists: true, $type: "string" } } },
+);
 
 const SupplierModel = mongoose.model("Supplier", SupplierSchema);
 

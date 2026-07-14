@@ -27,6 +27,68 @@ const PurchaseSettingsSchema = new mongoose.Schema(
     },
 
     // ===============================
+    // Procurement Policy Engine (Supply Chain & Commerce Platform V5)
+    // ===============================
+    /**
+     * SUPPLY_CHAIN_COMMERCE_ARCHITECTURE_V2.md §1 — one entity chain, three configurable maturity
+     * levels. BASIC: Supplier -> PurchaseInvoice only (PurchaseOrder/GoodsReceiptNote still
+     * created, just auto-generated behind the scenes, matching today's exact behavior). STANDARD:
+     * PurchaseOrder -> GoodsReceiptNote -> PurchaseInvoice, explicitly created at each step.
+     * ENTERPRISE: PurchaseRequest -> RFQ -> SupplierQuotation -> PurchaseOrder -> ... — RFQ is
+     * enabled BY this policy value, never hardcoded to a specific level check scattered through
+     * business logic (see purchase-settings.service.js#resolveProcurementPolicy).
+     */
+    procurementLevel: {
+      type: String,
+      enum: ["BASIC", "STANDARD", "ENTERPRISE"],
+      default: "BASIC",
+    },
+
+    /**
+     * Purchase Order numbering (STANDARD/ENTERPRISE) — via SequenceGeneratorService.
+     */
+    purchaseOrderSequence: {
+      prefix: { type: String, default: "PO-" },
+      startNumber: { type: Number, default: 1 },
+      currentNumber: { type: Number, default: 1 },
+      padding: { type: Number, default: 0 },
+      resetPolicy: { type: String, enum: ["NONE", "DAILY", "MONTHLY", "YEARLY"], default: "YEARLY" },
+      lastResetDate: { type: Date, default: null },
+    },
+
+    /** Goods Receipt Note numbering (all levels — auto-generated at BASIC). */
+    goodsReceiptSequence: {
+      prefix: { type: String, default: "GRN-" },
+      startNumber: { type: Number, default: 1 },
+      currentNumber: { type: Number, default: 1 },
+      padding: { type: Number, default: 0 },
+      resetPolicy: { type: String, enum: ["NONE", "DAILY", "MONTHLY", "YEARLY"], default: "YEARLY" },
+      lastResetDate: { type: Date, default: null },
+    },
+
+    /** Purchase Request numbering (ENTERPRISE only). */
+    purchaseRequestSequence: {
+      prefix: { type: String, default: "PR-" },
+      startNumber: { type: Number, default: 1 },
+      currentNumber: { type: Number, default: 1 },
+      padding: { type: Number, default: 0 },
+      resetPolicy: { type: String, enum: ["NONE", "DAILY", "MONTHLY", "YEARLY"], default: "YEARLY" },
+      lastResetDate: { type: Date, default: null },
+    },
+
+    /** Require a PurchaseOrder to be approved before a GRN can be raised against it (STANDARD/ENTERPRISE). */
+    requirePOApproval: { type: Boolean, default: false },
+
+    /** Three-way-match variance tolerance, as a percentage — SUPPLY_CHAIN_COMMERCE_DOMAIN_REDESIGN.md §6. */
+    matchToleranceRate: { type: Number, default: 0, min: 0, max: 100 },
+
+    /** Whether a match variance beyond tolerance blocks PurchaseInvoice completion, or only flags it. */
+    blockOnMatchVariance: { type: Boolean, default: false },
+
+    /** Block new PurchaseInvoice creation if it would exceed Supplier.creditLimit. */
+    enforceSupplierCreditLimit: { type: Boolean, default: false },
+
+    // ===============================
     // Purchase Invoice Settings
     // ===============================
     purchase: {
@@ -42,6 +104,12 @@ const PurchaseSettingsSchema = new mongoose.Schema(
           enum: ["NONE", "MONTHLY", "YEARLY"],
           default: "YEARLY",
         },
+        // Was missing entirely — Mongoose silently strips any field not declared in the schema
+        // from a `$set` update, so SequenceGeneratorService's reset-tracking write was a no-op
+        // every time, causing the reset branch to fire on every single call instead of once per
+        // period. Discovered via Supply Chain & Commerce Platform V5.1's Three-Way Matching
+        // Engine tests reusing this exact sequence field.
+        lastResetDate: { type: Date, default: null },
       },
 
       /**
@@ -101,6 +169,7 @@ const PurchaseSettingsSchema = new mongoose.Schema(
           enum: ["NONE", "MONTHLY", "YEARLY"],
           default: "YEARLY",
         },
+        lastResetDate: { type: Date, default: null }, // see purchase.sequence's identical fix, same bug
       },
 
       /**

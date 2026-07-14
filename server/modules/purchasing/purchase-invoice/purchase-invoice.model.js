@@ -32,6 +32,13 @@ const purchaseInvoiceSchema = new mongoose.Schema(
     allInOneWarehouse: { type: Boolean, default: false },
     warehouseForAllItems: { type: ObjectId, ref: "Warehouse" },
 
+    // Supply Chain & Commerce Platform V5 — 3-way-match traceability
+    // (SUPPLY_CHAIN_COMMERCE_DOMAIN_REDESIGN.md §5.2). Both nullable: at ProcurementLevel BASIC
+    // an invoice can be billed with neither, matching today's simple flow exactly; at STANDARD/
+    // ENTERPRISE the invoice bills against the goods actually received.
+    purchaseOrder: { type: ObjectId, ref: "PurchaseOrder", default: null },
+    goodsReceiptNotes: [{ type: ObjectId, ref: "GoodsReceiptNote" }],
+
     // List of purchased items
     items: [
       {
@@ -127,6 +134,17 @@ const purchaseInvoiceSchema = new mongoose.Schema(
     // DB-011: link to the actual GL posting — `accountingPosted` alone gave no way to verify
     // *which* JournalEntry was generated for a given invoice.
     journalEntry: { type: ObjectId, ref: "JournalEntry", default: null },
+
+    // Supply Chain & Commerce Platform V5.1 — cached result of the Three-Way Matching Engine
+    // (three-way-match.service.js). Derived, not independently authoritative: always recomputed
+    // from PurchaseOrder/GoodsReceiptNote/PurchaseInvoice at match time, this field is only a
+    // cache of the last computed status for fast display (SUPPLY_CHAIN_SSOT_MATRIX.md). Null when
+    // no PurchaseOrder is referenced at all (BASIC procurement level — matching doesn't apply).
+    threeWayMatchStatus: {
+      type: String,
+      enum: ["NOT_APPLICABLE", "FULL_MATCH", "PARTIAL_MATCH", "VARIANCE", null],
+      default: null,
+    },
 
     costCenter: { type: ObjectId, ref: "CostCenter" },
 

@@ -182,6 +182,14 @@ const InventoryCountSchema = new mongoose.Schema(
       ref: "WarehouseDocument",
     },
 
+    // Supply Chain & Commerce Platform V5.1 — the GL posting (if AccountingSettings is
+    // configured) for this count's net variance value, generated at execute().
+    journalEntry: {
+      type: ObjectId,
+      ref: "JournalEntry",
+      default: null,
+    },
+
     // ===============================
     // Notes & Reference
     // ===============================
