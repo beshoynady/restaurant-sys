@@ -197,6 +197,15 @@ const employeeSchema = new mongoose.Schema(
       ref: "Shift",
       default: null,
     },
+    // IAP V2.0 Milestone 4: the terminal/device this employee is expected to log in from, set by
+    // the Owner/Manager (not self-service) — checked by AuthenticationSettings.requireAssignedDevice.
+    // null means "no assignment configured," which the policy check treats as a mismatch when the
+    // gate is on, not an automatic pass.
+    assignedDevice: {
+      type: ObjectId,
+      ref: "Device",
+      default: null,
+    },
     workMode: {
       type: String,
       trim: true,

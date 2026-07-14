@@ -8,25 +8,46 @@ class UserAccountController extends BaseController {
   }
 
   create = asyncHandler(async (req, res) => {
-    const result = await this.service.create(req.body, req.user);
-    res.status(201).json(result);
+    const { brandId, branchId, userId } = req.user;
+
+    const result = await userAccountService.create({
+      brandId,
+      branchId,
+      data: req.body,
+      createdBy: userId,
+    });
+
+    res.status(201).json({ success: true, data: result });
   });
 
   update = asyncHandler(async (req, res) => {
-    const result = await this.service.update(
-      req.params.id,
-      req.body,
-      req.user
-    );
-    res.json(result);
+    const { brandId, branchId, userId } = req.user;
+
+    const result = await userAccountService.update({
+      id: req.params.id,
+      brandId,
+      branchId,
+      data: req.body,
+      updatedBy: userId,
+    });
+
+    res.json({ success: true, data: result });
   });
 
-  softDelete = asyncHandler(async (req, res) => {
-    const result = await this.service.softDelete(
-      req.params.id,
-      req.user
-    );
-    res.json(result);
+  // IAM Platform Redesign: BaseController's default hardDelete doesn't pass an acting-user id at
+  // all (only softDelete does) — userAccountService.hardDelete() needs one for its "cannot delete
+  // yourself" guard, so this override supplies it explicitly.
+  hardDelete = asyncHandler(async (req, res) => {
+    const { brandId, branchId, userId } = req.user;
+
+    await userAccountService.hardDelete({
+      id: req.params.id,
+      brandId,
+      branchId,
+      actorId: userId,
+    });
+
+    res.json({ success: true, message: "Deleted permanently" });
   });
 }
 

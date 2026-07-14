@@ -14,6 +14,10 @@ import DiningAreaModel from "../../modules/seating/dining-area/dining-area.model
 import TableModel from "../../modules/seating/table/table.model.js";
 import ReservationModel from "../../modules/seating/reservation/reservation.model.js";
 import AccountingSettingModel from "../../modules/accounting/accounting-settings/accounting-setting.model.js";
+import AuthenticationSettingsModel from "../../modules/iam/authentication-settings/authentication-settings.model.js";
+import AuthCredentialModel from "../../modules/iam/auth-credential/auth-credential.model.js";
+import SessionModel from "../../modules/iam/session/session.model.js";
+import DeviceModel from "../../modules/iam/device/device.model.js";
 import WarehouseModel from "../../modules/inventory/warehouse/warehouse.model.js";
 import StockCategoryModel from "../../modules/inventory/stock-category/stock-category.model.js";
 import StockItemModel from "../../modules/inventory/stock-item/stock-item.model.js";
@@ -260,5 +264,9 @@ export async function cleanupFixture(fixture: TestFixture): Promise<void> {
     InventoryModel.deleteMany({ brand: brandId }),
     StockLedgerModel.deleteMany({ brand: brandId }),
     WarehouseDocumentModel.deleteMany({ brand: brandId }),
+    AuthenticationSettingsModel.deleteMany({ brand: brandId }),
+    AuthCredentialModel.deleteMany({ brand: brandId }),
+    SessionModel.deleteMany({ brand: brandId }),
+    DeviceModel.deleteMany({ brand: brandId }),
   ]);
 }

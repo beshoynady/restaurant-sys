@@ -87,6 +87,11 @@ import shiftSettingsRouter from "../../modules/finance/cashier-shift-settings/ca
 import authRouter from "../../modules/iam/user-auth/user-auth.router.js";
 import userAccountRouter from "../../modules/iam/user-account/user-account.router.js";
 import roleRouter from "../../modules/iam/role/role.router.js";
+// IAM Platform Redesign (V4.0): Owner Controlled Authentication — pluggable credentials + policy.
+import authCredentialRouter from "../../modules/iam/auth-credential/auth-credential.router.js";
+import authenticationSettingsRouter from "../../modules/iam/authentication-settings/authentication-settings.router.js";
+import deviceRouter from "../../modules/iam/device/device.router.js";
+import securityEventRouter from "../../modules/iam/security-event/security-event.router.js";
 
 // ========================
 // INVENTORY
@@ -252,6 +257,10 @@ router.use("/hr/shift-settings", shiftSettingsRouter);
 router.use("/auth", authRouter);
 router.use("/users", userAccountRouter);
 router.use("/roles", roleRouter);
+router.use("/auth-credentials", authCredentialRouter);
+router.use("/authentication-settings", authenticationSettingsRouter);
+router.use("/devices", deviceRouter);
+router.use("/security-events", securityEventRouter);
 
 // Inventory
 router.use("/inventory", inventoryRouter);

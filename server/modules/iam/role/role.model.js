@@ -37,6 +37,14 @@ export const RESOURCE_ENUM = [
   // ================= USERS & ROLES =================
   "UserAccounts",
   "Roles",
+  // IAM Platform Redesign (V4.0): the pluggable-credential engine's own manageable resources —
+  // additive, per this file's standing RESOURCE_ENUM convention.
+  "AuthCredentials",
+  "AuthenticationSettings",
+  "Sessions",
+  "Devices",
+  // IAP V2.0 Milestone 5: read-only visibility into the authentication/security audit trail.
+  "SecurityEvents",
 
   // ================= MENU & SALES =================
   "MenuCategories",
