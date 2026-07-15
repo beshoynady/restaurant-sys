@@ -1,36 +1,30 @@
 // DATABASE_IMPLEMENTATION_PLAN.md DB-007: wires the atomic order-number generator into order
 // creation via BaseRepository's existing `beforeCreate` lifecycle hook — the minimal, idiomatic
 // extension point already provided for exactly this purpose, rather than overriding `create()`
-// wholesale. `order.model.js` is intentionally left as-is (untouched, still `.js`) — converting it
-// to TypeScript is outside this task's scope (DB-007/010/014 only); this service is typed against
-// `OrderRepository`, the same documented widening `BaseController.d.ts` already uses for the
-// identical reason (Mongoose `Model<T>` invariance would otherwise reject a concrete document type
-// without the source model itself also being TypeScript).
+// wholesale.
 //
-// Enterprise Order Management Platform: migrated to the mandated Repository Pattern
+// Enterprise Order Management Platform: follows the mandated Repository Pattern
 // (BACKEND_FOUNDATION.md §4.3 / REPOSITORY_PATTERN_MIGRATION_PLAN.md) — data access (generic CRUD,
-// constructor options) now lives in order.repository.js; this file extends it and contains zero
-// raw Mongoose calls of its own (every DB read/write below goes through `self.model`, the same
-// inherited Mongoose model the repository configured), matching the split already proven on the
-// `accounting/journal-entry` pilot.
-import throwErrorJs from "../../../utils/throwError.js";
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// constructor options) lives in order.repository.js; this file extends it and contains zero raw
+// Mongoose calls of its own beyond `this.model` (the inherited configured model), matching the
+// split already proven on the `accounting/journal-entry` pilot.
+//
+// Converted from TypeScript to plain JavaScript at the user's explicit request (CLAUDE.md notes
+// this as a deliberate exception to the project's TS-going-forward policy for this module) —
+// behavior is unchanged; only type annotations/casts are dropped.
+import throwError from "../../../utils/throwError.js";
 import OrderRepository from "./order.repository.js";
 import orderSettingsService from "../order-settings/order-settings.service.js";
 import { createTransitionGuard } from "../../../utils/TransitionGuard.js";
 import domainEvents, { DomainEvent } from "../../../utils/domainEvents.js";
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 import preparationTicketService from "../../preparation/preparation-ticket/preparation-ticket.service.js";
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 import recipeConsumptionService from "../../inventory/recipe-consumption/recipe-consumption.service.js";
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 import PreparationTicketModel from "../../preparation/preparation-ticket/preparation-ticket.model.js";
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 import UserAccountModel from "../../iam/user-account/user-account.model.js";
+import ProductModel from "../../menu/product/product.model.js";
+import { validateModifierSelections } from "../../menu/product/modifier-selection-validator.js";
 
 const ORDER_ITEM_CANCELLABLE_STATUSES = ["NEW", "SENT_TO_PRODUCTION", "PREPARING"];
-
-const throwError = throwErrorJs as (message: string, statusCode: number) => never;
 
 // Enterprise Production Platform — the single most consequential kitchen gap named across every
 // audit this engagement produced for this domain: `Order.status` had a real, well-designed enum
@@ -47,21 +41,43 @@ const transitionGuard = createTransitionGuard({
   CANCELLED: [],
 });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 class OrderService extends OrderRepository {
   // DB-007: server-generates `orderNum` instead of trusting a client-supplied value — this is what
   // actually makes the {brand,branch,orderNum} unique index (DB-003) collision-free in practice,
   // not just structurally possible. `order.validation.js`'s create schema now excludes `orderNum`
   // from client input (stripped, not rejected, so old clients that still send one stay compatible).
-  async beforeCreate(data: Record<string, unknown>): Promise<Record<string, unknown>> {
-    const brandId = data.brand as string | undefined;
-    const branchId = data.branch as string | undefined;
+  async beforeCreate(data) {
+    const brandId = data.brand;
+    const branchId = data.branch;
 
     if (!brandId || !branchId) {
       throwError("brand and branch are required to generate an order number.", 400);
     }
 
-    const orderNum = await orderSettingsService.getNextOrderNumber(brandId!, branchId!);
+    // Enterprise Restaurant Operations Platform — Modifier Engine: the real business-rule
+    // enforcement `extras[]` never had. Every item's product must be checked, NOT only items that
+    // already carry a `selectedModifiers[]` payload — a required group with ZERO selections is
+    // exactly the violation this exists to catch, and an item-level filter on "has selections"
+    // would silently skip that exact case (found and fixed while writing this milestone's own
+    // test — a required-group-with-no-selection order didn't reject until this was corrected).
+    const items = data.items || [];
+    // Combo components (`comboSelections[]` present) have no `modifierGroups` of their own to
+    // validate against in this pass (same honest scoping already applied to combo-component-level
+    // extras) — only the order item's own directly-selected product is checked here.
+    const directItems = items.filter((item) => !item.comboSelections || item.comboSelections.length === 0);
+    if (directItems.length > 0) {
+      const productIds = [...new Set(directItems.map((item) => String(item.product)))];
+      const products = await ProductModel.find({ _id: { $in: productIds } }).select("modifierGroups").lean();
+      const productById = Object.fromEntries(products.map((p) => [String(p._id), p]));
+      for (const item of directItems) {
+        const product = productById[String(item.product)];
+        if (product?.modifierGroups?.length) {
+          validateModifierSelections(product, item.selectedModifiers);
+        }
+      }
+    }
+
+    const orderNum = await orderSettingsService.getNextOrderNumber(brandId, branchId);
 
     return { ...data, orderNum };
   }
@@ -71,16 +87,13 @@ class OrderService extends OrderRepository {
    * transition in this platform's Supply Chain/Production hardening passes — not a hardening pass
    * discovered later for this domain.
    */
-  async transition(opts: { id: string; brand: string; branch: string; toStatus: string; actorId: string }) {
-    const { id, brand, branch, toStatus, actorId } = opts;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const self = this as any;
-    const order = await self.model.findOne({ _id: id, brand, branch });
+  async transition({ id, brand, branch, toStatus, actorId }) {
+    const order = await this.model.findOne({ _id: id, brand, branch });
     if (!order) throwError("Order not found.", 404);
 
     transitionGuard.assertValid(order.status, toStatus);
 
-    const claimed = await self.model.findOneAndUpdate(
+    const claimed = await this.model.findOneAndUpdate(
       { _id: id, brand, branch, status: order.status },
       { $set: { status: toStatus } },
       { new: true },
@@ -94,22 +107,20 @@ class OrderService extends OrderRepository {
       // platform's established philosophy (an unconfigured/misrouted product must not block the
       // order confirmation that already, correctly, committed).
       try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (preparationTicketService as any).createTicketsFromOrder({ order: claimed, actorId });
+        await preparationTicketService.createTicketsFromOrder({ order: claimed, actorId });
       } catch (err) {
         // eslint-disable-next-line no-console
-        console.error(`[order.service] Preparation tickets not created for order ${claimed.orderNum}: ${(err as Error).message}`);
+        console.error(`[order.service] Preparation tickets not created for order ${claimed.orderNum}: ${err.message}`);
       }
       try {
         // Automatic Recipe Consumption — reads `InventorySettings.recipeConsumptionStrategy`
         // (built in an earlier milestone, unread by any code until now) and deducts ingredients
         // via the existing Inventory Posting Engine. Same best-effort philosophy as ticket
         // creation, independent try/catch so a failure in one never blocks the other.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await (recipeConsumptionService as any).consumeForOrder({ order: claimed, actorId });
+        await recipeConsumptionService.consumeForOrder({ order: claimed, actorId });
       } catch (err) {
         // eslint-disable-next-line no-console
-        console.error(`[order.service] Recipe consumption not posted for order ${claimed.orderNum}: ${(err as Error).message}`);
+        console.error(`[order.service] Recipe consumption not posted for order ${claimed.orderNum}: ${err.message}`);
       }
       await domainEvents.emit(DomainEvent.ORDER_CONFIRMED, { order: claimed });
     }
@@ -136,12 +147,10 @@ class OrderService extends OrderRepository {
    * code anywhere reading them before this change. When manager approval is required, the
    * *approving* user (`managerApprovalBy`, distinct from `actorId` — matching the real POS
    * pattern where a cashier without cancellation permission of their own needs a supervisor's
-   * override) must independently hold the same `Orders:cancelItem` permission this action's own
-   * route requires of its caller — not a separately-invented "manager" role concept.
+   * override) must independently hold the same `Orders:approve` permission this action's manager
+   * override checks — not a separately-invented "manager" role concept.
    */
-  async cancelItem(opts: { orderId: string; itemId: string; brand: string; branch: string; reason?: string; actorId: string; managerApprovalBy?: string }) {
-    const { orderId, itemId, brand, branch, reason, actorId, managerApprovalBy } = opts;
-
+  async cancelItem({ orderId, itemId, brand, branch, reason, actorId, managerApprovalBy }) {
     const settings = await orderSettingsService.resolveForBranch(brand, branch);
     // Fail safe when settings are somehow missing (defensive only — a branch with orders already
     // has OrderSettings, per getNextOrderNumber()'s own requirement): require a reason, don't
@@ -157,19 +166,16 @@ class OrderService extends OrderRepository {
       if (!managerApprovalBy) {
         throwError("Manager approval is required to cancel this item — provide the approving manager's user ID.", 403);
       }
-      const canApprove = await this._hasCancelApprovalPermission(managerApprovalBy!, brand);
+      const canApprove = await this._hasCancelApprovalPermission(managerApprovalBy, brand);
       if (!canApprove) {
         throwError("The approving user does not hold permission to authorize item cancellations.", 403);
       }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const self = this as any;
-    const order = await self.model.findOne({ _id: orderId, brand, branch });
+    const order = await this.model.findOne({ _id: orderId, brand, branch });
     if (!order) throwError("Order not found.", 404);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const item = (order.items as any).id(itemId);
+    const item = order.items.id(itemId);
     if (!item) throwError("Order item not found.", 404);
 
     if (!ORDER_ITEM_CANCELLABLE_STATUSES.includes(item.status)) {
@@ -177,7 +183,7 @@ class OrderService extends OrderRepository {
     }
     const currentItemStatus = item.status;
 
-    const ticket = await (PreparationTicketModel as any).findOne({
+    const ticket = await PreparationTicketModel.findOne({
       order: orderId, brand, "items.orderItemId": itemId,
     });
     if (ticket) {
@@ -190,8 +196,7 @@ class OrderService extends OrderRepository {
       // Sole item on its own ticket -> recall (cancel) the ticket too, reusing the existing
       // PENDING/PREPARING -> CANCELLED transition guard already enforced in
       // preparation-ticket.service.js#update, not a second, parallel guard here.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (preparationTicketService as any).update({
+      await preparationTicketService.update({
         id: ticket._id, brandId: brand, data: { preparationStatus: "CANCELLED" },
       });
     }
@@ -199,7 +204,7 @@ class OrderService extends OrderRepository {
     // Atomic-claim on the specific array element, guarding the exact same race this platform
     // guards on every other transition: two concurrent cancel requests for the same item must not
     // both succeed.
-    const claimed = await self.model.findOneAndUpdate(
+    const claimed = await this.model.findOneAndUpdate(
       { _id: orderId, brand, branch, "items._id": itemId, "items.status": currentItemStatus },
       {
         $set: {
@@ -229,17 +234,16 @@ class OrderService extends OrderRepository {
    * mode on save and never match anyone — confirmed by direct read of the Role schema before
    * this was wired in, not assumed.
    */
-  private async _hasCancelApprovalPermission(userId: string, brandId: string): Promise<boolean> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const approver = await (UserAccountModel as any)
+  async _hasCancelApprovalPermission(userId, brandId) {
+    const approver = await UserAccountModel
       .findOne({ _id: userId, brand: brandId, isDeleted: { $ne: true }, isActive: true })
       .populate("role");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const permissions = approver?.role?.permissions as any[] | undefined;
+    const permissions = approver?.role?.permissions;
     if (!permissions) return false;
     return permissions.some((perm) => perm.resource === "Orders" && perm.approve === true);
   }
 }
 
-export default new OrderService();
+const orderService = new OrderService();
+export default orderService;
 export { transitionGuard as orderTransitionGuard };

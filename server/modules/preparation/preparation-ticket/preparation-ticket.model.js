@@ -136,6 +136,21 @@ const PreparationTicketSchema = new Schema(
             },
           },
         ],
+        // Enterprise Restaurant Operations Platform — Modifier Engine: nested on this same ticket
+        // item, never independently routed/ticketed, exactly like `extras[]` above — a chef reads
+        // both as "instructions for this one plate," not as separate kitchen work items.
+        selectedModifiers: [
+          {
+            product: {
+              type: ObjectId,
+              ref: "Product",
+            },
+            quantity: {
+              type: Number,
+              default: 1,
+            },
+          },
+        ],
       },
     ],
 

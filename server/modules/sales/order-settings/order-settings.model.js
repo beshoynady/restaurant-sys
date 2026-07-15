@@ -1,48 +1,14 @@
 // DATABASE_IMPLEMENTATION_PLAN.md DB-007: `lastResetDate` converted from `String` ("YYYY-MM-DD")
 // to `Date`, matching the same fix applied everywhere else date-comparison logic needs to be
-// reliable rather than string-comparison-based. Converted to TypeScript because this model is now
-// directly consumed by the atomic sequence-generation logic in order-settings.service.ts.
-import mongoose, { Schema, type Document, type Model, type Types } from "mongoose";
+// reliable rather than string-comparison-based.
+//
+// Converted from TypeScript to plain JavaScript at the user's explicit request (CLAUDE.md notes
+// this as a deliberate exception to the project's TS-going-forward policy for this module) — the
+// `IOrderSettings`/`IOrderSequence` interfaces are dropped; schema/behavior is unchanged.
+import mongoose from "mongoose";
+const { Schema } = mongoose;
 
-export interface IOrderSequence {
-  prefix: string;
-  currentNumber: number;
-  lastResetDate: Date | null;
-  resetDaily: boolean;
-}
-
-export interface IOrderSettings extends Document {
-  brand: Types.ObjectId;
-  branch: Types.ObjectId | null;
-  orderSequence: IOrderSequence;
-  allowPriceChange: boolean;
-  allowQuantityChange: boolean;
-  autoCloseOrderAfterPayment: boolean;
-  autoCloseOrderAfterTime: number;
-  autoSendOrderToPreparationSection: boolean;
-  autoSendOrderToPreparationAfterTime: number;
-  allowEditOrderAfterSendToKitchen: boolean;
-  requireManagerApprovalForCancel: boolean;
-  cancelReasonRequired: boolean;
-  allowSplitPayment: boolean;
-  allowPartialPayment: boolean;
-  maxTimeToSendToPreparationSection: number;
-  maxTimeToServe: number;
-  preventNegativeStockOrders: boolean;
-  holdOrdersAllowed: boolean;
-  maxHoldOrdersPerCashier: number;
-  autoResumeHoldOrder: boolean;
-  allowRejectTickets: boolean;
-  autoMergeTickets: boolean;
-  createdBy: Types.ObjectId;
-  updatedBy: Types.ObjectId | null;
-  isActive: boolean;
-  isDeleted: boolean;
-  deletedAt: Date | null;
-  deletedBy: Types.ObjectId | null;
-}
-
-const orderSettingsSchema = new Schema<IOrderSettings>(
+const orderSettingsSchema = new Schema(
   {
     brand: { type: Schema.Types.ObjectId, ref: "Brand", required: true },
     branch: { type: Schema.Types.ObjectId, ref: "Branch", default: null },
@@ -112,7 +78,7 @@ const orderSettingsSchema = new Schema<IOrderSettings>(
 // Ensure unique per brand/branch
 orderSettingsSchema.index({ brand: 1, branch: 1 }, { unique: true });
 
-const OrderSettingsModel: Model<IOrderSettings> =
-  mongoose.models.OrderSettings || mongoose.model<IOrderSettings>("OrderSettings", orderSettingsSchema);
+const OrderSettingsModel =
+  mongoose.models.OrderSettings || mongoose.model("OrderSettings", orderSettingsSchema);
 
 export default OrderSettingsModel;

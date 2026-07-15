@@ -662,3 +662,60 @@ each of those routes already resolves to a real declared field (mostly `"update"
 The one occurrence found and fixed in §13.3 (this milestone's own `cancelItem` route) was the only
 real instance of this defect in the codebase — the broader risk flagged in §13.5 is now closed, not
 left open.
+
+---
+
+## 14. Addendum 8 — Modifier Engine (the longest-standing item on this list is now closed)
+
+The single most-repeated gap across every recent mega-prompt in this engagement — "replace the
+current Extras-only logic with a complete Modifier Engine" — is now built, verified via 61/61 test
+suites, 249/249 tests (4 new), typecheck 61 (up from 59, 2 new `TS7016`s for the two new `.js`
+imports into `order.service.ts` — same accepted category), clean live boot, both affected routes
+smoke-tested to 401.
+
+**What was found**: `Product.extras[]` was, and remains, a flat, ungrouped, unvalidated "may add
+these" list — no way to express "Choose your bread — required, exactly 1," and no enforcement of
+anything if a client omitted a selection it should have made.
+
+**What was built** — additive, reusing every existing engine rather than duplicating one:
+- **`Product.modifierGroups[]`** (new): the same shape already proven on `comboGroups[]`
+  (`required`/`minSelection`/`maxSelection`/`options[]`), NOT a new parallel structure. `extras[]`
+  is untouched and still works exactly as before — this is the structured sibling for products
+  that need real selection rules, not a replacement.
+- **`OrderItem.selectedModifiers[]`** (new): a snapshot of the chosen option per group, mirroring
+  `comboSelections[]`'s own "avoid retroactive drift" reasoning.
+- **`validateModifierSelections()`** (new, `modules/menu/product/modifier-selection-validator.js`):
+  the real business-rule enforcement `extras[]` never had — required/min/max selection count AND
+  that every submitted option actually belongs to its claimed group, wired into
+  `OrderService.beforeCreate()` so an invalid order is rejected at creation time, not left for the
+  frontend to enforce (or not).
+- **`expandOrderItems()`/`RecipeConsumptionService`/`PreparationTicketService`** all extended to
+  treat `selectedModifiers[]` exactly like `extras[]` is already treated: nested on the SAME
+  kitchen ticket as the base item (never independently routed — a modifier is an instruction on a
+  plate, not separate kitchen work), but consuming its own `Recipe` if one exists, into the same
+  warehouse bucket as the base item.
+- Proven by 4 tests: a required group with zero selections is rejected, exceeding `maxSelection` is
+  rejected, an option foreign to the group is rejected, and a valid selection (a paid "Wheat
+  Bread" upgrade with its own recipe) correctly nests on one ticket and consumes both the base
+  item's AND the modifier's own recipe.
+- **A real bug caught by writing this milestone's own test, not discovered later**: the first
+  draft of `beforeCreate()`'s validation only fetched/validated items that already carried a
+  non-empty `selectedModifiers[]` — meaning a required group with ZERO selections (the actual
+  violation) silently skipped validation entirely. Fixed to check every direct (non-combo) item's
+  product regardless of whether it submitted any selections.
+
+### 14.1 What this does NOT close
+
+Modifier pricing rollup into `OrderItem.finalPrice` (the client still computes and sends
+`finalPrice`; nothing here validates it against `priceDelta`), nested modifiers (a modifier option
+that itself has its own modifier groups), modifier availability/scheduling rules, and
+combo-component-level modifiers (a combo's own component currently carries no `selectedModifiers[]`
+of its own, same honest scoping already applied to combo-component-level extras).
+
+### 14.2 Cumulative state of the domain
+
+`Product`'s selection mechanisms are now two-tier: `extras[]` (simple, ungrouped, unvalidated —
+unchanged) and `modifierGroups[]` (structured, validated, the enterprise-grade sibling). Both feed
+the same kitchen-routing and recipe-consumption pipeline via `expandOrderItems()`. Updated
+next-steps priority list: (1) modifier/combo pricing rollup into `finalPrice`, (2) true HYBRID
+split-sourcing, (3) Consumption/Yield Variance for Tier-1 sales, (4) Shift Handover.

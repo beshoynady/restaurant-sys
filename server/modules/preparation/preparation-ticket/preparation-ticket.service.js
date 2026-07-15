@@ -149,6 +149,7 @@ class PreparationTicketService extends AdvancedService {
           quantity: item.quantity,
           notes: item.notes,
           extras: (item.extras || []).map((e) => ({ extra: e.extra, quantity: e.quantity })),
+          selectedModifiers: (item.selectedModifiers || []).map((m) => ({ product: m.product, quantity: m.quantity })),
         })),
         receivedAt: now,
         expectedReadyAt: new Date(now.getTime() + prepMinutes * 60000),

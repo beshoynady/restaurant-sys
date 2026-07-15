@@ -109,6 +109,42 @@ const ProductSchema = new mongoose.Schema(
     ========================= */
     hasExtras: { type: Boolean, default: false }, // Whether this product can have extras
     extras: [extraDetailsSchema],
+
+    /* =========================
+       MODIFIER ENGINE
+       ========================= */
+    // Enterprise Restaurant Operations Platform: `extras[]` above is a flat, ungrouped,
+    // unvalidated "may add these" list — it has never enforced a required choice or a
+    // min/max selection count, unlike a real modifier group ("Choose your bread," "Choose your
+    // spice level," required, exactly 1). `modifierGroups[]` is the structured sibling that adds
+    // exactly that — reusing the same shape already proven on `comboGroups[]` below (this
+    // engagement's established "don't invent a new shape when an existing one already fits"
+    // discipline) rather than a parallel, duplicate mechanism. `extras[]` is NOT replaced or
+    // deprecated — a brand with simple, unstructured optional add-ons keeps using it exactly as
+    // before; `modifierGroups[]` is additive, for products that need real selection rules.
+    hasModifiers: { type: Boolean, default: false },
+    modifierGroups: [
+      {
+        required: { type: Boolean, default: false },
+        name: {
+          type: Map,
+          of: { type: String, trim: true, minlength: 2, maxlength: 100 },
+          required: true,
+        },
+        minSelection: { type: Number, default: 0 },
+        maxSelection: { type: Number, default: 1 },
+        options: [
+          {
+            product: { type: ObjectId, ref: "Product" }, // the modifier item (e.g. "Extra Cheese", "No Onion")
+            // 0 = a free modifier choice (e.g. bread type); > 0 = a paid upgrade — a single field
+            // covers both cases, matching how `comboGroups[].items[]` needs no separate flag either.
+            priceDelta: { type: Number, default: 0, min: 0 },
+            isDefault: { type: Boolean, default: false },
+          },
+        ],
+      },
+    ],
+
     /* =========================
        COMBO SYSTEM
     ========================= */

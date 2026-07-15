@@ -85,6 +85,23 @@ const OrderItemSchema = new Schema(
       },
     ],
 
+    /**
+     * Enterprise Restaurant Operations Platform — Modifier Engine. Records exactly which option
+     * was chosen from each of the product's `modifierGroups[]` — a snapshot at order time
+     * (`priceDelta` copied from the option, same "avoid retroactive drift" reasoning already
+     * applied to `extras[]`/`comboSelections[]`). Validated against the product's own
+     * required/min/max rules at order-creation time (`order.service.ts`#beforeCreate via
+     * `validateModifierSelections()`) — the real business-rule enforcement `extras[]` never had.
+     */
+    selectedModifiers: [
+      {
+        modifierGroup: { type: ObjectId, required: true }, // Product.modifierGroups[]._id this selection belongs to
+        product: { type: ObjectId, ref: "Product", required: true }, // the selected option
+        quantity: { type: Number, default: 1, min: 1 },
+        priceDelta: { type: Number, default: 0, min: 0 },
+      },
+    ],
+
     // Final calculated price for this item
     finalPrice: {
       type: Number,

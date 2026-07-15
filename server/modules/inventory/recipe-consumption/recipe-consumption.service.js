@@ -46,8 +46,13 @@ class RecipeConsumptionService {
     // consuming cheese stock) — was never looked up or consumed. Every extra's ingredients are
     // added into the SAME warehouse bucket as its base item, matching that same "same station,
     // not independently routed" semantics — not given a separate consumption document.
+    // Enterprise Restaurant Operations Platform — Modifier Engine: a selected modifier (e.g. an
+    // "Extra Cheese" option chosen from a required modifier group) is a real Product and may
+    // carry its own Recipe, exactly like an extra — treated identically below, not a second,
+    // parallel consumption path.
     const extraProductIds = resolvedItems.flatMap((item) => (item.extras || []).map((e) => String(e.extra)));
-    const productIds = [...new Set([...resolvedItems.map((item) => String(item.product)), ...extraProductIds])];
+    const modifierProductIds = resolvedItems.flatMap((item) => (item.selectedModifiers || []).map((m) => String(m.product)));
+    const productIds = [...new Set([...resolvedItems.map((item) => String(item.product)), ...extraProductIds, ...modifierProductIds])];
     const [recipes, products] = await Promise.all([
       RecipeModel.find({ product: { $in: productIds }, brand: order.brand, isActive: true }).lean(),
       ProductModel.find({ _id: { $in: productIds } }).select("preparationSection").lean(),
@@ -74,11 +79,12 @@ class RecipeConsumptionService {
 
     for (const item of resolvedItems) {
       const hasExtras = item.extras && item.extras.length > 0;
+      const hasModifiers = item.selectedModifiers && item.selectedModifiers.length > 0;
       const recipe = recipeByProduct[String(item.product)];
-      // Resolve the warehouse whenever EITHER the base item or one of its extras has a recipe to
-      // consume — a service-type base item with no recipe of its own can still carry a real
-      // extra (e.g. "Extra Cheese") that does.
-      if ((!recipe || !recipe.ingredients?.length) && !hasExtras) continue;
+      // Resolve the warehouse whenever the base item OR one of its extras/modifiers has a recipe
+      // to consume — a service-type base item with no recipe of its own can still carry a real
+      // extra/modifier (e.g. "Extra Cheese") that does.
+      if ((!recipe || !recipe.ingredients?.length) && !hasExtras && !hasModifiers) continue;
 
       const sectionId = sectionByProduct[String(item.product)];
       const warehouseId = await this._resolveConsumptionWarehouse({ strategy, sectionId, defaultWarehouse });
@@ -86,13 +92,18 @@ class RecipeConsumptionService {
 
       if (recipe?.ingredients?.length) addIngredients(warehouseId, recipe, item.quantity);
 
-      // Extras/addons are prepared at the SAME station as their base item — never independently
-      // routed — so their consumption always lands in the same warehouse bucket as the base item,
-      // not resolved via their own preparationSection.
+      // Extras/modifiers are prepared at the SAME station as their base item — never
+      // independently routed — so their consumption always lands in the same warehouse bucket as
+      // the base item, not resolved via their own preparationSection.
       for (const extra of item.extras || []) {
         const extraRecipe = recipeByProduct[String(extra.extra)];
         if (!extraRecipe || !extraRecipe.ingredients?.length) continue;
         addIngredients(warehouseId, extraRecipe, extra.quantity * item.quantity);
+      }
+      for (const modifier of item.selectedModifiers || []) {
+        const modifierRecipe = recipeByProduct[String(modifier.product)];
+        if (!modifierRecipe || !modifierRecipe.ingredients?.length) continue;
+        addIngredients(warehouseId, modifierRecipe, modifier.quantity * item.quantity);
       }
     }
 
