@@ -16,17 +16,17 @@
 // DOMAIN_ENGINE_ARCHITECTURE_MIGRATION_PLAN.md pilot: moved from the domain root into services/ —
 // orchestration/business-rule logic only, delegating the shared combo/extras/modifier expansion
 // to engines/order-item-expansion.js and data access to repositories/order.repository.js.
-import throwError from "../../../utils/throwError.js";
+import throwError from "../../../../utils/throwError.js";
 import OrderRepository from "../repositories/order.repository.js";
-import orderSettingsService from "../order-settings/order-settings.service.js";
-import { createTransitionGuard } from "../../../utils/TransitionGuard.js";
-import domainEvents, { DomainEvent } from "../../../utils/domainEvents.js";
-import preparationTicketService from "../../preparation/preparation-ticket/preparation-ticket.service.js";
-import recipeConsumptionService from "../../inventory/recipe-consumption/recipe-consumption.service.js";
-import PreparationTicketModel from "../../preparation/preparation-ticket/preparation-ticket.model.js";
-import UserAccountModel from "../../iam/user-account/user-account.model.js";
-import ProductModel from "../../menu/product/product.model.js";
-import { validateModifierSelections } from "../../menu/product/modifier-selection-validator.js";
+import orderSettingsService from "../../order-settings/order-settings.service.js";
+import { createTransitionGuard } from "../../../../utils/TransitionGuard.js";
+import domainEvents, { DomainEvent } from "../../../../utils/domainEvents.js";
+import preparationTicketService from "../../../preparation/preparation-ticket/preparation-ticket.service.js";
+import recipeConsumptionService from "../../../inventory/recipe-consumption/recipe-consumption.service.js";
+import PreparationTicketModel from "../../../preparation/preparation-ticket/preparation-ticket.model.js";
+import UserAccountModel from "../../../iam/user-account/user-account.model.js";
+import ProductModel from "../../../menu/product/product.model.js";
+import { validateModifierSelections } from "../../../menu/product/modifier-selection-validator.js";
 
 const ORDER_ITEM_CANCELLABLE_STATUSES = ["NEW", "SENT_TO_PRODUCTION", "PREPARING"];
 

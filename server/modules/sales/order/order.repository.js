@@ -8,8 +8,8 @@
 // repositories/ — `order.model.js`/`.controller.js`/`.router.js`/`.validation.js` stay at the
 // domain root (the API/persistence boundary), matching every other module's convention; only the
 // internal service/repository/engine layers move under this pilot.
-import BaseRepository from "../../../utils/BaseRepository.js";
-import OrderModel from "./order.model.js";
+import BaseRepository from "../../../../utils/BaseRepository.js";
+import OrderModel from "../order.model.js";
 
 class OrderRepository extends BaseRepository {
   constructor() {
@@ -25,6 +25,14 @@ class OrderRepository extends BaseRepository {
       defaultPopulate: ["brand", "branch", "cashierShift", "staffMember", "table", "orderBy", "customer"],
       searchableFields: [],
       defaultSort: { createdAt: -1 },
+      // `OrderService` overrides `beforeCreate` (order-number generation, modifier validation)
+      // but never overrode `beforeUpdate` — so the generic `PUT /orders/:id` could set `status`
+      // straight to any value (bypassing `transitionGuard`/`transition()` entirely),
+      // `paymentStatus`, `orderNum`, or any item's price with zero re-validation. These fields may
+      // only change through their dedicated service methods (`transition()`, `cancelItem()`, the
+      // atomic order-number generator in `beforeCreate`) from now on — a plain `PUT` silently
+      // drops them rather than applying them.
+      lockedUpdateFields: ["status", "paymentStatus", "orderNum", "items"],
     });
   }
 }
