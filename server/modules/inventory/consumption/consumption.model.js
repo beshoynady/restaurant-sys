@@ -18,9 +18,11 @@ const ConsumptionSchema = new mongoose.Schema({
     required: true,
   },
 
+  // Same confirmed dangling-reference fix as Product/PreparationTicket/ProductionRecord this
+  // engagement — the registered model name is "PreparationSectionConfig", not "PreparationSection".
   preparationSection: {
     type: ObjectId,
-    ref: "PreparationSection", // The preparation section receiving the items (e.g., Kitchen, Bar).
+    ref: "PreparationSectionConfig", // The preparation section receiving the items (e.g., Kitchen, Bar).
     required: true,
   },
 

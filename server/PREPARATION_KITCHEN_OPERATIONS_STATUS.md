@@ -215,3 +215,450 @@ attempt to remove these blockers)
 
 This milestone's scope was deliberately narrow and deep — one complete, real, tested engine — over
 broad and shallow, matching this entire engagement's consistent practice.
+
+---
+
+## 8. Addendum 2 — Auto-Ticket-Creation from Order (the §7.3/§2/§6 blocker is now closed)
+
+This addendum records the single highest-leverage recommendation repeated across §2, §6, and
+§7.3 acted on: **the Sales domain now has real order-state transitions, and confirming an order
+actually creates real, correctly-routed `PreparationTicket`s.** Verified via 54/54 test suites,
+231/231 tests (3 new), clean live boot, and route smoke tests. This was, deliberately, the first
+time this engagement touched the Sales domain's business logic — done narrowly (one new
+`transition()` method, purely additive) rather than restructuring `Order` itself.
+
+### 8.1 What was found before touching anything (confirmed by direct read)
+
+- `OrderService` (`order.service.ts`) was **pure CRUD** — `beforeCreate` only generated
+  `orderNum`; there was no state-machine enforcement anywhere despite `Order.status` having a
+  real, well-designed enum (`OPEN/IN_PROGRESS/READY/DELIVERED/CLOSED/CANCELLED`) — any client
+  could flip an order to any status via a bare `PUT`.
+- `PreparationTicket.preparationSection` referenced a model name (`"PreparationSection"`) that
+  isn't registered anywhere (the real name is `"PreparationSectionConfig"`) — the same dangling-
+  reference bug class already found and fixed on `ProductionRecord` this engagement, now found a
+  second time in the exact place ticket-creation logic would need to resolve it correctly.
+- `PreparationTicketService.update()` had the same `softDelete`-adjacent typo bug pattern
+  (`searchFields` vs. `searchableFields`) found repeatedly this engagement, **and** its own
+  status-transition guard (already added in an earlier audit pass, PA-07) used a read-then-write
+  pattern with no atomic claim — the same TOCTOU class closed everywhere else in this platform,
+  still open here until this pass.
+- **Two genuine, previously-undiscovered production bugs surfaced only once real test data was
+  constructed**: `Order.iternalOrderCategory` and `Order.customerType` both declared
+  `default: null` inside an `enum` that didn't list `null` as a valid value — meaning **any
+  anonymous/walk-in order or any order with no internal-category set would fail to save**, despite
+  the model's own comment explicitly stating "An order with neither field set remains a valid
+  anonymous/walk-in order." The same recurring Mongoose gotcha found and fixed many times this
+  engagement, this time in code nobody had touched before, on a field combination that's likely
+  the *majority* case (most orders are not internal-staff orders). Also found and fixed the same
+  `sparse:true`-on-compound-index defect (already fixed 4 times prior this engagement — Supplier,
+  Department, StockItem, PaymentMethod) on `Product.{brand,sku}`/`{brand,barcode}`.
+
+### 8.2 What was built
+
+- **`OrderService.transition()`**: a real `TransitionGuard`-enforced state machine
+  (`OPEN → IN_PROGRESS → READY → DELIVERED → CLOSED`, `CANCELLED` reachable from `OPEN`/
+  `IN_PROGRESS`/`READY`), atomic-claim from the first line — no hardening pass needed later, per
+  this platform's now-standard practice. `OPEN → IN_PROGRESS` ("sent to kitchen") is the one
+  transition that also creates tickets and emits `DomainEvent.ORDER_CONFIRMED` (new, zero
+  subscribers yet — the seam a future Kitchen Dashboard live-update or Recipe-consumption
+  subscriber would attach to).
+- **`PreparationTicketService.createTicketsFromOrder()`**: groups a confirmed order's items by
+  their `Product.preparationSection` and creates **exactly one ticket per distinct section** —
+  proven by a dedicated test (3 items across 2 sections → exactly 2 tickets, one with 2 items, one
+  with 1 — not 3 tickets, not 1). `expectedReadyAt` computed from the section's own
+  `averagePreparationTime`. This closes the single most consequential kitchen gap named across
+  `ARCHITECTURE_REVIEW.md`, `MENU_PRODUCTION_PLATFORM_AUDIT.md`, and
+  `KITCHEN_EXECUTION_ARCHITECTURE.md` — confirmed by direct read at each of those checkpoints, now
+  actually built, not just designed.
+- Best-effort, non-blocking ticket creation (an unroutable/misconfigured product must not prevent
+  the order confirmation that already, correctly, committed) — same philosophy as every other
+  event-triggered side effect in this platform.
+- Fixed all four bugs named in §8.1.
+
+### 8.3 What this does NOT yet close (honest, not silently implied)
+
+- **Recipe consumption is still not triggered by order confirmation.** This milestone deliberately
+  scoped to ticket creation only — wiring `recipeConsumptionStrategy` (built in the foundational
+  milestone) to actually deduct ingredients per confirmed order item is real, separate work,
+  requiring a robust answer to "which warehouse" per product/section that wasn't rushed into this
+  pass. Named as the next concrete step, not fabricated as already done.
+- **Kitchen Queue/Dashboard** (`KITCHEN_EXECUTION_ARCHITECTURE.md`) can now be built for real
+  (tickets genuinely exist) but was not built this pass — the read-side service design already
+  exists, only needs implementing against now-real data.
+- **Typecheck baseline moved from 58 to 61 errors** — reported honestly rather than claimed
+  unchanged. All 3 new errors are `TS7016` ("could not find declaration file") for
+  `order.service.ts`'s three new imports (`TransitionGuard.js`, `domainEvents.js`,
+  `preparation-ticket.service.js`) — the same category of error this file's own pre-existing 3
+  imports already produced (confirmed: test files already import these same utils and already
+  carry this exact error category in the accepted baseline). This is a structural consequence of
+  the codebase having no `.d.ts` declaration files for its JS utilities, not a new defect
+  category — but the count did increase, and this document says so rather than rounding it to
+  "unchanged."
+
+### 8.4 Cumulative state of the domain (superseded by §9 below)
+
+With this addendum, the dependency graph from §2 has one fewer blocker: auto-ticket-creation is
+real. Recipe-consumption-on-order-confirmation and Kitchen Queue/Dashboard remain the concrete
+next steps, both now unblocked rather than blocked.
+
+---
+
+## 9. Addendum 3 — Automatic Recipe Consumption (the §8.3 next-step is now closed)
+
+Closes the specific gap named at the end of Addendum 2: `InventorySettings.recipeConsumptionStrategy`
+(built in the foundational milestone, unread by any code since) now has a real engine reading it.
+Verified via 55/55 test suites, 234/234 tests (3 new), typecheck (62 errors — one more than
+Addendum 2's 61, the same accepted `TS7016` category, from the one new import
+`recipe-consumption.service.js` — reported honestly per the same reasoning as §8.3), clean live
+boot, both new routes smoke-tested to 401.
+
+### 9.1 What was built
+
+- **`RecipeConsumptionService.consumeForOrder()`**: called from the same `OrderService.transition()`
+  call site as ticket creation (`OPEN → IN_PROGRESS`), independently try/caught so a failure in
+  one never blocks the other. For each order item, resolves the Product's active `menu/Recipe`
+  (Tier 1), scales ingredient quantities by the item's own quantity and `wastePercentage`, resolves
+  the consumption warehouse per `recipeConsumptionStrategy`, and groups by resolved warehouse
+  before posting — exactly one `Issuance`-type `WarehouseDocument` per distinct warehouse, never
+  one per item, reusing the same "group by destination" discipline already proven for ticket
+  creation.
+- **All three strategies genuinely implemented and each proven by its own test**:
+  `WAREHOUSE_DIRECT` (the branch's default warehouse, resolved via `Warehouse.isDefault` with a
+  `type:"main"` fallback — a new, small, reusable resolution helper), `PREPARATION_INVENTORY`
+  (the product's own section's linked operational-inventory warehouse, from
+  `PreparationSectionConfig.warehouse`, built in the foundational milestone), and `HYBRID`
+  (honestly simplified — prefers preparation inventory when linked, else falls back to the
+  default warehouse; true per-ingredient split-sourcing across two warehouses in one movement is
+  named as real, deferred work in the code's own comment, not fabricated as built).
+- **Manual Override**: `POST /sales/orders/:id/consume-recipe` — lets an authorized user
+  explicitly re-trigger consumption for an existing order (e.g. automatic consumption failed at
+  confirmation time, or a correction is needed after the fact), proven by a test that calls it
+  against an order that was *never* transitioned through the normal confirmation flow at all.
+- Items whose Product has no active Recipe are skipped cleanly — not given a fabricated fallback
+  deduction (`Product.directStockItem`, named as a real, not-yet-built gap in
+  `MENU_PRODUCTION_PLATFORM_REDESIGN.md` §1.3, remains not built).
+
+### 9.2 What this does NOT yet close
+
+- **True HYBRID split-sourcing** (partially fulfill from preparation inventory, remainder from the
+  main warehouse, within one logical consumption event) — honestly simplified to an either/or
+  choice this pass, named above.
+- **Consumption Variance / Yield Variance reporting for à la minute sales** — the Tier-2
+  (batch/manufacturing) side already has real yield variance (`ProductionOrder.yieldVariance`,
+  built two milestones ago); the Tier-1 (à la minute) side has no equivalent concept, since a
+  Recipe's theoretical consumption is simply posted as fact today, with no "actual vs. theoretical"
+  comparison mechanism for kitchen execution.
+- **Kitchen Queue/Dashboard** — still not built (tickets are real, the read-side design from
+  `KITCHEN_EXECUTION_ARCHITECTURE.md` is not yet implemented against them).
+- **Partial Consumption / Batch Consumption** (named in this platform's own requested scope) — not
+  distinctly implemented; today's engine either consumes the full recipe quantity for a confirmed
+  order or nothing.
+
+### 9.3 Cumulative state of the domain
+
+Auto-ticket-creation (Addendum 2) and automatic recipe consumption (this addendum) are both real,
+both triggered from the same, single, well-tested `OrderService.transition()` integration point.
+
+---
+
+## 10. Addendum 4 — Combo Execution
+
+Closes a gap confirmed by direct source read (not assumed from a prior document, per the "don't
+trust previous documents" discipline this domain has been held to): **`Order`/`OrderItem` had zero
+combo awareness at all.** A combo order item was silently treated as a single directly-prepared
+product — routed to its own `preparationSection` (the combo container's, not any component's) and
+consuming nothing, since a combo container has no `Recipe`. Verified via 56/56 test suites,
+235/235 tests (1 new), typecheck unchanged at 62, clean live boot, route smoke-tested to 401.
+
+### 10.1 What was built
+
+- **`OrderItemSchema.comboSelections[]`** (new): records exactly which item was chosen from each
+  of the combo's `comboGroups[]` — a snapshot at order time, matching the same "avoid retroactive
+  drift" reasoning already applied to `extras[]`'s own price snapshot.
+- **`expandOrderItems()`** (new, `modules/sales/order/order-item-expansion.js`): the single, shared
+  expansion of an order's line items into their real resolved products — a non-combo item expands
+  to itself; a combo item expands into each selected component with its own resolved quantity
+  (selection quantity × order item quantity). Deliberately built once and reused by BOTH
+  `PreparationTicketService.createTicketsFromOrder()` and
+  `RecipeConsumptionService.consumeForOrder()`, rather than duplicating combo-expansion logic in
+  each — both consumers were updated to call it instead of iterating `order.items` directly.
+- **Proven, not just wired**: a dedicated test orders a 2-component combo (burger → Grill, fries →
+  Fryer) and asserts exactly 2 tickets are created (not 1 for the combo container), each carrying
+  the correct component product, AND that both components' own recipes were consumed (bun+patty
+  for the burger, potato for the fries) — the same order confirmation correctly fans out across
+  both kitchen routing and inventory consumption from one shared expansion.
+
+### 10.2 What this does NOT yet close
+
+- **Combo-level cost/pricing rollup** (`comboPricingMode`, upgrade pricing, combo-discount
+  snapshot — all named in `MENU_PLATFORM_FINAL_ARCHITECTURE.md` §5) is not built — this milestone
+  closes *execution* (kitchen + inventory), not the *pricing* half of Combo.
+  `OrderItem.finalPrice` is still whatever the client/POS computed and sent; nothing here
+  validates or derives it from the combo's own pricing rules.
+- **Nested modifiers/variants within a combo selection** — `comboSelections[]` records a flat
+  product choice per group; a combo component that itself has modifiers selected is not yet
+  represented (ties to `ModifierGroup`/`ProductVariantGroup`, still design-only per
+  `MENU_PRODUCTION_PLATFORM_REDESIGN.md` §3/§4 — not built anywhere in this codebase).
+- **Combo-level packaging** (one shared box vs. per-component packaging) — not addressed.
+
+### 10.3 Cumulative state of the domain
+
+Order confirmation now correctly triggers, from one shared expansion: kitchen ticket routing,
+recipe consumption, and (as of this addendum) combo fan-out — for both. The concrete next steps,
+in priority order, remain: (1) Kitchen Queue/Dashboard (fully unblocked, real tickets exist),
+(2) ModifierGroup/ProductVariantGroup + combo pricing rollup (the two pieces of the Menu redesign
+still entirely unbuilt), (3) true HYBRID split-sourcing, (4) Consumption/Yield Variance for Tier-1
+sales, (5) Shift Handover.
+
+---
+
+## 11. Addendum 5 — Kitchen Queue / Dashboard (the §10.3 top priority is now closed)
+
+Closes item (1) from Addendum 4's priority list. Confirmed by direct read (per this domain's
+"codebase is the single source of truth" discipline) that `PreparationTicket` had only generic
+CRUD (`getAll`/`getOne`) — no station-grouped, SLA-aware live view existed, despite real tickets
+having existed since Addendum 2. Verified via 57/57 test suites, 237/237 tests (2 new), typecheck
+unchanged at 62 (no `.ts` files touched — this feature is entirely `.js`), clean live boot, both
+new routes smoke-tested to 401.
+
+### 11.1 What was built
+
+- **`PreparationTicketService.getKitchenQueue({brandId, branchId, section})`**: fetches all live
+  (non-terminal: `PENDING`/`PREPARING`/`READY`) tickets and groups them into per-station cards —
+  never a flat list, matching this platform's established "group by destination" discipline. Every
+  field a kitchen-display screen needs is computed server-side, per this domain's "no frontend
+  should calculate business logic" rule: `elapsedMinutes`, `remainingMinutes`, `isOverdue` (past
+  `expectedReadyAt` and not yet `READY`), and `slaBadge` (`overdue`/`warning`/`onTime`). Tickets
+  within a station sort overdue-first, then oldest-received-first.
+- **`PreparationTicketService.getKitchenDashboard({brandId, branchId})`**: aggregates the same
+  queue into dashboard-card totals (active/overdue counts, per-status counts) and per-station
+  summary cards, built on top of `getKitchenQueue()` rather than a second independent query — the
+  two views can never silently disagree on what "overdue" means.
+- **Station utilization**: `activeTicketCount / PreparationSectionConfig.maxParallelTickets` — a
+  capacity field that already existed on the model but that nothing previously read.
+- **`GET /preparation/tickets/kitchen-queue`** and **`GET /preparation/tickets/kitchen-dashboard`**,
+  registered before `/:id` (the established FT-001-style shadowing precaution from the HR domain's
+  `employee-advance` router), same `authenticateToken → authorize → checkModuleEnabled` chain as
+  every other route in this router.
+- Proven, not just wired: a dedicated test seeds one overdue `PREPARING` ticket on a 2-capacity
+  Grill station and one on-time `PENDING` ticket on a 4-capacity Fryer station, plus a `CANCELLED`
+  ticket on Grill, and asserts: exactly 2 stations returned (not 3 — cancelled excluded from the
+  live queue entirely), correct `isOverdue`/`slaBadge` per ticket, correct `utilizationPercent`
+  (50% and 25% respectively), and correct dashboard-level totals.
+
+### 11.2 What this does NOT yet close
+
+- **Kitchen SLA/Priority *rules*** (configurable per-station or per-product SLA thresholds,
+  priority overrides for VIP/rush orders) — the queue surfaces SLA breach as a read-only computed
+  fact against the section's own `averagePreparationTime`; it does not yet let a brand configure
+  different thresholds or manually re-prioritize a ticket.
+- **Kitchen Analytics / Performance reporting** (station throughput over time, chef performance,
+  historical SLA compliance) — deliberately out of scope for this milestone, named in §11.1 as
+  live-queue-only; this is separate, unbuilt Kitchen Analytics work.
+- **Real-time push** (WebSocket/SSE ticket updates) — the two new endpoints are pull-based REST
+  reads; a kitchen display screen would need to poll them. No real-time transport exists anywhere
+  in this codebase yet, so none was fabricated here.
+- **Delivery-side queue** (`deliveryStatus`/`WAITING → READY_FOR_HANDOVER → HANDED_OVER`, relevant
+  to waiters/expo staff, not kitchen chefs) — the new queue is preparation-side only; a symmetric
+  handover/expo queue view is separate, unbuilt work.
+
+### 11.3 Cumulative state of the domain
+
+Kitchen tickets are now real (Addendum 2), correctly combo-aware (Addendum 4), and finally
+observable through a real, frontend-ready, station-grouped live queue and dashboard (this
+addendum) — closing the read-side gap that made every prior ticket-creation milestone invisible to
+any actual kitchen screen. Updated next-steps priority list: (1) ModifierGroup/ProductVariantGroup
++ combo pricing rollup, (2) true HYBRID split-sourcing, (3) Consumption/Yield Variance for Tier-1
+sales, (4) Shift Handover, (5) Kitchen SLA rules/real-time push (both named above, neither started).
+
+---
+
+## 12. Addendum 6 — Menu & Sales Final Review: Dangling Ref Fix + Extras Recipe Consumption
+
+Triggered by a mega-scope "Enterprise Menu & Sales Platform Final Review" request explicitly
+demanding verification from source before any further build-out, spanning far more ground (Product
+type taxonomy, ModifierGroup, Menu Engine, full Combo pricing, 6 certification documents) than one
+pass can honestly close. Rather than fabricate broad "final certification" documents while real
+gaps remain, this addendum records two concrete, verified fixes found by direct source read during
+that verification pass, in the same spirit as every prior addendum. Verified via 58/58 test suites,
+238/238 tests (1 new), typecheck unchanged at 62, clean live boot, both affected routes
+smoke-tested to 401.
+
+### 12.1 Dangling `PreparationSection` reference — found on 4 more models
+
+The same defect class already fixed 3 times this engagement (`ProductionRecord`,
+`ProductionOrder`, `PreparationTicket` — `ref: "PreparationSection"` pointing at a model name
+nothing registers, silently breaking `.populate()`) was found, by direct read, on **four more
+models**: `Product` (`modules/menu/product/product.model.js`), `Consumption`
+(`modules/inventory/consumption/consumption.model.js`), `PreparationReturn`, and
+`PreparationReturnSettings`. The `Product` instance is the most consequential of all six
+occurrences found across this engagement: `product.service.js`'s own `defaultPopulate` includes
+`"preparationSection"`, meaning the primary product read API (`GET /menu/products`,
+`GET /menu/products/:id`) was silently failing to populate this field on every single read. Fixed
+on all four models to `ref: "PreparationSectionConfig"`, the actually-registered name.
+
+### 12.2 Extras never consumed their own recipe
+
+Confirmed by direct read that `OrderItem.extras[]` (e.g. "Extra Cheese", a real addon `Product`)
+were correctly ticketed to the kitchen — nested inside the base item's own `PreparationTicket`
+entry, matching the correct real-world semantic that an extra is prepared at the SAME station as
+its base item, not independently routed — but `RecipeConsumptionService` only ever looked up a
+`Recipe` by the base item's own product, never by any of its extras. An extra that is itself a real
+product with its own recipe (cheese, sauce, an extra protein portion) silently consumed nothing.
+
+Fixed in `RecipeConsumptionService.consumeForOrder()`: each resolved item's `extras[]` are now
+looked up for their own active `Recipe` and, when one exists, their ingredients (scaled by the
+extra's own selected quantity) are added into the **same warehouse bucket** as the base item — not
+a separate document, matching the "same station" semantic already established on the ticket side.
+An item with no recipe of its own but a recipe-bearing extra (e.g. a purely service-type base
+product) is now correctly handled too — the warehouse is resolved whenever either the base item or
+any of its extras has something to consume, not only when the base item does.
+
+Proven by a dedicated test: a Burger (bun+patty recipe) ordered with one "Extra Cheese" (its own
+cheese recipe) results in exactly 1 ticket (extras stay nested, not independently routed) and both
+recipes' ingredients correctly deducted, grouped into exactly 1 consumption document.
+
+### 12.3 What this does NOT close
+
+This addendum is narrow by design, not a substitute for the full review requested. Still entirely
+unbuilt, unchanged from Addendum 5 §11.3's list: ModifierGroup/ProductVariantGroup as a real
+data model (today's "modifiers" are, in practice, `Product.extras[]` — functionally similar but
+without groups, required/optional rules, min/max selection, or nested modifiers), combo pricing
+rollup, true HYBRID split-sourcing, Tier-1 Consumption/Yield Variance, Shift Handover. The six
+requested certification documents (`MENU_SALES_FINAL_AUDIT.md` etc.) were not produced — writing
+them honestly would require the full 14-phase review this single pass cannot responsibly claim to
+have completed; producing them without that would mean fabricating "enterprise-grade, nothing
+partial" claims this engagement has consistently refused to make.
+
+### 12.4 Cumulative state of the domain
+
+Every read path through `Product.preparationSection` (the product API, kitchen ticket creation,
+recipe consumption) now resolves against the correct model. Extras are now a real, if simplified,
+first-class recipe-consuming concept, not just a priced line item. The next highest-leverage step
+remains ModifierGroup + combo pricing rollup, unchanged from Addendum 5.
+
+---
+
+## 13. Addendum 7 — Order Item Cancel / Kitchen Recall + `sales/order` Repository Pattern Migration
+
+Triggered by an "Enterprise Order Management Platform" review (Order lifecycle, splitting,
+modification, KDS, printing, payments — again, far broader than one pass can honestly close).
+Verified from source that `OrderItemSchema.status` (`NEW`/`SENT_TO_PRODUCTION`/`PREPARING`/`READY`/
+`DELIVERED`/`CANCELLED`/`REJECTED`) was a real, well-designed field that **zero code anywhere ever
+transitioned** — the same "schema real, execution missing" pattern this engagement has repeatedly
+found and closed elsewhere in this domain, this time on the Order Item Modification / Kitchen
+Recall requirement named explicitly in the request. Separately, the user flagged mid-session that
+`sales/order` had never been migrated to this codebase's mandated Repository Pattern
+(`BACKEND_FOUNDATION.md` §4.3 / `REPOSITORY_PATTERN_MIGRATION_PLAN.md`, proven on the
+`accounting/journal-entry` pilot) — `order.service.ts` was extending `BaseRepository` directly, no
+`order.repository.js` existed. Both closed together. Verified via 59/59 test suites, 242/242 tests
+(4 new), typecheck **improved** to 62 (down from 63 mid-pass, net unchanged from the 62 baseline —
+moving the raw model/BaseRepository imports into the new repository file removed 2 `TS7016`s from
+the service and added back only 1), clean live boot, both new/affected routes smoke-tested to 401.
+
+### 13.1 Order Item Cancel / Kitchen Recall
+
+`OrderService.cancelItem({orderId, itemId, brand, branch, reason, actorId})` — `PATCH
+/sales/orders/:id/items/:itemId/cancel`, gated by a distinct `authorize("Orders", "cancelItem")`
+RBAC action (not reusing `"update"`) so it can be scoped to a manager-level role independently of
+general order editing, matching the request's "Manager Approval" requirement. A mandatory `reason`
+is now stored on the item (`cancelReason`/`cancelledBy`/`cancelledAt`, new fields — the audit trail
+the request named explicitly).
+
+Kitchen recall is handled correctly for the two cases that can be closed safely without a larger
+per-ticket-item status model this pass does not build:
+- **No ticket yet** (order still `OPEN`): a pure order edit, no kitchen-side effect.
+- **A ticket exists and this item is its ONLY item**: the ticket itself is recalled (cancelled) via
+  its own already-guarded `PENDING`/`PREPARING → CANCELLED` transition
+  (`preparation-ticket.service.js#update`) — not a second, parallel guard.
+- **A ticket exists shared with other items**: correctly **rejected** (409, "shares a preparation
+  ticket with other items and cannot be cancelled individually yet") rather than silently leaving
+  the ticket in a stale, half-cancelled state — `PreparationTicket.items[]` has no per-item status
+  field yet, so a true partial-ticket recall is named as real, deferred work, not fabricated here.
+
+Proven by 4 tests: clean pre-ticket cancel, sole-item ticket recall, shared-ticket rejection
+(asserting the ticket AND the other item are both left untouched), and a `Promise.allSettled`
+concurrent-double-cancel race proving the atomic-claim guard.
+
+### 13.2 `sales/order` Repository Pattern migration
+
+New `order.repository.js`: owns the constructor's generic CRUD configuration only (brand scoping,
+`defaultPopulate`, soft-delete opt-out), exactly mirroring `journal-entry.repository.js`'s shape.
+`order.service.ts` now `extends OrderRepository` instead of `BaseRepository` directly and contains
+zero raw Mongoose calls beyond `self.model` (the inherited configured model) — `beforeCreate()`
+(order-number generation, a cross-module call to `orderSettingsService`), `transition()`, and the
+new `cancelItem()` are all business/orchestration logic, correctly placed in the service layer per
+the pattern. No behavior change — confirmed by the full regression suite passing unchanged.
+
+### 13.3 A significant RBAC bug found and fixed while wiring `OrderSettings` in
+
+Immediately after 13.1/13.2, the user asked for `order-settings` to be developed/wired in — while
+doing so, direct read of `role.model.js` revealed that `Role.permissions[]` is a **fixed Mongoose
+sub-schema** with only 8 declared boolean action fields
+(`create/read/update/delete/viewReports/approve/reject/reverse`) — NOT a free-form action map.
+Mongoose's default strict mode silently **strips any undeclared field on save**. This means the
+original `authorize("Orders", "cancelItem")` route built in §13.1 would have denied **every user,
+including Owner** — a custom action name that was never actually a real permission, only looked
+like one. Fixed by changing the route to gate on the real `"update"` field (the same permission
+general order editing already requires) and moving the manager-approval check into the service,
+against the real `"approve"` field instead. This is a real, previously-undiscovered defect class
+this engagement had not checked before (every prior custom-action RBAC call — `authorize("X",
+"submit")`, `.disburse`, `.pauseDeductions`, etc. on `EmployeeAdvance` and others — was accepted at
+face value from the route code alone, never cross-checked against the Role sub-schema's actual
+declared fields). **Named here, not silently fixed everywhere**: this addendum only corrects the
+one route this milestone touched; a full audit of every other custom-action `authorize()` call
+across the codebase for the same defect is real, deferred work, flagged as high-severity.
+
+### 13.4 OrderSettings wired into Order Item Cancel
+
+`OrderService.cancelItem()` now reads `OrderSettings.cancelReasonRequired` and
+`.requireManagerApprovalForCancel` (via new `OrderSettingsService.resolveForBranch()`) instead of
+unconditionally requiring a reason — both fields were confirmed, by direct read, to be real,
+well-designed schema fields with **zero code anywhere reading them** before this change, the same
+"designed but dead" pattern this engagement has repeatedly found and closed elsewhere. When manager
+approval is required, a distinct `managerApprovalBy` user (new `OrderItem.managerApprovalBy` field)
+must be supplied and must independently hold `Orders.approve` — modeling the real POS "supervisor
+override" pattern (a cashier without cancellation rights of their own gets a manager's sign-off at
+the point of action), not a fabricated approval-workflow state machine. Proven by 3 new tests:
+reject-with-no-approver, reject-with-an-approver-lacking-permission, and succeed-with-no-reason
+(when `cancelReasonRequired: false`) + a real manager's approval recorded on the item.
+
+### 13.5 What this does NOT close
+
+Everything else this "Enterprise Order Management Platform" request named remains unbuilt, not
+implied done: the richer lifecycle (`Draft`/`Pending`/`Accepted`/`PartiallyReady`/`Served`/
+`Refunded`/`Reopened`, etc. — today's Order still uses the simpler `OPEN → IN_PROGRESS → READY →
+DELIVERED → CLOSED`/`CANCELLED` machine), order splitting/merging, per-guest independent billing,
+add/replace/move-item beyond cancel, true partial-ticket kitchen recall, a Kitchen Display System
+beyond the read-only queue/dashboard (Addendum 5), an entire Printing Platform (no printer/printing
+concept exists anywhere in this codebase), the payment-workflow review, and the other
+`OrderSettings` toggles still unread by any code (`allowEditOrderAfterSendToKitchen`,
+`preventNegativeStockOrders`, `allowPriceChange`/`allowQuantityChange`, `holdOrdersAllowed`,
+`autoMergeTickets`, etc.) — wiring those in is real, named, deferred work, not done here. Most
+significantly: **a full audit of every other custom-action `authorize()` call in this codebase for
+the same undeclared-permission-field defect found in §13.3** is now the single highest-severity
+item on this domain's list, ahead of any new feature work.
+
+### 13.6 Cumulative state of the domain
+
+Order items now have a real, audited, kitchen-aware, settings-driven cancel workflow instead of a
+dead schema field. `sales/order` is the second module (after the `accounting/journal-entry`/
+`journal-line` pilot) to follow the mandated Repository Pattern exactly. A real, previously-unknown
+RBAC defect class was found and fixed at its one confirmed occurrence, and flagged as needing a
+wider audit.
+
+### 13.7 Follow-up — the §13.5 RBAC audit is complete, and clean
+
+The wider audit flagged as the top-priority open item in §13.3/§13.5 has now been run in full:
+every `authorize("<Resource>", "<action>")` call across the entire `server/` tree (all
+`*.router.js`/`*.router.ts` files, ~50+ modules) was extracted and its `<action>` string checked
+against the 8 real fields `Role.permissions[]` actually declares
+(`create/read/update/delete/viewReports/approve/reject/reverse`, `role.model.js`). **Result: zero
+other occurrences of the defect.** Every custom-sounding action previously suspected of sharing the
+bug — `EmployeeAdvance`'s `submit`/`review`/`disburse`/`pauseDeductions`/`resumeDeductions`/
+`close`/`settle`, `LeaveRequest`'s `managerReview`/`hrReview`/`recall`, etc. — turns out to be a
+**controller/service method name**, not the RBAC action string; the actual `authorize()` call at
+each of those routes already resolves to a real declared field (mostly `"update"` or `"approve"`).
+The one occurrence found and fixed in §13.3 (this milestone's own `cancelItem` route) was the only
+real instance of this defect in the codebase — the broader risk flagged in §13.5 is now closed, not
+left open.

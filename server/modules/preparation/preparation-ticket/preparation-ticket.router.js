@@ -23,6 +23,20 @@ const router = express.Router();
 // together; status-transition guarding is enforced in
 // preparation-ticket.service.js#update, not here.
 
+// ===== Kitchen Queue / Dashboard (registered before "/:id" to avoid FT-001-style shadowing) =====
+router.route("/kitchen-queue").get(
+  authenticateToken,
+  authorize("PreparationTickets", "read"),
+  checkModuleEnabled("preparation"),
+  preparationTicketController.kitchenQueue,
+);
+router.route("/kitchen-dashboard").get(
+  authenticateToken,
+  authorize("PreparationTickets", "read"),
+  checkModuleEnabled("preparation"),
+  preparationTicketController.kitchenDashboard,
+);
+
 // Create & GetAll
 router.route("/")
   .post(authenticateToken, authorize("PreparationTickets", "create"), checkModuleEnabled("preparation"), validate(createPreparationTicketSchema), preparationTicketController.create)

@@ -73,4 +73,14 @@ export const DomainEvent = Object.freeze({
   // attach to.
   PRODUCTION_ORDER_APPROVED: "ProductionOrder.Approved",
   PRODUCTION_ORDER_COMPLETED: "ProductionOrder.Completed",
+  // Enterprise Production Platform — emitted by order.service.ts#transition() on OPEN ->
+  // IN_PROGRESS ("sent to kitchen"). PreparationTicket creation is called directly (not purely
+  // event-driven) because its result needs to be visible synchronously in the same request; this
+  // event is the informational seam other consumers (Kitchen Dashboard live updates, a future
+  // Recipe-consumption subscriber) would attach to. No subscriber yet.
+  ORDER_CONFIRMED: "Order.Confirmed",
+  // Enterprise Order Management Platform — emitted by order.service.ts#cancelItem() (item-level
+  // void/cancel, with kitchen recall). No subscriber yet — the seam a future notification/KDS
+  // live-update consumer would attach to.
+  ORDER_ITEM_CANCELLED: "Order.ItemCancelled",
 });

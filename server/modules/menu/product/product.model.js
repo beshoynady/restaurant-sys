@@ -36,6 +36,7 @@ const ProductSchema = new mongoose.Schema(
       },
       required: true,
     },
+    // Product description in multiple languages, stored as a Map with language codes as keys
     description: {
       type: Map,
       of: {
@@ -46,9 +47,10 @@ const ProductSchema = new mongoose.Schema(
       },
       required: true,
     },
-// if you want to support multiple images per product, you can change this to an array of strings
+    // if you want to support multiple images per product, you can change this to an array of strings
     image: {
       type: String,
+      maxlength: 255,
       default: null,
     }, // Product image URL or filename
 
@@ -62,9 +64,16 @@ const ProductSchema = new mongoose.Schema(
        CATEGORY & PREPARATION
     ========================= */
     category: { type: ObjectId, ref: "MenuCategory", required: true }, // Product category
+    // Enterprise Menu & Sales Platform Final Review: fixed a confirmed dangling reference — the
+    // model actually registered for this collection is "PreparationSectionConfig" (see
+    // preparation-section.model.js), not "PreparationSection", which resolves to no model at all
+    // and silently breaks `.populate()`. This is the same bug class already found and fixed on
+    // ProductionRecord/ProductionOrder/PreparationTicket this engagement — found here for the
+    // first time on Product itself, which product.service.js's own `defaultPopulate` calls on
+    // every read.
     preparationSection: {
       type: ObjectId,
-      ref: "PreparationSection",
+      ref: "PreparationSectionConfig",
       required: true, // Section or kitchen responsible for this product
     },
 
@@ -91,7 +100,7 @@ const ProductSchema = new mongoose.Schema(
         maxlength: 100,
       },
     },
-    
+
     sizeOrder: { type: Number, default: 0 }, // Display order of sizes
     sizes: [{ type: ObjectId, ref: "Product" }], // List of size products if this is a size group
 
@@ -172,8 +181,19 @@ const ProductSchema = new mongoose.Schema(
 );
 
 // DB-002: brand-scoped catalog identifiers (replaces the previous global-unique `sku`)
-ProductSchema.index({ brand: 1, sku: 1 }, { unique: true, sparse: true });
-ProductSchema.index({ brand: 1, barcode: 1 }, { unique: true, sparse: true });
+// V6.0-class fix, applied proactively: `sparse: true` only excludes documents missing the
+// indexed field entirely from the whole compound index — it does NOT mean "exclude documents
+// where sku/barcode is null" — so two sku-less/barcode-less products in the same brand still
+// collided on `sku: null`/`barcode: null`. Same defect class already found and fixed on
+// Supplier/Department/JobTitle/StockItem/PaymentMethod this engagement; fixed here the same way.
+ProductSchema.index(
+  { brand: 1, sku: 1 },
+  { unique: true, partialFilterExpression: { sku: { $exists: true, $type: "string" } } },
+);
+ProductSchema.index(
+  { brand: 1, barcode: 1 },
+  { unique: true, partialFilterExpression: { barcode: { $exists: true, $type: "string" } } },
+);
 
 const ProductModel = mongoose.model("Product", ProductSchema);
 export default ProductModel;

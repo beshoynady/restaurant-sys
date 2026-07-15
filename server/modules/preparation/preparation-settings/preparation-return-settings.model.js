@@ -7,10 +7,13 @@ const PreparationReturnSettingsSchema = new Schema(
     /** Scope */
     brand: { type: ObjectId, ref: "Brand", required: true },
     branch: { type: ObjectId, ref: "Branch", default: null },
+    // Same confirmed dangling-reference fix as Product/PreparationTicket/ProductionRecord/
+    // Consumption/PreparationReturn this engagement — the registered model name is
+    // "PreparationSectionConfig", not "PreparationSection".
     preparationSection: {
       type: ObjectId,
-      ref: "PreparationSection",
-      default: null, // 
+      ref: "PreparationSectionConfig",
+      default: null,
     },
 
     /** Allowed decisions */

@@ -1,11 +1,12 @@
 // DATABASE_IMPLEMENTATION_PLAN.md DB-007: atomic, branch-scoped order-number generation.
+// Converted from TypeScript to plain JavaScript at the user's explicit request — the class-level
+// generic typing (`BaseRepository<IOrderSettings>`) and per-method return-type annotations are
+// dropped; behavior is unchanged.
 import BaseRepository from "../../../utils/BaseRepository.js";
-import throwErrorJs from "../../../utils/throwError.js";
-import OrderSettingsModel, { type IOrderSettings } from "./order-settings.model.js";
+import throwError from "../../../utils/throwError.js";
+import OrderSettingsModel from "./order-settings.model.js";
 
-const throwError = throwErrorJs as (message: string, statusCode: number) => never;
-
-class OrderSettingsService extends BaseRepository<IOrderSettings> {
+class OrderSettingsService extends BaseRepository {
   constructor() {
     super(OrderSettingsModel, {
       brandScoped: true,
@@ -35,7 +36,7 @@ class OrderSettingsService extends BaseRepository<IOrderSettings> {
    * `createdBy` audit field couldn't be filled in meaningfully here); a
    * branch must be provisioned with OrderSettings before it can transact.
    */
-  async getNextOrderNumber(brandId: string, branchId: string): Promise<string> {
+  async getNextOrderNumber(brandId, branchId) {
     const settings = await this.model
       .findOne({ brand: brandId, branch: branchId, isDeleted: false })
       .lean();
@@ -47,12 +48,9 @@ class OrderSettingsService extends BaseRepository<IOrderSettings> {
       );
     }
 
-    // Non-null: throwError() above throws synchronously and never returns, but the imported
-    // `.js` `never`-return type isn't consistently narrowed by TS's control-flow analysis across
-    // this call boundary — asserted here rather than relying on that narrowing.
-    const prefix = settings!.orderSequence?.prefix || "ORD-";
+    const prefix = settings.orderSequence?.prefix || "ORD-";
 
-    if (settings!.orderSequence?.resetDaily) {
+    if (settings.orderSequence?.resetDaily) {
       const now = new Date();
       const todayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 
@@ -88,8 +86,23 @@ class OrderSettingsService extends BaseRepository<IOrderSettings> {
       );
     }
 
-    const assignedNumber = incremented!.orderSequence?.currentNumber ?? 1;
+    const assignedNumber = incremented.orderSequence?.currentNumber ?? 1;
     return `${prefix}${assignedNumber}`;
+  }
+
+  /**
+   * Enterprise Order Management Platform: read-side primitive for callers that need the
+   * configured behavior toggles (`cancelReasonRequired`, `requireManagerApprovalForCancel`,
+   * `allowEditOrderAfterSendToKitchen`, ...) rather than the order-number sequence. These fields
+   * were confirmed, by direct read, to be real schema fields with zero code anywhere reading
+   * them — the same "designed but dead" pattern this engagement has repeatedly found and closed
+   * elsewhere in this domain. Returns `null` (not a fabricated default object) when no
+   * OrderSettings document exists for this branch — a branch that can create orders at all
+   * already has one (`getNextOrderNumber` above requires it), so `null` here means "settings
+   * genuinely not provisioned yet," and callers decide their own safe fallback.
+   */
+  async resolveForBranch(brandId, branchId) {
+    return this.model.findOne({ brand: brandId, branch: branchId, isDeleted: false }).lean();
   }
 }
 

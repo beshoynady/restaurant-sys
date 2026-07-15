@@ -30,9 +30,14 @@ const PreparationTicketSchema = new Schema(
     },
 
     /** Target preparation section (Kitchen, Grill, Bar, etc.) */
+    // Enterprise Production Platform: fixed a confirmed dangling reference — the model name
+    // actually registered for this collection is "PreparationSectionConfig" (see
+    // preparation-section.model.js), not "PreparationSection", which resolves to no model at all
+    // and would silently break `.populate()`. Same bug class already found and fixed on
+    // ProductionRecord this engagement.
     preparationSection: {
       type: ObjectId,
-      ref: "PreparationSection",
+      ref: "PreparationSectionConfig",
       required: true,
     },
 

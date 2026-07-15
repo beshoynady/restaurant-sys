@@ -30,9 +30,11 @@ const PreparationReturnSchema = new Schema(
     },
 
     /** Target preparation section (Kitchen, Grill, Bar, etc.) */
+    // Same confirmed dangling-reference fix as Product/PreparationTicket/ProductionRecord/
+    // Consumption this engagement — the registered model name is "PreparationSectionConfig".
     preparationSection: {
       type: ObjectId,
-      ref: "PreparationSection",
+      ref: "PreparationSectionConfig",
       required: true,
     },
 

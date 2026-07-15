@@ -67,6 +67,24 @@ const OrderItemSchema = new Schema(
       min: 0,
     },
 
+    /**
+     * Enterprise Production Platform — Combo Execution. When `product` is a combo
+     * (`Product.isCombo: true`), this records exactly which item was chosen from each of the
+     * combo's `comboGroups[]` — a snapshot at order time (same "avoid retroactive drift"
+     * reasoning already applied to `extras[]`'s own price snapshot above). Confirmed absent
+     * before this milestone: a combo order item previously had nowhere to record what was
+     * actually selected, so kitchen ticket routing and recipe consumption both silently treated
+     * the combo container as if it were a single, directly-sold product with its own recipe/
+     * section — neither of which a combo container actually has.
+     */
+    comboSelections: [
+      {
+        comboGroup: { type: ObjectId, required: true }, // Product.comboGroups[]._id this selection belongs to
+        product: { type: ObjectId, ref: "Product", required: true }, // the selected component
+        quantity: { type: Number, default: 1, min: 1 },
+      },
+    ],
+
     // Final calculated price for this item
     finalPrice: {
       type: Number,
@@ -99,6 +117,18 @@ const OrderItemSchema = new Schema(
       default: "NEW",
       index: true,
     },
+
+    // Enterprise Order Management Platform: this field was already declared but confirmed, by
+    // direct read, to be entirely dead — nothing anywhere ever transitioned it away from "NEW".
+    // Item-level cancel/void (`OrderService.cancelItem()`) now writes it, with a mandatory audit
+    // trail matching the "no invalid inventory movement / manager approval / audit log" mandate.
+    cancelReason: { type: String, trim: true, maxlength: 300, default: null },
+    cancelledBy: { type: ObjectId, ref: "UserAccount", default: null },
+    cancelledAt: { type: Date, default: null },
+    // Set when `OrderSettings.requireManagerApprovalForCancel` is on for this brand/branch — the
+    // manager/supervisor who authorized this specific cancellation, distinct from `cancelledBy`
+    // (the person who initiated it, e.g. a cashier without cancellation permission of their own).
+    managerApprovalBy: { type: ObjectId, ref: "UserAccount", default: null },
   },
   { _id: true },
 );
@@ -138,7 +168,12 @@ const OrderSchema = new Schema(
 
     iternalOrderCategory: {
       type: String,
-      enum: ["STAFF", "GUEST", "OTHER"],
+      // `null` must be explicitly listed — Mongoose's enum validator rejects a literal `null`
+      // otherwise, even as the field's own declared default. A genuine, previously-undiscovered
+      // bug: any order that left this optional field unset (the overwhelming majority — it only
+      // applies to INTERNAL orders) would fail to save at all. Same recurring gotcha already hit
+      // and fixed many times this engagement.
+      enum: ["STAFF", "GUEST", "OTHER", null],
       default: null,
     },
 
@@ -186,7 +221,10 @@ const OrderSchema = new Schema(
     // remains a valid anonymous/walk-in order.
     customerType: {
       type: String,
-      enum: ["OnlineCustomer", "OfflineCustomer"],
+      // Same recurring gotcha as `iternalOrderCategory` above — `null` must be explicitly listed
+      // in the enum or every anonymous/walk-in order (the comment two lines up says this is
+      // supposed to be valid) would fail to save.
+      enum: ["OnlineCustomer", "OfflineCustomer", null],
       default: null,
     },
     customer: {
