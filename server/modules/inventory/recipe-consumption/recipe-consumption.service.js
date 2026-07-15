@@ -5,7 +5,7 @@ import WarehouseModel from "../warehouse/warehouse.model.js";
 import RecipeModel from "../../menu/recipe/recipe.model.js";
 import ProductModel from "../../menu/product/product.model.js";
 import PreparationSectionModel from "../../preparation/preparation-section/preparation-section.model.js";
-import { expandOrderItems } from "../../sales/order/order-item-expansion.js";
+import { expandOrderItems } from "../../sales/order/engines/order-item-expansion.js";
 
 /**
  * RecipeConsumptionService — Enterprise Production Platform. The engine that finally reads

@@ -1,6 +1,6 @@
 import BaseController from "../../../utils/BaseController.js";
 import asyncHandler from "../../../utils/asyncHandler.js";
-import orderService from "./order.service.js";
+import orderService from "./services/order.service.js";
 import recipeConsumptionService from "../../inventory/recipe-consumption/recipe-consumption.service.js";
 import OrderModel from "./order.model.js";
 

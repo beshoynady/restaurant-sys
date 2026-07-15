@@ -3,7 +3,7 @@ import AdvancedService from "../../../utils/BaseRepository.js";
 import throwError from "../../../utils/throwError.js";
 import ProductModel from "../../menu/product/product.model.js";
 import PreparationSectionModel from "../preparation-section/preparation-section.model.js";
-import { expandOrderItems } from "../../sales/order/order-item-expansion.js";
+import { expandOrderItems } from "../../sales/order/engines/order-item-expansion.js";
 
 // PLATFORM_FINAL_AUDIT.md PA-07: preparationStatus/deliveryStatus were raw
 // enum fields updated through the generic BaseController.update with no

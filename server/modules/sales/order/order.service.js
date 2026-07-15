@@ -5,15 +5,19 @@
 //
 // Enterprise Order Management Platform: follows the mandated Repository Pattern
 // (BACKEND_FOUNDATION.md §4.3 / REPOSITORY_PATTERN_MIGRATION_PLAN.md) — data access (generic CRUD,
-// constructor options) lives in order.repository.js; this file extends it and contains zero raw
-// Mongoose calls of its own beyond `this.model` (the inherited configured model), matching the
-// split already proven on the `accounting/journal-entry` pilot.
+// constructor options) lives in repositories/order.repository.js; this file extends it and
+// contains zero raw Mongoose calls of its own beyond `this.model` (the inherited configured
+// model), matching the split already proven on the `accounting/journal-entry` pilot.
 //
 // Converted from TypeScript to plain JavaScript at the user's explicit request (CLAUDE.md notes
 // this as a deliberate exception to the project's TS-going-forward policy for this module) —
 // behavior is unchanged; only type annotations/casts are dropped.
+//
+// DOMAIN_ENGINE_ARCHITECTURE_MIGRATION_PLAN.md pilot: moved from the domain root into services/ —
+// orchestration/business-rule logic only, delegating the shared combo/extras/modifier expansion
+// to engines/order-item-expansion.js and data access to repositories/order.repository.js.
 import throwError from "../../../utils/throwError.js";
-import OrderRepository from "./order.repository.js";
+import OrderRepository from "../repositories/order.repository.js";
 import orderSettingsService from "../order-settings/order-settings.service.js";
 import { createTransitionGuard } from "../../../utils/TransitionGuard.js";
 import domainEvents, { DomainEvent } from "../../../utils/domainEvents.js";

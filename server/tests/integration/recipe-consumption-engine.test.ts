@@ -6,7 +6,7 @@
 import mongoose from "mongoose";
 import { connectTestDb, disconnectTestDb } from "./setup.js";
 import { createBaseFixture, cleanupFixture, createStockItemFixture, type TestFixture } from "./fixtures.js";
-import orderService from "../../modules/sales/order/order.service.js";
+import orderService from "../../modules/sales/order/services/order.service.js";
 import OrderModel from "../../modules/sales/order/order.model.js";
 import recipeConsumptionService from "../../modules/inventory/recipe-consumption/recipe-consumption.service.js";
 import InventorySettingsModel from "../../modules/inventory/inventory-settings/inventory-settings.model.js";
