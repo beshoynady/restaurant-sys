@@ -93,9 +93,10 @@ AccountingSettings ──(activities.expense.{defaultExpense,tax})──→ fall
   configured**, and **credits each distinct settlement account exactly once** — a multi-line
   expense split across a register and a bank account posts one balanced entry with two credit
   lines, not two separate entries.
-- **Settlement-account balances are decremented only after the journal entry successfully posts** —
-  an unconfigured `AccountingSettings` (best-effort skip) must never silently drain a register's
-  cached balance with nothing to show for it in the GL.
+- **Settlement-account balances are decremented unconditionally, before the GL-posting attempt** —
+  a register's `balance` represents physical cash that actually left the drawer the moment the
+  expense was paid, independent of whether `AccountingSettings` happens to be configured. (An
+  earlier version of this rule had it backwards — see §11 for the correction and why it was wrong.)
 - **`status`/`journalEntry`/`number` are locked against the generic `PUT`** (`lockedUpdateFields`).
 - **`Cancelled` is only reachable from `Draft`** — a `Posted` expense has already moved real cash;
   reversing one is a future capability (a reversing journal entry), not a status flip.
@@ -153,9 +154,18 @@ on both routers, in addition to being unmounted. Both gaps are fixed together in
 
 ## 11. Reporting
 
-Not built in this pass. `DailyExpense` now carries everything an expense-analysis report would
-need (`number`, `expense`, `taxAmount`, `paid[]`, `journalEntry`, `status`) without further backend
-work.
+**Update (Financial Reporting phase, same session):** built — see `expense/expense-reports`
+(Expense Analysis by type/cost-behavior/cost-nature, plus a paginated detail drill-down).
+
+**Correction found while building that report module, fixed here:** `_postExpenseAccounting()`
+originally decremented `CashRegister`/`BankAccount.balance` only AFTER the GL journal entry
+successfully posted — reasoning at the time was "don't drain a balance with nothing to show for it
+in the GL." That was backwards: a register's `balance` represents physical cash that actually left
+the drawer the moment the expense was paid, a real-world fact independent of whether the accounting
+GL happens to be configured. Fixed: the balance decrement is now unconditional, applied before the
+GL-posting attempt; only the journal entry itself remains best-effort/optional — the same fix,
+same reasoning, and same discovery path (a sibling report module's own test, not inspection) as
+`assets/asset-depreciation`'s identical bug, fixed in the same session.
 
 ## 12. Future Extensions
 

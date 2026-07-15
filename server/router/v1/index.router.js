@@ -27,6 +27,7 @@ import costCenterRouter from "../../modules/accounting/cost-center/cost-center.r
 import journalEntryRouter from "../../modules/accounting/journal-entry/journal-entry.router.js";
 import journalLineRouter from "../../modules/accounting/journal-line/journal-line.router.js";
 import ledgerRouter from "../../modules/accounting/ledger/ledger.router.js";
+import financialStatementsRouter from "../../modules/accounting/financial-statements/financial-statements.router.js";
 
 // ========================
 // ASSETS
@@ -62,6 +63,10 @@ import cashierShiftRouter from "../../modules/finance/cashier-shift/cashier-shif
 // mounted here at all — the entire Expense domain had zero live API surface. Fixed and mounted now.
 import expenseRouter from "../../modules/expense/expense/expense.router.js";
 import dailyExpenseRouter from "../../modules/expense/daily-expense/daily-expense.router.js";
+import financeReportsRouter from "../../modules/finance/finance-reports/finance-reports.router.js";
+import expenseReportsRouter from "../../modules/expense/expense-reports/expense-reports.router.js";
+import assetReportsRouter from "../../modules/assets/asset-reports/asset-reports.router.js";
+import executiveDashboardRouter from "../../modules/accounting/executive-dashboard/executive-dashboard.router.js";
 // V6.0 Production Hardening: was unmountable (broken controller import path) and un-mounted —
 // see payment-method.router.js's header comment. Supply Chain's Supplier Payment/Refund workflow
 // requires this to exist (PurchaseInvoice.paymentMethod / PurchaseReturnInvoice.refundMethod are
@@ -258,6 +263,7 @@ router.use("/accounting/cost-centers", costCenterRouter);
 router.use("/accounting/journal-entries", journalEntryRouter);
 router.use("/accounting/journal-lines", journalLineRouter);
 router.use("/accounting/ledgers", ledgerRouter);
+router.use("/accounting/financial-statements", financialStatementsRouter);
 
 // Assets
 router.use("/assets", assetRouter);
@@ -281,6 +287,10 @@ router.use("/finance/cash-transfers", cashTransferRouter);
 router.use("/finance/cashier-shifts", cashierShiftRouter);
 router.use("/expense/expenses", expenseRouter);
 router.use("/expense/daily-expenses", dailyExpenseRouter);
+router.use("/finance/reports", financeReportsRouter);
+router.use("/expense/reports", expenseReportsRouter);
+router.use("/assets/reports", assetReportsRouter);
+router.use("/accounting/executive-dashboard", executiveDashboardRouter);
 router.use("/finance/payment-methods", paymentMethodRouter);
 
 // HR

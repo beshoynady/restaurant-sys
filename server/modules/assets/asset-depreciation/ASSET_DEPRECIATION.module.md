@@ -108,9 +108,19 @@ unlike Expense).
 
 ## 11. Reporting
 
-Not built in this pass. A future Depreciation Schedule report can query `AssetDepreciation` +
-`Asset` directly — every field needed (`periodLabel`, `amount`, running `accumulatedDepreciation`)
-already exists.
+**Update (Financial Reporting phase, same session):** built — see `assets/asset-reports`
+(Asset Register, Depreciation Schedule with a real+projected combined view, Asset Book Value).
+
+**Correction found while building that report module, fixed here:** `postDepreciation()` originally
+updated `Asset.accumulatedDepreciation`/`bookValue` INSIDE the same best-effort try/catch as the GL
+journal posting — so an unconfigured `AccountingSettings` silently left the asset's own cached book
+value stale even though the depreciation entry was correctly marked `Posted`. That violated this
+model's own documented invariant ("derived from AssetDepreciation entries," not from whether a GL
+posting succeeded). Fixed: the Asset update is now unconditional, applied before the GL-posting
+attempt; only the journal entry itself remains best-effort/optional. Caught by
+`asset-reports.test.ts`'s Depreciation Schedule test (no `AccountingSettings` configured in that
+fixture), not by inspection — worth noting since the original code, its test, and its documentation
+all looked internally consistent until a second module exercised the same code path differently.
 
 ## 12. Future Extensions
 

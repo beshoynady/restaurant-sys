@@ -105,6 +105,23 @@ class DailyExpenseService extends AdvancedService {
    * CashierShift's variance posting is the legitimate writer of its own shift's fields).
    */
   async _postExpenseAccounting(dailyExpense, actorId) {
+    // Register/bank balance decrements happen UNCONDITIONALLY, before the GL-posting attempt below
+    // — a `CashRegister.balance`/`BankAccount.balance` represents physical cash/funds that actually
+    // left the account the moment this expense was paid, a real-world fact independent of whether
+    // the accounting GL happens to be configured. An earlier version of this method gated the
+    // decrement on the GL posting succeeding, reasoning "don't drain a balance with nothing to show
+    // for it in the GL" — backwards: the cash is gone either way, and gating a real operational
+    // fact on optional accounting configuration left the register's own cached balance silently
+    // stale (the same bug class, and the same fix, as `asset-depreciation.service.js#postDepreciation`).
+    const balanceDecrements = [];
+    for (const line of dailyExpense.paid || []) {
+      if (line.cashRegister) balanceDecrements.push({ Model: CashRegisterModel, id: line.cashRegister, amount: line.amount });
+      else if (line.bankAccount) balanceDecrements.push({ Model: BankAccountModel, id: line.bankAccount, amount: line.amount });
+    }
+    await Promise.all(
+      balanceDecrements.map(({ Model, id, amount }) => Model.updateOne({ _id: id }, { $inc: { balance: -amount } })),
+    );
+
     try {
       const [expenseType, settings] = await Promise.all([
         ExpenseModel.findOne({ _id: dailyExpense.expense, brand: dailyExpense.brand }).select("accountId").lean(),
@@ -136,7 +153,6 @@ class DailyExpenseService extends AdvancedService {
       // Group payment lines by their resolved settlement account — one credit line per distinct
       // account, correctly balanced regardless of how many payment lines reference the same one.
       const creditByAccount = new Map();
-      const balanceDecrements = []; // [{Model, id, amount}] — applied only after posting succeeds.
       for (const line of dailyExpense.paid || []) {
         if (line.cashRegister) {
           const register = await CashRegisterModel.findById(line.cashRegister).select("accountId").lean();
@@ -144,14 +160,12 @@ class DailyExpenseService extends AdvancedService {
             const key = String(register.accountId);
             creditByAccount.set(key, (creditByAccount.get(key) || 0) + line.amount);
           }
-          balanceDecrements.push({ Model: CashRegisterModel, id: line.cashRegister, amount: line.amount });
         } else if (line.bankAccount) {
           const bank = await BankAccountModel.findById(line.bankAccount).select("accountId").lean();
           if (bank?.accountId) {
             const key = String(bank.accountId);
             creditByAccount.set(key, (creditByAccount.get(key) || 0) + line.amount);
           }
-          balanceDecrements.push({ Model: BankAccountModel, id: line.bankAccount, amount: line.amount });
         }
       }
       for (const [account, amount] of creditByAccount) {
@@ -173,13 +187,6 @@ class DailyExpenseService extends AdvancedService {
 
       await this.model.updateOne({ _id: dailyExpense._id }, { $set: { journalEntry: entry._id } });
       dailyExpense.journalEntry = entry._id;
-
-      // Balance decrements applied only after the journal entry successfully posts — an
-      // unconfigured/failed posting must not silently drain a register's cached balance with
-      // nothing to show for it in the GL.
-      await Promise.all(
-        balanceDecrements.map(({ Model, id, amount }) => Model.updateOne({ _id: id }, { $inc: { balance: -amount } })),
-      );
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error(`[daily-expense.service] Journal entry not posted for expense ${dailyExpense.number}: ${err.message}`);

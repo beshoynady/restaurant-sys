@@ -124,8 +124,22 @@ class AssetDepreciationService extends AdvancedService {
     );
     if (!claimed) throwError("This depreciation entry was already posted by a concurrent request.", 409);
 
+    // `Asset.accumulatedDepreciation`/`bookValue` are documented as "derived from AssetDepreciation
+    // entries" — that invariant must hold the instant an entry reaches "Posted", independent of
+    // whether the GL journal entry itself succeeds. This was a real bug, not just a test gap: an
+    // earlier version applied this update INSIDE the same best-effort try/catch as the GL posting
+    // below, so an unconfigured AccountingSettings silently left the asset's own cached book value
+    // stale even though the depreciation entry was correctly marked Posted. Always applied first,
+    // unconditionally; the GL posting is the only genuinely optional part.
+    const asset = await AssetModel.findOne({ _id: claimed.asset, brand });
+    if (asset) {
+      const newAccumulated = (asset.accumulatedDepreciation || 0) + claimed.amount;
+      const newBookValue = Math.max((asset.purchaseCost || 0) - newAccumulated, asset.salvageValue || 0);
+      await AssetModel.updateOne({ _id: asset._id }, { $set: { accumulatedDepreciation: newAccumulated, bookValue: newBookValue } });
+    }
+
     try {
-      const journalEntry = await this._postAccounting(claimed, actorId);
+      const journalEntry = asset ? await this._postAccounting(claimed, asset, actorId) : null;
       // `_postAccounting` already persisted `journalEntryId` to the database — mirrored onto the
       // in-memory `claimed` object being returned below so the caller sees it too, instead of a
       // stale pre-posting snapshot (the exact bug class already caught and fixed on CashierShift).
@@ -138,9 +152,8 @@ class AssetDepreciationService extends AdvancedService {
     return claimed;
   }
 
-  async _postAccounting(entry, actorId) {
-    const asset = await AssetModel.findOne({ _id: entry.asset, brand: entry.brand });
-    if (!asset) return null;
+  /** GL posting only — the Asset balance update above is NOT this method's concern, see postDepreciation(). */
+  async _postAccounting(entry, asset, actorId) {
     const category = await AssetCategoryModel.findById(asset.category)
       .select("depreciationExpenseAccount accumulatedDepreciationAccount").lean();
     if (!category?.depreciationExpenseAccount || !category?.accumulatedDepreciationAccount) return null;
@@ -165,13 +178,6 @@ class AssetDepreciationService extends AdvancedService {
     });
 
     await this.model.updateOne({ _id: entry._id }, { $set: { journalEntryId: journalEntry._id } });
-
-    const newAccumulated = (asset.accumulatedDepreciation || 0) + entry.amount;
-    const newBookValue = Math.max((asset.purchaseCost || 0) - newAccumulated, asset.salvageValue || 0);
-    await AssetModel.updateOne(
-      { _id: asset._id },
-      { $set: { accumulatedDepreciation: newAccumulated, bookValue: newBookValue } },
-    );
 
     return journalEntry;
   }
