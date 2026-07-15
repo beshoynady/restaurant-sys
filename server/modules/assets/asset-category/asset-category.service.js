@@ -3,9 +3,9 @@ import AdvancedService from "../../../utils/BaseRepository.js";
 
 const AssetCategoryService = new AdvancedService(AssetCategoryModel, {
   brandScoped: true,
-  softDelete: true,
+  enableSoftDelete: true,
   defaultPopulate: ["brand","branch","createdBy","updatedBy"],
-  searchFields: [], // specify searchable fields if needed
+  searchableFields: [], // specify searchable fields if needed
   defaultSort: { createdAt: -1 },
 });
 

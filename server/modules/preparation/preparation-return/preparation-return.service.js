@@ -20,7 +20,7 @@ class PreparationReturnService extends AdvancedService {
       // does not apply.
       enableSoftDelete: false,
       defaultPopulate: ["brand","branch","returnInvoice","preparationSection","responsibleEmployee","waiter","createdBy","updatedBy"],
-      searchFields: [],
+      searchableFields: [],
       defaultSort: { createdAt: -1 },
     });
   }

@@ -4,9 +4,9 @@ import AdvancedService from "../../../utils/BaseRepository.js";
 // Initialize service for cash-register model
 const cashRegisterService = new AdvancedService(CashRegisterModel, {
   brandScoped: true,
-  softDelete: true,
+  enableSoftDelete: true,
   defaultPopulate: ["brand","branch","employee","accountId","createdBy","updatedBy","deletedBy"],
-  searchFields: [], // specify searchable fields if needed
+  searchableFields: [], // specify searchable fields if needed
   defaultSort: { createdAt: -1 },
 });
 

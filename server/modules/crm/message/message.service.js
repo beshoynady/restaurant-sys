@@ -4,9 +4,9 @@ import AdvancedService from "../../../utils/BaseRepository.js";
 // Initialize service for message model
 const messageService = new AdvancedService(MessageModel, {
   brandScoped: true,
-  softDelete: true,
+  enableSoftDelete: true,
   defaultPopulate: ["brand","branch","order","assignedTo","resolvedBy","deletedBy"],
-  searchFields: [], // specify searchable fields if needed
+  searchableFields: [], // specify searchable fields if needed
   defaultSort: { createdAt: -1 },
 });
 

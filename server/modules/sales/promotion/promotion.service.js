@@ -4,9 +4,9 @@ import AdvancedService from "../../../utils/BaseRepository.js";
 // Initialize service for promotion model
 const promotionService = new AdvancedService(PromotionModel, {
   brandScoped: true,
-  softDelete: true,
+  enableSoftDelete: true,
   defaultPopulate: ["brand","branch","createdBy","updatedBy","deletedBy"],
-  searchFields: [], // specify searchable fields if needed
+  searchableFields: [], // specify searchable fields if needed
   defaultSort: { createdAt: -1 },
 });
 

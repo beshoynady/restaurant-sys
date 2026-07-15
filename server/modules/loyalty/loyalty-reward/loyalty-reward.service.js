@@ -10,7 +10,7 @@ class LoyaltyRewardService extends AdvancedService {
   constructor() {
     super(LoyaltyRewardModel, {
       brandScoped: true,
-      softDelete: true,
+      enableSoftDelete: true,
       defaultPopulate: ["brand", "branch", "product", "createdBy", "updatedBy"],
       defaultSort: { createdAt: -1 },
     });

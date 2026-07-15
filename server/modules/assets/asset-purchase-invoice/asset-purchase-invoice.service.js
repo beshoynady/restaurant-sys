@@ -8,7 +8,7 @@ const assetPurchaseInvoiceService = new AdvancedService(AssetPurchaseInvoiceMode
   // already has Draft/Posted/Cancelled — see asset.service.js.
   enableSoftDelete: false,
   defaultPopulate: ["brand","branch","supplier","taxes","createdBy","updatedBy","postedBy"],
-  searchFields: [], // specify searchable fields if needed
+  searchableFields: [], // specify searchable fields if needed
   defaultSort: { createdAt: -1 },
 });
 

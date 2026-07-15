@@ -4,9 +4,9 @@ import AdvancedService from "../../../utils/BaseRepository.js";
 // Initialize service for accounting-period model
 const accountingPeriodService = new AdvancedService(AccountingPeriodModel, {
   brandScoped: true,
-  softDelete: true,
+  enableSoftDelete: true,
   defaultPopulate: ["brand","createdBy","closedBy"],
-  searchFields: [], // specify searchable fields if needed
+  searchableFields: [], // specify searchable fields if needed
   defaultSort: { createdAt: -1 },
 });
 

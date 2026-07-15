@@ -8,7 +8,7 @@ const cashTransferService = new AdvancedService(CashTransferModel, {
   // (DRAFT/POSTED/CANCELLED lifecycle) — see cash-transaction.service.js.
   enableSoftDelete: false,
   defaultPopulate: ["brand","branch","fromCashRegister","fromBankAccount","toCashRegister","toBankAccount","createdBy"],
-  searchFields: [], // specify searchable fields if needed
+  searchableFields: [], // specify searchable fields if needed
   defaultSort: { createdAt: -1 },
 });
 

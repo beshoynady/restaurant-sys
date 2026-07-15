@@ -10,7 +10,7 @@ const assetTransactionsService = new AdvancedService(AssetTransactionsModel, {
   // being blindly applied where it doesn't belong at all.
   enableSoftDelete: false,
   defaultPopulate: ["brand","branch","asset","createdBy"],
-  searchFields: [], // specify searchable fields if needed
+  searchableFields: [], // specify searchable fields if needed
   defaultSort: { createdAt: -1 },
 });
 

@@ -4,9 +4,9 @@ import AdvancedService from "../../../utils/BaseRepository.js";
 // Initialize service for cost-center model
 const costCenterService = new AdvancedService(CostCenterModel, {
   brandScoped: true,
-  softDelete: true,
+  enableSoftDelete: true,
   defaultPopulate: ["brand","branch","parent","createdBy","updatedBy"],
-  searchFields: [], // specify searchable fields if needed
+  searchableFields: [], // specify searchable fields if needed
   defaultSort: { createdAt: -1 },
 });
 

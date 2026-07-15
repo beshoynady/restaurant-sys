@@ -13,20 +13,21 @@
 // this as a deliberate exception to the project's TS-going-forward policy for this module) —
 // behavior is unchanged; only type annotations/casts are dropped.
 //
-// DOMAIN_ENGINE_ARCHITECTURE_MIGRATION_PLAN.md pilot: moved from the domain root into services/ —
-// orchestration/business-rule logic only, delegating the shared combo/extras/modifier expansion
-// to engines/order-item-expansion.js and data access to repositories/order.repository.js.
-import throwError from "../../../../utils/throwError.js";
-import OrderRepository from "../repositories/order.repository.js";
-import orderSettingsService from "../../order-settings/order-settings.service.js";
-import { createTransitionGuard } from "../../../../utils/TransitionGuard.js";
-import domainEvents, { DomainEvent } from "../../../../utils/domainEvents.js";
-import preparationTicketService from "../../../preparation/preparation-ticket/preparation-ticket.service.js";
-import recipeConsumptionService from "../../../inventory/recipe-consumption/recipe-consumption.service.js";
-import PreparationTicketModel from "../../../preparation/preparation-ticket/preparation-ticket.model.js";
-import UserAccountModel from "../../../iam/user-account/user-account.model.js";
-import ProductModel from "../../../menu/product/product.model.js";
-import { validateModifierSelections } from "../../../menu/product/modifier-selection-validator.js";
+// Flat, suffix-named module structure (project convention, 2026-07-15 correction — reverted from
+// the short-lived subfolder pilot): data access lives in order.repository.js (same directory);
+// this file extends it and delegates the shared combo/extras/modifier expansion to the sibling
+// order-item-expansion.js file — no engines/services/repositories subfolders in this module.
+import throwError from "../../../utils/throwError.js";
+import OrderRepository from "./order.repository.js";
+import orderSettingsService from "../order-settings/order-settings.service.js";
+import { createTransitionGuard } from "../../../utils/TransitionGuard.js";
+import domainEvents, { DomainEvent } from "../../../utils/domainEvents.js";
+import preparationTicketService from "../../preparation/preparation-ticket/preparation-ticket.service.js";
+import recipeConsumptionService from "../../inventory/recipe-consumption/recipe-consumption.service.js";
+import PreparationTicketModel from "../../preparation/preparation-ticket/preparation-ticket.model.js";
+import UserAccountModel from "../../iam/user-account/user-account.model.js";
+import ProductModel from "../../menu/product/product.model.js";
+import { validateModifierSelections } from "../../menu/product/modifier-selection-validator.js";
 
 const ORDER_ITEM_CANCELLABLE_STATUSES = ["NEW", "SENT_TO_PRODUCTION", "PREPARING"];
 

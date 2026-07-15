@@ -20,9 +20,9 @@ class OnlineCustomerService extends AdvancedService {
   constructor() {
     super(OnlineCustomerModel, {
       brandScoped: true,
-      softDelete: true,
+      enableSoftDelete: true,
       defaultPopulate: ["brand", "verifiedBy", "deletedBy", "favorites"],
-      searchFields: ["name", "phone", "email"],
+      searchableFields: ["name", "phone", "email"],
       defaultSort: { createdAt: -1 },
     });
   }

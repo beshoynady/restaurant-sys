@@ -12,7 +12,7 @@ const assetService = new AdvancedService(AssetModel, {
   // (see account-balance.service.js); disabled explicitly.
   enableSoftDelete: false,
   defaultPopulate: ["brand","branch","category","supplier","createdBy","updatedBy"],
-  searchFields: [], // specify searchable fields if needed
+  searchableFields: [], // specify searchable fields if needed
   defaultSort: { createdAt: -1 },
 });
 

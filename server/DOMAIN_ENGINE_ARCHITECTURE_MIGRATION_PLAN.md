@@ -1,6 +1,17 @@
 # Domain Engine Architecture — Migration Plan
 
-**Status: pilot complete on `sales/order` (2026-07-15). Not yet applied to any other module.**
+**Status: REVERTED (2026-07-15). The subfolder pilot on `sales/order` described below was
+committed, found to be incompletely applied (import paths pointed at `services/`/`repositories/`/
+`engines/` subfolders that were never actually created — the server did not boot), then fixed to
+match this doc's stated intent — and immediately afterward, the project's owner explicitly
+overruled the subfolder pattern itself: business modules use flat, suffix-named files at the
+module root (`order.model.js`, `order.repository.js`, `order.service.js`, `order.controller.js`,
+`order.router.js`, `order.validation.js`, and so on directly in `order/`); subfolders are reserved
+for genuinely independent business subdomains, not technical/layer separation. `sales/order` has
+been reverted to that flat structure. Do not re-apply the subfolder pattern described in §2 below
+to `sales/order` or any other module — this document is kept only as a historical record of why
+the subfolder approach was tried and rejected, not as a target structure. See
+`REPOSITORY_PATTERN_MIGRATION_PLAN.md` for the (still current) file-suffix-only Repository Pattern.
 
 ## 1. Why this exists
 

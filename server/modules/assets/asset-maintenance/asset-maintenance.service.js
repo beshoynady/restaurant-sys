@@ -8,7 +8,7 @@ const assetMaintenanceService = new AdvancedService(AssetMaintenanceModel, {
   // already has Draft/Completed/Cancelled — see asset.service.js.
   enableSoftDelete: false,
   defaultPopulate: ["brand","branch","asset","supplier","createdBy","approvedBy"],
-  searchFields: [], // specify searchable fields if needed
+  searchableFields: [], // specify searchable fields if needed
   defaultSort: { createdAt: -1 },
 });
 

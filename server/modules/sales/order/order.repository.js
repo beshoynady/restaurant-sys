@@ -1,15 +1,10 @@
 // Repository layer (BACKEND_FOUNDATION.md §4.3 / REPOSITORY_PATTERN_MIGRATION_PLAN.md): owns ALL
-// database access for Order — generic CRUD + constructor options only. `services/order.service.js`
-// extends this class and adds every business rule (order-number generation, state-machine
-// transitions, item cancel/kitchen-recall) on top — none of that belongs here, matching the same
-// split already proven on the `accounting/journal-entry` pilot this migration follows.
-//
-// DOMAIN_ENGINE_ARCHITECTURE_MIGRATION_PLAN.md pilot: moved from the domain root into
-// repositories/ — `order.model.js`/`.controller.js`/`.router.js`/`.validation.js` stay at the
-// domain root (the API/persistence boundary), matching every other module's convention; only the
-// internal service/repository/engine layers move under this pilot.
-import BaseRepository from "../../../../utils/BaseRepository.js";
-import OrderModel from "../order.model.js";
+// database access for Order — generic CRUD + constructor options only. order.service.js (same
+// directory — flat, suffix-named module structure, not a subfolder split) extends this class and
+// adds every business rule (order-number generation, state-machine transitions, item
+// cancel/kitchen-recall) on top — none of that belongs here.
+import BaseRepository from "../../../utils/BaseRepository.js";
+import OrderModel from "./order.model.js";
 
 class OrderRepository extends BaseRepository {
   constructor() {

@@ -244,6 +244,19 @@ class InvoiceService extends BaseRepository<any> {
       defaultPopulate: ["brand", "branch", "cashierShift", "cashier", "deliveryMan", "order", "paidBy"],
       searchableFields: [],
       defaultSort: { createdAt: -1 },
+      // `InvoiceService` overrides `beforeCreate` (serial generation, the full pricing/tax/GL
+      // engine below) but never overrode `beforeUpdate` — and unlike Order, Invoice has no
+      // dedicated `/transition` endpoint at all — so the generic `PUT /invoice/:id` could rewrite
+      // `subtotal`/`salesTax`/`serviceTax`/`total`/`taxInclusive` directly, flip `status` straight
+      // to `PAID`/`CANCELLED` with no guard, rewrite line `items[]` with no re-validation against
+      // the product catalog, or even repoint `journalEntry` at an unrelated GL entry. All of these
+      // now require a dedicated service method instead — none exists yet for post-create
+      // corrections (voiding/returning an invoice is `sales/sales-return`'s job), so a plain `PUT`
+      // silently drops these fields rather than applying them until one is built.
+      lockedUpdateFields: [
+        "serial", "items", "subtotal", "discount", "salesTax", "serviceTax",
+        "total", "taxInclusive", "status", "journalEntry",
+      ],
     });
   }
 

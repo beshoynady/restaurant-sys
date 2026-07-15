@@ -18,7 +18,7 @@ class ReservationService extends AdvancedService {
       // record, already has a full lifecycle status — see reservation.model.js.
       enableSoftDelete: false,
       defaultPopulate: ["brand","branch","table","customer","user","linkedOrder","createdBy","updatedBy","cancelledBy"],
-      searchFields: [],
+      searchableFields: [],
       defaultSort: { createdAt: -1 },
     });
   }

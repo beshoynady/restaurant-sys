@@ -6,7 +6,9 @@ class CustomerLoyaltyService extends AdvancedService {
   constructor() {
     super(CustomerLoyaltyModel, {
       brandScoped: true,
-      softDelete: true,
+      // No `isDeleted` field on this model — `enableSoftDelete: true` (previously via a
+      // silently-ignored `softDelete: true` typo) filtered every read to nothing. Disabled.
+      enableSoftDelete: false,
       defaultPopulate: ["brand", "createdBy", "updatedBy"],
       defaultSort: { createdAt: -1 },
     });

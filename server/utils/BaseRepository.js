@@ -25,8 +25,33 @@ import mongoose from "mongoose";
 import throwError from "./throwError.js";
 import escapeRegex from "./regex.js";
 
+// The only constructor option keys any module in this codebase has ever legitimately used
+// (verified by scanning every `new AdvancedService(Model, {...})` / `super(Model, {...})` call
+// site). A whole defect class — `softDelete`/`searchFields` typos silently ignored instead of
+// the real `enableSoftDelete`/`searchableFields` — was found live across ~15 modules, in two of
+// which (Table, DiningArea) it made every single read return empty. Validating the option keys
+// at construction time turns that failure mode into an immediate boot-time error instead of a
+// silent no-op.
+const RECOGNIZED_OPTIONS = new Set([
+  "brandScoped",
+  "branchScoped",
+  "enableSoftDelete",
+  "defaultSort",
+  "searchableFields",
+  "defaultPopulate",
+  "lockedUpdateFields",
+]);
+
 class BaseRepository {
   constructor(model, options = {}) {
+    const unrecognized = Object.keys(options).filter((key) => !RECOGNIZED_OPTIONS.has(key));
+    if (unrecognized.length > 0) {
+      throw new Error(
+        `BaseRepository: unrecognized constructor option(s) [${unrecognized.join(", ")}] for model ` +
+          `"${model?.modelName ?? "unknown"}". Recognized options: ${[...RECOGNIZED_OPTIONS].join(", ")}.`,
+      );
+    }
+
     const {
       brandScoped = true,
       // Opt-in only: most modules apply branch isolation manually today.
@@ -38,6 +63,17 @@ class BaseRepository {
       defaultSort = { createdAt: -1 },
       searchableFields = [],
       defaultPopulate = [],
+      // Opt-in field whitelist for the generic `update()`/PUT path. A field named here is
+      // stripped from every payload before it reaches the database, no matter what a caller
+      // sends — the only way to change it is through a dedicated service method (a state-machine
+      // transition, a pricing recompute, etc.) that the Service subclass exposes on its own
+      // terms. Exists because `beforeCreate` is commonly overridden with real business rules
+      // while `beforeUpdate` is not, which means the generic `PUT` silently bypasses every one of
+      // those rules for any field not listed here — found live on Order (status/paymentStatus/
+      // orderNum/item prices settable via plain PUT, bypassing the transition guard and modifier
+      // validation entirely) and Invoice (totals/tax/status/journalEntry all similarly exposed,
+      // with no transition endpoint at all to make bypassing even necessary).
+      lockedUpdateFields = [],
     } = options;
 
     this.model = model;
@@ -49,6 +85,7 @@ class BaseRepository {
     this.defaultSort = defaultSort;
     this.searchableFields = searchableFields;
     this.defaultPopulate = defaultPopulate;
+    this.lockedUpdateFields = lockedUpdateFields;
   }
 
   /* -------------------------------------------------------------------------- */
@@ -102,6 +139,8 @@ class BaseRepository {
     ["_id", "__v", "brand", "createdAt", "createdBy", "deletedAt", "deletedBy", "isDeleted"].forEach(
       (field) => delete payload[field],
     );
+
+    this.lockedUpdateFields.forEach((field) => delete payload[field]);
 
     return payload;
   }

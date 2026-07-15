@@ -14,7 +14,7 @@ const accountBalanceService = new AdvancedService(AccountBalanceModel, {
   // empty-reads bug. Fixed correctly by disabling it explicitly.
   enableSoftDelete: false,
   defaultPopulate: ["brand","branch","period","account"],
-  searchFields: [], // specify searchable fields if needed
+  searchableFields: [], // specify searchable fields if needed
   defaultSort: { createdAt: -1 },
 });
 

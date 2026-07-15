@@ -11,7 +11,7 @@ const cashTransactionService = new AdvancedService(CashTransactionModel, {
   // explicitly here.
   enableSoftDelete: false,
   defaultPopulate: ["brand","branch","cashRegister","bankAccount","paymentMethod","paymentChannel","relatedTransaction","orderId","invoiceId","supplierTransactionId","dailyExpenseId","createdBy"],
-  searchFields: [], // specify searchable fields if needed
+  searchableFields: [], // specify searchable fields if needed
   defaultSort: { createdAt: -1 },
 });
 

@@ -9,7 +9,7 @@ const cashierShiftService = new AdvancedService(CashierShiftModel, {
   // cash-transaction.service.js.
   enableSoftDelete: false,
   defaultPopulate: ["brand","branch","cashier","register","attendanceRecord","variance.approvedBy","cashAccount","journalEntry","openedBy","closedBy"],
-  searchFields: [], // specify searchable fields if needed
+  searchableFields: [], // specify searchable fields if needed
   defaultSort: { createdAt: -1 },
 });
 

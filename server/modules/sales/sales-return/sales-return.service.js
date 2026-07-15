@@ -9,7 +9,7 @@ const salesReturnService = new AdvancedService(SalesReturnModel, {
   // general rationale.
   enableSoftDelete: false,
   defaultPopulate: ["brand","branch","originalInvoice","order","cashierShift","paidBy"],
-  searchFields: [], // specify searchable fields if needed
+  searchableFields: [], // specify searchable fields if needed
   defaultSort: { createdAt: -1 },
 });
 
