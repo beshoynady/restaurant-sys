@@ -48,6 +48,13 @@ const journalLineSchema = new Schema(
         "MANUAL_CONSUMPTION",
         "WASTE",
         "PRODUCTION_ORDER",
+        // Enterprise Finance/Inventory Platform — additive, same convention. Each represents a
+        // posting engine's source document type that previously had nowhere to post to the GL at
+        // all (Sales COGS, supplier cash settlement, cashier-shift cash-count variance).
+        "SALES_COGS",
+        "PURCHASE_PAYMENT",
+        "PURCHASE_REFUND",
+        "CASHIER_SHIFT_VARIANCE",
       ],
       default: null,
     },

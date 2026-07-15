@@ -96,6 +96,13 @@ export const RESOURCE_ENUM = [
   "BankAccounts",
   "PaymentMethods",
 
+  // ================= EXPENSE =================
+  // Enterprise Finance Platform: previously absent entirely — `expense/*`'s two routers were both
+  // unmounted (zero references in router/v1/index.router.js) and missing authorize()/
+  // checkModuleEnabled() altogether, so these resource strings were never needed until now.
+  "Expenses",
+  "DailyExpenses",
+
   // ================= ACCOUNTING =================
   "Accounts",
   "JournalEntries",

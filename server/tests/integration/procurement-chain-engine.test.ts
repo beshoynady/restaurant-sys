@@ -23,6 +23,7 @@ import AccountModel from "../../modules/accounting/account/account.model.js";
 import CashRegisterModel from "../../modules/finance/cash-register/cash-register.model.js";
 import PaymentMethodModel from "../../modules/payments/payment-method/payment-method.model.js";
 import JournalEntryModel from "../../modules/accounting/journal-entry/journal-entry.model.js";
+import JournalLineModel from "../../modules/accounting/journal-line/journal-line.model.js";
 import AccountingPeriodModel from "../../modules/accounting/accounting-period/accounting-period.model.js";
 import AccountingSettingModel from "../../modules/accounting/accounting-settings/accounting-setting.model.js";
 
@@ -188,6 +189,21 @@ describe("Supply Chain V5: Procurement chain (Supplier -> PO -> GRN -> Invoice -
     expect(paymentTxn).toBeTruthy();
     expect(paymentTxn?.direction).toBe("Debit");
     expect(paymentTxn?.currentBalance).toBe(0);
+
+    // Supplier Payment -> GL: previously this settlement updated the AP sub-ledger only, with the
+    // actual cash outflow invisible in the general ledger. `sourceRef` is the payment subdocument's
+    // own `_id` (not the invoice's), scoping idempotency to this one payment — an invoice can
+    // legitimately receive multiple partial payments, each its own cash movement.
+    const justPaidId = (paid.payments as any)[(paid.payments as any).length - 1]._id;
+    const paymentLines = await JournalLineModel.find({ brand: fixture.brandId, sourceType: "PURCHASE_PAYMENT", sourceRef: justPaidId }).lean();
+    expect(paymentLines.length).toBe(2);
+    const paymentEntry = await JournalEntryModel.findById(paymentLines[0].journalEntry).lean();
+    expect(paymentEntry?.status).toBe("Posted");
+    expect(paymentEntry?.isBalanced).toBe(true);
+    const apDebit = paymentLines.find((l) => l.debit > 0);
+    const cashCredit = paymentLines.find((l) => l.credit > 0);
+    expect(apDebit?.debit).toBe(200);
+    expect(cashCredit?.credit).toBe(200);
 
     // Overpayment rejected.
     await expect(

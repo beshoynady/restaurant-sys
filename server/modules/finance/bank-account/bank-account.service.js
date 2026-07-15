@@ -8,6 +8,9 @@ const bankAccountService = new AdvancedService(BankAccountModel, {
   defaultPopulate: ["brand","branch","employee","accountId","createdBy","updatedBy","deletedBy"],
   searchableFields: [], // specify searchable fields if needed
   defaultSort: { createdAt: -1 },
+  // Same "derived, system-owned figure" class as CashRegister.balance — see that file for the
+  // full reasoning.
+  lockedUpdateFields: ["balance"],
 });
 
 export default bankAccountService;

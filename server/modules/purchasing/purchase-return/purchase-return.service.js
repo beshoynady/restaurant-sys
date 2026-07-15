@@ -9,6 +9,7 @@ import warehouseDocumentService from "../../inventory/warehouse-document/warehou
 import accountingSettingService from "../../accounting/accounting-settings/accounting-setting.service.js";
 import journalEntryService from "../../accounting/journal-entry/journal-entry.service.js";
 import PurchaseInvoiceModel from "../purchase-invoice/purchase-invoice.model.js";
+import CashRegisterModel from "../../finance/cash-register/cash-register.model.js";
 
 /**
  * SUPPLY_CHAIN_COMMERCE_DOMAIN_REDESIGN.md §5.3 — the enum has no separate "Approved" state; the
@@ -287,7 +288,76 @@ class PurchaseReturnService extends AdvancedService {
       await updated.save();
     }
 
+    // Previously this method recorded nothing at all beyond the balanceDue decrement — no
+    // SupplierTransaction (unlike recordPayment's mirror on the purchase-invoice side, which
+    // always recorded one) and no GL entry for the cash actually received back. `approve()`
+    // already posted Debit AP / Credit Inventory-contra for the return itself, which can leave a
+    // credit (negative) AP balance for this supplier when the original invoice was already fully
+    // paid — this refund settles that credit balance: Debit Cash/Bank (money received), Credit AP
+    // (the reversed direction of recordPayment, appropriately, since a refund is the supplier
+    // paying us, not us paying them).
+    try {
+      await supplierTransactionService.record({
+        brand, branch, supplier: ret.supplier,
+        transactionType: "Refund",
+        amount,
+        description: `Refund against Purchase Return ${ret.invoiceNumber}`,
+        invoiceModel: "PurchaseReturnInvoice",
+        reffrance: ret._id,
+        paymentMethod: refundMethod,
+        recordedBy: actorId,
+      });
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(`[purchase-return.service] Supplier transaction not recorded for refund on return ${ret._id}: ${err.message}`);
+    }
+
+    try {
+      const justRefunded = updated.refundTransactions[updated.refundTransactions.length - 1];
+      await this._postRefundAccounting({
+        brand, branch, ret: updated, amount, cashRegister, actorId,
+        sourceRef: justRefunded._id,
+      });
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(`[purchase-return.service] Refund journal entry not posted for return ${ret._id}: ${err.message}`);
+    }
+
     return updated;
+  }
+
+  /** Same resolution as purchase-invoice.service.js#_resolveCashAccount — see that file for why. */
+  async _resolveCashAccount(cashRegister, settings) {
+    if (cashRegister) {
+      const register = await CashRegisterModel.findById(cashRegister).select("accountId").lean();
+      if (register?.accountId) return register.accountId;
+    }
+    return settings.controlAccounts?.cash;
+  }
+
+  /** Debit Cash-or-Bank / Credit AP — the reversed direction of purchase-invoice's payment posting. */
+  async _postRefundAccounting({ brand, branch, ret, amount, cashRegister, actorId, sourceRef }) {
+    const settings = await accountingSettingService.resolveForPosting(brand, branch);
+    const currency = settings.currencySettings?.baseCurrency || "EGP";
+    const accountsPayable = settings.controlAccounts?.accountsPayable;
+    const cashAccount = await this._resolveCashAccount(cashRegister, settings);
+    if (!accountsPayable || !cashAccount) return;
+
+    const description = `Refund against Purchase Return ${ret.invoiceNumber}`;
+    const lines = [
+      journalLine(cashAccount, description, amount, 0, currency),
+      journalLine(accountsPayable, description, 0, amount, currency),
+    ];
+
+    await journalEntryService.postFromSource({
+      sourceType: "PURCHASE_REFUND",
+      brand, branch,
+      date: new Date(),
+      description,
+      lines,
+      createdBy: actorId,
+      sourceRef,
+    });
   }
 }
 

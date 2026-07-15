@@ -5,7 +5,12 @@
 // consumption.
 import mongoose from "mongoose";
 import { connectTestDb, disconnectTestDb } from "./setup.js";
-import { createBaseFixture, cleanupFixture, createStockItemFixture, type TestFixture } from "./fixtures.js";
+import {
+  createBaseFixture, cleanupFixture, createStockItemFixture, createAccountingSettingsFixture,
+  createAccountingPeriodFixture, type TestFixture,
+} from "./fixtures.js";
+import JournalEntryModel from "../../modules/accounting/journal-entry/journal-entry.model.js";
+import JournalLineModel from "../../modules/accounting/journal-line/journal-line.model.js";
 import orderService from "../../modules/sales/order/order.service.js";
 import OrderModel from "../../modules/sales/order/order.model.js";
 import recipeConsumptionService from "../../modules/inventory/recipe-consumption/recipe-consumption.service.js";
@@ -169,6 +174,36 @@ describe("Enterprise Production Platform: Automatic Recipe Consumption", () => {
 
     const bunBalance = await InventoryModel.findOne({ brand: fixture.brandId, warehouse: mainWarehouseId, stockItem: bunId });
     expect(bunBalance?.quantity).toBe(97); // 98 - 1
+
+    await InventorySettingsModel.deleteMany({ brand: fixture.brandId });
+  });
+
+  it("Sales COGS -> GL: posts a balanced journal entry for the real, Cost-Engine-resolved ingredient cost", async () => {
+    await InventorySettingsModel.create({ brand: fixture.brandId, branch: fixture.branchId, createdBy: fixture.userId });
+    await createAccountingPeriodFixture(fixture, "recipe-consume-cogs", {
+      startDate: new Date(Date.UTC(2020, 0, 1)), endDate: new Date(Date.UTC(2035, 11, 31)),
+    });
+    await createAccountingSettingsFixture(fixture, "recipe-consume-cogs");
+
+    const order = await createOrder("RC-4", 1);
+    await orderService.transition({ id: String(order._id), brand: fixture.brandId, branch: fixture.branchId, toStatus: "IN_PROGRESS", actorId: fixture.userId });
+
+    // sourceType/sourceRef live on JournalLine (not JournalEntry) — find the lines this posting
+    // produced, then load their shared parent entry to check balance/status.
+    const lines = await JournalLineModel.find({ brand: fixture.brandId, sourceType: "SALES_COGS", sourceRef: order._id }).lean();
+    expect(lines.length).toBe(2);
+
+    const entry = await JournalEntryModel.findById(lines[0].journalEntry).lean();
+    expect(entry).toBeTruthy();
+    expect(entry!.status).toBe("Posted");
+    expect(entry!.isBalanced).toBe(true);
+    expect(entry!.totalDebit).toBe(entry!.totalCredit);
+
+    // 1 bun @ avgUnitCost 2 (seeded WeightedAverage) + 0.2kg patty @ avgUnitCost 2 = 2 + 0.4 = 2.4.
+    const costOfSalesLine = lines.find((l) => l.debit > 0);
+    const inventoryLine = lines.find((l) => l.credit > 0);
+    expect(costOfSalesLine?.debit).toBeCloseTo(2.4, 5);
+    expect(inventoryLine?.credit).toBeCloseTo(2.4, 5);
 
     await InventorySettingsModel.deleteMany({ brand: fixture.brandId });
   });

@@ -18,6 +18,7 @@ import WarehouseDocumentModel from "../../modules/inventory/warehouse-document/w
 import warehouseDocumentService from "../../modules/inventory/warehouse-document/warehouse-document.service.js";
 import InventoryModel from "../../modules/inventory/inventory/inventory.model.js";
 import JournalEntryModel from "../../modules/accounting/journal-entry/journal-entry.model.js";
+import JournalLineModel from "../../modules/accounting/journal-line/journal-line.model.js";
 import AccountingPeriodModel from "../../modules/accounting/accounting-period/accounting-period.model.js";
 import AccountingSettingModel from "../../modules/accounting/accounting-settings/accounting-setting.model.js";
 import AccountModel from "../../modules/accounting/account/account.model.js";
@@ -183,5 +184,23 @@ describe("Supply Chain V5.1: Supplier Returns (inventory + accounting reversal)"
     });
     expect(refunded.balanceDue).toBe(0);
     expect(refunded.status).toBe("Fully Refunded");
+
+    // Refund -> GL: previously this method recorded nothing at all beyond balanceDue — no
+    // SupplierTransaction and no journal entry for the cash actually received back.
+    const refundTxn = await SupplierTransactionModel.findOne({ brand: fixture.brandId, supplier: supplierId, transactionType: "Refund" });
+    expect(refundTxn).toBeTruthy();
+    expect(refundTxn?.direction).toBe("Debit");
+    expect(refundTxn?.amount).toBe(60);
+
+    const justRefundedId = (refunded.refundTransactions as any)[(refunded.refundTransactions as any).length - 1]._id;
+    const refundLines = await JournalLineModel.find({ brand: fixture.brandId, sourceType: "PURCHASE_REFUND", sourceRef: justRefundedId }).lean();
+    expect(refundLines.length).toBe(2);
+    const refundEntry = await JournalEntryModel.findById(refundLines[0].journalEntry).lean();
+    expect(refundEntry?.status).toBe("Posted");
+    expect(refundEntry?.isBalanced).toBe(true);
+    const cashDebit = refundLines.find((l) => l.debit > 0);
+    const apCredit = refundLines.find((l) => l.credit > 0);
+    expect(cashDebit?.debit).toBe(60);
+    expect(apCredit?.credit).toBe(60);
   });
 });

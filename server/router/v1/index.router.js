@@ -54,6 +54,14 @@ import cashRegisterRouter from "../../modules/finance/cash-register/cash-registe
 import cashTransactionRouter from "../../modules/finance/cash-transaction/cash-transaction.router.js";
 import cashTransferRouter from "../../modules/finance/cash-transfer/cash-transfer.router.js";
 import cashierShiftRouter from "../../modules/finance/cashier-shift/cashier-shift.router.js";
+// ========================
+// EXPENSE
+// ========================
+// Enterprise Finance Platform: both routers were previously unmountable (broken
+// `./expenses/<x>.controller.js` import paths — no such subfolder ever existed) AND never
+// mounted here at all — the entire Expense domain had zero live API surface. Fixed and mounted now.
+import expenseRouter from "../../modules/expense/expense/expense.router.js";
+import dailyExpenseRouter from "../../modules/expense/daily-expense/daily-expense.router.js";
 // V6.0 Production Hardening: was unmountable (broken controller import path) and un-mounted —
 // see payment-method.router.js's header comment. Supply Chain's Supplier Payment/Refund workflow
 // requires this to exist (PurchaseInvoice.paymentMethod / PurchaseReturnInvoice.refundMethod are
@@ -271,6 +279,8 @@ router.use("/finance/cash-registers", cashRegisterRouter);
 router.use("/finance/cash-transactions", cashTransactionRouter);
 router.use("/finance/cash-transfers", cashTransferRouter);
 router.use("/finance/cashier-shifts", cashierShiftRouter);
+router.use("/expense/expenses", expenseRouter);
+router.use("/expense/daily-expenses", dailyExpenseRouter);
 router.use("/finance/payment-methods", paymentMethodRouter);
 
 // HR

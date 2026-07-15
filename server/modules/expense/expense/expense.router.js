@@ -1,47 +1,34 @@
 import express from "express";
-import expenseController from "./expenses/expense.controller.js";
+import expenseController from "./expense.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
+import authorize from "../../../middlewares/authorize.js";
+import checkModuleEnabled from "../../../middlewares/checkModuleEnabled.js";
 import validate from "../../../middlewares/validate.js";
-import { 
-  createExpenseSchema, 
-  updateExpenseSchema, 
-  paramsExpenseSchema, 
+import {
+  createExpenseSchema,
+  updateExpenseSchema,
+  paramsExpenseSchema,
   paramsExpenseIdsSchema,
-  queryExpenseSchema 
+  queryExpenseSchema,
 } from "./expense.validation.js";
 
 const router = express.Router();
 
 // Create & GetAll
 router.route("/")
-  .post(authenticateToken, validate(createExpenseSchema), expenseController.create)
-  .get(authenticateToken, validate(queryExpenseSchema), expenseController.getAll)
+  .post(authenticateToken, authorize("Expenses", "create"), checkModuleEnabled("financial"), validate(createExpenseSchema), expenseController.create)
+  .get(authenticateToken, authorize("Expenses", "read"), checkModuleEnabled("financial"), validate(queryExpenseSchema), expenseController.getAll)
 ;
 
 // GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, validate(paramsExpenseSchema, "params"), expenseController.getOne)
-  .put(authenticateToken, validate(updateExpenseSchema), expenseController.update)
-  .delete(authenticateToken, validate(paramsExpenseSchema, "params"), expenseController.hardDelete) // soft delete
+  .get(authenticateToken, authorize("Expenses", "read"), checkModuleEnabled("financial"), validate(paramsExpenseSchema, "params"), expenseController.getOne)
+  .put(authenticateToken, authorize("Expenses", "update"), checkModuleEnabled("financial"), validate(updateExpenseSchema), expenseController.update)
+  .delete(authenticateToken, authorize("Expenses", "delete"), checkModuleEnabled("financial"), validate(paramsExpenseSchema, "params"), expenseController.hardDelete)
 ;
 
-router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsExpenseSchema, "params"), expenseController.softDelete) // soft delete
-;
-
-// Restore soft-deleted item
-router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsExpenseSchema, "params"), expenseController.restore)
-;
-
- // --- BULK HARD DELETE ---
-  router.route("/bulk-delete")
-    .delete(authenticateToken, validate(paramsExpenseIdsSchema), expenseController.bulkHardDelete);
-
-
-  // --- BULK SOFT DELETE ---
-  router.route("/bulk-soft-delete")
-    .patch(authenticateToken,validate(paramsExpenseIdsSchema), expenseController.bulkSoftDelete);
-
+// --- BULK HARD DELETE ---
+router.route("/bulk-delete")
+  .delete(authenticateToken, authorize("Expenses", "delete"), checkModuleEnabled("financial"), validate(paramsExpenseIdsSchema), expenseController.bulkHardDelete);
 
 export default router;

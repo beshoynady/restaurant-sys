@@ -6,6 +6,12 @@ import RecipeModel from "../../menu/recipe/recipe.model.js";
 import ProductModel from "../../menu/product/product.model.js";
 import PreparationSectionModel from "../../preparation/preparation-section/preparation-section.model.js";
 import { expandOrderItems } from "../../sales/order/order-item-expansion.js";
+import accountingSettingService from "../../accounting/accounting-settings/accounting-setting.service.js";
+import journalEntryService from "../../accounting/journal-entry/journal-entry.service.js";
+
+function journalLine(account, description, debit, credit, currency) {
+  return { account, description, debit, credit, currency };
+}
 
 /**
  * RecipeConsumptionService — Enterprise Production Platform. The engine that finally reads
@@ -109,6 +115,11 @@ class RecipeConsumptionService {
 
     const documents = [];
     let sequence = 0;
+    // Sales COGS → GL: summed across every warehouse document this order's consumption produces
+    // (an order can route ingredients to more than one warehouse — one Issuance per distinct
+    // warehouse, same as the loop below), then posted as a single journal entry per order rather
+    // than one per document, so a multi-warehouse order still produces one clean COGS line.
+    let totalCOGS = 0;
     for (const [warehouseId, itemsMap] of Object.entries(quantitiesByWarehouse)) {
       const items = Object.entries(itemsMap).map(([stockItem, quantity]) => ({ stockItem, quantity, unitCost: 0, totalCost: 0 }));
       if (items.length === 0) continue;
@@ -122,11 +133,65 @@ class RecipeConsumptionService {
           sourceWarehouse: warehouseId, items, status: "approved",
         },
       });
-      await warehouseDocumentService.postDocument({ id: consumptionDoc._id, brand: order.brand, branch: order.branch, postedBy: actorId });
+      // `postDocument()`'s OUT branch always resolves the real outbound cost via the Inventory
+      // Cost Engine (FIFO/LIFO/WeightedAverage/StandardCost/LastPurchaseCost) regardless of the
+      // placeholder `unitCost: 0` passed above — `ledgerRows[].outbound.totalCost` below is the
+      // real, resolved cost, the same value `waste-record.service.js#approve` reads back to post
+      // its own GL entry.
+      const { ledgerRows } = await warehouseDocumentService.postDocument({
+        id: consumptionDoc._id, brand: order.brand, branch: order.branch, postedBy: actorId,
+      });
+      totalCOGS += ledgerRows.reduce((sum, row) => sum + (row.outbound?.totalCost || 0), 0);
       documents.push(consumptionDoc);
     }
 
+    if (totalCOGS > 0) {
+      // Best-effort/non-blocking — matching every other posting call site in this platform: a
+      // brand with AccountingSettings not (yet) configured must still get its stock correctly
+      // deducted; only the GL entry is skipped, not the inventory movement that already committed.
+      try {
+        await this._postCOGS({ order, totalCOGS, actorId });
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error(`[recipe-consumption.service] COGS journal entry not posted for order ${order.orderNum}: ${err.message}`);
+      }
+    }
+
     return documents;
+  }
+
+  /**
+   * Sales COGS → GL. Debits `activities.sales.costOfSales` (the account this codebase's own
+   * AccountingSettings schema already reserves specifically for this event — confirmed unused
+   * anywhere until now), credits `controlAccounts.inventory` — the standard perpetual-inventory
+   * treatment, posted as its own journal entry alongside (not merged into) the Invoice's separate
+   * Revenue/Tax entry, exactly as two independent economic events of one sale are normally booked.
+   * `sourceRef: order._id` makes this idempotent via `journalEntryService.postFromSource`'s own
+   * existsForSource guard — re-running `consumeManually` for the same order never double-posts.
+   */
+  async _postCOGS({ order, totalCOGS, actorId }) {
+    const settings = await accountingSettingService.resolveForPosting(order.brand, order.branch);
+    const currency = settings.currencySettings?.baseCurrency || "EGP";
+    const costOfSalesAccount = settings.activities?.sales?.costOfSales;
+    const inventoryAccount = settings.controlAccounts?.inventory;
+    if (!costOfSalesAccount || !inventoryAccount) return;
+
+    const description = `Order ${order.orderNum} - cost of goods sold`;
+    const lines = [
+      journalLine(costOfSalesAccount, description, totalCOGS, 0, currency),
+      journalLine(inventoryAccount, description, 0, totalCOGS, currency),
+    ];
+
+    await journalEntryService.postFromSource({
+      sourceType: "SALES_COGS",
+      brand: order.brand,
+      branch: order.branch,
+      date: new Date(),
+      description,
+      lines,
+      createdBy: actorId,
+      sourceRef: order._id,
+    });
   }
 
   /** Manual Override — lets an authorized user (re-)trigger consumption for an order explicitly. */

@@ -45,10 +45,21 @@ const dailyExpenseSchema = new mongoose.Schema(
           min: 0,
           default: 0,
         },
+        // Was unconditionally `required: true` — blocked recording any expense paid by bank
+        // transfer (a real, common case: rent, utilities), since a bank-settled payment has no
+        // CashRegister at all. Mirrors CashTransaction's own dual cashRegister/bankAccount design
+        // (both optional there too) — exactly one of the two is enforced in the service layer
+        // (daily-expense.service.js#beforeCreate), not the schema, matching how this codebase
+        // already handles this same either/or shape elsewhere.
         cashRegister: {
           type: ObjectId,
           ref: "CashRegister",
-          required: true,
+          default: null,
+        },
+        bankAccount: {
+          type: ObjectId,
+          ref: "BankAccount",
+          default: null,
         },
         paidBy: {
           type: ObjectId,
@@ -57,6 +68,14 @@ const dailyExpenseSchema = new mongoose.Schema(
         },
       },
     ],
+    // Recoverable tax on this expense (e.g. VAT on a utility bill) — AccountingSettings already
+    // reserves `activities.expense.tax` for exactly this, but nothing on DailyExpense itself ever
+    // captured a tax amount to post against it. Optional: most expense types have none.
+    taxAmount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     notes: {
       type: String,
       default: "",

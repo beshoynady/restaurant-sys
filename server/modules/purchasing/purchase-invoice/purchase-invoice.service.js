@@ -6,6 +6,7 @@ import { createTransitionGuard } from "../../../utils/TransitionGuard.js";
 import purchaseSettingsService from "../purchasing-settings/purchase-settings.service.js";
 import supplierTransactionService from "../supplier-transaction/supplier-transaction.service.js";
 import SupplierModel from "../supplier/supplier.model.js";
+import CashRegisterModel from "../../finance/cash-register/cash-register.model.js";
 import accountingSettingService from "../../accounting/accounting-settings/accounting-setting.service.js";
 import journalEntryService from "../../accounting/journal-entry/journal-entry.service.js";
 import threeWayMatchService from "../three-way-match/three-way-match.service.js";
@@ -289,7 +290,71 @@ class PurchaseInvoiceService extends AdvancedService {
       recordedBy: actorId,
     });
 
+    // GL posting for the cash/bank outflow — previously this method only updated the AP
+    // sub-ledger (supplierTransactionService above), leaving the settling cash movement itself
+    // invisible in the general ledger. Debit AP (the liability shrinks), credit the cash/bank
+    // account the payment actually left from — best-effort/non-blocking, matching every other
+    // posting call site in this platform. `sourceRef` is the just-pushed payment subdocument's own
+    // `_id` (a real, distinct ObjectId per payment — `JournalLine.sourceRef` is strictly typed
+    // ObjectId, so a composite string is not an option), correctly scoping the idempotency guard
+    // to "this one payment," not the whole invoice — an invoice legitimately receives multiple
+    // partial payments, each its own cash movement.
+    try {
+      const justPaid = updated.payments[updated.payments.length - 1];
+      await this._postPaymentAccounting({
+        brand, branch, invoice: updated, amount, cashRegister, actorId,
+        sourceRef: justPaid._id,
+      });
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(`[purchase-invoice.service] Payment journal entry not posted for invoice ${invoice._id}: ${err.message}`);
+    }
+
     return updated;
+  }
+
+  /**
+   * Resolves which GL cash/bank account a payment/refund actually moves through: the specific
+   * `CashRegister.accountId` when one was supplied (the accurate answer — a payment from the
+   * branch safe and one from a specific POS drawer are different accounts), falling back to
+   * `controlAccounts.cash` — the same simplification `invoice.service.ts#buildSalesInvoiceLines`
+   * already uses on the sales side — only when no register is specified.
+   */
+  async _resolveCashAccount(cashRegister, settings) {
+    if (cashRegister) {
+      const register = await CashRegisterModel.findById(cashRegister).select("accountId").lean();
+      if (register?.accountId) return register.accountId;
+    }
+    return settings.controlAccounts?.cash;
+  }
+
+  /**
+   * Debit AP / Credit Cash-or-Bank — the settlement of a supplier payment. `sourceRef` is per
+   * payment (not per invoice), since one invoice can receive multiple partial payments, each of
+   * which is its own distinct cash movement and must post its own journal entry.
+   */
+  async _postPaymentAccounting({ brand, branch, invoice, amount, cashRegister, actorId, sourceRef }) {
+    const settings = await accountingSettingService.resolveForPosting(brand, branch);
+    const currency = settings.currencySettings?.baseCurrency || "EGP";
+    const accountsPayable = settings.controlAccounts?.accountsPayable;
+    const cashAccount = await this._resolveCashAccount(cashRegister, settings);
+    if (!accountsPayable || !cashAccount) return;
+
+    const description = `Payment against Purchase Invoice ${invoice.invoiceNumber}`;
+    const lines = [
+      journalLine(accountsPayable, description, amount, 0, currency),
+      journalLine(cashAccount, description, 0, amount, currency),
+    ];
+
+    await journalEntryService.postFromSource({
+      sourceType: "PURCHASE_PAYMENT",
+      brand, branch,
+      date: new Date(),
+      description,
+      lines,
+      createdBy: actorId,
+      sourceRef,
+    });
   }
 }
 

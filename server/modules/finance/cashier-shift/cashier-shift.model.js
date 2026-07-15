@@ -81,7 +81,13 @@ const cashierShiftSchema = new mongoose.Schema(
         default: "NONE",
       },
       approved: { type: Boolean, default: false },
-      approvedBy: { type: ObjectId, ref: "Employee" },
+      // Was `ref: "Employee"` — inconsistent with this same model's own `openedBy`/`closedBy`
+      // (both `ref: "UserAccount"`), and with how the permission check that populates this field
+      // actually works (`cashier-shift.service.js#_hasVarianceApprovalPermission` looks the
+      // approver up against `UserAccountModel`/`Role.permissions[]`, the same identity space
+      // every other approval check in this codebase — e.g. `order.service.js`'s cancel-approval —
+      // uses; Employee is a distinct HR/staffing collection with no permissions of its own).
+      approvedBy: { type: ObjectId, ref: "UserAccount" },
     },
 
     // ===============================
@@ -122,5 +128,10 @@ const cashierShiftSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+// Previously this document — a fiscal record with its own numbering field (`num`) — had no
+// uniqueness constraint on that field at all, unlike every other sequentially-numbered document
+// in this platform (Order.orderNum, Invoice.serial, CashTransaction.number, ...).
+cashierShiftSchema.index({ brand: 1, branch: 1, num: 1 }, { unique: true });
 
 export default mongoose.model("CashierShift", cashierShiftSchema);

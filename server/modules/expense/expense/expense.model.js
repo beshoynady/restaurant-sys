@@ -121,14 +121,19 @@ const expenseSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    // Was `ref: "Employee"` — every caller (BaseRepository.create()/update()) actually passes a
+    // UserAccount id (`req.user.userId`), matching the audit-field convention on every other model
+    // in this codebase (including this module's own sibling, DailyExpense). Same bug class already
+    // found and fixed on CashierShift.variance.approvedBy — an internal inconsistency, not a
+    // deliberate design, caught via model-first review before any dependent logic was built on it.
     createdBy: {
       type: ObjectId,
-      ref: "Employee",
+      ref: "UserAccount",
       required: true,
     },
     updatedBy: {
       type: ObjectId,
-      ref: "Employee",
+      ref: "UserAccount",
     },
   },
   { timestamps: true },

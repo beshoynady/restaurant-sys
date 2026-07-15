@@ -23,6 +23,14 @@ const CashierShiftSettingsSchema = new mongoose.Schema(
 
     maxDifferenceAllowed: { type: Number, default: 50 },
 
+    // Enterprise Finance Platform — CashierShift close-out engine: atomic, branch-scoped shift
+    // numbering, mirroring OrderSettings.orderSequence's exact proven pattern (see
+    // order-settings.service.js#getNextOrderNumber). No prefix/reset-daily fields — CashierShift's
+    // own `num` field is a plain Number, not a formatted String, so nothing to format here.
+    shiftSequence: {
+      currentNumber: { type: Number, default: 0 },
+    },
+
     createdBy: { type: ObjectId, ref: "UserAccount", default: null },
     updatedBy: { type: ObjectId, ref: "UserAccount", default: null },
 

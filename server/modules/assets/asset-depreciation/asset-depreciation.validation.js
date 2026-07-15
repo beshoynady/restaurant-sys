@@ -30,3 +30,11 @@ export const paramsAssetDepreciationIdsSchema = paramsIdsSchema();
    Query Schema
 ========================= */
 export const queryAssetDepreciationSchema = querySchema();
+
+/* =========================
+   Generation Engine Schema
+========================= */
+export const generateAssetDepreciationSchema = Joi.object({
+  asset: objectId().required(),
+  periodLabel: Joi.string().pattern(/^\d{4}-(0[1-9]|1[0-2])$/).required(),
+});

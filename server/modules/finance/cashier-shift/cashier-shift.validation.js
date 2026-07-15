@@ -30,3 +30,14 @@ export const paramsCashierShiftIdsSchema = paramsIdsSchema();
    Query Schema
 ========================= */
 export const queryCashierShiftSchema = querySchema();
+
+/* =========================
+   Close-Out Engine Schemas
+========================= */
+export const countCashierShiftSchema = Joi.object({
+  actualCash: Joi.number().min(0).required(),
+});
+
+export const closeCashierShiftSchema = Joi.object({
+  managerApprovalBy: objectId().optional(),
+});

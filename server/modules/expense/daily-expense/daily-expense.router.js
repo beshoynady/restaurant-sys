@@ -1,47 +1,40 @@
 import express from "express";
-import dailyExpenseController from "./expenses/daily-expense.controller.js";
+import dailyExpenseController from "./daily-expense.controller.js";
 import authenticateToken from "../../../middlewares/authenticate.js";
+import authorize from "../../../middlewares/authorize.js";
+import checkModuleEnabled from "../../../middlewares/checkModuleEnabled.js";
 import validate from "../../../middlewares/validate.js";
-import { 
-  createDailyExpenseSchema, 
-  updateDailyExpenseSchema, 
-  paramsDailyExpenseSchema, 
+import {
+  createDailyExpenseSchema,
+  updateDailyExpenseSchema,
+  paramsDailyExpenseSchema,
   paramsDailyExpenseIdsSchema,
-  queryDailyExpenseSchema 
+  queryDailyExpenseSchema,
 } from "./daily-expense.validation.js";
 
 const router = express.Router();
 
 // Create & GetAll
 router.route("/")
-  .post(authenticateToken, validate(createDailyExpenseSchema), dailyExpenseController.create)
-  .get(authenticateToken, validate(queryDailyExpenseSchema), dailyExpenseController.getAll)
+  .post(authenticateToken, authorize("DailyExpenses", "create"), checkModuleEnabled("financial"), validate(createDailyExpenseSchema), dailyExpenseController.create)
+  .get(authenticateToken, authorize("DailyExpenses", "read"), checkModuleEnabled("financial"), validate(queryDailyExpenseSchema), dailyExpenseController.getAll)
 ;
 
 // GetOne, Update, hardDelete
 router.route("/:id")
-  .get(authenticateToken, validate(paramsDailyExpenseSchema, "params"), dailyExpenseController.getOne)
-  .put(authenticateToken, validate(updateDailyExpenseSchema), dailyExpenseController.update)
-  .delete(authenticateToken, validate(paramsDailyExpenseSchema, "params"), dailyExpenseController.hardDelete) // soft delete
+  .get(authenticateToken, authorize("DailyExpenses", "read"), checkModuleEnabled("financial"), validate(paramsDailyExpenseSchema, "params"), dailyExpenseController.getOne)
+  .put(authenticateToken, authorize("DailyExpenses", "update"), checkModuleEnabled("financial"), validate(updateDailyExpenseSchema), dailyExpenseController.update)
+  .delete(authenticateToken, authorize("DailyExpenses", "delete"), checkModuleEnabled("financial"), validate(paramsDailyExpenseSchema, "params"), dailyExpenseController.hardDelete)
 ;
 
-router.route("/soft-delete/:id")
-  .patch(authenticateToken, validate(paramsDailyExpenseSchema, "params"), dailyExpenseController.softDelete) // soft delete
-;
+// Draft -> Posted: the real posting event (GL + register/bank balance decrement).
+router.post("/:id/post",
+  authenticateToken, authorize("DailyExpenses", "update"), checkModuleEnabled("financial"),
+  validate(paramsDailyExpenseSchema, "params"),
+  dailyExpenseController.postExpense);
 
-// Restore soft-deleted item
-router.route("/restore/:id")
-  .patch(authenticateToken, validate(paramsDailyExpenseSchema, "params"), dailyExpenseController.restore)
-;
-
- // --- BULK HARD DELETE ---
-  router.route("/bulk-delete")
-    .delete(authenticateToken, validate(paramsDailyExpenseIdsSchema), dailyExpenseController.bulkHardDelete);
-
-
-  // --- BULK SOFT DELETE ---
-  router.route("/bulk-soft-delete")
-    .patch(authenticateToken,validate(paramsDailyExpenseIdsSchema), dailyExpenseController.bulkSoftDelete);
-
+// --- BULK HARD DELETE ---
+router.route("/bulk-delete")
+  .delete(authenticateToken, authorize("DailyExpenses", "delete"), checkModuleEnabled("financial"), validate(paramsDailyExpenseIdsSchema), dailyExpenseController.bulkHardDelete);
 
 export default router;
