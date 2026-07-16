@@ -1,5 +1,18 @@
 import AssetModel from "./asset.model.js";
 import AdvancedService from "../../../utils/BaseRepository.js";
+import throwError from "../../../utils/throwError.js";
+import { createTransitionGuard } from "../../../utils/TransitionGuard.js";
+
+// Disposed/Sold are terminal and only reachable via asset-disposal.service.js's scrapAsset()/
+// sellAsset() — see this class's own lockedUpdateFields comment for why. This guard covers only
+// the legitimate non-terminal moves a plain transition() call may make.
+const transitionGuard = createTransitionGuard({
+  Draft: ["Active"],
+  Active: ["Suspended"],
+  Suspended: ["Active"],
+  Disposed: [],
+  Sold: [],
+});
 
 class AssetService extends AdvancedService {
   constructor() {
@@ -20,7 +33,14 @@ class AssetService extends AdvancedService {
       // depreciation engine (asset-depreciation.service.js#_postAccounting) can update them post-
       // creation. `lockedUpdateFields` only guards `update()`, not `create()` — `beforeCreate` below
       // closes the remaining gap (a client could otherwise set an arbitrary starting book value).
-      lockedUpdateFields: ["accumulatedDepreciation", "bookValue"],
+      //
+      // `status` locked here too (Phase 6 — Asset Disposal): previously a plain `PUT` could set
+      // `status: "Disposed"` directly, completely bypassing `asset-disposal.service.js` — no
+      // AssetDisposal audit record, no gain/loss computation, no GL posting. The exact "generic PUT
+      // bypasses business rules" defect class already fixed on Order/Invoice/CashierShift/
+      // DailyExpense earlier this session. Non-terminal moves (Draft->Active, Active<->Suspended)
+      // go through the new transition() method below instead of generic PUT.
+      lockedUpdateFields: ["accumulatedDepreciation", "bookValue", "status"],
     });
   }
 
@@ -31,6 +51,21 @@ class AssetService extends AdvancedService {
    */
   async beforeCreate(data) {
     return { ...data, accumulatedDepreciation: 0, bookValue: data.purchaseCost };
+  }
+
+  /** Non-terminal status moves only — Disposed/Sold are reachable exclusively via asset-disposal.service.js. */
+  async transition({ id, brand, branch, toStatus, actorId }) {
+    const asset = await this.model.findOne({ _id: id, brand, branch });
+    if (!asset) throwError("Asset not found.", 404);
+    transitionGuard.assertValid(asset.status, toStatus);
+
+    const claimed = await this.model.findOneAndUpdate(
+      { _id: id, brand, branch, status: asset.status },
+      { $set: { status: toStatus, updatedBy: actorId } },
+      { new: true },
+    );
+    if (!claimed) throwError("This asset was already changed by a concurrent request.", 409);
+    return claimed;
   }
 }
 

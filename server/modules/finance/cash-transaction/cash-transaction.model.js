@@ -204,5 +204,14 @@ cashTransactionSchema.index({ brand: 1, branch: 1, createdAt: -1 });
 cashTransactionSchema.index({ cashRegister: 1, createdAt: -1 });
 cashTransactionSchema.index({ paymentMethod: 1 });
 cashTransactionSchema.index({ transactionType: 1 });
+// Enterprise Financial Audit: `finance/finance-reports` and `accounting/financial-statements`
+// (Cash Flow Statement) both filter/aggregate on `status: "POSTED"` + the actual event `date`
+// (not `createdAt`, a different field) scoped to `cashRegister`/`bankAccount`/`transactionType` —
+// none of the existing indexes above cover `date` or `status` at all, so every report query in
+// those two modules did a full collection scan. Added as part of the same audit pass that found
+// the identical gap on JournalLine.
+cashTransactionSchema.index({ brand: 1, cashRegister: 1, status: 1, date: 1 });
+cashTransactionSchema.index({ brand: 1, bankAccount: 1, status: 1, date: 1 });
+cashTransactionSchema.index({ brand: 1, branch: 1, status: 1, transactionType: 1, date: 1 });
 
 export default mongoose.model("cashTransaction", cashTransactionSchema);

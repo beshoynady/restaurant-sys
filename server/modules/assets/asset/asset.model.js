@@ -156,4 +156,10 @@ assetSchema.pre("save", function (next) {
   next();
 });
 
+// Enterprise Financial Audit: this collection had ZERO indexes beyond the automatic `_id` until
+// now — `assets/asset-reports#getAssetRegister` (and `assets/asset-depreciation` before it)
+// filter/sort on `category`/`status`/`purchaseDate`, all previously unindexed.
+assetSchema.index({ brand: 1, branch: 1, category: 1, status: 1 });
+assetSchema.index({ brand: 1, purchaseDate: -1 });
+
 export default mongoose.model("Asset", assetSchema);

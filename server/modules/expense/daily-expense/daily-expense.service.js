@@ -14,9 +14,17 @@ import journalEntryService from "../../accounting/journal-entry/journal-entry.se
 // ManualConsumption, GoodsReceiptNote). Cancelled is only reachable from Draft — a Posted expense
 // has already moved real cash and posted a GL entry; reversing it is a future capability (a
 // reversing entry, matching JournalEntry's own reversal convention), not a status flip.
+//
+// Recurring Expenses (additive): Draft -> PendingApproval -> Approved -> Posted is a second,
+// optional path a recurring-generated occurrence can take when its template requires review before
+// posting — every original transition above is untouched, so every existing (non-recurring) caller
+// keeps working exactly as before.
 const transitionGuard = createTransitionGuard({
-  Draft: ["Posted", "Cancelled"],
+  Draft: ["Posted", "Cancelled", "PendingApproval"],
+  PendingApproval: ["Approved", "Rejected"],
+  Approved: ["Posted"],
   Posted: [],
+  Rejected: [],
   Cancelled: [],
 });
 
@@ -33,14 +41,20 @@ class DailyExpenseService extends AdvancedService {
       enableSoftDelete: false,
       defaultPopulate: [
         "brand", "branch", "expense", "costCenter", "paid.paymentMethod", "paid.cashRegister",
-        "paid.bankAccount", "paid.paidBy", "journalEntry", "createdBy", "updatedBy",
+        "paid.bankAccount", "paid.paidBy", "journalEntry", "recurringExpenseTemplate",
+        "createdBy", "updatedBy",
       ],
       searchableFields: [],
       defaultSort: { createdAt: -1 },
       // `status`/`journalEntry`/`number` may only change through beforeCreate (number) and
       // postExpense() (status/journalEntry) — the same "generic PUT bypasses business rules"
-      // defect class already fixed on Order/Invoice/CashierShift.
-      lockedUpdateFields: ["status", "journalEntry", "number"],
+      // defect class already fixed on Order/Invoice/CashierShift. The approval-audit fields and
+      // `recurringExpenseTemplate` (an immutable origin tag, set once at creation) are locked for
+      // the same reason.
+      lockedUpdateFields: [
+        "status", "journalEntry", "number", "recurringExpenseTemplate",
+        "submittedBy", "submittedAt", "approvedBy", "approvedAt", "rejectedBy", "rejectedAt", "rejectionReason",
+      ],
     });
   }
 
@@ -93,6 +107,39 @@ class DailyExpenseService extends AdvancedService {
     if (!claimed) throwError("This expense was already transitioned by a concurrent request.", 409);
 
     await this._postExpenseAccounting(claimed, actorId);
+    return claimed;
+  }
+
+  /** Recurring Expenses: Draft -> PendingApproval. Opts a Draft occurrence into the review path instead of direct posting. */
+  async submitForApproval({ id, brand, branch, actorId }) {
+    const claimed = await this.model.findOneAndUpdate(
+      { _id: id, brand, branch, status: "Draft" },
+      { $set: { status: "PendingApproval", submittedBy: actorId, submittedAt: new Date() } },
+      { new: true },
+    );
+    if (!claimed) throwError("Daily expense not found, or is not Draft.", 409);
+    return claimed;
+  }
+
+  /** Recurring Expenses: PendingApproval -> Approved. Does not post — see postExpense() for that. */
+  async approveExpense({ id, brand, branch, actorId }) {
+    const claimed = await this.model.findOneAndUpdate(
+      { _id: id, brand, branch, status: "PendingApproval" },
+      { $set: { status: "Approved", approvedBy: actorId, approvedAt: new Date() } },
+      { new: true },
+    );
+    if (!claimed) throwError("Daily expense not found, or is not PendingApproval.", 409);
+    return claimed;
+  }
+
+  /** Recurring Expenses: PendingApproval -> Rejected. Terminal — a rejected occurrence is never posted. */
+  async rejectExpense({ id, brand, branch, actorId, reason }) {
+    const claimed = await this.model.findOneAndUpdate(
+      { _id: id, brand, branch, status: "PendingApproval" },
+      { $set: { status: "Rejected", rejectedBy: actorId, rejectedAt: new Date(), rejectionReason: reason ?? null } },
+      { new: true },
+    );
+    if (!claimed) throwError("Daily expense not found, or is not PendingApproval.", 409);
     return claimed;
   }
 

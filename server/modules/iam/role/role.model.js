@@ -102,6 +102,7 @@ export const RESOURCE_ENUM = [
   // checkModuleEnabled() altogether, so these resource strings were never needed until now.
   "Expenses",
   "DailyExpenses",
+  "RecurringExpenseTemplates",
 
   // ================= ACCOUNTING =================
   "Accounts",
@@ -110,12 +111,14 @@ export const RESOURCE_ENUM = [
   "AccountingPeriods",
   "AccountingSettings",
   "CostCenters",
+  "Budgets",
 
   // ================= ASSETS =================
   "Assets",
   "AssetCategories",
   "AssetTransactions",
   "AssetDepreciations",
+  "AssetDisposals",
   "AssetMaintenances",
   "AssetPurchaseInvoices",
 

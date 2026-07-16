@@ -134,4 +134,10 @@ const cashierShiftSchema = new mongoose.Schema(
 // in this platform (Order.orderNum, Invoice.serial, CashTransaction.number, ...).
 cashierShiftSchema.index({ brand: 1, branch: 1, num: 1 }, { unique: true });
 
+// Enterprise Financial Audit: `finance/finance-reports#getCashierShiftReport` filters on
+// `cashier`/`register`/`status`/`openedAt` range — none of those were previously indexed.
+cashierShiftSchema.index({ brand: 1, branch: 1, status: 1, openedAt: -1 });
+cashierShiftSchema.index({ cashier: 1 });
+cashierShiftSchema.index({ register: 1 });
+
 export default mongoose.model("CashierShift", cashierShiftSchema);

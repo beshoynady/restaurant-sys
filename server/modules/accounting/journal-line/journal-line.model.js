@@ -86,6 +86,21 @@ journalLineSchema.pre("validate", function (next) {
 // The dominant ledger-reporting access path: "every line for this account, in this period, at this branch."
 journalLineSchema.index({ account: 1, brand: 1, branch: 1, period: 1 });
 
+// Enterprise Financial Audit (found via direct index inspection, not inference): `existsForSource()`
+// — the idempotency guard EVERY posting engine on this platform calls before EVERY journal posting
+// (Order, Invoice, PurchaseInvoice, CashierShift, DailyExpense, AssetDepreciation, WasteRecord, ...)
+// — queries exactly `{brand, sourceType, sourceRef}` with zero supporting index until now, meaning
+// every single posting in the platform did a full collection scan against JournalLine, its largest
+// and fastest-growing collection. This is the single most severe performance finding of the
+// Enterprise Financial Audit — fixed here, not deferred, since it affects every domain that posts
+// to the GL, not just Accounting/Finance/Assets/Expense.
+journalLineSchema.index({ brand: 1, sourceType: 1, sourceRef: 1 });
+
+// Supports date-range reporting queries scoped by branch without an account filter (e.g. a future
+// "all activity this month" report) — the existing account-first index above only helps once an
+// account list is already known.
+journalLineSchema.index({ brand: 1, branch: 1, date: 1 });
+
 const JournalLineModel =
   mongoose.models.JournalLine || mongoose.model("JournalLine", journalLineSchema);
 

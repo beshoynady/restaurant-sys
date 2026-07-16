@@ -24,6 +24,7 @@ import accountBalanceRouter from "../../modules/accounting/account-balance/accou
 import accountingPeriodRouter from "../../modules/accounting/accounting-period/accounting-period.router.js";
 import accountingSettingRouter from "../../modules/accounting/accounting-settings/accounting-setting.router.js";
 import costCenterRouter from "../../modules/accounting/cost-center/cost-center.router.js";
+import budgetRouter from "../../modules/accounting/budget/budget.router.js";
 import journalEntryRouter from "../../modules/accounting/journal-entry/journal-entry.router.js";
 import journalLineRouter from "../../modules/accounting/journal-line/journal-line.router.js";
 import ledgerRouter from "../../modules/accounting/ledger/ledger.router.js";
@@ -35,6 +36,7 @@ import financialStatementsRouter from "../../modules/accounting/financial-statem
 import assetRouter from "../../modules/assets/asset/asset.router.js";
 import assetCategoryRouter from "../../modules/assets/asset-category/asset-category.router.js";
 import assetDepreciationRouter from "../../modules/assets/asset-depreciation/asset-depreciation.router.js";
+import assetDisposalRouter from "../../modules/assets/asset-disposal/asset-disposal.router.js";
 import assetMaintenanceRouter from "../../modules/assets/asset-maintenance/asset-maintenance.router.js";
 import assetPurchaseInvoiceRouter from "../../modules/assets/asset-purchase-invoice/asset-purchase-invoice.router.js";
 import assetTransactionsRouter from "../../modules/assets/asset-transactions/asset-transactions.router.js";
@@ -63,6 +65,7 @@ import cashierShiftRouter from "../../modules/finance/cashier-shift/cashier-shif
 // mounted here at all — the entire Expense domain had zero live API surface. Fixed and mounted now.
 import expenseRouter from "../../modules/expense/expense/expense.router.js";
 import dailyExpenseRouter from "../../modules/expense/daily-expense/daily-expense.router.js";
+import recurringExpenseTemplateRouter from "../../modules/expense/recurring-expense-template/recurring-expense-template.router.js";
 import financeReportsRouter from "../../modules/finance/finance-reports/finance-reports.router.js";
 import expenseReportsRouter from "../../modules/expense/expense-reports/expense-reports.router.js";
 import assetReportsRouter from "../../modules/assets/asset-reports/asset-reports.router.js";
@@ -260,6 +263,7 @@ router.use("/accounting/balances", accountBalanceRouter);
 router.use("/accounting/periods", accountingPeriodRouter);
 router.use("/accounting/settings", accountingSettingRouter);
 router.use("/accounting/cost-centers", costCenterRouter);
+router.use("/accounting/budgets", budgetRouter);
 router.use("/accounting/journal-entries", journalEntryRouter);
 router.use("/accounting/journal-lines", journalLineRouter);
 router.use("/accounting/ledgers", ledgerRouter);
@@ -269,6 +273,7 @@ router.use("/accounting/financial-statements", financialStatementsRouter);
 router.use("/assets", assetRouter);
 router.use("/assets/categories", assetCategoryRouter);
 router.use("/assets/depreciation", assetDepreciationRouter);
+router.use("/assets/disposal", assetDisposalRouter);
 router.use("/assets/maintenance", assetMaintenanceRouter);
 router.use("/assets/purchase-invoices", assetPurchaseInvoiceRouter);
 router.use("/assets/transactions", assetTransactionsRouter);
@@ -287,6 +292,7 @@ router.use("/finance/cash-transfers", cashTransferRouter);
 router.use("/finance/cashier-shifts", cashierShiftRouter);
 router.use("/expense/expenses", expenseRouter);
 router.use("/expense/daily-expenses", dailyExpenseRouter);
+router.use("/expense/recurring-templates", recurringExpenseTemplateRouter);
 router.use("/finance/reports", financeReportsRouter);
 router.use("/expense/reports", expenseReportsRouter);
 router.use("/assets/reports", assetReportsRouter);

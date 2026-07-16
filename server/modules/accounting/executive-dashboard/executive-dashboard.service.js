@@ -5,6 +5,7 @@ import financialStatementsService from "../financial-statements/financial-statem
 import financeReportsService from "../../finance/finance-reports/finance-reports.service.js";
 import expenseReportsService from "../../expense/expense-reports/expense-reports.service.js";
 import assetReportsService from "../../assets/asset-reports/asset-reports.service.js";
+import budgetService from "../budget/budget.service.js";
 import throwError from "../../../utils/throwError.js";
 
 /**
@@ -98,12 +99,18 @@ class ExecutiveDashboardService {
       throwError("An Executive Dashboard requires both startDate and endDate.", 400);
     }
 
-    const [incomeStatement, balanceSheet, treasury, expenseAnalysis, assetBookValue] = await Promise.all([
+    const fiscalYear = new Date(endDate).getUTCFullYear();
+    const upToMonth = new Date(endDate).getUTCMonth() + 1;
+
+    const [incomeStatement, balanceSheet, treasury, expenseAnalysis, assetBookValue, budgetOverview] = await Promise.all([
       financialStatementsService.getIncomeStatement({ brand, branch, startDate, endDate }),
       financialStatementsService.getBalanceSheet({ brand, branch, asOfDate: endDate }),
       this.getTreasuryDashboard({ brand, branch }),
       expenseReportsService.getExpenseAnalysis({ brand, branch, startDate, endDate }),
       assetReportsService.getAssetBookValue({ brand, branch }),
+      // Best-effort: a brand with no Approved current-year budget yet simply gets an empty
+      // overview (grandTotals all zero/null) rather than failing the whole dashboard.
+      budgetService.getCurrentBudgetsSummary({ brand, branch, fiscalYear, upToMonth }),
     ]);
 
     return {
@@ -123,6 +130,14 @@ class ExecutiveDashboardService {
       treasury: { totalCash: treasury.totalCash, totalBank: treasury.totalBank, totalLiquidPosition: treasury.totalLiquidPosition },
       topExpenseCategories: expenseAnalysis.byExpenseType.slice(0, 5),
       fixedAssets: { totalBookValue: assetBookValue.totalBookValue, assetCount: assetBookValue.assetCount },
+      budgetOverview: {
+        fiscalYear: budgetOverview.fiscalYear,
+        budgetCount: budgetOverview.budgets.length,
+        budgetedToDate: budgetOverview.grandTotals.budgetedToDate,
+        actual: budgetOverview.grandTotals.actual,
+        variance: budgetOverview.grandTotals.variance,
+        consumptionPercent: budgetOverview.grandTotals.consumptionPercent,
+      },
     };
   }
 

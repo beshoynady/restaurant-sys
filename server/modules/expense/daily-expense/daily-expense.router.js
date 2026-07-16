@@ -33,6 +33,22 @@ router.post("/:id/post",
   validate(paramsDailyExpenseSchema, "params"),
   dailyExpenseController.postExpense);
 
+// Recurring Expenses' optional approval path: Draft -> PendingApproval -> Approved -> (post above).
+router.post("/:id/submit",
+  authenticateToken, authorize("DailyExpenses", "update"), checkModuleEnabled("financial"),
+  validate(paramsDailyExpenseSchema, "params"),
+  dailyExpenseController.submitForApproval);
+
+router.post("/:id/approve",
+  authenticateToken, authorize("DailyExpenses", "approve"), checkModuleEnabled("financial"),
+  validate(paramsDailyExpenseSchema, "params"),
+  dailyExpenseController.approveExpense);
+
+router.post("/:id/reject",
+  authenticateToken, authorize("DailyExpenses", "approve"), checkModuleEnabled("financial"),
+  validate(paramsDailyExpenseSchema, "params"),
+  dailyExpenseController.rejectExpense);
+
 // --- BULK HARD DELETE ---
 router.route("/bulk-delete")
   .delete(authenticateToken, authorize("DailyExpenses", "delete"), checkModuleEnabled("financial"), validate(paramsDailyExpenseIdsSchema), dailyExpenseController.bulkHardDelete);
