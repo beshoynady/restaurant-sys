@@ -1,0 +1,69 @@
+// TEMPLATE — copy into server/tests/integration/<entity>-engine.test.ts and fill in.
+// Enterprise <Domain> Platform — <Entity> engine. Verifies:
+// 1. <business rule 1, one line, matching entity.module.md §5>
+// 2. <business rule 2>
+// 3. Illegal state transitions are rejected (not just the happy path).
+// 4. lockedUpdateFields holds — a generic PUT cannot bypass the business rules.
+// 5. <if this module posts to the GL: a balanced entry, specific debit/credit lines and amounts>
+import { connectTestDb, disconnectTestDb } from "./setup.js";
+import {
+  createBaseFixture, cleanupFixture, /* createAccountFixture, createAccountingSettingsFixture, createAccountingPeriodFixture, */
+  type TestFixture,
+} from "./fixtures.js";
+import EntityModel from "../../modules/<domain>/<entity>/entity.model.js";
+import entityService from "../../modules/<domain>/<entity>/entity.service.js";
+
+const runTag = Math.random().toString(36).slice(2, 8);
+
+describe("Enterprise <Domain> Platform: <Entity> engine", () => {
+  let fixture: TestFixture;
+
+  beforeAll(async () => {
+    await connectTestDb();
+    fixture = await createBaseFixture(`ent-${runTag}`);
+    // TEMPLATE: create whatever this entity depends on (accounts, settings, sibling fixtures).
+  });
+
+  afterAll(async () => {
+    await Promise.all([
+      EntityModel.deleteMany({ brand: fixture.brandId }),
+      // TEMPLATE: delete every other collection this test file created documents in.
+    ]);
+    await cleanupFixture(fixture);
+    await disconnectTestDb();
+  });
+
+  async function createEntity(overrides: Record<string, unknown> = {}) {
+    return entityService.create({
+      brandId: fixture.brandId, branchId: fixture.branchId, createdBy: fixture.userId,
+      data: { branch: fixture.branchId, name: new Map([["en", "Test Entity"]]), ...overrides },
+    });
+  }
+
+  it("<describes business rule 1>", async () => {
+    const entity = await createEntity();
+    expect((entity as any).status).toBe("Draft");
+  });
+
+  it("rejects an illegal transition", async () => {
+    const entity = await createEntity();
+    // TEMPLATE: force the entity into a terminal state, then assert the next transition throws.
+    await expect(
+      entityService.activate({ id: String((entity as any)._id), brand: fixture.brandId, branch: fixture.branchId, actorId: fixture.userId }),
+    ).resolves.toBeTruthy(); // TEMPLATE: replace with a real assertion
+  });
+
+  it("lockedUpdateFields holds — a generic PUT cannot bypass the business rules", async () => {
+    const entity = await createEntity();
+    const updated = await entityService.update({
+      id: String((entity as any)._id), brandId: fixture.brandId, branchId: fixture.branchId,
+      data: { status: "Active" },
+    });
+    expect(updated.status).toBe("Draft");
+  });
+
+  // TEMPLATE: if this module has test isolation risk (a scheduling/date-driven engine whose
+  // records remain Active/uncancelled across it() blocks in this same file), either scope each
+  // test to its own non-overlapping date range or explicitly cancel/clean up at the end of the
+  // test that creates the schedulable state — see ERP_DEVELOPMENT_STANDARD.md §9 point 5.
+});

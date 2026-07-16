@@ -1,0 +1,84 @@
+# <Entity> (<Domain>) — Engineering Documentation
+
+<!-- TEMPLATE: rename this file to <ENTITY>.module.md (e.g. RECIPE.module.md) inside the real
+module folder, then fill in every section below. Delete no section — if it genuinely doesn't
+apply, say so explicitly ("No X in this pass — Y") rather than omitting it. Per
+ERP_DEVELOPMENT_STANDARD.md §7: name every real gap, don't hide it. -->
+
+## 1. Overview
+
+<!-- One paragraph: what collection(s) this module owns, and its relationship to any sibling
+module it was built alongside (e.g. "X holds the header; Y is its line-item collection, mirroring
+JournalEntry/JournalLine's split"). -->
+
+## 2. Business Purpose
+
+<!-- What real-world restaurant operation does this model, and why does it need to exist as
+software rather than a spreadsheet/manual process? -->
+
+## 3. Database Design
+
+<!-- Every field, grouped logically, with a one-line reason for anything non-obvious (why this
+enum, why this default, why this field is derived not stored-as-given). -->
+
+## 4. Relationships
+
+```
+<!-- ASCII diagram: EntityA ──(relationship)──→ EntityB -->
+```
+
+## 5. Business Rules
+
+<!-- One bullet per rule, bold the rule itself, then the reasoning. This is the section a future
+reader relies on most — be exhaustive, not just the interesting ones. -->
+
+## 6. Workflow
+
+```
+<!-- The state machine / operation sequence, as a diagram or ordered list. -->
+```
+
+## 7. API Documentation
+
+Base path: `/api/v1/<domain>/<entities>`.
+
+| Method | Route | Body / Query | Notes |
+|---|---|---|---|
+| POST | `/` | | |
+| GET | `/`, `/:id` | | |
+
+## 8. Frontend Guide
+
+<!-- What screen/component consumes this API, and what it needs to render without a backend
+change (table, form, dashboard tile — see ERP_DEVELOPMENT_STANDARD.md §6). -->
+
+## 9. Integration
+
+<!-- Every other module this one reads from or writes to, and the direction/nature of that
+integration (direct call vs. domain event vs. read-only report aggregation). -->
+
+## 10. Security
+
+<!-- authorize() resource/actions used, checkModuleEnabled() key, any non-default permission
+shape (e.g. a distinct "approve" action). -->
+
+## 11. Reporting
+
+<!-- Does this module feed an existing report/dashboard? Is a dedicated report needed and not yet
+built? Say so explicitly either way. -->
+
+## 12. Future Extensions
+
+<!-- Real, specific, named gaps — not "TODO: improve." What would the next engineer need to know
+before extending this module? -->
+
+## 13. Architecture Decisions
+
+<!-- The "why," not the "what" — non-obvious choices, alternatives considered and rejected, and
+any bug found and fixed during this module's own build (worth recording so it isn't rediscovered
+the same way twice). -->
+
+## 14. Developer Notes
+
+<!-- Test file location and what it covers, section by section. Any trap/gotcha found while
+building this that a future maintainer should know about. -->
