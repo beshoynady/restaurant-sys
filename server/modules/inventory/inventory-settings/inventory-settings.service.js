@@ -34,7 +34,7 @@ class InventorySettingsService extends AdvancedService {
     return (
       settings ?? {
         allowNegativeStock: false,
-        autoDeductOnOrder: true,
+        inventoryDeductionTrigger: "ON_ORDER_CONFIRM",
         recipeConsumptionStrategy: "WAREHOUSE_DIRECT",
       }
     );

@@ -4,6 +4,8 @@ import throwError from "../../../utils/throwError.js";
 import ProductModel from "../../menu/product/product.model.js";
 import PreparationSectionModel from "../preparation-section/preparation-section.model.js";
 import { expandOrderItems } from "../../sales/order/order-item-expansion.js";
+import recipeConsumptionService from "../../inventory/recipe-consumption/recipe-consumption.service.js";
+import inventorySettingsService from "../../inventory/inventory-settings/inventory-settings.service.js";
 
 // PLATFORM_FINAL_AUDIT.md PA-07: preparationStatus/deliveryStatus were raw
 // enum fields updated through the generic BaseController.update with no
@@ -44,7 +46,7 @@ class PreparationTicketService extends AdvancedService {
     const { id, brandId, data } = opts;
 
     if (data?.preparationStatus || data?.deliveryStatus) {
-      const current = await this.model.findById(id).select("preparationStatus deliveryStatus brand").lean();
+      const current = await this.model.findById(id).select("preparationStatus deliveryStatus brand branch").lean();
       if (!current) {
         throwError("Resource not found", 404);
       }
@@ -78,6 +80,34 @@ class PreparationTicketService extends AdvancedService {
         const claimed = await this.model.findOneAndUpdate(filter, { $set: setUpdate }, { new: true });
         if (!claimed) {
           throwError("This ticket's status was already changed by a concurrent request.", 409);
+        }
+
+        // Business Decision Matrix §21.5 (Kitchen Workflow Decision Matrix) — the per-station
+        // recipe-consumption trigger points. Best-effort/non-blocking, matching every other
+        // event-triggered side effect in this platform's established philosophy: a misconfigured
+        // recipe/warehouse must not prevent the status transition that already, correctly,
+        // committed. Only fires when the brand's configured `inventoryDeductionTrigger` matches
+        // the transition that just landed — ON_ORDER_CONFIRM fires instead from
+        // order.service.js#transition, and MANUAL_ONLY fires from neither call site.
+        const startedPrep = setUpdate.preparationStatus === "PREPARING" && current.preparationStatus === "PENDING";
+        const finishedPrep = setUpdate.preparationStatus === "READY" && current.preparationStatus === "PREPARING";
+        const handedOver = setUpdate.deliveryStatus === "HANDED_OVER" && current.deliveryStatus === "READY_FOR_HANDOVER";
+
+        if (startedPrep || finishedPrep || handedOver) {
+          try {
+            const settings = await inventorySettingsService.resolveForPosting(current.brand, current.branch);
+            const trigger = settings.inventoryDeductionTrigger || "ON_ORDER_CONFIRM";
+            const shouldConsume =
+              (startedPrep && trigger === "ON_PREP_START") ||
+              (finishedPrep && trigger === "ON_PREP_END") ||
+              (handedOver && trigger === "ON_DELIVERY");
+            if (shouldConsume) {
+              await recipeConsumptionService.consumeForTicket({ ticket: claimed, actorId: opts.updatedBy });
+            }
+          } catch (err) {
+            // eslint-disable-next-line no-console
+            console.error(`[preparation-ticket.service] Recipe consumption not posted for ticket ${id}: ${err.message}`);
+          }
         }
       }
     }

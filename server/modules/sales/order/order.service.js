@@ -24,6 +24,7 @@ import { createTransitionGuard } from "../../../utils/TransitionGuard.js";
 import domainEvents, { DomainEvent } from "../../../utils/domainEvents.js";
 import preparationTicketService from "../../preparation/preparation-ticket/preparation-ticket.service.js";
 import recipeConsumptionService from "../../inventory/recipe-consumption/recipe-consumption.service.js";
+import inventorySettingsService from "../../inventory/inventory-settings/inventory-settings.service.js";
 import PreparationTicketModel from "../../preparation/preparation-ticket/preparation-ticket.model.js";
 import UserAccountModel from "../../iam/user-account/user-account.model.js";
 import ProductModel from "../../menu/product/product.model.js";
@@ -118,11 +119,14 @@ class OrderService extends OrderRepository {
         console.error(`[order.service] Preparation tickets not created for order ${claimed.orderNum}: ${err.message}`);
       }
       try {
-        // Automatic Recipe Consumption — reads `InventorySettings.recipeConsumptionStrategy`
-        // (built in an earlier milestone, unread by any code until now) and deducts ingredients
-        // via the existing Inventory Posting Engine. Same best-effort philosophy as ticket
-        // creation, independent try/catch so a failure in one never blocks the other.
-        await recipeConsumptionService.consumeForOrder({ order: claimed, actorId });
+        // Business Decision Matrix §21.5 (Kitchen Workflow Decision Matrix) — consumption only
+        // fires here when the brand's configured `inventoryDeductionTrigger` is ON_ORDER_CONFIRM;
+        // the other modes (ON_PREP_START/ON_PREP_END/ON_DELIVERY) fire per-ticket instead, from
+        // preparation-ticket.service.js#update, and MANUAL_ONLY fires from neither call site.
+        const settings = await inventorySettingsService.resolveForPosting(claimed.brand, claimed.branch);
+        if ((settings.inventoryDeductionTrigger || "ON_ORDER_CONFIRM") === "ON_ORDER_CONFIRM") {
+          await recipeConsumptionService.consumeForOrder({ order: claimed, actorId });
+        }
       } catch (err) {
         // eslint-disable-next-line no-console
         console.error(`[order.service] Recipe consumption not posted for order ${claimed.orderNum}: ${err.message}`);

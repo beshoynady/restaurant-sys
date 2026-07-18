@@ -5,6 +5,7 @@ import WarehouseModel from "../warehouse/warehouse.model.js";
 import RecipeModel from "../../menu/recipe/recipe.model.js";
 import ProductModel from "../../menu/product/product.model.js";
 import PreparationSectionModel from "../../preparation/preparation-section/preparation-section.model.js";
+import OrderModel from "../../sales/order/order.model.js";
 import { expandOrderItems } from "../../sales/order/order-item-expansion.js";
 import accountingSettingService from "../../accounting/accounting-settings/accounting-setting.service.js";
 import journalEntryService from "../../accounting/journal-entry/journal-entry.service.js";
@@ -26,23 +27,80 @@ function journalLine(account, description, debit, credit, currency) {
  * fallback deduction (`Product.directStockItem` was named as a real, not-yet-built gap in
  * `MENU_PRODUCTION_PLATFORM_REDESIGN.md` §1.3 — still not built here, honestly skipped, not
  * silently invented).
+ *
+ * Business Decision Matrix §21.5 (Kitchen Workflow Decision Matrix): WHEN consumption fires is a
+ * separate, configurable decision (`InventorySettings.inventoryDeductionTrigger`) resolved by the
+ * caller (`order.service.js` for ON_ORDER_CONFIRM, `preparation-ticket.service.js` for
+ * ON_PREP_START/ON_PREP_END/ON_DELIVERY) — this engine itself stays agnostic to the trigger and
+ * exposes two entry points: `consumeForOrder` (whole order, combo-expanding) and `consumeForTicket`
+ * (one preparation ticket's already-flat items only, for the per-station trigger points, where
+ * different stations reach the same order at different times and must not double- or under-deduct
+ * each other's ingredients).
  */
 class RecipeConsumptionService {
   /**
-   * Called from `OrderService.transition()` on OPEN -> IN_PROGRESS, same call site and same
-   * best-effort/non-blocking philosophy as ticket creation — a misconfigured recipe/warehouse must
-   * not prevent the order confirmation that already, correctly, committed.
+   * Called from `OrderService.transition()` on OPEN -> IN_PROGRESS when
+   * `inventoryDeductionTrigger === "ON_ORDER_CONFIRM"` — same call site and same best-effort/
+   * non-blocking philosophy as ticket creation — a misconfigured recipe/warehouse must not
+   * prevent the order confirmation that already, correctly, committed.
    */
   async consumeForOrder({ order, actorId }) {
     if (!order.items || order.items.length === 0) return [];
-
-    const settings = await inventorySettingsService.resolveForPosting(order.brand, order.branch);
-    const strategy = settings.recipeConsumptionStrategy || "WAREHOUSE_DIRECT";
 
     // Combo Execution: a combo order item expands into its resolved components, each consuming
     // ITS OWN recipe (scaled by its own selection quantity) — a combo container itself has no
     // recipe and must never be looked up as if it did.
     const resolvedItems = expandOrderItems(order);
+
+    return this._consumeResolvedItems({
+      items: resolvedItems,
+      brand: order.brand,
+      branch: order.branch,
+      actorId,
+      documentNumberPrefix: `WD-${order.orderNum}-RECIPE`,
+      sourceRef: order._id,
+      description: `Order ${order.orderNum} - cost of goods sold`,
+    });
+  }
+
+  /**
+   * Called from `PreparationTicketService.update()` on a preparationStatus/deliveryStatus
+   * transition matching the configured `inventoryDeductionTrigger` (ON_PREP_START/ON_PREP_END/
+   * ON_DELIVERY) — one ticket at a time, since different stations on the same order reach these
+   * transitions at different moments. `PreparationTicket.items[]` is already the flat, resolved
+   * shape (`{product, quantity, extras, selectedModifiers}`) `createTicketsFromOrder` built from
+   * `expandOrderItems()`'s own output — no combo re-expansion needed here.
+   *
+   * Uses `ticket._id` (not `order._id`) as the COGS journal entry's `sourceRef` so each ticket on
+   * a multi-station order posts its own independent, idempotent entry — reusing `order._id` would
+   * make `journalEntryService.postFromSource`'s dedupe guard reject every ticket after the first
+   * as a "duplicate."
+   */
+  async consumeForTicket({ ticket, actorId }) {
+    if (!ticket.items || ticket.items.length === 0) return [];
+
+    const order = await OrderModel.findById(ticket.order).select("orderNum").lean();
+    if (!order) throwError("Order not found for this preparation ticket.", 404);
+
+    return this._consumeResolvedItems({
+      items: ticket.items,
+      brand: ticket.brand,
+      branch: ticket.branch,
+      actorId,
+      documentNumberPrefix: `WD-${order.orderNum}-T${ticket.ticketNumber}-RECIPE`,
+      sourceRef: ticket._id,
+      description: `Order ${order.orderNum} (ticket ${ticket.ticketNumber}) - cost of goods sold`,
+    });
+  }
+
+  /**
+   * Shared core: resolves recipes/warehouses for an already-flat item list, posts one Issuance
+   * `WarehouseDocument` per distinct destination warehouse, and posts the combined COGS journal
+   * entry. Used by both `consumeForOrder` (whole order) and `consumeForTicket` (one station).
+   */
+  async _consumeResolvedItems({ items, brand, branch, actorId, documentNumberPrefix, sourceRef, description }) {
+    const settings = await inventorySettingsService.resolveForPosting(brand, branch);
+    const strategy = settings.recipeConsumptionStrategy || "WAREHOUSE_DIRECT";
 
     // Enterprise Menu & Sales Platform Final Review: confirmed by direct read that extras/addons
     // (`OrderItem.extras[]`, e.g. "Extra Cheese") were already ticketed to the kitchen (nested
@@ -56,17 +114,17 @@ class RecipeConsumptionService {
     // "Extra Cheese" option chosen from a required modifier group) is a real Product and may
     // carry its own Recipe, exactly like an extra — treated identically below, not a second,
     // parallel consumption path.
-    const extraProductIds = resolvedItems.flatMap((item) => (item.extras || []).map((e) => String(e.extra)));
-    const modifierProductIds = resolvedItems.flatMap((item) => (item.selectedModifiers || []).map((m) => String(m.product)));
-    const productIds = [...new Set([...resolvedItems.map((item) => String(item.product)), ...extraProductIds, ...modifierProductIds])];
+    const extraProductIds = items.flatMap((item) => (item.extras || []).map((e) => String(e.extra)));
+    const modifierProductIds = items.flatMap((item) => (item.selectedModifiers || []).map((m) => String(m.product)));
+    const productIds = [...new Set([...items.map((item) => String(item.product)), ...extraProductIds, ...modifierProductIds])];
     const [recipes, products] = await Promise.all([
-      RecipeModel.find({ product: { $in: productIds }, brand: order.brand, isActive: true }).lean(),
+      RecipeModel.find({ product: { $in: productIds }, brand, isActive: true }).lean(),
       ProductModel.find({ _id: { $in: productIds } }).select("preparationSection").lean(),
     ]);
     const recipeByProduct = Object.fromEntries(recipes.map((r) => [String(r.product), r]));
     const sectionByProduct = Object.fromEntries(products.map((p) => [String(p._id), p.preparationSection ? String(p.preparationSection) : null]));
 
-    const defaultWarehouse = await this._resolveDefaultWarehouse(order.brand, order.branch);
+    const defaultWarehouse = await this._resolveDefaultWarehouse(brand, branch);
 
     // Group by resolved consumption warehouse — different products may route to different
     // sections/operational-inventory warehouses; one Issuance document per distinct warehouse,
@@ -83,7 +141,7 @@ class RecipeConsumptionService {
       }
     };
 
-    for (const item of resolvedItems) {
+    for (const item of items) {
       const hasExtras = item.extras && item.extras.length > 0;
       const hasModifiers = item.selectedModifiers && item.selectedModifiers.length > 0;
       const recipe = recipeByProduct[String(item.product)];
@@ -115,22 +173,22 @@ class RecipeConsumptionService {
 
     const documents = [];
     let sequence = 0;
-    // Sales COGS → GL: summed across every warehouse document this order's consumption produces
-    // (an order can route ingredients to more than one warehouse — one Issuance per distinct
-    // warehouse, same as the loop below), then posted as a single journal entry per order rather
-    // than one per document, so a multi-warehouse order still produces one clean COGS line.
+    // Sales COGS → GL: summed across every warehouse document this consumption produces (a single
+    // order/ticket can route ingredients to more than one warehouse — one Issuance per distinct
+    // warehouse, same as the loop below), then posted as a single journal entry rather than one
+    // per document, so a multi-warehouse consumption still produces one clean COGS line.
     let totalCOGS = 0;
     for (const [warehouseId, itemsMap] of Object.entries(quantitiesByWarehouse)) {
-      const items = Object.entries(itemsMap).map(([stockItem, quantity]) => ({ stockItem, quantity, unitCost: 0, totalCost: 0 }));
-      if (items.length === 0) continue;
+      const docItems = Object.entries(itemsMap).map(([stockItem, quantity]) => ({ stockItem, quantity, unitCost: 0, totalCost: 0 }));
+      if (docItems.length === 0) continue;
       sequence += 1;
 
       const consumptionDoc = await warehouseDocumentService.create({
-        brandId: order.brand, branchId: order.branch, createdBy: actorId,
+        brandId: brand, branchId: branch, createdBy: actorId,
         data: {
-          branch: order.branch, documentType: "OUT", postingDate: new Date(), transactionType: "Issuance",
-          documentNumber: `WD-${order.orderNum}-RECIPE-${sequence}`,
-          sourceWarehouse: warehouseId, items, status: "approved",
+          branch, documentType: "OUT", postingDate: new Date(), transactionType: "Issuance",
+          documentNumber: `${documentNumberPrefix}-${sequence}`,
+          sourceWarehouse: warehouseId, items: docItems, status: "approved",
         },
       });
       // `postDocument()`'s OUT branch always resolves the real outbound cost via the Inventory
@@ -139,7 +197,7 @@ class RecipeConsumptionService {
       // real, resolved cost, the same value `waste-record.service.js#approve` reads back to post
       // its own GL entry.
       const { ledgerRows } = await warehouseDocumentService.postDocument({
-        id: consumptionDoc._id, brand: order.brand, branch: order.branch, postedBy: actorId,
+        id: consumptionDoc._id, brand, branch, postedBy: actorId,
       });
       totalCOGS += ledgerRows.reduce((sum, row) => sum + (row.outbound?.totalCost || 0), 0);
       documents.push(consumptionDoc);
@@ -150,10 +208,10 @@ class RecipeConsumptionService {
       // brand with AccountingSettings not (yet) configured must still get its stock correctly
       // deducted; only the GL entry is skipped, not the inventory movement that already committed.
       try {
-        await this._postCOGS({ order, totalCOGS, actorId });
+        await this._postCOGS({ brand, branch, totalCOGS, actorId, sourceRef, description });
       } catch (err) {
         // eslint-disable-next-line no-console
-        console.error(`[recipe-consumption.service] COGS journal entry not posted for order ${order.orderNum}: ${err.message}`);
+        console.error(`[recipe-consumption.service] COGS journal entry not posted for ${description}: ${err.message}`);
       }
     }
 
@@ -166,17 +224,17 @@ class RecipeConsumptionService {
    * anywhere until now), credits `controlAccounts.inventory` — the standard perpetual-inventory
    * treatment, posted as its own journal entry alongside (not merged into) the Invoice's separate
    * Revenue/Tax entry, exactly as two independent economic events of one sale are normally booked.
-   * `sourceRef: order._id` makes this idempotent via `journalEntryService.postFromSource`'s own
-   * existsForSource guard — re-running `consumeManually` for the same order never double-posts.
+   * `sourceRef` (an order or a ticket, depending on the caller) makes this idempotent via
+   * `journalEntryService.postFromSource`'s own `existsForSource` guard — re-running consumption
+   * for the same order/ticket never double-posts.
    */
-  async _postCOGS({ order, totalCOGS, actorId }) {
-    const settings = await accountingSettingService.resolveForPosting(order.brand, order.branch);
+  async _postCOGS({ brand, branch, totalCOGS, actorId, sourceRef, description }) {
+    const settings = await accountingSettingService.resolveForPosting(brand, branch);
     const currency = settings.currencySettings?.baseCurrency || "EGP";
     const costOfSalesAccount = settings.activities?.sales?.costOfSales;
     const inventoryAccount = settings.controlAccounts?.inventory;
     if (!costOfSalesAccount || !inventoryAccount) return;
 
-    const description = `Order ${order.orderNum} - cost of goods sold`;
     const lines = [
       journalLine(costOfSalesAccount, description, totalCOGS, 0, currency),
       journalLine(inventoryAccount, description, 0, totalCOGS, currency),
@@ -184,13 +242,13 @@ class RecipeConsumptionService {
 
     await journalEntryService.postFromSource({
       sourceType: "SALES_COGS",
-      brand: order.brand,
-      branch: order.branch,
+      brand,
+      branch,
       date: new Date(),
       description,
       lines,
       createdBy: actorId,
-      sourceRef: order._id,
+      sourceRef,
     });
   }
 

@@ -9,15 +9,15 @@ const PreparationSectionConfigSchema = new mongoose.Schema(
 
     /** Section details */
     name: {
-  type: Map,
-  of: {
-    type: String,
-    trim: true,
-    minlength: 2,
-    maxlength: 100,
-  },
-  required: true,
-},
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      required: true,
+    },
 
     code: {
       type: String,
@@ -27,15 +27,15 @@ const PreparationSectionConfigSchema = new mongoose.Schema(
     },
 
     description: {
-  type: Map,
-  of: {
-    type: String,
-    trim: true,
-    minlength: 2,
-    maxlength: 100,
-  },
-  required: true,
-},
+      type: Map,
+      of: {
+        type: String,
+        trim: true,
+        minlength: 2,
+        maxlength: 100,
+      },
+      required: true,
+    },
 
     /**
      * Preparation & Kitchen Operations Platform: station-type classification, additive, not a
@@ -46,9 +46,25 @@ const PreparationSectionConfigSchema = new mongoose.Schema(
     stationType: {
       type: String,
       enum: [
-        "mainKitchen", "hotKitchen", "coldKitchen", "grill", "pizza", "bakery", "pastry",
-        "dessert", "coffeeBar", "juiceBar", "cocktailBar", "seafood", "salad", "fryer",
-        "packaging", "productionKitchen", "centralKitchen", "cloudKitchen", "other",
+        "mainKitchen",
+        "hotKitchen",
+        "coldKitchen",
+        "grill",
+        "pizza",
+        "bakery",
+        "pastry",
+        "dessert",
+        "coffeeBar",
+        "juiceBar",
+        "cocktailBar",
+        "seafood",
+        "salad",
+        "fryer",
+        "packaging",
+        "productionKitchen",
+        "centralKitchen",
+        "cloudKitchen",
+        "other",
       ],
       default: "other",
     },
@@ -74,8 +90,8 @@ const PreparationSectionConfigSchema = new mongoose.Schema(
     /** Staffing & equipment (lightweight references, not a new HR/Assets sub-model) */
     assignedEmployees: [{ type: ObjectId, ref: "Employee" }],
     equipment: [{ type: String, trim: true, maxlength: 100 }], // free-text equipment tags — a full
-      // Equipment/Asset-tracking integration is Assets-domain work, out of this platform's scope;
-      // this is a lightweight operational label only, not a fabricated asset-management feature.
+    // Equipment/Asset-tracking integration is Assets-domain work, out of this platform's scope;
+    // this is a lightweight operational label only, not a fabricated asset-management feature.
 
     /** Working hours — same shape as Product Availability's daily window, for consistency */
     workingHours: {
@@ -113,7 +129,4 @@ PreparationSectionConfigSchema.index(
   { unique: true, sparse: true },
 );
 
-export default mongoose.model(
-  "PreparationSectionConfig",
-  PreparationSectionConfigSchema,
-);
+export default mongoose.model("PreparationSectionConfig", PreparationSectionConfigSchema);

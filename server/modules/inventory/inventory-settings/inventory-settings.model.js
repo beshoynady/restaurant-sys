@@ -6,10 +6,16 @@ const inventorySettingsSchema = new mongoose.Schema(
     brand: { type: ObjectId, ref: "Brand", required: true },
     branch: { type: ObjectId, ref: "Branch", default: null },
 
-    // Automatically deduct ingredients when order is confirmed
-    autoDeductOnOrder: {
-      type: Boolean,
-      default: true,
+    // Business Decision Matrix §21.5 (Kitchen Workflow Decision Matrix) — when a confirmed order's
+    // recipe ingredients are actually deducted from stock. Replaces the dead `autoDeductOnOrder`
+    // boolean (schema'd, never read by any code). ON_ORDER_CONFIRM preserves the platform's exact
+    // prior behavior as the default — zero migration risk for brands that never touch this field.
+    // Field name matches SUPPLY_CHAIN_COMMERCE_DOMAIN_REDESIGN.md §6's own prior proposal
+    // (`inventoryDeductionTrigger`), not invented fresh here.
+    inventoryDeductionTrigger: {
+      type: String,
+      enum: ["ON_ORDER_CONFIRM", "ON_PREP_START", "ON_PREP_END", "ON_DELIVERY", "MANUAL_ONLY"],
+      default: "ON_ORDER_CONFIRM",
     },
 
     // Allow stock to go below zero
