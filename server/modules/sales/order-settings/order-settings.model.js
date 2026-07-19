@@ -50,8 +50,11 @@ const orderSettingsSchema = new Schema(
     maxTimeToSendToPreparationSection: { type: Number, default: 10, min: 1 },
     maxTimeToServe: { type: Number, default: 60, min: 1 },
 
-    // Stock validation
-    preventNegativeStockOrders: { type: Boolean, default: true },
+    // Stock validation: removed `preventNegativeStockOrders` (2026-07-17,
+    // PREPARATION_INVENTORY_ORDER_FLOW_AUDIT.md recommendation 1) — a schema field with zero
+    // reads anywhere, duplicating and never reconciled with `InventorySettings.allowNegativeStock`,
+    // which is the actual enforced policy (`inventory.service.js#applyOutbound`). Single source of
+    // truth for this decision now lives exclusively on InventorySettings.
 
     // Hold/pending orders
     holdOrdersAllowed: { type: Boolean, default: true },

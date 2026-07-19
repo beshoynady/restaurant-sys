@@ -165,20 +165,10 @@ class OrderService extends OrderRepository {
     // has OrderSettings, per getNextOrderNumber()'s own requirement): require a reason, don't
     // require a second approver.
     const reasonRequired = settings ? settings.cancelReasonRequired : true;
-    const managerApprovalRequired = settings ? settings.requireManagerApprovalForCancel : false;
+    const brandRequiresApproval = settings ? settings.requireManagerApprovalForCancel : false;
 
     if (reasonRequired && (!reason || !reason.trim())) {
       throwError("A cancellation reason is required.", 400);
-    }
-
-    if (managerApprovalRequired) {
-      if (!managerApprovalBy) {
-        throwError("Manager approval is required to cancel this item — provide the approving manager's user ID.", 403);
-      }
-      const canApprove = await this._hasCancelApprovalPermission(managerApprovalBy, brand);
-      if (!canApprove) {
-        throwError("The approving user does not hold permission to authorize item cancellations.", 403);
-      }
     }
 
     const order = await this.model.findOne({ _id: orderId, brand, branch });
@@ -195,6 +185,41 @@ class OrderService extends OrderRepository {
     const ticket = await PreparationTicketModel.findOne({
       order: orderId, brand, "items.orderItemId": itemId,
     });
+
+    // PREPARATION_INVENTORY_ORDER_FLOW_AUDIT.md §2.4 / Business Decision Matrix §21.4: the
+    // cancellation decision depends on the item's real preparation phase, not one flat brand-wide
+    // rule. `OrderItem.status` is dead (nothing ever transitions it away from "NEW"), so the real
+    // signal is the linked PreparationTicket's own `preparationStatus` — a live, guarded field.
+    // Phase is derived here, not persisted anywhere (kept a minimal refactor of existing logic,
+    // not a schema change) — it only travels in the emitted event below for any future consumer.
+    let phase = "NOT_SENT";
+    if (ticket) {
+      if (ticket.preparationStatus === "PREPARING") phase = "IN_PREPARATION";
+      else if (ticket.preparationStatus === "READY") phase = "READY";
+      // PENDING/CANCELLED/REJECTED: no kitchen work was actually completed either way (rejected =
+      // never made, cancelled = already terminated) — treated the same as "sent but not started."
+      else phase = "SENT_PENDING";
+    }
+
+    // Once real work is committed (preparation started or finished), approval is mandatory
+    // regardless of the brand's general toggle — ingredients and labor are already spent. This
+    // does NOT decide the item's eventual disposition (reuse / return-to-inventory / waste /
+    // reassignment) — that classification has no supporting data anywhere in this codebase today
+    // (no Product/Recipe/StockItem field distinguishes reusable vs. perishable-once-prepared, and
+    // no return/reassign mechanism exists), so it is deliberately left undecided here rather than
+    // guessed at. See PREPARATION_INVENTORY_ORDER_FLOW_AUDIT.md for that gap.
+    const managerApprovalRequired = phase === "IN_PREPARATION" || phase === "READY" || brandRequiresApproval;
+
+    if (managerApprovalRequired) {
+      if (!managerApprovalBy) {
+        throwError("Manager approval is required to cancel this item — provide the approving manager's user ID.", 403);
+      }
+      const canApprove = await this._hasCancelApprovalPermission(managerApprovalBy, brand);
+      if (!canApprove) {
+        throwError("The approving user does not hold permission to authorize item cancellations.", 403);
+      }
+    }
+
     if (ticket) {
       if (ticket.items.length > 1) {
         throwError(
@@ -204,10 +229,17 @@ class OrderService extends OrderRepository {
       }
       // Sole item on its own ticket -> recall (cancel) the ticket too, reusing the existing
       // PENDING/PREPARING -> CANCELLED transition guard already enforced in
-      // preparation-ticket.service.js#update, not a second, parallel guard here.
-      await preparationTicketService.update({
-        id: ticket._id, brandId: brand, data: { preparationStatus: "CANCELLED" },
-      });
+      // preparation-ticket.service.js#update, not a second, parallel guard here. Note: this guard
+      // only allows PENDING/PREPARING -> CANCELLED (see PREPARATION_STATUS_TRANSITIONS), so a
+      // ticket already CANCELLED/REJECTED simply stays as-is (idempotent, not re-transitioned);
+      // a READY ticket has no outgoing transition to CANCELLED either — its own preparationStatus
+      // is intentionally left untouched here (the food is done; only the order-item side is
+      // marked cancelled) rather than forcing a transition the guard doesn't define.
+      if (["PENDING", "PREPARING"].includes(ticket.preparationStatus)) {
+        await preparationTicketService.update({
+          id: ticket._id, brandId: brand, data: { preparationStatus: "CANCELLED" },
+        });
+      }
     }
 
     // Atomic-claim on the specific array element, guarding the exact same race this platform
@@ -230,7 +262,7 @@ class OrderService extends OrderRepository {
       throwError("This item was already changed by a concurrent request.", 409);
     }
 
-    await domainEvents.emit(DomainEvent.ORDER_ITEM_CANCELLED, { order: claimed, itemId });
+    await domainEvents.emit(DomainEvent.ORDER_ITEM_CANCELLED, { order: claimed, itemId, phase });
 
     return claimed;
   }

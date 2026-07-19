@@ -68,19 +68,35 @@ Verified by whole-tree grep (excluding the module's own model/service/controller
 
 Only `cancelReasonRequired` and `requireManagerApprovalForCancel` are real (`order.service.js:163-164`).
 
-### 2.2 Negative-stock policy is declared in two places; only one is real
+### 2.2 Negative-stock policy is declared in two places; only one is real — **RESOLVED 2026-07-17**
 
-`OrderSettings.preventNegativeStockOrders` (order-level intent) and `InventorySettings.allowNegativeStock` (inventory-level enforcement) both exist. Only the latter is ever read (`inventory.service.js`'s `applyOutbound`, via `warehouse-document.service.js`). This is exactly the kind of "incorrect boundary" §21.17 warns about — the decision is currently owned correctly (Inventory Controller domain, per §21.17's ownership table), but the dead duplicate on `OrderSettings` invites a future developer to wire the wrong one, or to assume order-level and inventory-level policy can diverge when in practice only one of them can ever take effect.
+`OrderSettings.preventNegativeStockOrders` (order-level intent) and `InventorySettings.allowNegativeStock` (inventory-level enforcement) both existed. Only the latter was ever read (`inventory.service.js`'s `applyOutbound`, via `warehouse-document.service.js`). This was exactly the kind of "incorrect boundary" §21.17 warns about — the decision was owned correctly (Inventory Controller domain, per §21.17's ownership table), but the dead duplicate on `OrderSettings` invited a future developer to wire the wrong one, or to assume order-level and inventory-level policy could diverge when in practice only one of them could ever take effect.
+
+**Fixed:** `preventNegativeStockOrders` removed from `order-settings.model.js` (verified zero references anywhere else in the repo — model, service, controller, validation, router, tests, fixtures, docs other than this audit doc itself and `CLAUDE.md`'s index entry — before deletion). `InventorySettings.allowNegativeStock` is now the sole, unambiguous source of truth for this decision. See recommendation 1 in §4, now implemented.
 
 ### 2.3 §21.3 (Order Acceptance Decision) has no implementation at all
 
 Chapter 21.3 specifies three modes — Auto Approve, Require Approval, Manual Review — selected by order source/value/customer/payment method, with a `Pending Approval` outcome distinct from `Confirmed`. Current `order.service.js` has none of this: `transition()` enforces only the state-machine shape (`transitionGuard`), with no business-rule evaluation before `OPEN -> IN_PROGRESS`. There is no `PENDING_APPROVAL` order status, no value-threshold check, no source-based branching. Every order that reaches `transition()` confirms unconditionally (subject only to the state machine and the two best-effort side effects).
 
-### 2.4 §21.4 (Order Cancellation Decision) is partially implemented, but not state-aware
+### 2.4 §21.4 (Order Cancellation Decision) is partially implemented, but not state-aware — **RESOLVED 2026-07-18 (phase-awareness); payment-status gating documented as blocked, not built**
 
-What exists (`cancelItem()`, `order.service.js:158-232`) is real and correctly wired: `cancelReasonRequired` and `requireManagerApprovalForCancel` are read from `OrderSettings` and enforced, with a proper second-approver permission check (`_hasCancelApprovalPermission`). What's missing against §21.4's actual matrix:
-- The matrix specifies **three different regimes** based on where the item is in its lifecycle (before kitchen processing: free cancel; after prep started: needs approval; after payment: refund workflow, no delete). The current code applies **one flat rule** (`requireManagerApprovalForCancel`) regardless of whether the item is still `NEW` or already `PREPARING` — it doesn't distinguish "not started yet" from "already being cooked" the way the business rule requires.
-- There is no payment-status check at all in `cancelItem()` — cancelling an item on an order that has already been (partially) paid does not route to any refund workflow; it just cancels the item the same way as an unpaid one. §21.4 is explicit that a paid order must never be silently cancelled without a refund path.
+What existed (`cancelItem()`, pre-fix) was real and correctly wired: `cancelReasonRequired` and `requireManagerApprovalForCancel` read from `OrderSettings` and enforced, with a proper second-approver permission check (`_hasCancelApprovalPermission`). What was missing against §21.4's actual matrix:
+- The matrix specifies **three different regimes** based on where the item is in its lifecycle (before kitchen processing: free cancel; after prep started: needs approval; after payment: refund workflow, no delete). The old code applied **one flat rule** (`requireManagerApprovalForCancel`) regardless of whether the item was still `NEW` or already `PREPARING`.
+- There was no payment-status check at all in `cancelItem()`.
+
+**Fixed — preparation-phase awareness:** `cancelItem()` now derives the item's real phase from its linked `PreparationTicket.preparationStatus` (`OrderItem.status` itself is confirmed dead — see below — so it cannot be the signal). Phase is computed transiently at cancel time, **not persisted** (kept a minimal refactor, not a schema change — surfaced only in the `ORDER_ITEM_CANCELLED` event payload for any future consumer):
+
+| Phase | Ticket state | Behavior |
+|---|---|---|
+| `NOT_SENT` | no ticket references the item | Free cancel, subject only to the existing brand-level settings (unchanged) |
+| `SENT_PENDING` | `PENDING` / `CANCELLED` / `REJECTED` | Same as `NOT_SENT` — no completed kitchen work either way |
+| `IN_PREPARATION` | `PREPARING` | **New:** manager approval always required, regardless of the brand toggle — real cost already committed |
+| `READY` | `READY` | **New:** manager approval always required (not a block — `READY` can mean "waiting for pickup/serving," not "already delivered/unusable," per explicit correction during design) |
+
+**Confirmed, newly-found gaps — documented, not built (infrastructure doesn't exist):**
+- **`OrderItem.status`** (`NEW/SENT_TO_PRODUCTION/PREPARING/READY/DELIVERED/REJECTED`) **is dead** — confirmed by grep, nothing anywhere transitions it away from `NEW` except the cancel path itself. This is a second, independent instance of the "designed but dead" pattern already catalogued in §2.1, on the Order module's own core entity this time, not just its settings.
+- **`Order.paymentStatus`** (`UNPAID/PARTIALLY_PAID/PAID/REFUNDED/CANCELLED`) **is also dead** — confirmed by grep across all of `server/modules/`: nothing anywhere ever writes it. It's listed in `order.repository.js`'s `lockedUpdateFields`, so it can't even be set via the generic PUT either. **`Invoice.status`** (`OPEN/PAID/PARTIALLY_RETURNED/FULLY_RETURNED/CANCELLED`) has the same problem — no code transitions it to `PAID`. **There is currently no live payment-state signal anywhere in this codebase.** A payment-status gate on cancellation was not added — a conditional on a field that can only ever read its default would be dead code by construction, not a real safeguard. This is a prerequisite gap: real payment tracking (something writing `Order.paymentStatus`/`Invoice.status` when a payment is actually recorded) needs to exist before §21.4's "after payment → refund workflow" regime can be implemented at all. **This gap was investigated in full as its own audit** — see [server/PAYMENT_LIFECYCLE_AUDIT.md](PAYMENT_LIFECYCLE_AUDIT.md) (2026-07-18): the entire sales-side payment-recording chain is unimplemented, not just these two fields, with a working Purchasing/AP precedent (`PurchaseInvoice.recordPayment()`) identified as the template for a fix.
+- **No reusable-vs-perishable classification exists.** No field on `Product`, `Recipe`, or `StockItem` distinguishes a reusable/sealed item (bottled water, canned drink, unopened packaged dessert) from one that's non-reusable once prepared (a cooked burger, a customized pizza). No return-to-inventory or reassign-to-another-order mechanism exists either. This means the `IN_PREPARATION`/`READY` phases **cannot** automatically decide "return to stock" vs. "waste" vs. "reassign" — they stop at requiring manager approval and go no further. `inventory/waste-record` remains a separate, manually-approved module, intentionally **not** auto-invoked from cancellation.
 
 ### 2.5 `PreparationSectionConfig` carries four fields with real names and zero behavior
 
@@ -102,9 +118,9 @@ What exists (`cancelItem()`, `order.service.js:158-232`) is real and correctly w
 
 Ranked by how directly each maps to a Chapter 21 rule vs. how large the change is:
 
-1. **Resolve the negative-stock duplicate (§2.2).** Recommend deleting `OrderSettings.preventNegativeStockOrders` outright (dead, and `InventorySettings.allowNegativeStock` is the correct single owner per §21.17's ownership table — Inventory Controller, not Order/Operations). Smallest, safest change in this list.
+1. ~~**Resolve the negative-stock duplicate (§2.2).**~~ **DONE (2026-07-17).** `OrderSettings.preventNegativeStockOrders` deleted; `InventorySettings.allowNegativeStock` is the correct single owner per §21.17's ownership table — Inventory Controller, not Order/Operations.
 2. **Implement §21.3's Order Acceptance Decision** as a new `beforeTransition` check in `order.service.js`, reading new `OrderSettings` fields (e.g. `orderApprovalMode: AUTO|REQUIRE_APPROVAL|MANUAL_REVIEW`, `approvalThresholdAmount`) — requires a new `Order.status` value (`PENDING_APPROVAL`) and a transition-guard edge `OPEN -> PENDING_APPROVAL -> IN_PROGRESS`. This is a real state-machine change, not just a settings read — needs explicit sign-off on the new status before implementation, since it changes `Order`'s schema-level contract.
-3. **Make §21.4 cancellation state-aware.** Branch `cancelItem()`'s approval requirement on the item's current status (`NEW` → free; `SENT_TO_PRODUCTION`/`PREPARING` → require approval) instead of one blanket setting, and add a payment-status guard that routes to a refund flow instead of a plain cancel once any payment has been recorded against the order. The refund flow itself is out of scope here (no refund engine exists in this module set) — this item should be scoped down to "block/redirect," not "build refunds," unless that's explicitly wanted too.
+3. ~~**Make §21.4 cancellation state-aware.**~~ **DONE (2026-07-18)**, phase-awareness only — see §2.4. Payment-status gating remains blocked on a prerequisite gap (no live payment-state signal exists anywhere — `Order.paymentStatus`/`Invoice.status` are both dead) and was deliberately not built as a non-functional check. The refund flow itself is still fully out of scope (no refund engine exists in this module set).
 4. **Decide the fate of the other 14 dead `OrderSettings` fields (§2.1).** Two of the three (hold orders, SLA timers) require infrastructure this platform doesn't have yet (a `HOLD` status; a scheduler — see the Backend Knowledge Base's confirmed-absent list). Recommend a explicit triage pass, not a silent bulk-delete: which are genuinely planned (keep, get a milestone), vs. speculative (delete).
 5. **Wire `PreparationSectionConfig`'s four dead fields (§2.5) or remove them.** `requireConfirmationBeforeSend` and `autoAssignChef` are the two most implementable without new infrastructure — both are pure "check a flag before/during `createTicketsFromOrder`" changes.
 6. **Subscribe something to `Order.Confirmed`** if the Chapter 21 vision (Order → ... → Loyalty → Notifications → Audit) is meant to happen automatically rather than manually — currently nothing does.
@@ -118,7 +134,7 @@ None of the above is implemented. Item 2 in particular is a schema change (new `
 | Change | New/changed service surface |
 |---|---|
 | §21.3 Order Acceptance | `order.service.js`: new `beforeTransition` or pre-check inside `transition()`; possibly a new `orderApprovalService` if the rule set grows beyond a simple threshold check |
-| §21.4 state-aware cancellation | `order.service.js#cancelItem` — branch on `item.status`, add a payment-status guard. No new service class needed. |
+| §21.4 state-aware cancellation | ~~`order.service.js#cancelItem` — branch on `item.status`, add a payment-status guard.~~ **Done**, branched on the ticket's `preparationStatus` instead (the live signal — `item.status` is dead). Payment-status guard not built (see §2.4 — no live signal exists). No new service class needed. |
 | Negative-stock dedup | `order-settings.model.js` schema edit only — no service change |
 | Dead `PreparationSectionConfig` fields | `preparation-ticket.service.js#createTicketsFromOrder` — read `requireConfirmationBeforeSend`/`autoAssignChef` from the resolved section doc (already fetched at line 122) |
 
@@ -133,10 +149,10 @@ No new top-level module or domain is implied by anything found in this audit —
 ## 7. Database relations touched by the recommendations above
 
 - `Order.status` enum gains `PENDING_APPROVAL` (if §21.3 is approved) — additive, no migration needed for existing rows (they're never in that state).
-- `Order.items[].status` already has the granularity §21.4 needs (`NEW/SENT_TO_PRODUCTION/PREPARING/...`) — no schema change needed there, only service logic.
-- `OrderSettings` loses `preventNegativeStockOrders` (recommendation 1) — safe, field is confirmed dead, no data migration concern (removing an unread field).
+- ~~`Order.items[].status` already has the granularity §21.4 needs~~ — **correction (2026-07-18):** this field looked sufficient but is confirmed dead (nothing transitions it). §21.4's phase-awareness was implemented against `PreparationTicket.preparationStatus` instead — no schema change was needed there either, only service logic re-pointed at the live field.
+- ~~`OrderSettings` loses `preventNegativeStockOrders` (recommendation 1)~~ — **done**, field was confirmed dead, no data migration concern (removed an unread field, no existing document reads affected).
 - No changes recommended to `PreparationTicket`, `PreparationSectionConfig`, `InventorySettings`, `Recipe`, `StockItem`, or any accounting model — the existing relationships (documented in the Architecture Deep Audit §04) are sufficient for everything in §4.
 
 ---
 
-**Status: awaiting approval.** No implementation from §4 onward has been started. Per the operating instruction this document was produced under, code changes resume only after explicit sign-off on which of the six recommended items (and which sub-decisions — the new `Order.status` value in particular) to proceed with.
+**Status: recommendations 1 and 3 of 6 implemented (2026-07-17, 2026-07-18).** Recommendations 2, 4, 5, 6 remain awaiting approval — no implementation on those has started. Per the operating instruction this document was produced under, further code changes resume only after explicit sign-off on which remaining item (and which sub-decisions — the new `Order.status` value for recommendation 2 in particular) to proceed with next.
