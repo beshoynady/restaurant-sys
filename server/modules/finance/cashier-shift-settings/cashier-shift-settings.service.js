@@ -28,6 +28,29 @@ class CashierShiftSettingsService extends CashierShiftSettingsRepository {
 
     return (incremented.shiftSequence?.currentNumber ?? 0) + 1;
   }
+
+  /**
+   * ADR-001-SALES-PAYMENT-ARCHITECTURE.md Phase 1: identical technique to getNextShiftNumber()
+   * above, for CashTransaction.number — the first real production caller of this sequence
+   * (payment.service.js). Placed here, not on cash-transaction.service.js itself, matching this
+   * file's own established convention of hosting sequence generation on the *settings* service.
+   */
+  async getNextTransactionNumber(brandId, branchId) {
+    const incremented = await this.model.findOneAndUpdate(
+      { brand: brandId, branch: branchId },
+      { $inc: { "cashTransactionSequence.currentNumber": 1 } },
+      { new: false },
+    );
+
+    if (!incremented) {
+      throwError(
+        "No CashierShiftSettings configured for this branch — cannot generate a cash-transaction number.",
+        422,
+      );
+    }
+
+    return (incremented.cashTransactionSequence?.currentNumber ?? 0) + 1;
+  }
 }
 
 export default new CashierShiftSettingsService();

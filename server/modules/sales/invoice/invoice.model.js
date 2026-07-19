@@ -169,9 +169,18 @@ const invoiceSchema = mongoose.Schema(
       required: true,
       default: 0,
     },
+
+    // ADR-001-SALES-PAYMENT-ARCHITECTURE.md Phase 1: stored, atomically-maintained projections of
+    // the Payment collection (the actual source-of-truth event log), not a second independent
+    // truth — kept for AR-aging/open-invoice query performance, matching PurchaseInvoice.balanceDue's
+    // exact existing precedent. Never set directly by a client; only paymentService's atomic
+    // pipeline update in payment.service.js#beforeCreate ever changes these post-creation.
+    amountPaid: { type: Number, default: 0, min: 0 },
+    balanceDue: { type: Number, default: 0, min: 0 },
+
     status: {
       type: String,
-      enum: ["OPEN", "PAID", "PARTIALLY_RETURNED", "FULLY_RETURNED", "CANCELLED"],
+      enum: ["OPEN", "PARTIALLY_PAID", "PAID", "PARTIALLY_RETURNED", "FULLY_RETURNED", "CANCELLED"],
       default: "OPEN",
       index: true,
     },

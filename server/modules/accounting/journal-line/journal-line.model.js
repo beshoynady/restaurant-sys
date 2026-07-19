@@ -55,6 +55,9 @@ const journalLineSchema = new Schema(
         "PURCHASE_PAYMENT",
         "PURCHASE_REFUND",
         "CASHIER_SHIFT_VARIANCE",
+        // ADR-001-SALES-PAYMENT-ARCHITECTURE.md Phase 1 — additive, same convention as every other
+        // entry in this enum: the Sales/AR counterpart to PURCHASE_PAYMENT above.
+        "SALES_PAYMENT_RECEIPT",
       ],
       default: null,
     },

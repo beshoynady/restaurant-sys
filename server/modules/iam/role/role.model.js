@@ -55,6 +55,9 @@ export const RESOURCE_ENUM = [
   "Recipes",
   "Orders",
   "Invoices",
+  // ADR-001-SALES-PAYMENT-ARCHITECTURE.md Phase 1 — additive, per this file's standing
+  // RESOURCE_ENUM convention (never remove/rename an existing entry).
+  "Payments",
   "InvoiceSettings",
   "OrderSettings",
   "SalesReturns",

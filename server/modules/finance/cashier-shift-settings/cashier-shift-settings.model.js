@@ -31,6 +31,14 @@ const CashierShiftSettingsSchema = new mongoose.Schema(
       currentNumber: { type: Number, default: 0 },
     },
 
+    // ADR-001-SALES-PAYMENT-ARCHITECTURE.md Phase 1: same minimal shape and same atomic
+    // reset-then-increment generation logic as shiftSequence above (see
+    // cash-transaction.service.js#getNextTransactionNumber) — CashTransaction.number is likewise a
+    // plain Number, not a formatted String, so no prefix field is needed here either.
+    cashTransactionSequence: {
+      currentNumber: { type: Number, default: 0 },
+    },
+
     createdBy: { type: ObjectId, ref: "UserAccount", default: null },
     updatedBy: { type: ObjectId, ref: "UserAccount", default: null },
 

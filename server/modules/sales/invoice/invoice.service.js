@@ -281,7 +281,10 @@ class InvoiceService extends BaseRepository {
       discountSettings,
     });
 
-    return { ...data, serial, ...pricing };
+    // ADR-001-SALES-PAYMENT-ARCHITECTURE.md Phase 1: a brand-new invoice starts fully unpaid — its
+    // balance owed is its own total, drawn down only by payment.service.js's atomic pipeline update
+    // as real Payments are recorded against it.
+    return { ...data, serial, ...pricing, amountPaid: 0, balanceDue: pricing.total };
   }
 
   /**

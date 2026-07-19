@@ -192,6 +192,8 @@ import vendorLedgerRouter from "../../modules/purchasing/vendor-ledger/vendor-le
 // ========================
 import orderRouter from "../../modules/sales/order/order.router.js";
 import invoiceRouter from "../../modules/sales/invoice/invoice.router.js";
+// ADR-001-SALES-PAYMENT-ARCHITECTURE.md Phase 1.
+import paymentRouter from "../../modules/sales/payment/payment.router.js";
 import orderSettingsRouter from "../../modules/sales/order-settings/order-settings.router.js";
 import invoiceSettingsRouter from "../../modules/sales/invoice-settings/invoice-settings.router.js";
 // PLATFORM_FINAL_AUDIT.md PA-13: coded but never mounted; missing RBAC fixed
@@ -372,6 +374,7 @@ router.use("/purchasing/supplier-transactions", supplierTransactionRouter);
 // Sales
 router.use("/sales/orders", orderRouter);
 router.use("/sales/invoices", invoiceRouter);
+router.use("/sales/payments", paymentRouter);
 router.use("/sales/order-settings", orderSettingsRouter);
 router.use("/sales/invoice-settings", invoiceSettingsRouter);
 router.use("/sales/return-settings", salesReturnSettingsRouter);
