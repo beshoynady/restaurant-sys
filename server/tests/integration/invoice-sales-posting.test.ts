@@ -58,7 +58,7 @@ describe("V4.0: Sales Invoice pricing + auto-posting", () => {
       startDate: new Date(Date.UTC(2020, 0, 1)),
       endDate: new Date(Date.UTC(2035, 11, 31)),
     });
-    await createAccountingSettingsFixture(fixture, "invoice-posting");
+    const accountingSettings = await createAccountingSettingsFixture(fixture, "invoice-posting");
     // Distinct prefix per fixture: the live `invoices` collection still carries a legacy
     // single-field unique index on `serial` alone (superseded in invoice.model.js by a
     // {brand,branch,serial} compound index, but never dropped) — see this file's sibling
@@ -114,14 +114,22 @@ describe("V4.0: Sales Invoice pricing + auto-posting", () => {
     // No dedicated `activities.sales.discount` account is configured in this fixture, so the
     // $10 discount folds directly into the revenue credit (100 - 10 = 90) instead of a separate
     // contra line (see invoice.service.ts#buildSalesInvoiceLines); tax ($4.50) posts to its own
-    // (required) account; cash absorbs the balancing debit (90 + 4.5 = 94.5).
+    // (required) account; Accounts Receivable absorbs the balancing debit (90 + 4.5 = 94.5) —
+    // NOT Cash, since no payment has actually been collected at invoice-creation time
+    // (ADR-001-SALES-PAYMENT-ARCHITECTURE.md Phase 0).
     const lines = await JournalLineModel.find({ journalEntry: invoice.journalEntry }).lean();
     const revenueLine = lines.find((l) => l.credit === 90);
     const taxLine = lines.find((l) => l.credit === 4.5);
-    const cashLine = lines.find((l) => l.debit === 94.5);
+    const receivableLine = lines.find((l) => l.debit === 94.5);
     expect(revenueLine).toBeTruthy();
     expect(taxLine).toBeTruthy();
-    expect(cashLine).toBeTruthy();
+    expect(receivableLine).toBeTruthy();
+    expect(receivableLine!.account.toString()).toBe(
+      accountingSettings.controlAccounts.accountsReceivable.toString(),
+    );
+    expect(receivableLine!.account.toString()).not.toBe(
+      accountingSettings.controlAccounts.cash.toString(),
+    );
   });
 
   it("rejects a discount above the approval threshold without discountApprovedBy", async () => {

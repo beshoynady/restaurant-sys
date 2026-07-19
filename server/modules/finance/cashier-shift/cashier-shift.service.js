@@ -145,11 +145,15 @@ class CashierShiftService extends AdvancedService {
   }
 
   /**
-   * Step 3: posts the variance to the GL. Individual sales/refunds already posted their own GL
-   * entries at transaction time (Invoice's own posting) — this entry books ONLY the discrepancy
-   * physically found at close, never the shift's full cash total, which would double-count
-   * revenue already posted per-transaction. A zero variance posts nothing (there is nothing
-   * economically meaningful to record) but the shift still reaches POSTED — terminal either way.
+   * Step 3: posts the variance to the GL. Individual sales post their own Revenue/Accounts-
+   * Receivable entry at invoice time (Invoice's own posting) — but, as of ADR-001-SALES-PAYMENT-
+   * ARCHITECTURE.md, the actual cash-receipt side of a sale is NOT YET posted anywhere in this
+   * codebase (that's ADR-001 Phase 1, not yet implemented). This entry books ONLY the physical
+   * cash discrepancy found at close, never the shift's full cash total — it does not, and cannot
+   * yet, reconcile against real per-sale cash-in figures, since `CashTransaction` (the intended
+   * source for that) has no production creators today (see PAYMENT_LIFECYCLE_AUDIT.md). A zero
+   * variance posts nothing (there is nothing economically meaningful to record) but the shift
+   * still reaches POSTED — terminal either way.
    */
   async postShift({ id, brand, branch, actorId }) {
     const shift = await this.model.findOne({ _id: id, brand, branch });

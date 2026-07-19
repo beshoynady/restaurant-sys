@@ -1,34 +1,29 @@
+//server/modules/sales/invoice/invoice.service.js
 // DATABASE_IMPLEMENTATION_PLAN.md DB-007: wires the atomic invoice-serial generator into invoice
 // creation via BaseRepository's `beforeCreate` hook. `invoice.model.js` intentionally left as `.js`
-// (out of this task's scope) — typed against `BaseRepository<any>`, matching order.service.ts's
-// documented rationale.
+// (out of this task's scope) — matching order.service.js's documented rationale.
+//
+// Converted from TypeScript to plain JavaScript at the owner's explicit, informed request
+// (2026-07-19) — a deliberate, knowing override of this codebase's documented TS-going-forward
+// policy for this one file specifically, not an accidental reconversion. Treat `sales/invoice`
+// as a second, separate carve-out alongside the pre-existing `sales/order`/`sales/order-settings`
+// one — do not reconvert this file back to `.ts` without an equally explicit instruction to do so
+// in that direction. Behavior is unchanged; only type annotations/casts are dropped.
 import BaseRepository from "../../../utils/BaseRepository.js";
-import throwErrorJs from "../../../utils/throwError.js";
+import throwError from "../../../utils/throwError.js";
 import InvoiceModel from "./invoice.model.js";
 import invoiceSettingsService from "../invoice-settings/invoice-settings.service.js";
-import accountingSettingServiceJs from "../../accounting/accounting-settings/accounting-setting.service.js";
-import journalEntryServiceJs from "../../accounting/journal-entry/journal-entry.service.js";
-import taxConfigServiceJs from "../../system/tax-settings/tax-config.service.js";
-import serviceChargeServiceJs from "../../system/service-charge-settings/service-charge.service.js";
-import discountSettingsServiceJs from "../../system/discount-settings/discount-settings.service.js";
+import accountingSettingService from "../../accounting/accounting-settings/accounting-setting.service.js";
+import journalEntryService from "../../accounting/journal-entry/journal-entry.service.js";
+import taxConfigService from "../../system/tax-settings/tax-config.service.js";
+import serviceChargeService from "../../system/service-charge-settings/service-charge.service.js";
+import discountSettingsService from "../../system/discount-settings/discount-settings.service.js";
 
-const throwError = throwErrorJs as (message: string, statusCode: number) => never;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const accountingSettingService = accountingSettingServiceJs as any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const journalEntryService = journalEntryServiceJs as any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const taxConfigService = taxConfigServiceJs as any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const serviceChargeService = serviceChargeServiceJs as any;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const discountSettingsService = discountSettingsServiceJs as any;
-
-function round2(value: number): number {
+function round2(value) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
-function applyRounding(value: number, mode: string): number {
+function applyRounding(value, mode) {
   if (mode === "UP") return Math.ceil(value * 100) / 100;
   if (mode === "DOWN") return Math.floor(value * 100) / 100;
   return round2(value);
@@ -54,21 +49,7 @@ function applyRounding(value: number, mode: string): number {
  * doesn't exist as a callable service yet. This engine closes the "arbitrary total" hole (PA-04's
  * literal finding); catalog-price validation is a separate, larger follow-up.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function computeInvoicePricing(input: {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  items: any[];
-  discount?: number;
-  addition?: number;
-  deliveryFee?: number;
-  discountApprovedBy?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  taxConfig: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  serviceChargeConfig: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  discountSettings: any;
-}) {
+export function computeInvoicePricing(input) {
   const items = input.items || [];
   const subtotal = round2(
     items.reduce((sum, item) => sum + (item.totalprice || 0) + (item.totalExtrasPrice || 0), 0),
@@ -137,8 +118,7 @@ export function computeInvoicePricing(input: {
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function journalLine(account: any, description: string, debit: number, credit: number, currency: string) {
+function journalLine(account, description, debit, credit, currency) {
   return { account, description, debit, credit, currency };
 }
 
@@ -157,8 +137,7 @@ function journalLine(account: any, description: string, debit: number, credit: n
  * amount — fabricating one would be worse than omitting it. Returns null if there's nothing
  * economically meaningful to post (e.g. a fully-discounted zero-value invoice).
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function buildSalesInvoiceLines(invoice: any, settings: any) {
+export function buildSalesInvoiceLines(invoice, settings) {
   const currency = settings.currencySettings?.baseCurrency || "EGP";
   const subtotal = invoice.subtotal || 0;
   const addition = invoice.addition || 0;
@@ -171,8 +150,7 @@ export function buildSalesInvoiceLines(invoice: any, settings: any) {
   const serviceChargeAccount = settings.activities?.sales?.serviceCharge;
   const deliveryFeeAccount = settings.activities?.sales?.deliveryFee;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const lines: any[] = [];
+  const lines = [];
   let revenueCredit = subtotal + addition;
 
   // When the invoice's pricing was computed with TaxConfig.pricesIncludeTax, `subtotal` already
@@ -217,29 +195,36 @@ export function buildSalesInvoiceLines(invoice: any, settings: any) {
 
   const totalCredit = lines.reduce((sum, l) => sum + l.credit, 0);
   const totalDebitSoFar = lines.reduce((sum, l) => sum + l.debit, 0);
-  // Balances the entry by construction: cash absorbs whatever the credit side committed to minus
-  // what's already been debited (the discount line, if any) — independent of the client-supplied
-  // `invoice.total`, which PLATFORM_FINAL_AUDIT.md PA-04 documents as not yet server-recalculated.
-  const cashDebit = totalCredit - totalDebitSoFar;
+  // ADR-001-SALES-PAYMENT-ARCHITECTURE.md Phase 0: this entry records that a sale was invoiced
+  // (IFRS 15 — revenue is recognized when the performance obligation is satisfied, independent of
+  // when cash is collected), NOT that cash was received. It balances the entry by construction:
+  // Accounts Receivable absorbs whatever the credit side committed to minus what's already been
+  // debited (the discount line, if any) — independent of the client-supplied `invoice.total`,
+  // which PLATFORM_FINAL_AUDIT.md PA-04 documents as not yet server-recalculated. Previously this
+  // debited `controlAccounts.cash` instead, meaning every invoice was booked as fully paid at
+  // creation regardless of whether any payment was ever collected — a real financial misstatement
+  // (Cash overstated / Accounts Receivable understated), not a simplification. Recording the actual
+  // cash receipt is a separate, not-yet-implemented step (ADR-001 Phase 1, unapproved as of this
+  // fix) — until then, every invoice correctly sits on Accounts Receivable as unpaid.
+  const receivableDebit = totalCredit - totalDebitSoFar;
 
-  if (cashDebit <= 0) {
+  if (receivableDebit <= 0) {
     return null;
   }
 
-  lines.push(journalLine(settings.controlAccounts.cash, `Invoice ${invoice.serial} - cash collected`, cashDebit, 0, currency));
+  lines.push(journalLine(settings.controlAccounts.accountsReceivable, `Invoice ${invoice.serial} - revenue recognized (on account)`, receivableDebit, 0, currency));
 
   return lines;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-class InvoiceService extends BaseRepository<any> {
+class InvoiceService extends BaseRepository {
   constructor() {
     super(InvoiceModel, {
       brandScoped: true,
       // PLATFORM_FINAL_AUDIT.md PA-03, corrected: Invoice is a transactional
       // fiscal document with its own status lifecycle (OPEN/PAID/
       // PARTIALLY_RETURNED/FULLY_RETURNED/CANCELLED) — soft-delete is not
-      // the right model for it (see order.service.ts).
+      // the right model for it (see order.service.js).
       enableSoftDelete: false,
       defaultPopulate: ["brand", "branch", "cashierShift", "cashier", "deliveryMan", "order", "paidBy"],
       searchableFields: [],
@@ -269,15 +254,15 @@ class InvoiceService extends BaseRepository<any> {
   // those four fields — see computeInvoicePricing() above for the full calculation. `discount`/
   // `addition`/`deliveryFee` remain caller-supplied inputs (a manual discount, a delivery fee from
   // the delivery module) but `discount` is validated against DiscountSettings' approval policy.
-  async beforeCreate(data: Record<string, unknown>): Promise<Record<string, unknown>> {
-    const brandId = data.brand as string | undefined;
-    const branchId = data.branch as string | undefined;
+  async beforeCreate(data) {
+    const brandId = data.brand;
+    const branchId = data.branch;
 
     if (!brandId || !branchId) {
       throwError("brand and branch are required to generate an invoice serial.", 400);
     }
 
-    const serial = await invoiceSettingsService.getNextInvoiceSerial(brandId!, branchId!);
+    const serial = await invoiceSettingsService.getNextInvoiceSerial(brandId, branchId);
 
     const [taxConfig, serviceChargeConfig, discountSettings] = await Promise.all([
       taxConfigService.resolveForBrandBranch(brandId, branchId),
@@ -286,12 +271,11 @@ class InvoiceService extends BaseRepository<any> {
     ]);
 
     const pricing = computeInvoicePricing({
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      items: (data.items as any[]) || [],
-      discount: data.discount as number | undefined,
-      addition: data.addition as number | undefined,
-      deliveryFee: data.deliveryFee as number | undefined,
-      discountApprovedBy: data.discountApprovedBy as string | undefined,
+      items: data.items || [],
+      discount: data.discount,
+      addition: data.addition,
+      deliveryFee: data.deliveryFee,
+      discountApprovedBy: data.discountApprovedBy,
       taxConfig,
       serviceChargeConfig,
       discountSettings,
@@ -308,8 +292,7 @@ class InvoiceService extends BaseRepository<any> {
    * finishes configuring the accounting engine. Making this a hard dependency of invoice creation
    * would be a breaking-behavior regression for every brand not yet using the accounting module.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async create(opts: any) {
+  async create(opts) {
     const invoice = await super.create(opts);
 
     try {
@@ -334,7 +317,7 @@ class InvoiceService extends BaseRepository<any> {
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error(
-        `[invoice.service] Sales journal entry not posted for invoice ${invoice._id}: ${(err as Error).message}`,
+        `[invoice.service] Sales journal entry not posted for invoice ${invoice._id}: ${err.message}`,
       );
     }
 

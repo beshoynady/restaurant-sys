@@ -109,9 +109,11 @@ const accountingSettingsSchema = new mongoose.Schema(
         type: ObjectId,
         ref: "Account", // credited when a ProductionOrder's overhead cost posts
       },
-      // Enterprise Finance Platform — CashierShift close-out reconciliation. Individual sales/
-      // refunds already post their own GL entries at transaction time (via Invoice's own posting);
-      // this account is only ever touched for the physical-count VARIANCE found when a shift
+      // Enterprise Finance Platform — CashierShift close-out reconciliation. Individual sales post
+      // their own Revenue/Accounts-Receivable entry at invoice time (via Invoice's own posting),
+      // but the cash-receipt side of a sale is not yet posted anywhere in this codebase as of this
+      // writing (see ADR-001-SALES-PAYMENT-ARCHITECTURE.md — that's Phase 1, not yet implemented).
+      // This account is only ever touched for the physical-count VARIANCE found when a shift
       // closes (shortage: debited as a loss; overage: credited as other income), never the shift's
       // full cash total. Not required — same degrades-gracefully precedent as accruedLabor/
       // manufacturingOverhead above: a brand without this configured still gets its shift closed
