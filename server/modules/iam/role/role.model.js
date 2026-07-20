@@ -69,6 +69,11 @@ export const RESOURCE_ENUM = [
   "PreparationTickets",
   "PreparationSections",
   "PreparationReturns",
+  // PREPARATION_DOMAIN_ARCHITECTURE_REVIEW.md: the single unified settings resource — replaces
+  // PreparationReturnSettings/PreparationTicketSettings below as the resource new code checks.
+  // Both legacy entries are kept (additive-only RBAC change, never widen/remove permissions) since
+  // their routers remain mounted for backward compatibility.
+  "PreparationSettings",
   "PreparationReturnSettings",
   "PreparationTicketSettings",
 
@@ -85,7 +90,9 @@ export const RESOURCE_ENUM = [
   "Consumptions",
   "ManualConsumptions",
   "WasteRecords",
-  "FryerOilLogs",
+  // FryerOilLogs removed (2026-07-20) — the FryerOilLog module was deleted; oil is now consumed
+  // through the same generic ManualConsumption path as every other non-recipe-driven material
+  // (oil/gas/packaging/cleaning supplies), closing a real duplication rather than a feature loss.
 
   // ================= PRODUCTION =================
   "ProductionOrders",

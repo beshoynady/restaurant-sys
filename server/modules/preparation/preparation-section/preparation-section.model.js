@@ -99,18 +99,24 @@ const PreparationSectionConfigSchema = new mongoose.Schema(
       timeWindows: [{ from: { type: String, trim: true }, to: { type: String, trim: true } }],
     },
 
-    /** Preparation logic */
+    /**
+     * Preparation logic — genuine per-station operational facts (capacity/timing), not brand-wide
+     * policy. PREPARATION_DOMAIN_ARCHITECTURE_REVIEW.md "Seventh Objective"/"Ninth Objective":
+     * these two are the only fields in this block that were ever actually read anywhere
+     * (`averagePreparationTime` by `preparation-ticket.service.js#createTicketsFromOrder`,
+     * `maxParallelTickets` by `_groupTicketsByStation`'s utilization calc) — kept here on purpose.
+     */
     averagePreparationTime: { type: Number, default: 10, min: 0 }, // minutes
     maxParallelTickets: { type: Number, default: 5, min: 1 }, // Max tickets this section can handle simultaneously
-    allowPartialDelivery: { type: Boolean, default: true }, // Can tickets be sent separately or wait for full order
 
-    /** Delivery relevance */
-    isDeliveryRelevant: { type: Boolean, default: true },
-
-    /** Ticket settings */
-    autoAssignChef: { type: Boolean, default: true }, // Auto-assign responsible employee
-    requireConfirmationBeforeSend: { type: Boolean, default: false }, // Chef must confirm ticket before sending to waiter
-    allowRejectTickets: { type: Boolean, default: true }, // Chef can reject ticket if out of stock
+    // Removed (2026-07-20, PREPARATION_DOMAIN_ARCHITECTURE_REVIEW.md "Ninth Objective"/
+    // "Recommended Architecture" #6): allowPartialDelivery, isDeliveryRelevant, autoAssignChef,
+    // requireConfirmationBeforeSend, allowRejectTickets — all five were confirmed dead (zero
+    // readers anywhere in this codebase, verified by exhaustive grep) and duplicated, in intent,
+    // the equally-dormant PreparationTicketSettings model. Brand-wide ticket policy now lives in
+    // PreparationSettings.ticket (see preparation-settings.model.js) — a genuine per-section
+    // override, if ever needed, belongs here as a new field when a real use case demands it, not
+    // reintroduced speculatively.
 
     /** Audit & status */
     isActive: { type: Boolean, default: true },

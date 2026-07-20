@@ -159,6 +159,9 @@ import productReviewRouter from "../../modules/menu/product-review/product-revie
 // ========================
 // PREPARATION
 // ========================
+// PREPARATION_DOMAIN_ARCHITECTURE_REVIEW.md: unified settings source — mounted alongside, not
+// instead of, the two legacy settings routers below (kept for backward compatibility).
+import preparationSettingsRouter from "../../modules/preparation/preparation-settings/preparation-settings.router.js";
 import preparationReturnSettingsRouter from "../../modules/preparation/preparation-settings/preparation-return-settings.router.js";
 import preparationTicketSettingsRouter from "../../modules/preparation/preparation-settings/preparation-ticket-settings.router.js";
 // PLATFORM_FINAL_AUDIT.md PA-07: broken controller import paths fixed and
@@ -166,8 +169,8 @@ import preparationTicketSettingsRouter from "../../modules/preparation/preparati
 import preparationTicketRouter from "../../modules/preparation/preparation-ticket/preparation-ticket.router.js";
 import preparationSectionRouter from "../../modules/preparation/preparation-section/preparation-section.router.js";
 import preparationReturnRouter from "../../modules/preparation/preparation-return/preparation-return.router.js";
-// Preparation & Kitchen Operations Platform Phase 7: Frying Oil Management.
-import fryerOilLogRouter from "../../modules/preparation/fryer-oil-log/fryer-oil-log.router.js";
+// FryerOilLog module deleted (2026-07-20) — oil is now consumed through the generic
+// ManualConsumption path like every other non-recipe-driven material.
 
 // ========================
 // PURCHASING
@@ -353,12 +356,12 @@ router.use("/menu/recipes", recipeRouter);
 router.use("/menu/product-reviews", productReviewRouter);
 
 // Preparation
+router.use("/preparation/settings", preparationSettingsRouter);
 router.use("/preparation/return-settings", preparationReturnSettingsRouter);
 router.use("/preparation/ticket-settings", preparationTicketSettingsRouter);
 router.use("/preparation/tickets", preparationTicketRouter);
 router.use("/preparation/sections", preparationSectionRouter);
 router.use("/preparation/returns", preparationReturnRouter);
-router.use("/preparation/fryer-oil-logs", fryerOilLogRouter);
 
 // Purchasing
 router.use("/purchasing/settings", purchaseSettingsRouter);

@@ -6,25 +6,32 @@ import PreparationSectionModel from "../preparation-section/preparation-section.
 import { expandOrderItems } from "../../sales/order/order-item-expansion.js";
 import recipeConsumptionService from "../../inventory/recipe-consumption/recipe-consumption.service.js";
 import inventorySettingsService from "../../inventory/inventory-settings/inventory-settings.service.js";
+import preparationSettingsService from "../preparation-settings/preparation-settings.service.js";
+import { createTransitionGuard } from "../../../utils/TransitionGuard.js";
 
 // PLATFORM_FINAL_AUDIT.md PA-07: preparationStatus/deliveryStatus were raw
 // enum fields updated through the generic BaseController.update with no
 // transition guard — any client could set any status from any status.
-// Guarded here, mirroring the pattern already established for
-// LeaveRequest/EmployeeAdvance in the HR domain.
-const PREPARATION_STATUS_TRANSITIONS = {
+// PREPARATION_DOMAIN_ARCHITECTURE_REVIEW.md "Eighth Objective"/"Recommended Architecture" #3: now
+// built on the platform's shared createTransitionGuard() utility (already used by
+// waste-record.service.js/purchase-return.service.js) instead of a hand-rolled inline map — same
+// states/transitions as before, just no longer a duplicate reimplementation of the same guard.
+// Note the one observable, intentional side effect: an invalid transition now
+// responds 409 (TransitionGuard's own convention, matching every other module that already uses
+// it) instead of this file's previous ad hoc 400 — standardizing to the platform norm, not a new rule.
+const preparationStatusGuard = createTransitionGuard({
   PENDING: ["PREPARING", "CANCELLED", "REJECTED"],
   PREPARING: ["READY", "CANCELLED", "REJECTED"],
   READY: [],
   CANCELLED: [],
   REJECTED: [],
-};
+});
 
-const DELIVERY_STATUS_TRANSITIONS = {
+const deliveryStatusGuard = createTransitionGuard({
   WAITING: ["READY_FOR_HANDOVER"],
   READY_FOR_HANDOVER: ["HANDED_OVER"],
   HANDED_OVER: [],
-};
+});
 
 class PreparationTicketService extends AdvancedService {
   constructor() {
@@ -45,29 +52,47 @@ class PreparationTicketService extends AdvancedService {
   async update(opts) {
     const { id, brandId, data } = opts;
 
-    if (data?.preparationStatus || data?.deliveryStatus) {
+    const touchesStatus = Boolean(data?.preparationStatus || data?.deliveryStatus);
+    // PreparationSettings.ticket.allowEditAfterSent gate (below) needs to see any attempt to edit
+    // ticket contents, not just status changes — `items` is the field that gate actually protects.
+    const touchesItems = data?.items !== undefined;
+
+    if (touchesStatus || touchesItems) {
       const current = await this.model.findById(id).select("preparationStatus deliveryStatus brand branch").lean();
       if (!current) {
         throwError("Resource not found", 404);
+      }
+
+      // PREPARATION_DOMAIN_ARCHITECTURE_REVIEW.md "Sixth Objective"/"Recommended Architecture":
+      // PreparationTicket now consumes the unified PreparationSettings document instead of the
+      // (unread) PreparationTicketSettings/PreparationSectionConfig-embedded fields it never
+      // actually read before.
+      const settings = await preparationSettingsService.resolveForBranch(current.brand, current.branch, opts.updatedBy);
+
+      if (touchesItems && current.preparationStatus !== "PENDING" && settings.ticket?.allowEditAfterSent === false) {
+        throwError(
+          "This ticket has already been sent to the kitchen — its items can no longer be edited (PreparationSettings.ticket.allowEditAfterSent is disabled for this brand/branch).",
+          409,
+        );
       }
 
       const filter = { _id: id, brand: brandId };
       const setUpdate = {};
 
       if (data.preparationStatus && data.preparationStatus !== current.preparationStatus) {
-        const allowed = PREPARATION_STATUS_TRANSITIONS[current.preparationStatus] || [];
-        if (!allowed.includes(data.preparationStatus)) {
-          throwError(`Invalid preparationStatus transition: ${current.preparationStatus} -> ${data.preparationStatus}`, 400);
+        preparationStatusGuard.assertValid(current.preparationStatus, data.preparationStatus);
+        if (data.preparationStatus === "REJECTED" && settings.ticket?.allowRejectTicket === false) {
+          throwError(
+            "Rejecting a ticket is disabled for this brand/branch (PreparationSettings.ticket.allowRejectTicket).",
+            403,
+          );
         }
         filter.preparationStatus = current.preparationStatus;
         setUpdate.preparationStatus = data.preparationStatus;
       }
 
       if (data.deliveryStatus && data.deliveryStatus !== current.deliveryStatus) {
-        const allowed = DELIVERY_STATUS_TRANSITIONS[current.deliveryStatus] || [];
-        if (!allowed.includes(data.deliveryStatus)) {
-          throwError(`Invalid deliveryStatus transition: ${current.deliveryStatus} -> ${data.deliveryStatus}`, 400);
-        }
+        deliveryStatusGuard.assertValid(current.deliveryStatus, data.deliveryStatus);
         filter.deliveryStatus = current.deliveryStatus;
         setUpdate.deliveryStatus = data.deliveryStatus;
       }
@@ -95,8 +120,8 @@ class PreparationTicketService extends AdvancedService {
 
         if (startedPrep || finishedPrep || handedOver) {
           try {
-            const settings = await inventorySettingsService.resolveForPosting(current.brand, current.branch);
-            const trigger = settings.inventoryDeductionTrigger || "ON_ORDER_CONFIRM";
+            const inventorySettings = await inventorySettingsService.resolveForPosting(current.brand, current.branch);
+            const trigger = inventorySettings.inventoryDeductionTrigger || "ON_ORDER_CONFIRM";
             const shouldConsume =
               (startedPrep && trigger === "ON_PREP_START") ||
               (finishedPrep && trigger === "ON_PREP_END") ||
@@ -154,10 +179,15 @@ class PreparationTicketService extends AdvancedService {
 
     // ticketNumber is scoped per-order (the model's own unique index is {order, ticketNumber}, not
     // brand-wide) — a simple per-order counter, not a SequenceGeneratorService sequence; the
-    // pre-existing PreparationTicketSettings.ticketSequence sub-doc uses an incompatible,
-    // unread shape (confirmed: no code anywhere calls SequenceGeneratorService against it) and is
-    // left as a named, separate cleanup rather than adopted here under this milestone's scope.
+    // legacy PreparationTicketSettings.ticketSequence sub-doc (now migrated into
+    // PreparationSettings.ticket.ticketSequence, see preparation-settings.service.js) uses an
+    // incompatible, still-unread shape and remains a named, separate cleanup, not adopted here.
     let ticketNumber = await this.model.countDocuments({ order: order._id });
+
+    // PreparationSettings.ticket.deliveryPolicy is only the FALLBACK default when the order itself
+    // doesn't specify one — Order's own value always wins when present, unchanged from before.
+    const settings = await preparationSettingsService.resolveForBranch(order.brand, order.branch, actorId);
+    const deliveryPolicyDefault = settings.ticket?.deliveryPolicy || "IMMEDIATE";
 
     const now = new Date();
     const tickets = [];
@@ -172,7 +202,7 @@ class PreparationTicketService extends AdvancedService {
         ticketNumber,
         order: order._id,
         preparationSection: sectionId,
-        deliveryPolicy: order.deliveryPolicy || "IMMEDIATE",
+        deliveryPolicy: order.deliveryPolicy || deliveryPolicyDefault,
         items: itemsBySection[sectionId].map((item) => ({
           orderItemId: item.orderItemId,
           product: item.product,
@@ -207,16 +237,22 @@ class PreparationTicketService extends AdvancedService {
     if (branchId) filter.branch = branchId;
     if (section) filter.preparationSection = section;
 
-    const tickets = await this.model
-      .find(filter)
-      .populate("order", "orderNum orderType")
-      .populate("preparationSection", "name stationType maxParallelTickets averagePreparationTime")
-      .populate("items.product", "name")
-      .populate("responsibleEmployee", "name")
-      .sort({ receivedAt: 1 })
-      .lean();
+    const [tickets, settings] = await Promise.all([
+      this.model
+        .find(filter)
+        .populate("order", "orderNum orderType")
+        .populate("preparationSection", "name stationType maxParallelTickets averagePreparationTime")
+        .populate("items.product", "name")
+        .populate("responsibleEmployee", "name")
+        .sort({ receivedAt: 1 })
+        .lean(),
+      // PreparationSettings.sla.warningThresholdMinutes replaces the hardcoded 3-minute value the
+      // SLA badge used to use — see _groupTicketsByStation below.
+      preparationSettingsService.resolveForBranch(brandId, branchId),
+    ]);
 
-    return this._groupTicketsByStation(tickets);
+    const warningThresholdMinutes = settings.sla?.warningThresholdMinutes ?? 3;
+    return this._groupTicketsByStation(tickets, warningThresholdMinutes);
   }
 
   /** Dashboard summary — per-station live counts/utilization, for dashboard-card style widgets. */
@@ -254,7 +290,7 @@ class PreparationTicketService extends AdvancedService {
    * `PreparationSectionConfig` already carries but nothing previously read). Shared by both the
    * queue and the dashboard so the two views can never silently disagree on what "overdue" means.
    */
-  _groupTicketsByStation(tickets) {
+  _groupTicketsByStation(tickets, warningThresholdMinutes = 3) {
     const now = Date.now();
     const byStation = new Map();
 
@@ -282,7 +318,7 @@ class PreparationTicketService extends AdvancedService {
       const elapsedMinutes = Math.round((now - receivedAt) / 60000);
       const remainingMinutes = Math.round((expectedReadyAt - now) / 60000);
       const isOverdue = ticket.preparationStatus !== "READY" && now > expectedReadyAt;
-      const slaBadge = isOverdue ? "overdue" : remainingMinutes <= 3 ? "warning" : "onTime";
+      const slaBadge = isOverdue ? "overdue" : remainingMinutes <= warningThresholdMinutes ? "warning" : "onTime";
 
       station.activeTicketCount += 1;
       if (isOverdue) station.overdueCount += 1;

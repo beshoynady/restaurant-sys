@@ -46,7 +46,7 @@ describe("PA-07: preparation-ticket status-transition guard", () => {
         brandId: fixture.brandId,
         data: { preparationStatus: "READY" },
       }),
-    ).rejects.toThrow(/Invalid preparationStatus transition/i);
+    ).rejects.toThrow(/cannot transition/i);
 
     const current = await PreparationTicketModel.findById(id).lean();
     expect(current!.preparationStatus).toBe("PENDING");
@@ -90,7 +90,7 @@ describe("PA-07: preparation-ticket status-transition guard", () => {
         brandId: fixture.brandId,
         data: { preparationStatus: "CANCELLED" },
       }),
-    ).rejects.toThrow(/Invalid preparationStatus transition/i);
+    ).rejects.toThrow(/cannot transition/i);
   });
 
   it("rejects skipping WAITING -> HANDED_OVER for deliveryStatus", async () => {
@@ -102,6 +102,6 @@ describe("PA-07: preparation-ticket status-transition guard", () => {
         brandId: fixture.brandId,
         data: { deliveryStatus: "HANDED_OVER" },
       }),
-    ).rejects.toThrow(/Invalid deliveryStatus transition/i);
+    ).rejects.toThrow(/cannot transition/i);
   });
 });

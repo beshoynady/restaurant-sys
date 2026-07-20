@@ -18,7 +18,7 @@ export const DOMAIN_GROUPS = {
     "MenuCategories", "MenuSettings", "Products", "Recipes", "Orders", "Invoices",
     "InvoiceSettings", "OrderSettings", "SalesReturns", "SalesReturnSettings", "Promotions", "ProductReviews",
   ],
-  KITCHEN: ["PreparationTickets", "PreparationSections", "PreparationReturns", "PreparationReturnSettings", "PreparationTicketSettings"],
+  KITCHEN: ["PreparationTickets", "PreparationSections", "PreparationReturns", "PreparationSettings", "PreparationReturnSettings", "PreparationTicketSettings"],
   INVENTORY: [
     "StockItems", "StockCategories", "Inventory", "InventorySettings", "InventoryCounts",
     "StockLedgers", "StockTransferRequests", "Warehouses", "WarehouseDocuments", "Consumptions",

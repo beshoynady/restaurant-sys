@@ -141,7 +141,7 @@ describe("Enterprise Production Platform: Order -> Kitchen Ticket Auto-Creation"
     // Invalid jump (PREPARING -> nonsense) rejected.
     await expect(
       preparationTicketService.update({ id: String(ticket!._id), brandId: fixture.brandId, branchId: fixture.branchId, data: { preparationStatus: "PENDING" } }),
-    ).rejects.toThrow(/invalid preparationstatus transition/i);
+    ).rejects.toThrow(/cannot transition/i);
   });
 
   it("rejects a second concurrent OPEN -> IN_PROGRESS confirmation for the same order (no double ticket creation)", async () => {

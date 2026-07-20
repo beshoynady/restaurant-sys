@@ -94,15 +94,9 @@ const inventorySettingsSchema = new mongoose.Schema(
       lastResetDate: { type: Date, default: null },
     },
 
-    // Preparation & Kitchen Operations Platform Phase 7 — numbering for FryerOilLog.
-    fryerOilLogSequence: {
-      prefix: { type: String, default: "OIL-" },
-      startNumber: { type: Number, default: 1 },
-      currentNumber: { type: Number, default: 1 },
-      padding: { type: Number, default: 0 },
-      resetPolicy: { type: String, enum: ["NONE", "DAILY", "MONTHLY", "YEARLY"], default: "YEARLY" },
-      lastResetDate: { type: Date, default: null },
-    },
+    // fryerOilLogSequence removed (2026-07-20) — the FryerOilLog module was deleted; oil is now
+    // consumed through the generic ManualConsumption path (manualConsumptionSequence above),
+    // which already numbers oil/gas/packaging/cleaning-supply consumption events.
 
     // Supply Chain & Commerce Platform V5.1 — numbering for InventoryCount and
     // StockTransferRequest, via the shared SequenceGeneratorService (same pattern as
