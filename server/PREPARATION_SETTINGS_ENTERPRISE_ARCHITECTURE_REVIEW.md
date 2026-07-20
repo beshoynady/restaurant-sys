@@ -1,6 +1,6 @@
 # Preparation Settings — Enterprise Architecture Review
 
-**Status:** Architecture review only. No code, model, service, controller, route, or validation has been created or modified in producing this document. Design phase has not started — awaiting explicit approval per this review's own instruction.
+**Status:** Architecture review only when written. This review's finding that `PreparationSettings.notifications`/`.escalation` duplicate `NotificationSettings` (§6) was carried forward and acted on: those fields, plus several other unwired placeholders, were removed from `PreparationSettings` on 2026-07-21 (see `PREPARATION_CONFIGURATION_PLATFORM_ENTERPRISE_DESIGN.md` and CLAUDE.md item 16). This review's Device/Printer/Display/Routing findings (§6-§14) remain analysis only — no Device Platform has been built.
 **Date:** 2026-07-20
 **Method:** Every claim below is traced to source. This review builds on, and in places corrects/extends, `PREPARATION_DOMAIN_ARCHITECTURE_REVIEW.md` and its implementation (both from earlier the same day) — that implementation already unified `PreparationTicketSettings`/`PreparationReturnSettings` into a real `PreparationSettings` document; this review evaluates that result against a much wider enterprise scope (devices, printing, display, routing, notifications) that the earlier pass deliberately left as declared-but-unwired placeholders.
 

@@ -1,7 +1,22 @@
+import mongoose from "mongoose";
 import PreparationSettingsModel from "./preparation-settings.model.js";
 import AdvancedService from "../../../utils/BaseRepository.js";
-import PreparationTicketSettingsModel from "./preparation-ticket-settings.model.js";
-import PreparationReturnSettingsModel from "./preparation-return-settings.model.js";
+
+// PreparationTicketSettings/PreparationReturnSettings collection names — the two legacy settings
+// modules have been fully removed (no model/service/controller/router/validation file exists for
+// either any longer, per PREPARATION_CONFIGURATION_PLATFORM_ENTERPRISE_DESIGN.md's "must not be
+// PreparationTicketSettings/PreparationReturnSettings" requirement). `migrateLegacySettings()`
+// below still needs to read whatever real data those collections may already hold in MongoDB — it
+// does so via the raw driver against these known collection names (Mongoose's own default
+// pluralization of the two former model names, verified directly: `mongoose.model("Preparation
+// TicketSettings", ...).collection.name === "preparationticketsettings"`, same for Return), not by
+// importing a Mongoose model, since none exists to import. This is intentionally the LAST piece of
+// code in this codebase that still knows these two collection names exist — once every brand has
+// been read at least once (which persists a real PreparationSettings document, see
+// resolveForBranch() below), these constants and this whole migration path can be deleted in a
+// later, separate cleanup with zero functional loss.
+const LEGACY_TICKET_SETTINGS_COLLECTION = "preparationticketsettings";
+const LEGACY_RETURN_SETTINGS_COLLECTION = "preparationreturnsettings";
 
 // Hardcoded fallback — identical values to the schema's own defaults, used only when no
 // PreparationSettings document AND no legacy document exists to migrate from (a brand nobody has
@@ -35,17 +50,7 @@ const HARDCODED_DEFAULTS = {
     ticketImmutableAfterFinalize: true,
   },
   queue: { sortBy: "receivedAt" },
-  display: { refreshIntervalSeconds: 15 },
-  routing: { allowMultiSectionSplit: true },
   sla: { warningThresholdMinutes: 3 },
-  notifications: { notifyOnReject: false, notifyOnOverdue: false },
-  escalation: { escalateAfterMinutes: 0 },
-  printing: { autoPrintOnCreate: false },
-  safety: { requireHaccpCheck: false },
-  quality: { requireQualityRatingOnDiscard: false },
-  shift: { requireOpenShiftForOperations: false },
-  inventoryBehavior: { affectInventoryOnReturn: true },
-  waste: { defaultWasteCategory: null },
 };
 
 class PreparationSettingsService extends AdvancedService {
@@ -61,20 +66,24 @@ class PreparationSettingsService extends AdvancedService {
   }
 
   /**
-   * PREPARATION_DOMAIN_ARCHITECTURE_REVIEW.md's "Backward compatibility / migration" requirement:
-   * the two legacy settings collections (`PreparationTicketSettings`, `PreparationReturnSettings`)
-   * are never deleted or written to — this reads them once, lazily, the first time this brand/
-   * branch's PreparationSettings is resolved and none exists yet, and folds whatever legacy values
-   * exist into the new unified shape. Legacy `PreparationReturnSettings` docs scoped to a specific
-   * `preparationSection` are intentionally NOT migrated (the unified model has no per-section
-   * scope, matching PREPARATION_DOMAIN_ARCHITECTURE_REVIEW.md's "Settings = policy, Section =
-   * operational identity" boundary) — only the brand-wide (`preparationSection: null`) legacy
-   * return-settings document is a valid migration source.
+   * Backward-compatibility / migration: the two legacy settings collections
+   * (`preparationticketsettings`, `preparationreturnsettings` — no Mongoose model for either
+   * exists any longer) are never deleted or written to by this method — it reads whatever data
+   * they may already hold once, lazily, the first time this brand/branch's PreparationSettings is
+   * resolved and none exists yet, and folds any real legacy values into the new unified shape.
+   * Legacy return-settings docs scoped to a specific `preparationSection` are intentionally NOT
+   * migrated (the unified model has no per-section scope, matching this platform's "Settings =
+   * policy, Section = operational identity" boundary) — only a brand-wide
+   * (`preparationSection: null`) legacy return-settings document is a valid migration source.
    */
   async migrateLegacySettings({ brandId, branchId, actorId }) {
+    const brandObjectId = new mongoose.Types.ObjectId(brandId);
+    const branchObjectId = branchId ? new mongoose.Types.ObjectId(branchId) : null;
+    const db = mongoose.connection.db;
+
     const [legacyTicket, legacyReturn] = await Promise.all([
-      PreparationTicketSettingsModel.findOne({ brand: brandId, branch: branchId, isDeleted: { $ne: true } }).lean(),
-      PreparationReturnSettingsModel.findOne({ brand: brandId, branch: branchId, preparationSection: null, isDeleted: { $ne: true } }).lean(),
+      db.collection(LEGACY_TICKET_SETTINGS_COLLECTION).findOne({ brand: brandObjectId, branch: branchObjectId, isDeleted: { $ne: true } }),
+      db.collection(LEGACY_RETURN_SETTINGS_COLLECTION).findOne({ brand: brandObjectId, branch: branchObjectId, preparationSection: null, isDeleted: { $ne: true } }),
     ]);
 
     if (!legacyTicket && !legacyReturn) return null;

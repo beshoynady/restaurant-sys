@@ -3,16 +3,34 @@ const { Schema } = mongoose;
 const ObjectId = Schema.Types.ObjectId;
 
 /**
- * PreparationSettings — the single configuration source for the whole Preparation bounded
- * context (PREPARATION_DOMAIN_ARCHITECTURE_REVIEW.md, "Fifth Objective" / "Recommended
- * Architecture"). Replaces three previously-uncoordinated, entirely-unread settings surfaces:
- * `PreparationTicketSettings`, `PreparationReturnSettings`, and five ticket-policy fields that
- * used to live directly on `PreparationSectionConfig` (`autoAssignChef`,
- * `requireConfirmationBeforeSend`, `allowRejectTickets`, `allowPartialDelivery`,
- * `isDeliveryRelevant`). Those three collections/fields are NOT deleted — see
- * `preparation-settings.service.js#migrateLegacySettings()` for the backward-compatible,
- * lazy migration path — but this document is the one place new code reads Preparation policy
- * from.
+ * PreparationSettings — the ONLY configuration aggregate for the entire Preparation bounded
+ * context (PREPARATION_CONFIGURATION_PLATFORM_ENTERPRISE_DESIGN.md §8, approved 2026-07-20).
+ *
+ * `PreparationTicketSettings` and `PreparationReturnSettings` have been fully removed (their
+ * collections are not deleted from MongoDB — any real data is folded forward by
+ * `preparation-settings.service.js#migrateLegacySettings()`, which reads the raw collections
+ * directly rather than importing the now-deleted Mongoose models — but no code anywhere
+ * references those two model/service/controller/router/validation modules any longer; they do
+ * not exist in source). The five ticket-policy fields formerly embedded on
+ * `PreparationSectionConfig` (`autoAssignChef`, `requireConfirmationBeforeSend`,
+ * `allowRejectTickets`, `allowPartialDelivery`, `isDeliveryRelevant`) were removed earlier the
+ * same day and are not restored here.
+ *
+ * Scope is deliberately narrow — only genuine Preparation BUSINESS POLICY, per the approved
+ * design's explicit Single-Source-of-Truth boundary. Removed from the original same-day draft of
+ * this model (each duplicated or had no real owner — PREPARATION_CONFIGURATION_PLATFORM_
+ * ENTERPRISE_DESIGN.md §3/§6/§8): `notifications`/`escalation` (duplicate the already-real
+ * `NotificationSettings.preparationSection.newOrder`/`.delayedOrder` — that model is the correct,
+ * sole owner of all notification/escalation policy platform-wide); `printing` (duplicates
+ * `PrintSettings`, the correct, sole owner of print formatting); `display`/`routing` (hardware/
+ * device-routing concerns — the future, not-yet-built Device/Routing Platform's job, never
+ * Preparation's); `safety`/`quality`/`shift` (no real business rule or consuming code exists for
+ * any of these anywhere in this codebase — correctly left undesigned rather than homed
+ * prematurely, matching this platform's own repeated "schema-ahead-of-implementation" lesson);
+ * `waste.defaultWasteCategory` (no reader anywhere — `WasteRecord.wasteCategory` is chosen per
+ * actual waste event, never defaulted from settings); a redundant top-level `inventoryBehavior`
+ * wrapper that duplicated `return.affectInventory` below (same concept, two locations — kept the
+ * one that was already part of the real, migrated `PreparationReturnSettings` schema).
  *
  * Scoped brand/branch only (mirrors `AccountingSettings`/`OrderSettings`/`InventorySettings`'s own
  * convention), not per-`PreparationSectionConfig` — genuine per-station operational facts
@@ -72,66 +90,14 @@ const preparationSettingsSchema = new Schema(
       ticketImmutableAfterFinalize: { type: Boolean, default: true },
     },
 
-    /** Kitchen Queue / KDS display policy. */
+    /** Kitchen Queue behavior — `sortBy` is read by `preparation-ticket.service.js#getKitchenQueue()`. */
     queue: {
       sortBy: { type: String, enum: ["receivedAt", "expectedReadyAt"], default: "receivedAt" },
-    },
-    display: {
-      refreshIntervalSeconds: { type: Number, default: 15, min: 1 },
-    },
-
-    /** Ticket routing policy (documents the existing per-section-split behavior; does not change it). */
-    routing: {
-      allowMultiSectionSplit: { type: Boolean, default: true },
     },
 
     /** SLA — the fixed 3-minute "warning" threshold `_groupTicketsByStation()` used to hardcode. */
     sla: {
       warningThresholdMinutes: { type: Number, default: 3, min: 0 },
-    },
-
-    /**
-     * Notifications / Escalations / Printing / Safety / Quality / Shift — declared configuration
-     * surfaces per this domain's architecture review (Objective 1's full list). No dispatch/
-     * enforcement mechanism exists anywhere in this bounded context for these yet (verified: no
-     * notification, printing, or HACCP-style safety-check code exists in Preparation today) — these
-     * fields exist so the single settings document is genuinely complete and future phases have
-     * one place to wire behavior into, not because this phase invents new workflows for them.
-     */
-    notifications: {
-      notifyOnReject: { type: Boolean, default: false },
-      notifyOnOverdue: { type: Boolean, default: false },
-    },
-    escalation: {
-      escalateAfterMinutes: { type: Number, default: 0, min: 0 },
-    },
-    printing: {
-      autoPrintOnCreate: { type: Boolean, default: false },
-    },
-    safety: {
-      requireHaccpCheck: { type: Boolean, default: false },
-    },
-    quality: {
-      requireQualityRatingOnDiscard: { type: Boolean, default: false },
-    },
-    shift: {
-      requireOpenShiftForOperations: { type: Boolean, default: false },
-    },
-
-    /** Inventory-behavior policy shared across Return/Oil (kept generic, not duplicated per feature). */
-    inventoryBehavior: {
-      affectInventoryOnReturn: { type: Boolean, default: true },
-    },
-    waste: {
-      defaultWasteCategory: {
-        type: String,
-        enum: [
-          "PreparationWaste", "ProductionWaste", "CookingLoss", "YieldLoss", "Spoilage",
-          "Expired", "Damaged", "BurnedFood", "Shrinkage", "Theft", "QualityReject",
-          "CustomerReturnWaste", null,
-        ],
-        default: null,
-      },
     },
 
     isActive: { type: Boolean, default: true },

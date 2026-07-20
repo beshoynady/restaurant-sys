@@ -69,13 +69,12 @@ export const RESOURCE_ENUM = [
   "PreparationTickets",
   "PreparationSections",
   "PreparationReturns",
-  // PREPARATION_DOMAIN_ARCHITECTURE_REVIEW.md: the single unified settings resource — replaces
-  // PreparationReturnSettings/PreparationTicketSettings below as the resource new code checks.
-  // Both legacy entries are kept (additive-only RBAC change, never widen/remove permissions) since
-  // their routers remain mounted for backward compatibility.
+  // PREPARATION_CONFIGURATION_PLATFORM_ENTERPRISE_DESIGN.md: the ONLY settings resource for
+  // Preparation — PreparationReturnSettings/PreparationTicketSettings removed (2026-07-20, not
+  // just deprecated) alongside the modules/routers they gated; neither exists in source any
+  // longer. Any pre-existing Role document with a stored permission entry for either name is
+  // harmless (no route checks it), left for a future, separate data-cleanup pass.
   "PreparationSettings",
-  "PreparationReturnSettings",
-  "PreparationTicketSettings",
 
   // ================= INVENTORY =================
   "StockItems",

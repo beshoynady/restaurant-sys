@@ -59,7 +59,7 @@ Derived directly from `RESOURCE_ENUM`'s own existing section comments (already a
 | `HR_PAYROLL` | Payrolls, PayrollItems, PayrollSettings, EmployeeFinancial, EmployeeTransactions, EmployeeAdvances |
 | `IAM` | UserAccounts, Roles, AuthCredentials, AuthenticationSettings, Sessions, Devices, SecurityEvents |
 | `MENU_SALES` | MenuCategories, MenuSettings, Products, Recipes, Orders, Invoices, InvoiceSettings, OrderSettings, SalesReturns, SalesReturnSettings, Promotions, ProductReviews |
-| `KITCHEN` | PreparationTickets, PreparationSections, PreparationReturns, PreparationReturnSettings, PreparationTicketSettings |
+| `KITCHEN` | PreparationTickets, PreparationSections, PreparationReturns, PreparationSettings (formerly PreparationReturnSettings/PreparationTicketSettings, consolidated 2026-07-21) |
 | `INVENTORY` | StockItems, StockCategories, Inventory, InventorySettings, InventoryCounts, StockLedgers, StockTransferRequests, Warehouses, WarehouseDocuments, Consumptions |
 | `CASH_FINANCE` | CashRegisters, CashTransactions, CashTransfers, BankAccounts |
 | `ACCOUNTING` | Accounts, JournalEntries, JournalLines, AccountingPeriods, AccountingSettings, CostCenters, AccountBalances, Ledgers |

@@ -31,7 +31,7 @@ import InvoiceSettingsModel from "../../modules/sales/invoice-settings/invoice-s
 import TaxConfigModel from "../../modules/system/tax-settings/tax-config.model.js";
 import BranchSettingsModel from "../../modules/organization/branch-settings/branch-settings.model.js";
 import BrandSettingsModel from "../../modules/organization/brand-settings/brand-settings.model.js";
-import PreparationTicketSettingsModel from "../../modules/preparation/preparation-settings/preparation-ticket-settings.model.js";
+import PreparationSettingsModel from "../../modules/preparation/preparation-settings/preparation-settings.model.js";
 import InventorySettingsModel from "../../modules/inventory/inventory-settings/inventory-settings.model.js";
 import CashierShiftSettingsModel from "../../modules/finance/cashier-shift-settings/cashier-shift-settings.model.js";
 import PrintSettingsModel from "../../modules/system/print-settings/print-settings.model.js";
@@ -83,7 +83,7 @@ async function cleanupBrand(brandId: any) {
     TaxConfigModel.deleteMany({ brand: brandId }),
     BranchSettingsModel.deleteMany({ brand: brandId }),
     BrandSettingsModel.deleteMany({ brand: brandId }),
-    PreparationTicketSettingsModel.deleteMany({ brand: brandId }),
+    PreparationSettingsModel.deleteMany({ brand: brandId }),
     InventorySettingsModel.deleteMany({ brand: brandId }),
     CashierShiftSettingsModel.deleteMany({ brand: brandId }),
     PrintSettingsModel.deleteMany({ brand: brandId }),

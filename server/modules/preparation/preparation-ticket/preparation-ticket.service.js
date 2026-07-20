@@ -237,21 +237,22 @@ class PreparationTicketService extends AdvancedService {
     if (branchId) filter.branch = branchId;
     if (section) filter.preparationSection = section;
 
-    const [tickets, settings] = await Promise.all([
-      this.model
-        .find(filter)
-        .populate("order", "orderNum orderType")
-        .populate("preparationSection", "name stationType maxParallelTickets averagePreparationTime")
-        .populate("items.product", "name")
-        .populate("responsibleEmployee", "name")
-        .sort({ receivedAt: 1 })
-        .lean(),
-      // PreparationSettings.sla.warningThresholdMinutes replaces the hardcoded 3-minute value the
-      // SLA badge used to use — see _groupTicketsByStation below.
-      preparationSettingsService.resolveForBranch(brandId, branchId),
-    ]);
-
+    // PreparationSettings.sla.warningThresholdMinutes replaces the hardcoded 3-minute value the
+    // SLA badge used to use, and PreparationSettings.queue.sortBy replaces the hardcoded
+    // `receivedAt` sort order — resolved first since the ticket query below depends on it.
+    const settings = await preparationSettingsService.resolveForBranch(brandId, branchId);
     const warningThresholdMinutes = settings.sla?.warningThresholdMinutes ?? 3;
+    const sortBy = settings.queue?.sortBy === "expectedReadyAt" ? "expectedReadyAt" : "receivedAt";
+
+    const tickets = await this.model
+      .find(filter)
+      .populate("order", "orderNum orderType")
+      .populate("preparationSection", "name stationType maxParallelTickets averagePreparationTime")
+      .populate("items.product", "name")
+      .populate("responsibleEmployee", "name")
+      .sort({ [sortBy]: 1 })
+      .lean();
+
     return this._groupTicketsByStation(tickets, warningThresholdMinutes);
   }
 

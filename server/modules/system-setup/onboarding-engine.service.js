@@ -18,7 +18,9 @@ import InvoiceSettings from "../sales/invoice-settings/invoice-settings.model.js
 import TaxConfig from "../system/tax-settings/tax-config.model.js";
 import BranchSettings from "../organization/branch-settings/branch-settings.model.js";
 import BrandSettings from "../organization/brand-settings/brand-settings.model.js";
-import PreparationTicketSettings from "../preparation/preparation-settings/preparation-ticket-settings.model.js";
+// PREPARATION_CONFIGURATION_PLATFORM_ENTERPRISE_DESIGN.md (2026-07-20): PreparationTicketSettings
+// was fully removed — onboarding now seeds the single, unified PreparationSettings aggregate.
+import PreparationSettings from "../preparation/preparation-settings/preparation-settings.model.js";
 import InventorySettings from "../inventory/inventory-settings/inventory-settings.model.js";
 import CashierShiftSettings from "../finance/cashier-shift-settings/cashier-shift-settings.model.js";
 import PrintSettings from "../system/print-settings/print-settings.model.js";
@@ -454,7 +456,7 @@ class OnboardingEngineService {
     await PayrollSettings.create([{ brand }], opts);
     await OrderSettings.create([{ brand, createdBy }], opts);
     await InvoiceSettings.create([{ brand, createdBy }], opts);
-    await PreparationTicketSettings.create([{ brand, createdBy }], opts);
+    await PreparationSettings.create([{ brand, createdBy }], opts);
     await InventorySettings.create([{ brand }], opts);
     await CashierShiftSettings.create([{ brand }], opts);
     await PrintSettings.create([{ brand, branch, createdBy }], opts);

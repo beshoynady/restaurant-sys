@@ -1,17 +1,21 @@
-// PREPARATION_DOMAIN_ARCHITECTURE_REVIEW.md implementation — unified PreparationSettings.
-// Verifies: resolveForBranch() falls back to hardcoded defaults when nothing is configured,
-// lazily migrates the two legacy settings collections (PreparationTicketSettings/
-// PreparationReturnSettings) into the new unified document without losing any configured value,
+// PREPARATION_CONFIGURATION_PLATFORM_ENTERPRISE_DESIGN.md implementation (2026-07-21) — unified
+// PreparationSettings is now the ONLY configuration aggregate for Preparation.
+// PreparationTicketSettings/PreparationReturnSettings have been fully removed (no model/service/
+// controller/router/validation exists for either any longer). Verifies: resolveForBranch() falls
+// back to hardcoded defaults when nothing is configured, lazily migrates whatever legacy data
+// still physically exists in the old collections (inserted here via the raw MongoDB driver, since
+// no Mongoose model remains to construct one through) into the new unified document without loss,
 // and that migration only persists once an authenticated actor is available (never fabricates one).
 import mongoose from "mongoose";
 import { connectTestDb, disconnectTestDb } from "./setup.js";
 import { createBaseFixture, cleanupFixture, type TestFixture } from "./fixtures.js";
 import preparationSettingsService from "../../modules/preparation/preparation-settings/preparation-settings.service.js";
 import PreparationSettingsModel from "../../modules/preparation/preparation-settings/preparation-settings.model.js";
-import PreparationTicketSettingsModel from "../../modules/preparation/preparation-settings/preparation-ticket-settings.model.js";
-import PreparationReturnSettingsModel from "../../modules/preparation/preparation-settings/preparation-return-settings.model.js";
 
-describe("PreparationSettings — unified settings + legacy migration", () => {
+const LEGACY_TICKET_SETTINGS_COLLECTION = "preparationticketsettings";
+const LEGACY_RETURN_SETTINGS_COLLECTION = "preparationreturnsettings";
+
+describe("PreparationSettings — the only configuration aggregate + legacy migration", () => {
   let fixture: TestFixture;
 
   beforeAll(async () => {
@@ -21,8 +25,6 @@ describe("PreparationSettings — unified settings + legacy migration", () => {
 
   afterAll(async () => {
     await PreparationSettingsModel.deleteMany({ brand: fixture.brandId });
-    await PreparationTicketSettingsModel.deleteMany({ brand: fixture.brandId });
-    await PreparationReturnSettingsModel.deleteMany({ brand: fixture.brandId });
     await cleanupFixture(fixture);
     await disconnectTestDb();
   });
@@ -43,25 +45,34 @@ describe("PreparationSettings — unified settings + legacy migration", () => {
     expect(stored).toBeNull();
   });
 
-  it("migrates legacy PreparationTicketSettings/PreparationReturnSettings values without loss, once an actor is available", async () => {
+  it("migrates whatever legacy settings data still exists in the old collections, without loss, once an actor is available", async () => {
     const suffix = Math.random().toString(36).slice(2, 8);
     const legacyFixture = await createBaseFixture(`pset-lg-${suffix}`);
+    const db = mongoose.connection.db;
+    const brandObjectId = new mongoose.Types.ObjectId(legacyFixture.brandId);
+    const branchObjectId = new mongoose.Types.ObjectId(legacyFixture.branchId);
+    const userObjectId = new mongoose.Types.ObjectId(legacyFixture.userId);
 
-    await PreparationTicketSettingsModel.create({
-      brand: legacyFixture.brandId,
-      branch: legacyFixture.branchId,
+    // Simulates a brand that configured these BEFORE the two legacy settings modules were removed
+    // — inserted directly against the raw collection, since no Mongoose model remains to go
+    // through (exactly the situation preparation-settings.service.js#migrateLegacySettings()
+    // exists to handle).
+    await db.collection(LEGACY_TICKET_SETTINGS_COLLECTION).insertOne({
+      brand: brandObjectId,
+      branch: branchObjectId,
       autoSendToWaiter: false,
       deliveryPolicy: "WAIT_ALL",
       maxPreparationTime: 45,
       allowRejectTicket: false,
       autoMergeTickets: true,
       allowEditAfterSent: false,
-      createdBy: legacyFixture.userId,
+      createdBy: userObjectId,
+      isDeleted: false,
     });
 
-    await PreparationReturnSettingsModel.create({
-      brand: legacyFixture.brandId,
-      branch: legacyFixture.branchId,
+    await db.collection(LEGACY_RETURN_SETTINGS_COLLECTION).insertOne({
+      brand: brandObjectId,
+      branch: branchObjectId,
       preparationSection: null, // brand-wide — the only scope the unified model migrates from
       allowWaste: true,
       allowReturnToStock: true,
@@ -73,7 +84,8 @@ describe("PreparationSettings — unified settings + legacy migration", () => {
       maxReturnMinutesFromPreparation: 15,
       requireSupervisorReview: true,
       ticketImmutableAfterFinalize: true,
-      createdBy: legacyFixture.userId,
+      createdBy: userObjectId,
+      isDeleted: false,
     });
 
     // No actor -> values returned correctly, but NOT persisted (never fabricates a `createdBy`).
@@ -104,26 +116,30 @@ describe("PreparationSettings — unified settings + legacy migration", () => {
     expect(count).toBe(1);
 
     await PreparationSettingsModel.deleteMany({ brand: legacyFixture.brandId });
-    await PreparationTicketSettingsModel.deleteMany({ brand: legacyFixture.brandId });
-    await PreparationReturnSettingsModel.deleteMany({ brand: legacyFixture.brandId });
+    await db.collection(LEGACY_TICKET_SETTINGS_COLLECTION).deleteMany({ brand: brandObjectId });
+    await db.collection(LEGACY_RETURN_SETTINGS_COLLECTION).deleteMany({ brand: brandObjectId });
     await cleanupFixture(legacyFixture);
   });
 
-  it("does not migrate a legacy PreparationReturnSettings document scoped to a specific preparationSection", async () => {
+  it("does not migrate a legacy return-settings document scoped to a specific preparationSection", async () => {
     const suffix = Math.random().toString(36).slice(2, 8);
     const scopedFixture = await createBaseFixture(`pset-sc-${suffix}`);
+    const db = mongoose.connection.db;
+    const brandObjectId = new mongoose.Types.ObjectId(scopedFixture.brandId);
+    const branchObjectId = new mongoose.Types.ObjectId(scopedFixture.branchId);
     const fakeSectionId = new mongoose.Types.ObjectId();
 
-    await PreparationReturnSettingsModel.create({
-      brand: scopedFixture.brandId,
-      branch: scopedFixture.branchId,
+    await db.collection(LEGACY_RETURN_SETTINGS_COLLECTION).insertOne({
+      brand: brandObjectId,
+      branch: branchObjectId,
       preparationSection: fakeSectionId, // section-scoped, not brand-wide — must NOT be migrated
       allowWaste: true,
       allowReturnToStock: false,
       allowResellable: false,
       decisionBy: [],
       maxReturnMinutesFromPreparation: 5,
-      createdBy: scopedFixture.userId,
+      createdBy: new mongoose.Types.ObjectId(scopedFixture.userId),
+      isDeleted: false,
     });
 
     const resolved = await preparationSettingsService.resolveForBranch(scopedFixture.brandId, scopedFixture.branchId, scopedFixture.userId);
@@ -131,7 +147,7 @@ describe("PreparationSettings — unified settings + legacy migration", () => {
     expect(resolved.return.maxReturnMinutesFromPreparation).toBe(30);
 
     await PreparationSettingsModel.deleteMany({ brand: scopedFixture.brandId });
-    await PreparationReturnSettingsModel.deleteMany({ brand: scopedFixture.brandId });
+    await db.collection(LEGACY_RETURN_SETTINGS_COLLECTION).deleteMany({ brand: brandObjectId });
     await cleanupFixture(scopedFixture);
   });
 });

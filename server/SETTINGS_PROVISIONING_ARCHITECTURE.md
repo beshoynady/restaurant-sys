@@ -69,13 +69,13 @@ This is why the table in §4 has entries where the *document's existence* is Req
 Concrete, final scope for that state (superseding its earlier placeholder description):
 
 **Created unconditionally, every onboarding:**
-`AuthenticationSettings` (already assigned its own state, `AUTH_CONFIGURATION_CREATED`, kept separate since it's tied to issuing the Owner's session), `EmployeeSettings`, `PayrollSettings`, `OrderSettings`, `InvoiceSettings`, `TaxSettings` (at least one row, from real onboarding-form input), `BranchSettings` (operating-hours portion, from real onboarding-form input), `BrandSettings`, `PreparationTicketSettings`, `InventorySettings`, `CashierShiftSettings`, `PrintSettings`, `DiscountSettings`, `ServiceChargeSettings`.
+`AuthenticationSettings` (already assigned its own state, `AUTH_CONFIGURATION_CREATED`, kept separate since it's tied to issuing the Owner's session), `EmployeeSettings`, `PayrollSettings`, `OrderSettings`, `InvoiceSettings`, `TaxSettings` (at least one row, from real onboarding-form input), `BranchSettings` (operating-hours portion, from real onboarding-form input), `BrandSettings`, `PreparationSettings` (formerly `PreparationTicketSettings`, renamed/consolidated 2026-07-21 — see CLAUDE.md item 16), `InventorySettings`, `CashierShiftSettings`, `PrintSettings`, `DiscountSettings`, `ServiceChargeSettings`.
 
 That's thirteen documents (plus `AuthenticationSettings` = fourteen total settings documents per brand by the time onboarding reaches `READY`), all created in one atomic transaction step per the state-machine pattern already established, all with either safe cosmetic defaults or real onboarding-collected input as classified above.
 
 **Created conditionally:** none beyond what's already unconditional in this revised list — the original design's conditional split (settings only if Scenario B) was the exact assumption `OWNER_IDENTITY_DESIGN.md` §3 corrected; nothing in the settings layer itself is scenario-gated anymore.
 
-**Not created by onboarding at all (Lazy or Not Applicable):** `AccountingSettings`, `AttendanceSettings`, `LoyaltySettings`, `PreparationReturnSettings`, `PurchasingSettings`, `SalesReturnSettings`, `NotificationSettings`, `PaymentSettings` (N/A), `PromotionSettings` (N/A).
+**Not created by onboarding at all (Lazy or Not Applicable):** `AccountingSettings`, `AttendanceSettings`, `LoyaltySettings`, `PurchasingSettings`, `SalesReturnSettings`, `NotificationSettings`, `PaymentSettings` (N/A), `PromotionSettings` (N/A). (`PreparationReturnSettings` no longer exists as a model — removed 2026-07-21, folded into `PreparationSettings`.)
 
 ---
 

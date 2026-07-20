@@ -159,11 +159,11 @@ import productReviewRouter from "../../modules/menu/product-review/product-revie
 // ========================
 // PREPARATION
 // ========================
-// PREPARATION_DOMAIN_ARCHITECTURE_REVIEW.md: unified settings source — mounted alongside, not
-// instead of, the two legacy settings routers below (kept for backward compatibility).
+// PREPARATION_CONFIGURATION_PLATFORM_ENTERPRISE_DESIGN.md: PreparationSettings is now the ONLY
+// configuration aggregate for Preparation — the legacy PreparationTicketSettings/
+// PreparationReturnSettings routers/modules have been fully removed (2026-07-20), not just
+// deprecated-in-place.
 import preparationSettingsRouter from "../../modules/preparation/preparation-settings/preparation-settings.router.js";
-import preparationReturnSettingsRouter from "../../modules/preparation/preparation-settings/preparation-return-settings.router.js";
-import preparationTicketSettingsRouter from "../../modules/preparation/preparation-settings/preparation-ticket-settings.router.js";
 // PLATFORM_FINAL_AUDIT.md PA-07: broken controller import paths fixed and
 // missing RBAC added in a prior pass; mounted here now that KDS is reachable.
 import preparationTicketRouter from "../../modules/preparation/preparation-ticket/preparation-ticket.router.js";
@@ -357,8 +357,6 @@ router.use("/menu/product-reviews", productReviewRouter);
 
 // Preparation
 router.use("/preparation/settings", preparationSettingsRouter);
-router.use("/preparation/return-settings", preparationReturnSettingsRouter);
-router.use("/preparation/ticket-settings", preparationTicketSettingsRouter);
 router.use("/preparation/tickets", preparationTicketRouter);
 router.use("/preparation/sections", preparationSectionRouter);
 router.use("/preparation/returns", preparationReturnRouter);
