@@ -32,8 +32,8 @@ class JournalLineRepository extends BaseRepository {
    * posted for this exact (brand, sourceType, sourceRef)? Used to reject a second posting attempt
    * for the same source document rather than silently creating a duplicate JournalEntry.
    */
-  async existsForSource({ brand, sourceType, sourceRef }) {
-    const line = await this.model.findOne({ brand, sourceType, sourceRef }).select("_id").lean();
+  async existsForSource({ brand, sourceType, sourceRef }, session = null) {
+    const line = await this.model.findOne({ brand, sourceType, sourceRef }).session(session).select("_id").lean();
     return Boolean(line);
   }
 }

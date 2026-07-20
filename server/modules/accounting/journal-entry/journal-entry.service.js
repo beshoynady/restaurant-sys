@@ -40,6 +40,15 @@ import accountingSettingService from "../accounting-settings/accounting-setting.
 const journalLineRepository = new JournalLineRepository();
 
 class JournalEntryService extends JournalEntryRepository {
+  /**
+   * `session`: optional, externally-owned MongoDB session (ADR-001 Phase 1 refactor — the
+   * platform-wide decision that multi-document financial operations run inside a single
+   * MongoDB transaction). When supplied (e.g. by payment.service.js#recordPayment, which is
+   * itself already inside a transaction via `this.withTransaction()`), this method reuses it
+   * and does NOT start/commit/abort/end it — the caller owns that lifecycle, exactly like any
+   * other session-aware repository call in this codebase. When omitted, behavior is unchanged
+   * from before: this method opens, commits/aborts, and ends its own self-contained transaction.
+   */
   async createBalancedEntry(input) {
     const {
       brand,
@@ -54,6 +63,7 @@ class JournalEntryService extends JournalEntryRepository {
       createdBy,
       autoPost = true,
       postedBy,
+      session: externalSession = null,
     } = input;
 
     if (!lines || lines.length === 0) {
@@ -74,12 +84,13 @@ class JournalEntryService extends JournalEntryRepository {
       );
     }
 
-    const session = await this.startSession();
+    const ownsSession = !externalSession;
+    const session = externalSession || (await this.startSession());
     const now = new Date();
     const entryDate = date || now;
 
     try {
-      session.startTransaction();
+      if (ownsSession) session.startTransaction();
 
       // Business rule (DB-014): reject writes to a locked accounting period. Read inside the
       // transaction's snapshot via the repository, so a concurrent lock/unlock cannot race between
@@ -138,14 +149,14 @@ class JournalEntryService extends JournalEntryRepository {
       // rolled back along with it. No partial entry-with-some-lines-missing can ever be committed.
       const createdLines = await journalLineRepository.createMany(lineDocs, session);
 
-      await session.commitTransaction();
+      if (ownsSession) await session.commitTransaction();
 
       return { entry, lines: createdLines };
     } catch (err) {
-      await session.abortTransaction();
+      if (ownsSession) await session.abortTransaction();
       throw err;
     } finally {
-      session.endSession();
+      if (ownsSession) session.endSession();
     }
   }
 
@@ -163,7 +174,10 @@ class JournalEntryService extends JournalEntryRepository {
    * responsibility is resolving the inputs createBalancedEntry needs from AccountingSettings/
    * AccountingPeriod instead of requiring the caller to know about either.
    */
-  async postFromSource({ sourceType, brand, branch, date, description, lines, createdBy, sourceRef }) {
+  /** `session`: optional externally-owned session — see createBalancedEntry's doc above; threaded
+   * through every read/increment here so the whole posting observes and participates in the
+   * caller's transaction snapshot instead of a mix of in-transaction and out-of-transaction reads. */
+  async postFromSource({ sourceType, brand, branch, date, description, lines, createdBy, sourceRef, session = null }) {
     const now = date || new Date();
 
     // V5.2 Workflow Integrity: without this, a retried/duplicate call (a caller re-firing after a
@@ -174,7 +188,7 @@ class JournalEntryService extends JournalEntryRepository {
     // in the *callers*, not here — this closes the gap at the source instead of trusting every
     // future caller to reimplement it correctly.
     if (sourceRef) {
-      const alreadyPosted = await journalLineRepository.existsForSource({ brand, sourceType, sourceRef });
+      const alreadyPosted = await journalLineRepository.existsForSource({ brand, sourceType, sourceRef }, session);
       if (alreadyPosted) {
         throwError(
           `A journal entry has already been posted for ${sourceType} ${sourceRef} — refusing to post a duplicate.`,
@@ -183,9 +197,9 @@ class JournalEntryService extends JournalEntryRepository {
       }
     }
 
-    const settings = await accountingSettingService.resolveForPosting(brand, branch);
+    const settings = await accountingSettingService.resolveForPosting(brand, branch, session);
 
-    const period = await accountingPeriodRepository.findOpenPeriodForDate(brand, now);
+    const period = await accountingPeriodRepository.findOpenPeriodForDate(brand, now, session);
     if (!period) {
       throwError(
         `No open accounting period covers ${now.toISOString().slice(0, 10)} — cannot post this ${sourceType}.`,
@@ -193,7 +207,7 @@ class JournalEntryService extends JournalEntryRepository {
       );
     }
 
-    const entryNumber = await accountingSettingService.getNextEntryNumber(settings._id);
+    const entryNumber = await accountingSettingService.getNextEntryNumber(settings._id, session);
 
     const linesWithSource = lines.map((line) => ({
       ...line,
@@ -214,6 +228,7 @@ class JournalEntryService extends JournalEntryRepository {
       createdBy,
       autoPost: !settings.journalEntry?.requireApproval,
       postedBy: createdBy,
+      session,
     });
   }
 

@@ -550,21 +550,29 @@ class BaseRepository {
     return mongoose.startSession();
   }
 
-  // Runs `fn(session)` inside a started transaction, committing on success and
-  // aborting on any thrown error; always ends the session. `fn` performs its own
-  // writes via the passed-in session — this only owns the start/commit/abort/end
-  // lifecycle, not what happens inside it.
+  // Runs `fn(session)` inside a transaction, committing on success and aborting on any thrown
+  // error; always ends the session. `fn` performs its own writes via the passed-in session —
+  // this only owns the transaction lifecycle, not what happens inside it.
+  //
+  // Delegates to the MongoDB driver's own `session.withTransaction()` (mongoose sessions are the
+  // native driver's ClientSession) rather than a hand-rolled start/commit/abort — that's the
+  // officially documented retry pattern for a genuine TransientTransactionError (e.g. two
+  // concurrent transactions write-conflicting on the same document, the expected outcome when two
+  // simultaneous requests race) and for a commit-time UnknownTransactionCommitResult, retrying
+  // within a time budget rather than a fixed attempt count, which matters here: a multi-step
+  // transaction (several sequential writes) can still be mid-flight, not yet committed, when a
+  // losing transaction's first retry lands — a fixed small attempt count exhausts before the
+  // winner ever commits, a time-budgeted retry (the driver's default) does not. `fn` must be safe
+  // to re-run from scratch on retry (every existing caller already is: reads and writes are
+  // recomputed fresh each attempt, no side effects outside the DB).
   async withTransaction(fn) {
     const session = await this.startSession();
-
     try {
-      session.startTransaction();
-      const result = await fn(session);
-      await session.commitTransaction();
+      let result;
+      await session.withTransaction(async () => {
+        result = await fn(session);
+      });
       return result;
-    } catch (error) {
-      await session.abortTransaction();
-      throw error;
     } finally {
       session.endSession();
     }

@@ -37,14 +37,14 @@ class AccountingSettingService extends AdvancedService {
    * configured control-account/activity mapping (there is no safe default to fabricate for where
    * money should be posted).
    */
-  async resolveForPosting(brandId, branchId) {
+  async resolveForPosting(brandId, branchId, session = null) {
     const branchSpecific = branchId
-      ? await this.model.findOne({ brand: brandId, branch: branchId, isDeleted: { $ne: true } }).lean()
+      ? await this.model.findOne({ brand: brandId, branch: branchId, isDeleted: { $ne: true } }).session(session).lean()
       : null;
 
     const settings =
       branchSpecific ??
-      (await this.model.findOne({ brand: brandId, branch: null, isDeleted: { $ne: true } }).lean());
+      (await this.model.findOne({ brand: brandId, branch: null, isDeleted: { $ne: true } }).session(session).lean());
 
     if (!settings) {
       throwError(
@@ -63,11 +63,11 @@ class AccountingSettingService extends AdvancedService {
    * write race window. Scoped to the settings document actually resolved by resolveForPosting (brand-
    * specific or brand-wide), not assumed to be branch-specific.
    */
-  async getNextEntryNumber(settingsId) {
+  async getNextEntryNumber(settingsId, session = null) {
     const incremented = await this.model.findOneAndUpdate(
       { _id: settingsId },
       { $inc: { "journalEntry.nextNumber": 1 } },
-      { new: false },
+      { new: false, session },
     );
 
     if (!incremented) {

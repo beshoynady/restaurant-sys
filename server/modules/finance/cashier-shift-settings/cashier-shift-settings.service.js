@@ -35,11 +35,11 @@ class CashierShiftSettingsService extends CashierShiftSettingsRepository {
    * (payment.service.js). Placed here, not on cash-transaction.service.js itself, matching this
    * file's own established convention of hosting sequence generation on the *settings* service.
    */
-  async getNextTransactionNumber(brandId, branchId) {
+  async getNextTransactionNumber(brandId, branchId, session = null) {
     const incremented = await this.model.findOneAndUpdate(
       { brand: brandId, branch: branchId },
       { $inc: { "cashTransactionSequence.currentNumber": 1 } },
-      { new: false },
+      { new: false, session },
     );
 
     if (!incremented) {
