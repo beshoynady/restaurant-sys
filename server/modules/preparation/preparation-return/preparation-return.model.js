@@ -18,7 +18,6 @@ const PreparationReturnSchema = new Schema(
     ticketNumber: {
       type: Number,
       required: true,
-      index: true,
     },
 
     /** Parent return invoice reference */
@@ -26,7 +25,6 @@ const PreparationReturnSchema = new Schema(
       type: ObjectId,
       ref: "SalesReturn",
       required: true,
-      index: true,
     },
 
     /** Target preparation section (Kitchen, Grill, Bar, etc.) */
@@ -128,7 +126,6 @@ const PreparationReturnSchema = new Schema(
       type: String,
       enum: ["PENDING", "IN_REVIEW", "FINALIZED", "CANCELLED"],
       default: "PENDING",
-      index: true,
     },
     /** Audit fields */
     createdBy: { type: ObjectId, ref: "UserAccount", required: true },
@@ -141,6 +138,19 @@ PreparationReturnSchema.index(
   { brand: 1, branch: 1, returnInvoice: 1, ticketNumber: 1 },
   { unique: true },
 );
+
+// Query-supporting index — matches BaseController's generic list query on this brandScoped module
+// ({brand, branch?}, optionally filtered by status, sorted by createdAt desc per defaultSort in
+// preparation-return.service.js). Same finding as PreparationTicket: the only existing index was
+// the uniqueness constraint, whose {returnInvoice, ticketNumber} tail does not serve a
+// brand/branch/status list sorted by createdAt.
+PreparationReturnSchema.index({ brand: 1, branch: 1, status: 1, createdAt: -1 });
+
+// Removed (2026-07-21, engineering closure review): standalone field-level `index: true` on
+// ticketNumber/returnInvoice/status. Verified via repo-wide grep that none is ever queried alone —
+// every real call site scopes by `brand` first, per this platform's mandatory multi-tenancy
+// contract. Coverage is fully subsumed by the two compound indexes above; removed as unnecessary,
+// redundant write-amplification otherwise.
 
 // export  the model
 const PreparationReturnModel = mongoose.model(

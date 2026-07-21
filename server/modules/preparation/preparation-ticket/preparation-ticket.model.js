@@ -18,7 +18,6 @@ const PreparationTicketSchema = new Schema(
     ticketNumber: {
       type: Number,
       required: true,
-      index: true,
     },
 
     /** Parent order reference */
@@ -55,7 +54,6 @@ const PreparationTicketSchema = new Schema(
         "REJECTED",
       ],
       default: "PENDING",
-      index: true,
     },
 
     /**
@@ -70,7 +68,6 @@ const PreparationTicketSchema = new Schema(
         "HANDED_OVER",
       ],
       default: "WAITING",
-      index: true,
     },
 
     /**
@@ -215,6 +212,23 @@ const PreparationTicketSchema = new Schema(
 );
 
 PreparationTicketSchema.index({ brand: 1, branch: 1, order: 1, ticketNumber: 1 }, { unique: true });
+
+// Query-supporting index — matches the exact filter+default sort
+// preparation-ticket.service.js#getKitchenQueue runs ({brand, branch?, preparationStatus: $in},
+// sorted by receivedAt by default): PREPARATION_PLATFORM_ENTERPRISE_IMPLEMENTATION_REVIEW.md's
+// confirmed finding that this collection had zero index beyond its own uniqueness constraint,
+// meaning the live kitchen-display query was an unindexed collection scan that only gets worse as
+// ticket volume grows. Not a guess: derived directly from the verified query shape in code above.
+PreparationTicketSchema.index({ brand: 1, branch: 1, preparationStatus: 1, receivedAt: 1 });
+
+// Removed (2026-07-21, engineering closure review): standalone field-level `index: true` on
+// ticketNumber/preparationStatus/deliveryStatus. Verified via repo-wide grep that no query anywhere
+// filters on any of the three alone — every real call site scopes by `brand` first, per this
+// platform's mandatory multi-tenancy contract (brandScoped:true + authenticateToken always
+// populating req.user.brandId, confirmed in BACKEND_FOUNDATION.md). Their coverage is fully
+// subsumed by the compound indexes above; kept as unnecessary, redundant write-amplification
+// otherwise. `order` keeps its own index — it IS queried standalone
+// (createTicketsFromOrder's `countDocuments({order: order._id})`).
 
 // export  the model
 const PreparationTicketModel = mongoose.model(

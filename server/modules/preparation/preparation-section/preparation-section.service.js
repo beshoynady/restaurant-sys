@@ -7,7 +7,7 @@ import AdvancedService from "../../../utils/BaseRepository.js";
 const preparationSectionService = new AdvancedService(PreparationSectionModel, {
   brandScoped: true,
   enableSoftDelete: true,
-  defaultPopulate: ["brand", "branch", "warehouse", "parentDepartment", "assignedEmployees", "createdBy", "updatedBy", "deletedBy"],
+  defaultPopulate: ["brand", "branch", "warehouse", "parentDepartment", "assignedEmployees", "costCenter", "fallbackSection", "createdBy", "updatedBy", "deletedBy"],
   searchableFields: [],
   defaultSort: { createdAt: -1 },
 });

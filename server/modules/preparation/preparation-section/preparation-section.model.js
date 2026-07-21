@@ -109,6 +109,36 @@ const PreparationSectionConfigSchema = new mongoose.Schema(
     averagePreparationTime: { type: Number, default: 10, min: 0 }, // minutes
     maxParallelTickets: { type: Number, default: 5, min: 1 }, // Max tickets this section can handle simultaneously
 
+    /**
+     * Enterprise Operational Work Center — cost attribution. PREPARATION_SECTION_ENTERPRISE_
+     * WORK_CENTER_REVIEW.md §4/§9/§10: a section is a real cost-bearing location (Grill vs. Bakery
+     * profitability), but this aggregate only holds the reference — postings/reporting logic reads
+     * it, never lives here, matching how Invoice/Payment resolve AccountingSettings.controlAccounts
+     * at posting time rather than storing GL account IDs on themselves.
+     */
+    costCenter: { type: ObjectId, ref: "CostCenter", default: null },
+
+    /**
+     * Enterprise Operational Work Center — reversible day-to-day operational state, distinct from
+     * `isActive` (administrative/soft-delete-adjacent, effectively permanent). A manager toggling a
+     * station closed for the evening or down for maintenance is a different concern than deactivating
+     * it. PREPARATION_SECTION_ENTERPRISE_WORK_CENTER_REVIEW.md §16/§20.
+     */
+    operationalStatus: {
+      type: String,
+      enum: ["OPEN", "TEMPORARILY_CLOSED", "MAINTENANCE"],
+      default: "OPEN",
+    },
+
+    /**
+     * Enterprise Operational Work Center — the section to redirect work to when this one is
+     * TEMPORARILY_CLOSED/MAINTENANCE. A configuration reference only: this aggregate does not
+     * execute routing itself (that reads this field from wherever routing/ticket-creation logic
+     * lives) — same self-reference shape `parentDepartment` already established above.
+     * PREPARATION_SECTION_ENTERPRISE_WORK_CENTER_REVIEW.md §20/§22.
+     */
+    fallbackSection: { type: ObjectId, ref: "PreparationSectionConfig", default: null },
+
     // Removed (2026-07-20, PREPARATION_DOMAIN_ARCHITECTURE_REVIEW.md "Ninth Objective"/
     // "Recommended Architecture" #6): allowPartialDelivery, isDeliveryRelevant, autoAssignChef,
     // requireConfirmationBeforeSend, allowRejectTickets — all five were confirmed dead (zero
