@@ -22,6 +22,7 @@ import PreparationSectionModel from "../../modules/preparation/preparation-secti
 import PreparationTicketModel from "../../modules/preparation/preparation-ticket/preparation-ticket.model.js";
 import ProductModel from "../../modules/menu/product/product.model.js";
 import MenuCategoryModel from "../../modules/menu/menu-category/menu-category.model.js";
+import InvoiceModel from "../../modules/sales/invoice/invoice.model.js";
 
 describe("Enterprise Order Management Platform: Order Item Cancel / Kitchen Recall", () => {
   let fixture: TestFixture;
@@ -174,5 +175,39 @@ describe("Enterprise Order Management Platform: Order Item Cancel / Kitchen Reca
     const rejected = results.filter((r) => r.status === "rejected");
     expect(fulfilled).toHaveLength(1);
     expect(rejected).toHaveLength(1);
+  });
+
+  // ADR-001 Phase 2 (Refund) — a confirmed, previously-undocumented gap: a paid order could
+  // bypass Refund's accounting entirely by going through cancelItem instead.
+  it("rejects cancelling an item on an order whose invoice already has a payment recorded, directing the caller to Refund instead", async () => {
+    const order = await OrderModel.create({
+      brand: fixture.brandId, branch: fixture.branchId, orderNum: "IC-5",
+      cashierShift: cashierShiftId, orderType: "DINE_IN", deliveryPolicy: "IMMEDIATE",
+      items: [{ product: burgerProductId, unitPrice: 10, finalPrice: 10 }],
+    });
+    const itemId = String((order.items as any)[0]._id);
+
+    const invoice = await InvoiceModel.create({
+      brand: fixture.brandId, branch: fixture.branchId, order: order._id, cashierShift: cashierShiftId,
+      items: [{
+        orderItemId: new mongoose.Types.ObjectId(), product: burgerProductId, quantity: 1,
+        price: 10, priceAfterDiscount: 10, totalprice: 9, totalExtrasPrice: 1,
+      }],
+      subtotal: 10, total: 10, amountPaid: 10, balanceDue: 0, status: "PAID",
+      createdBy: fixture.userId,
+    });
+
+    await expect(
+      orderService.cancelItem({
+        orderId: String(order._id), itemId, brand: fixture.brandId, branch: fixture.branchId,
+        reason: "Customer changed mind", actorId: fixture.userId,
+      }),
+    ).rejects.toThrow(/Sales Return \(Refund\)/i);
+
+    const orderAfter = await OrderModel.findById(order._id);
+    const itemAfter = (orderAfter!.items as any).id(itemId);
+    expect(itemAfter.status).toBe("NEW"); // untouched — the guard fired before any write
+
+    await InvoiceModel.deleteOne({ _id: invoice._id });
   });
 });

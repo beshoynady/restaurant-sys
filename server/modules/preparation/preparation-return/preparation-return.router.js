@@ -34,6 +34,10 @@ router.route("/:id")
   .delete(authenticateToken, authorize("PreparationReturns", "delete"), checkModuleEnabled("preparation"), validate(paramsPreparationReturnSchema, "params"), preparationReturnController.hardDelete) // soft delete
 ;
 
+// ADR-001 Phase 2 — dedicated action endpoint: IN_REVIEW -> FINALIZED, then posts real inventory
+// movement (ReturnIssuance/WasteRecord per line decision). Not overloaded onto the generic PUT.
+router.post("/:id/finalize", authenticateToken, authorize("PreparationReturns", "update"), checkModuleEnabled("preparation"), preparationReturnController.finalize);
+
 // PLATFORM_FINAL_AUDIT.md, corrected: soft-delete/restore/bulk-soft-delete
 // removed — PreparationReturn's status already covers CANCELLED.
 

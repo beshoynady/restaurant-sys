@@ -80,6 +80,14 @@ const SalesReturnSettingsSchema = new Schema(
       default: true,
     },
 
+    // ADR-001 Phase 2: SalesReturn.serial had a static "000001" default and no real generator
+    // (confirmed — the 16-line CRUD shell never wired one). Same atomic-$inc shape
+    // CashierShiftSettings.shiftSequence/cashTransactionSequence already prove out.
+    returnSequence: {
+      prefix: { type: String, trim: true, default: "SR-" },
+      currentNumber: { type: Number, default: 0, min: 0 },
+    },
+
     isActive: {
       type: Boolean,
       default: true,

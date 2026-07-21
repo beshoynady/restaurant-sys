@@ -54,7 +54,12 @@ const PaymentSchema = new mongoose.Schema(
     // Closes ADR-001 §18's idempotency requirement (G7) the same way every other document-number
     // uniqueness constraint in this codebase works: a compound unique index, not a bespoke
     // header-based mechanism. Sparse — only enforced when a caller actually supplies a key.
-    idempotencyKey: { type: String, trim: true, default: null },
+    // ADR-001 Phase 2 correction: no `default: null` (a pre-existing defect fixed here, found while
+    // building the sibling SalesReturn aggregate) — Mongoose would store an explicit `null` on
+    // every no-key document, which a sparse index does NOT skip (sparse only omits genuinely
+    // ABSENT fields), so two no-key payments against the same invoice would collide on this unique
+    // index. Omitting the field entirely when absent is what makes "sparse" actually work.
+    idempotencyKey: { type: String, trim: true },
 
     journalEntry: { type: ObjectId, ref: "JournalEntry", default: null },
     // One per tender — "cashTransaction" (lower-case c) matches the model's own registered name
@@ -69,8 +74,17 @@ const PaymentSchema = new mongoose.Schema(
 
 // Tenant-scoping + dominant query shape (list payments for an invoice, newest first).
 PaymentSchema.index({ brand: 1, branch: 1, invoice: 1, createdAt: -1 });
-// Idempotent-replay guard — sparse so brands that never supply a key incur no constraint.
-PaymentSchema.index({ brand: 1, invoice: 1, idempotencyKey: 1 }, { unique: true, sparse: true });
+// Idempotent-replay guard. ADR-001 Phase 2 correction: `partialFilterExpression`, not `sparse` —
+// a real, verified difference for a COMPOUND index. MongoDB's sparse flag only skips a document
+// from a compound index when EVERY indexed field is absent; since `brand`/`invoice` are always
+// present here, a plain `sparse: true` still indexes every no-key payment and two no-key payments
+// against the same invoice collide (found and fixed while building the sibling SalesReturn
+// aggregate, which hit this for real). A partial index with an explicit filter is the documented,
+// correct mechanism for "unique only when this specific field exists."
+PaymentSchema.index(
+  { brand: 1, invoice: 1, idempotencyKey: 1 },
+  { unique: true, partialFilterExpression: { idempotencyKey: { $exists: true } } },
+);
 
 const PaymentModel = mongoose.models.Payment || mongoose.model("Payment", PaymentSchema);
 export default PaymentModel;

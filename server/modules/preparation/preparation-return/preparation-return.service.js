@@ -3,6 +3,12 @@ import AdvancedService from "../../../utils/BaseRepository.js";
 import throwError from "../../../utils/throwError.js";
 import preparationSettingsService from "../preparation-settings/preparation-settings.service.js";
 import { createTransitionGuard } from "../../../utils/TransitionGuard.js";
+import { isAuthorizedByJobTitle } from "../../../utils/authorizeByJobTitle.js";
+import PreparationSectionModel from "../preparation-section/preparation-section.model.js";
+import RecipeModel from "../../menu/recipe/recipe.model.js";
+import inventoryService from "../../inventory/inventory/inventory.service.js";
+import warehouseDocumentService from "../../inventory/warehouse-document/warehouse-document.service.js";
+import wasteRecordService from "../../inventory/waste-record/waste-record.service.js";
 
 // PLATFORM_FINAL_AUDIT.md PA-07: same missing status-transition guard as
 // preparation-ticket.service.js. PREPARATION_DOMAIN_ARCHITECTURE_REVIEW.md "Eighth Objective"/
@@ -117,6 +123,138 @@ class PreparationReturnService extends AdvancedService {
         409,
       );
     }
+  }
+
+  /**
+   * ADR-001 Phase 2: the first real consumer of `items[].decision` — before this method, the
+   * field was validated (gated against PreparationSettings.return.allow*) but drove zero actual
+   * inventory movement (confirmed by this same phase's own architecture review). A dedicated
+   * action, not overloaded onto the generic PUT (same reasoning as WasteRecordService.approve()/
+   * PaymentService.recordPayment() being dedicated methods): IN_REVIEW -> FINALIZED, then — inside
+   * its own transaction, never SalesReturn's — posts each line's disposition: RETURN_TO_STOCK/
+   * RESELLABLE -> ReturnIssuance (goods back into stock); WASTE -> WasteRecord{CustomerReturnWaste}
+   * (goods written off). Each product's Recipe (Product -> Recipe.ingredients[].stockItem, the
+   * exact same bridge recipe-consumption.service.js already uses) determines which StockItems move
+   * and by how much — a Product with no active Recipe is honestly skipped, not fabricated a
+   * fallback (ENTERPRISE_REFUND_ARCHITECTURE_DESIGN.md §5's own recommended "Option 2").
+   */
+  async finalize({ id, brand, branch, actorId }) {
+    const doc = await this.model.findOne({ _id: id, brand, branch });
+    if (!doc) throwError("Preparation return not found.", 404);
+    if (doc.status !== "IN_REVIEW") {
+      throwError(`Only an IN_REVIEW return can be finalized (current status: ${doc.status}).`, 409);
+    }
+    if (!doc.items || doc.items.length === 0) {
+      throwError("Preparation return has no items.", 400);
+    }
+
+    const settings = await preparationSettingsService.resolveForBranch(brand, branch, actorId);
+    const decisionBy = settings.return?.decisionBy;
+    if (Array.isArray(decisionBy) && decisionBy.length > 0) {
+      const authorized = await isAuthorizedByJobTitle(actorId, decisionBy);
+      if (!authorized) {
+        throwError(
+          "The finalizing user's job title is not authorized to finalize preparation returns for this brand/branch (PreparationSettings.return.decisionBy).",
+          403,
+        );
+      }
+    }
+    // An unconfigured (empty) decisionBy fails OPEN — matches this platform's established
+    // convention for unconfigured policy gates (checkModuleEnabled, PreparationSettings' own
+    // hardcoded-default fallbacks) rather than locking out every brand that hasn't set this yet.
+
+    const claimed = await this.model.findOneAndUpdate(
+      { _id: id, brand, branch, status: "IN_REVIEW" },
+      { $set: { status: "FINALIZED" } },
+      { new: true },
+    );
+    if (!claimed) {
+      throwError("This return was already finalized or cancelled by a concurrent request.", 409);
+    }
+
+    const section = await PreparationSectionModel.findById(claimed.preparationSection).select("warehouse").lean();
+    const warehouse = section?.warehouse || null;
+
+    return this.withTransaction(async (session) => {
+      if (warehouse) {
+        const productIds = [...new Set(claimed.items.map((i) => String(i.product)))];
+        const recipes = await RecipeModel.find({ product: { $in: productIds }, brand, isActive: true }).session(session).lean();
+        const recipeByProduct = Object.fromEntries(recipes.map((r) => [String(r.product), r]));
+
+        for (const item of claimed.items) {
+          const recipe = recipeByProduct[String(item.product)];
+          if (!recipe?.ingredients?.length) continue;
+
+          if (item.decision === "WASTE") {
+            await this._postWaste({ session, brand, branch, warehouse, department: claimed.preparationSection, recipe, item, claimed, actorId });
+          } else {
+            // RETURN_TO_STOCK / RESELLABLE
+            await this._postReturnIssuance({ session, brand, branch, warehouse, recipe, item, claimed, actorId });
+          }
+        }
+      }
+
+      return this.model.findById(claimed._id).session(session);
+    });
+  }
+
+  /** Restores a returned item's ingredient StockItems into the section's warehouse — the goods
+   * physically came back, so their previously-consumed ingredients are credited back. */
+  async _postReturnIssuance({ session, brand, branch, warehouse, recipe, item, claimed, actorId }) {
+    const docItems = [];
+    for (const ingredient of recipe.ingredients) {
+      const quantity = ingredient.amount * item.quantity * (1 + (ingredient.wastePercentage || 0) / 100);
+      const balance = await inventoryService.findBalance(warehouse, ingredient.stockItem, session);
+      docItems.push({ stockItem: ingredient.stockItem, quantity, unitCost: balance?.avgUnitCost || 0, totalCost: 0 });
+    }
+    if (docItems.length === 0) return;
+
+    const warehouseDocument = await warehouseDocumentService.create({
+      brandId: brand, branchId: branch, createdBy: actorId,
+      data: {
+        branch, documentType: "IN", postingDate: new Date(), transactionType: "ReturnIssuance",
+        documentNumber: `WD-PR${claimed.ticketNumber}-${item._id}`,
+        destinationWarehouse: warehouse, items: docItems, status: "approved",
+      },
+      session,
+    });
+
+    await warehouseDocumentService.postDocument({ id: warehouseDocument._id, brand, branch, postedBy: actorId, session });
+  }
+
+  /**
+   * Writes off a returned-and-discarded item's ingredient StockItems. The original sale already
+   * deducted these ingredients via recipe consumption — there is no leftover physical quantity to
+   * "waste" a second time. This method therefore first RESTORES them (identical to
+   * `_postReturnIssuance`) and then immediately writes them back off via the existing, real
+   * WasteRecord{CustomerReturnWaste} category — a net-zero physical stock change, but a real,
+   * correctly-costed loss entry for reporting/audit (Cost of Customer-Return Waste), matching this
+   * platform's "reuse existing mechanisms" discipline (ENTERPRISE_REFUND_ARCHITECTURE_DESIGN.md §5
+   * Option 2) rather than inventing a "waste without restoring first" concept this codebase's
+   * Inventory Posting Engine has no shape for. All inside the caller's transaction, so a posting
+   * failure at either step aborts the whole finalize() attempt.
+   */
+  async _postWaste({ session, brand, branch, warehouse, department, recipe, item, claimed, actorId }) {
+    await this._postReturnIssuance({ session, brand, branch, warehouse, recipe, item, claimed, actorId });
+
+    const docItems = recipe.ingredients.map((ingredient) => ({
+      stockItem: ingredient.stockItem,
+      quantity: ingredient.amount * item.quantity * (1 + (ingredient.wastePercentage || 0) / 100),
+    }));
+    if (docItems.length === 0) return;
+
+    const wasteDoc = await wasteRecordService.create({
+      brandId: brand, branchId: branch, createdBy: actorId,
+      data: {
+        branch, wasteDate: new Date(), warehouse, wasteCategory: "CustomerReturnWaste",
+        items: docItems, department, responsibleEmployee: claimed.responsibleEmployee || null,
+        reasonNotes: item.reason || `Customer return (Preparation Return ${claimed.ticketNumber})`,
+      },
+      session,
+    });
+
+    await wasteRecordService.transition({ id: wasteDoc._id, brand, branch, toStatus: "Submitted", actorId, session });
+    await wasteRecordService.approve({ id: wasteDoc._id, brand, branch, actorId, session });
   }
 }
 

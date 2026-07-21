@@ -53,10 +53,10 @@ class WasteRecordService extends AdvancedService {
     return { ...data, wasteNumber, status: "Draft" };
   }
 
-  async transition({ id, brand, branch, toStatus, actorId, rejectionReason = null }) {
-    if (toStatus === "Approved") return this.approve({ id, brand, branch, actorId });
+  async transition({ id, brand, branch, toStatus, actorId, rejectionReason = null, session = null }) {
+    if (toStatus === "Approved") return this.approve({ id, brand, branch, actorId, session });
 
-    const doc = await this.model.findOne({ _id: id, brand, branch });
+    const doc = await this.model.findOne({ _id: id, brand, branch }).session(session);
     if (!doc) throwError("Waste record not found.", 404);
     transitionGuard.assertValid(doc.status, toStatus);
 
@@ -70,7 +70,7 @@ class WasteRecordService extends AdvancedService {
     const claimed = await this.model.findOneAndUpdate(
       { _id: id, brand, branch, status: doc.status },
       { $set: update },
-      { new: true },
+      { new: true, session },
     );
     if (!claimed) {
       throwError("This waste record was already transitioned by a concurrent request.", 409);
@@ -88,9 +88,19 @@ class WasteRecordService extends AdvancedService {
    * dedicated GL account per waste reason (spoilage vs. theft vs. burned food all reduce the same
    * inventory-adjustment expense line — the *reason* is operational/audit detail, not a distinct
    * accounting treatment).
+   *
+   * ADR-001 Phase 2 (Refund) retrofit: accepts an optional externally-owned `session` — when
+   * present (PreparationReturn's `finalize()` calling this for a WASTE-decision line), every write
+   * below threads it through and a posting failure THROWS (aborting the caller's whole
+   * transaction) instead of the previous best-effort swallow. When absent, this method owns its
+   * own consistency exactly as before: the warehouse-document create/post pair isn't wrapped in a
+   * dedicated transaction of its own here (unchanged pre-existing behavior — `postDocument()` is
+   * the actual atomic unit), and a posting failure is still swallowed/logged, not thrown, so a
+   * caller with no session (e.g. a direct API-triggered waste approval) keeps its original,
+   * unaffected behavior.
    */
-  async approve({ id, brand, branch, actorId }) {
-    const doc = await this.model.findOne({ _id: id, brand, branch });
+  async approve({ id, brand, branch, actorId, session }) {
+    const doc = await this.model.findOne({ _id: id, brand, branch }).session(session || null);
     if (!doc) throwError("Waste record not found.", 404);
     transitionGuard.assertValid(doc.status, "Approved");
     if (!doc.items || doc.items.length === 0) {
@@ -100,6 +110,7 @@ class WasteRecordService extends AdvancedService {
     const claimed = await this.model.findOneAndUpdate(
       { _id: id, brand, branch, status: "Submitted" },
       { $set: { status: "Approved", approvedBy: actorId, approvedAt: new Date() } },
+      { session },
     );
     if (!claimed) {
       throwError("This waste record was already approved or cancelled by a concurrent request.", 409);
@@ -124,10 +135,11 @@ class WasteRecordService extends AdvancedService {
         })),
         status: "approved",
       },
+      session,
     });
 
     const { ledgerRows } = await warehouseDocumentService.postDocument({
-      id: warehouseDocument._id, brand, branch, postedBy: actorId,
+      id: warehouseDocument._id, brand, branch, postedBy: actorId, session,
     });
 
     const costByItem = Object.fromEntries(
@@ -146,21 +158,27 @@ class WasteRecordService extends AdvancedService {
     doc.approvedBy = actorId;
     doc.approvedAt = new Date();
 
-    try {
-      await this._postAccounting(doc, actorId);
-    } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error(`[waste-record.service] Journal entry not posted for ${doc.wasteNumber}: ${err.message}`);
+    if (session) {
+      // Running inside a caller-owned transaction: a posting failure must abort the whole
+      // attempt, not leave a wasted-but-unposted record — matching Payment's own removal of the
+      // pre-Phase-1 "best-effort, log-and-swallow" posture for exactly this reason.
+      await this._postAccounting(doc, actorId, session);
+    } else {
+      try {
+        await this._postAccounting(doc, actorId, null);
+      } catch (err) {
+        console.error(`[waste-record.service] Journal entry not posted for ${doc.wasteNumber}: ${err.message}`);
+      }
     }
 
-    await doc.save();
+    await doc.save({ session });
     return doc;
   }
 
-  async _postAccounting(doc, actorId) {
+  async _postAccounting(doc, actorId, session) {
     if (doc.totalCost <= 0) return;
 
-    const settings = await accountingSettingService.resolveForPosting(doc.brand, doc.branch);
+    const settings = await accountingSettingService.resolveForPosting(doc.brand, doc.branch, session);
     const currency = settings.currencySettings?.baseCurrency || "EGP";
     const inventoryAdjustmentAccount = settings.controlAccounts?.inventoryAdjustment;
     const inventoryAccount = settings.controlAccounts?.inventory;
@@ -181,6 +199,7 @@ class WasteRecordService extends AdvancedService {
       lines,
       createdBy: actorId,
       sourceRef: doc._id,
+      session,
     });
 
     doc.journalEntry = entry._id;

@@ -139,9 +139,22 @@ class WarehouseDocumentService extends AdvancedService {
    * weighted average for outbound), and writes one StockLedger row + one Inventory balance update
    * per movement — all inside a single transaction. Either the whole document posts (every
    * movement recorded, every balance updated, status -> posted) or none of it does.
+   *
+   * ADR-001 Phase 2 (Refund) retrofit: accepts an optional externally-owned `session` — when a
+   * caller (e.g. PreparationReturn's own finalize() transaction) already holds one, this method
+   * must reuse it and never start/commit/abort/end its own, exactly the `ownsSession` guard
+   * `journalEntryService.createBalancedEntry()` already established in ADR-001 Phase 1. Every
+   * other existing caller (PurchaseReturn, InventoryCount, WasteRecord's other categories) keeps
+   * calling this with no `session` argument and gets byte-identical behavior to before this change.
    */
-  async postDocument({ id, brand, branch, postedBy }) {
-    const document = await this.model.findOne({ _id: id, brand });
+  async postDocument({ id, brand, branch, postedBy, session: externalSession }) {
+    // Threaded via .session() even before the transaction-lifecycle `session` variable below is
+    // resolved — without this, a document created earlier in the SAME externally-owned transaction
+    // (e.g. by PreparationReturn's finalize()) is invisible to this read (MongoDB transaction
+    // isolation: an out-of-session read cannot see the transaction's own uncommitted writes),
+    // producing a false "document not found" for a document that, from the caller's perspective,
+    // already exists. Found and fixed while building ADR-001 Phase 2's PreparationReturn.finalize().
+    const document = await this.model.findOne({ _id: id, brand }).session(externalSession || null);
     if (!document) {
       throwError("Warehouse document not found.", 404);
     }
@@ -158,9 +171,10 @@ class WarehouseDocumentService extends AdvancedService {
     const settings = await inventorySettingsService.resolveForPosting(brand, branch);
     const movementPlan = buildMovementPlan(document);
 
-    const session = await this.startSession();
+    const ownsSession = !externalSession;
+    const session = externalSession || (await this.startSession());
     try {
-      session.startTransaction();
+      if (ownsSession) session.startTransaction();
 
       const ledgerRows = [];
       // V5.2 Replenishment Engine trigger candidates — collected during the loop, emitted only
@@ -278,29 +292,37 @@ class WarehouseDocumentService extends AdvancedService {
       }
       await document.save({ session });
 
-      await session.commitTransaction();
+      // When this session is externally owned, the caller controls commit — emitting a
+      // "below reorder point" event now would be premature (the caller's transaction, holding
+      // other writes of its own, could still abort after this method returns), so both the commit
+      // and the event emission are deferred to the caller in that case. `reorderTriggers` is
+      // returned either way so an external-session caller can emit them itself after its own
+      // commit succeeds.
+      if (ownsSession) {
+        await session.commitTransaction();
 
-      // Outside the transaction on purpose — this is a side effect of a movement that already,
-      // irreversibly, happened; the Replenishment Engine subscriber catches its own errors
-      // (domainEvents.js's documented convention for best-effort handlers), so a failure here
-      // never undoes or blocks the posting that already committed.
-      for (const trigger of reorderTriggers) {
-        await domainEvents.emit(DomainEvent.INVENTORY_BELOW_REORDER_POINT, {
-          brand,
-          branch,
-          stockItem: trigger.stockItem,
-          warehouse: trigger.warehouse,
-          balance: trigger.balance,
-          postedBy,
-        });
+        // Outside the transaction on purpose — this is a side effect of a movement that already,
+        // irreversibly, happened; the Replenishment Engine subscriber catches its own errors
+        // (domainEvents.js's documented convention for best-effort handlers), so a failure here
+        // never undoes or blocks the posting that already committed.
+        for (const trigger of reorderTriggers) {
+          await domainEvents.emit(DomainEvent.INVENTORY_BELOW_REORDER_POINT, {
+            brand,
+            branch,
+            stockItem: trigger.stockItem,
+            warehouse: trigger.warehouse,
+            balance: trigger.balance,
+            postedBy,
+          });
+        }
       }
 
-      return { document, ledgerRows };
+      return { document, ledgerRows, reorderTriggers };
     } catch (err) {
-      await session.abortTransaction();
+      if (ownsSession) await session.abortTransaction();
       throw err;
     } finally {
-      session.endSession();
+      if (ownsSession) session.endSession();
     }
   }
 

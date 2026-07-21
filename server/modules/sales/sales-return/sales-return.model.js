@@ -153,13 +153,23 @@ const SalesReturnSchema = new mongoose.Schema(
       required: true,
     },
 
+    // ADR-001 Phase 2: replaces the prior PENDING/REFUNDED/PARTIALLY_REFUNDED/CANCELLED enum —
+    // that field had zero real writers (16-line CRUD shell, confirmed by
+    // ENTERPRISE_REFUND_ARCHITECTURE_DESIGN.md's source-level audit), so no live data depended on
+    // its exact values. Mirrors PurchaseReturn.status's real, working transition set
+    // (Draft/Review -> Partially/Fully Refunded -> Rejected/Cancelled), reversed for Sales/AR, with
+    // an explicit approval gate PurchaseReturn's own flow doesn't have.
     refundStatus: {
       type: String,
-      // PLATFORM_FINAL_AUDIT.md PA-13: added CANCELLED — the proper
-      // business lifecycle terminal state instead of soft-delete.
-      enum: ["PENDING", "REFUNDED", "PARTIALLY_REFUNDED", "CANCELLED"],
-      default: "PENDING",
+      enum: ["PENDING_APPROVAL", "APPROVED", "REJECTED", "PARTIALLY_REFUNDED", "FULLY_REFUNDED", "CANCELLED"],
+      default: "PENDING_APPROVAL",
     },
+    reason: { type: String, trim: true, maxlength: 500, default: "" },
+    approvedBy: { type: ObjectId, ref: "Employee", default: null },
+    approvedAt: { type: Date, default: null },
+    rejectedBy: { type: ObjectId, ref: "Employee", default: null },
+    rejectedAt: { type: Date, default: null },
+    rejectionReason: { type: String, trim: true, default: null },
     // Refund date
     refund_date: {
       type: Date,
@@ -185,11 +195,33 @@ const SalesReturnSchema = new mongoose.Schema(
       ref: "Employee",
       default: null,
     },
+    // ADR-001 Phase 2: same idempotency shape Payment (Phase 1) already proved — sparse-unique
+    // compound index below, pre-check + in-transaction re-check in the service layer. No `default`
+    // (deliberately, unlike Payment's own field — see that model's own corrected comment): a
+    // `default: null` would make Mongoose store an explicit `null` on every document that never
+    // supplies a key, which a sparse index does NOT skip (sparse only omits genuinely ABSENT
+    // fields) — two no-key requests against the same invoice would then collide on this unique
+    // index. Omitting the field entirely when not supplied is what actually makes "sparse" work.
+    idempotencyKey: { type: String },
   },
   { timestamps: true },
 );
 
 // DB-003: sequential document number, unique per branch (this collection previously had no compound index at all)
 SalesReturnSchema.index({ brand: 1, branch: 1, serial: 1 }, { unique: true });
+// ADR-001 Phase 2: enforced only when a caller actually supplies a key — a retried request with
+// the same key against the same invoice hits this index's duplicate-key error, which the service
+// catches and returns the already-recorded document instead of double-refunding. A
+// `partialFilterExpression`, NOT `sparse` (a real, verified difference for a COMPOUND index):
+// MongoDB's sparse flag only skips a document from a compound index when EVERY indexed field is
+// absent — since `brand`/`originalInvoice` are always present here, a plain `sparse: true` would
+// still index every no-key document (found and fixed during this phase's own test-writing, not a
+// theoretical concern) and collide the moment two no-key returns target the same invoice. A
+// partial index with an explicit filter is the documented, correct mechanism for "unique only
+// when this specific field exists."
+SalesReturnSchema.index(
+  { brand: 1, originalInvoice: 1, idempotencyKey: 1 },
+  { unique: true, partialFilterExpression: { idempotencyKey: { $exists: true } } },
+);
 
 export default mongoose.model("SalesReturn", SalesReturnSchema);

@@ -28,6 +28,7 @@ import inventorySettingsService from "../../inventory/inventory-settings/invento
 import PreparationTicketModel from "../../preparation/preparation-ticket/preparation-ticket.model.js";
 import UserAccountModel from "../../iam/user-account/user-account.model.js";
 import ProductModel from "../../menu/product/product.model.js";
+import InvoiceModel from "../invoice/invoice.model.js";
 import { validateModifierSelections } from "../../menu/product/modifier-selection-validator.js";
 
 const ORDER_ITEM_CANCELLABLE_STATUSES = ["NEW", "SENT_TO_PRODUCTION", "PREPARING"];
@@ -176,6 +177,23 @@ class OrderService extends OrderRepository {
 
     const item = order.items.id(itemId);
     if (!item) throwError("Order item not found.", 404);
+
+    // ADR-001 Phase 2 (Refund) — a confirmed, previously-undocumented gap: today a PAID order can
+    // still be cancelled through this path, bypassing Refund's accounting (SALES_RETURN/
+    // SALES_REFUND postings, invoice-line refundedQuantity tracking) entirely. Once real money has
+    // moved against this order's Invoice, reversing it is a Refund by this codebase's own
+    // definition (ENTERPRISE_REFUND_ARCHITECTURE_DESIGN.md §2.1), not a cancellation — redirect the
+    // caller instead of silently allowing a financially-incorrect cancellation.
+    // Order:Invoice cardinality is not enforced anywhere in this codebase (split-bill can produce
+    // more than one Invoice per Order, per invoice.model.js's own DB-017 comment) — this checks for
+    // ANY paid invoice against this order, not just the first one found.
+    const paidInvoiceExists = await InvoiceModel.exists({ order: orderId, brand, branch, amountPaid: { $gt: 0 } });
+    if (paidInvoiceExists) {
+      throwError(
+        "This order has an invoice with a payment already recorded — cancel via a Sales Return (Refund) instead of item cancellation.",
+        409,
+      );
+    }
 
     if (!ORDER_ITEM_CANCELLABLE_STATUSES.includes(item.status)) {
       throwError(`Cannot cancel an item in status ${item.status}.`, 400);

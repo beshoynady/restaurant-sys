@@ -90,7 +90,9 @@ class PaymentService extends PaymentRepository {
           brandId: brand,
           branchId: branch,
           createdBy: actorId,
-          data: { invoice: invoiceId, cashierShift: cashierShift || null, tenders, totalAmount, idempotencyKey: idempotencyKey || null },
+          // idempotencyKey omitted entirely (not set to null) when absent — see the model's own
+          // comment on why that's what makes the sparse unique index actually behave as sparse.
+          data: { invoice: invoiceId, cashierShift: cashierShift || null, tenders, totalAmount, ...(idempotencyKey ? { idempotencyKey } : {}) },
           session,
         });
 

@@ -124,6 +124,17 @@ const invoiceSchema = mongoose.Schema(
           min: 1,
           max: 1000000,
         },
+        // ADR-001 Phase 2: line-level refund tracking — `quantity` above is always exactly 1 (its
+        // own schema max), so this is effectively "has this specific invoice line already been
+        // refunded" (0 or 1), not a fractional-quantity counter. Prevents the same invoice line
+        // being refunded twice across multiple SalesReturn requests. Written only by
+        // SalesReturnService (Step A), never client-settable.
+        refundedQuantity: {
+          type: Number,
+          default: 0,
+          min: 0,
+          max: 1,
+        },
       },
     ],
 

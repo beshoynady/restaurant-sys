@@ -58,6 +58,11 @@ const journalLineSchema = new Schema(
         // ADR-001-SALES-PAYMENT-ARCHITECTURE.md Phase 1 — additive, same convention as every other
         // entry in this enum: the Sales/AR counterpart to PURCHASE_PAYMENT above.
         "SALES_PAYMENT_RECEIPT",
+        // ADR-001-SALES-PAYMENT-ARCHITECTURE.md Phase 2 — additive. SALES_RETURN (above) already
+        // existed, reserved, unused; this is the Sales/AR counterpart to PURCHASE_REFUND: the cash-
+        // settlement leg of a refund (Debit AR, Credit Cash/Card), distinct from SALES_RETURN's own
+        // revenue/tax/AR reversal leg.
+        "SALES_REFUND",
       ],
       default: null,
     },
