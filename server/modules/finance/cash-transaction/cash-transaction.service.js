@@ -10,7 +10,7 @@ const cashTransactionService = new AdvancedService(CashTransactionModel, {
   // was a silently-ignored typo (see account-balance.service.js); disabled
   // explicitly here.
   enableSoftDelete: false,
-  defaultPopulate: ["brand","branch","cashRegister","bankAccount","paymentMethod","paymentChannel","relatedTransaction","orderId","invoiceId","supplierTransactionId","dailyExpenseId","createdBy"],
+  defaultPopulate: ["brand","branch","cashRegister","bankAccount","paymentMethod","paymentProvider","relatedTransaction","orderId","invoiceId","supplierTransactionId","dailyExpenseId","createdBy"],
   searchableFields: [], // specify searchable fields if needed
   defaultSort: { createdAt: -1 },
 });

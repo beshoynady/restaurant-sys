@@ -95,14 +95,18 @@ const PaymentMethodSchema = new mongoose.Schema(
       },
     },
 
-    // Type of the referenced model
+    // Enterprise Payment Platform V1: "PaymentChannel" retired — it was an unmounted, zero-data
+    // model conflating two unrelated ideas (a technical settlement rail AND its accounting
+    // mapping) that the new PaymentProvider aggregate now owns properly (capabilities,
+    // credentials, fee/clearing accounts). A cash-tender method still points at a CashRegister;
+    // every non-cash method now points at a PaymentProvider instead.
     type: {
       type: String,
-      enum: ["CashRegister", "PaymentChannel"],
+      enum: ["CashRegister", "PaymentProvider"],
       required: true,
     },
 
-    /// Dynamic reference to either CashRegister or PaymentChannel
+    /// Dynamic reference to either CashRegister (cash tenders) or PaymentProvider (everything else)
     reference: {
       type: ObjectId,
       refPath: "type",

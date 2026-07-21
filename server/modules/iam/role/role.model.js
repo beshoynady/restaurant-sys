@@ -104,6 +104,15 @@ export const RESOURCE_ENUM = [
   "CashTransfers",
   "BankAccounts",
   "PaymentMethods",
+  // Enterprise Payment Platform V1 — additive, per this file's standing RESOURCE_ENUM convention.
+  // Credentials get their own resource (not folded into PaymentProviders) because they need a
+  // stricter access ceiling in practice — a role that can manage which providers exist should not
+  // automatically be trusted to touch live merchant secrets.
+  "PaymentProviders",
+  "PaymentProviderCredentials",
+  "PaymentProviderMappings",
+  "PaymentGatewayTransactions",
+  "PaymentWebhookEvents",
 
   // ================= EXPENSE =================
   // Enterprise Finance Platform: previously absent entirely — `expense/*`'s two routers were both

@@ -76,6 +76,17 @@ import executiveDashboardRouter from "../../modules/accounting/executive-dashboa
 // both `required: true` references to it).
 import paymentMethodRouter from "../../modules/payments/payment-method/payment-method.router.js";
 
+// Enterprise Payment Platform V1 — the Provider/Gateway/MerchantAccount layer PaymentMethod's
+// `type: "PaymentProvider"` reference resolves against. Replaces the never-mounted, broken
+// payment-provider stub and the never-mounted payment-channel model (both retired outright, zero
+// production data existed for either).
+import paymentGatewayRouter from "../../modules/payments/payment-gateway/payment-gateway.router.js";
+import paymentProviderRouter from "../../modules/payments/payment-provider/payment-provider.router.js";
+import merchantAccountRouter from "../../modules/payments/merchant-account/merchant-account.router.js";
+// Phase 2 — the optional many-to-many ranking layer over PaymentMethod's own fixed
+// reference (see payment-method-resolution.service.js for how the two combine).
+import paymentProviderMappingRouter from "../../modules/payments/payment-provider-mapping/payment-provider-mapping.router.js";
+
 // ========================
 // HR
 // ========================
@@ -303,6 +314,10 @@ router.use("/expense/reports", expenseReportsRouter);
 router.use("/assets/reports", assetReportsRouter);
 router.use("/accounting/executive-dashboard", executiveDashboardRouter);
 router.use("/finance/payment-methods", paymentMethodRouter);
+router.use("/payments/gateways", paymentGatewayRouter);
+router.use("/payments/providers", paymentProviderRouter);
+router.use("/payments/merchant-accounts", merchantAccountRouter);
+router.use("/payments/provider-mappings", paymentProviderMappingRouter);
 
 // HR
 router.use("/hr/employees", employeeRouter);

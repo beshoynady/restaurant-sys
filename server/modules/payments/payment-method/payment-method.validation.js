@@ -30,3 +30,13 @@ export const paramsPaymentMethodIdsSchema = paramsIdsSchema();
    Query Schema
 ========================= */
 export const queryPaymentMethodSchema = querySchema();
+
+/* =========================
+   Resolve Schema — Enterprise Payment Platform V1 Phase 2
+========================= */
+export const resolvePaymentMethodQuerySchema = Joi.object({
+  channel: Joi.string()
+    .valid("POS", "SELF_ORDERING", "QR", "WEBSITE", "MOBILE", "DELIVERY", "CALL_CENTER", "MARKETPLACE", "KIOSK", "ADMIN_DASHBOARD")
+    .optional(),
+  cashRegister: objectId().optional(),
+});

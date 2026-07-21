@@ -13,8 +13,7 @@ const PaymentSchema = new mongoose.Schema(
     invoice: { type: ObjectId, ref: "Invoice", required: true, index: true },
 
     // Nullable: a payment can be recorded outside an active cashier-shift context (e.g. a
-    // back-office reconciliation entry for a delayed card settlement) — matches Payment.model.ts
-    // (payments/payment-provider) not forcing a shift either.
+    // back-office reconciliation entry for a delayed card settlement).
     cashierShift: { type: ObjectId, ref: "CashierShift", default: null },
 
     // Split-tender support (the intent Invoice.paymentMethod[] always had but never enforced —

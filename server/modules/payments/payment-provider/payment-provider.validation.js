@@ -1,32 +1,15 @@
 import Joi from "joi";
-import { objectId, createSchema, updateSchema, paramsSchema, paramsIdsSchema , querySchema } from "../../../utils/joiFactory.js";
+import { createSchema, updateSchema, paramsSchema, paramsIdsSchema, querySchema } from "../../../utils/joiFactory.js";
 import PaymentProviderModel from "./payment-provider.model.js";
 
-/* =========================
-   Create Schema
-========================= */
 export const createPaymentProviderSchema = createSchema(PaymentProviderModel.schema);
-
-/* =========================
-   Update Schema
-========================= */
-export const updatePaymentProviderSchema = updateSchema(
-  PaymentProviderModel.schema,
-  ["updatedBy"]
-);
-
-/* =========================
-   Params Schema
-========================= */
+export const updatePaymentProviderSchema = updateSchema(PaymentProviderModel.schema, ["updatedBy", "brand", "gateway"]);
 export const paramsPaymentProviderSchema = paramsSchema();
-
-/* =========================
-   Params Ids Schema
-========================= */
 export const paramsPaymentProviderIdsSchema = paramsIdsSchema();
-
-
-/* =========================
-   Query Schema
-========================= */
 export const queryPaymentProviderSchema = querySchema();
+
+export const resolveCandidatesQuerySchema = Joi.object({
+  channel: Joi.string()
+    .valid("POS", "SELF_ORDERING", "QR", "WEBSITE", "MOBILE", "DELIVERY", "CALL_CENTER", "MARKETPLACE", "KIOSK", "ADMIN_DASHBOARD")
+    .optional(),
+});

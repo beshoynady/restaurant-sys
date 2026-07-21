@@ -9,7 +9,8 @@ import {
   updatePaymentMethodSchema,
   paramsPaymentMethodSchema,
   paramsPaymentMethodIdsSchema,
-  queryPaymentMethodSchema
+  queryPaymentMethodSchema,
+  resolvePaymentMethodQuerySchema
 } from "./payment-method.validation.js";
 
 // V6.0 Production Hardening: this router previously imported its controller from a nonexistent
@@ -31,6 +32,14 @@ router.route("/")
     authorize("PaymentMethods", "read"),
     checkModuleEnabled("financial"), validate(queryPaymentMethodSchema), paymentMethodController.getAll)
 ;
+
+// Enterprise Payment Platform V1 Phase 2 — "given this method + branch + channel + register,
+// what actually executes this payment right now" (a CashRegister, or a resolved Provider +
+// MerchantAccount pair) — the real answer a checkout flow needs before calling a gateway.
+router.get("/:id/resolve",
+  authenticateToken,
+  authorize("PaymentMethods", "read"),
+  checkModuleEnabled("financial"), validate(paramsPaymentMethodSchema, "params"), validate(resolvePaymentMethodQuerySchema, "query"), paymentMethodController.resolve);
 
 // GetOne, Update, hardDelete
 router.route("/:id")

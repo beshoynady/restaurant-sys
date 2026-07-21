@@ -110,12 +110,14 @@ const cashTransactionSchema = new mongoose.Schema(
     },
 
     /**
-     * Electronic route (optional)
-     * POS terminal, wallet, gateway
+     * Electronic route (optional) — which gateway/wallet/POS-terminal provider actually moved
+     * this money. Renamed from `paymentChannel`/`ref: "PaymentChannel"` (Enterprise Payment
+     * Platform V1): that model was never mounted and never had a real writer, so this is a
+     * mechanical rename, not a data migration — nothing has ever populated it.
      */
-    paymentChannel: {
+    paymentProvider: {
       type: ObjectId,
-      ref: "PaymentChannel",
+      ref: "PaymentProvider",
       default: null,
     },
 

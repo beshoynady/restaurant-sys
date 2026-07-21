@@ -58,7 +58,7 @@ const employeeFinancialSchema = new mongoose.Schema(
     disbursement: {
       // Deliberately NOT a ref to `payments/payment-method` — that model
       // represents sales/POS payment channels (Cash/Card/OnlineGateway tied
-      // to a CashRegister or PaymentChannel), a different concept from how
+      // to a CashRegister or PaymentProvider), a different concept from how
       // payroll is disbursed to an employee. See module doc §13.
       method: {
         type: String,
